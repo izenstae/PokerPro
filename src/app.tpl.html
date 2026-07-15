@@ -1,0 +1,1311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layer 1 &middot; Equity Drill</title>
+<style>
+:root{
+  --ink:#141A24; --felt:#1C2431; --raise:#222C3B; --line:#2E3849;
+  --bone:#E9E5DB; --dim:#7E8AA0; --faint:#4E5A6E;
+  --green:#34A96F; --red:#D14B41; --gold:#D4A03C; --blue:#5B8CC4;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--ink); color:var(--bone); font-family:var(--mono);
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  display:flex; justify-content:center; padding:20px 16px 60px;
+}
+.wrap{width:100%; max-width:760px}
+
+/* ---- masthead ---- */
+.mast{display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px}
+.mark{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--dim)}
+.mark b{color:var(--bone); font-weight:600}
+.tape{display:flex; gap:18px; font-size:11px; letter-spacing:.08em; color:var(--dim); font-variant-numeric:tabular-nums}
+.tape span b{color:var(--bone); font-weight:600}
+
+/* ---- mode chips ---- */
+.modes{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px}
+.chip{
+  font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  background:transparent; color:var(--faint); border:1px solid var(--line);
+  border-radius:3px; padding:6px 10px; cursor:pointer; transition:.12s;
+}
+.chip:hover{color:var(--dim); border-color:var(--dim)}
+.chip[aria-pressed="true"]{color:var(--ink); background:var(--bone); border-color:var(--bone)}
+.chip:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+
+/* ---- table ---- */
+.table{background:var(--felt); border:1px solid var(--line); border-radius:5px; overflow:hidden}
+.head{display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--line)}
+.eyebrow{font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold)}
+.clock{font-size:12px; color:var(--dim); font-variant-numeric:tabular-nums}
+.clock b{color:var(--bone)}
+.decay{height:2px; background:var(--line)}
+.decay i{display:block; height:100%; width:0%; background:var(--gold); transition:background .2s}
+.decay i.over{background:var(--red)}
+
+.body{padding:22px 16px 18px}
+
+/* ---- facts ---- */
+.facts{display:flex; flex-wrap:wrap; gap:0; border:1px solid var(--line); border-radius:4px; margin-bottom:18px}
+.fact{flex:1 1 120px; padding:10px 14px; border-right:1px solid var(--line)}
+.fact:last-child{border-right:0}
+.fact dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
+.fact dd{font-size:17px; font-variant-numeric:tabular-nums}
+
+/* ---- cards ---- */
+.seats{display:flex; flex-wrap:wrap; gap:22px; align-items:flex-end; margin-bottom:18px}
+.seat dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:6px}
+.hand{display:flex; gap:5px}
+.card{
+  width:38px; height:52px; background:var(--bone); color:#111; border-radius:4px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:600; line-height:1;
+}
+.card .r{font-size:17px}
+.card .s{font-size:13px; margin-top:2px}
+.card.red{color:var(--red)}
+.card.dim{background:var(--raise); color:var(--faint); border:1px dashed var(--line)}
+
+/* ---- ask ---- */
+.ask{font-family:var(--sans); font-size:17px; line-height:1.4; margin-bottom:16px; max-width:52ch}
+.row{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap}
+.entry{display:flex; align-items:center; background:var(--ink); border:1px solid var(--line); border-radius:4px; padding:0 12px; flex:0 1 190px}
+.entry:focus-within{border-color:var(--gold)}
+.entry input{
+  background:none; border:0; color:var(--bone); font-family:var(--mono);
+  font-size:26px; width:100%; padding:8px 0; outline:none; font-variant-numeric:tabular-nums;
+}
+.entry .u{color:var(--dim); font-size:20px; padding-left:4px}
+.entry .pre{color:var(--dim); font-size:20px; padding-right:2px}
+button.act{
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+  background:var(--bone); color:var(--ink); border:0; border-radius:4px; padding:0 20px; cursor:pointer;
+}
+button.act:hover{background:#fff}
+button.act.ghost{background:transparent; color:var(--dim); border:1px solid var(--line)}
+button.act.ghost:hover{color:var(--bone); border-color:var(--bone)}
+button.act.call{background:var(--green); color:#08130D; padding:14px 28px; font-size:14px}
+button.act.fold{background:var(--red); color:#150605; padding:14px 28px; font-size:14px}
+button:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+.hint{font-size:11px; color:var(--faint); margin-top:10px; letter-spacing:.04em}
+
+/* ---- verdict ---- */
+.reveal{border-top:1px solid var(--line); padding:16px; background:var(--raise)}
+.verdict{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:14px}
+.badge{font-size:11px; letter-spacing:.16em; text-transform:uppercase; padding:3px 9px; border-radius:3px; font-weight:600}
+.badge.ok{background:var(--green); color:#08130D}
+.badge.no{background:var(--red); color:#150605}
+.said{font-size:13px; color:var(--dim); font-variant-numeric:tabular-nums}
+.said b{color:var(--bone)}
+.pace{font-size:11px; letter-spacing:.1em; text-transform:uppercase; margin-left:auto}
+.pace.fast{color:var(--gold)} .pace.slow{color:var(--faint)}
+
+/* ---- signature: the equity bar ---- */
+.gauge{margin:4px 0 16px}
+.track{position:relative; height:26px; background:var(--ink); border:1px solid var(--line); border-radius:3px; overflow:hidden}
+.fill{position:absolute; inset:0 auto 0 0; width:0; background:var(--green); transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.fill.thr{background:var(--gold)}
+.fill.miss{background:var(--red)}
+.tick{position:absolute; top:-1px; bottom:-1px; width:2px; background:var(--bone); box-shadow:0 0 0 1px var(--ink)}
+.scale{display:flex; justify-content:space-between; font-size:10px; color:var(--faint); padding-top:4px; letter-spacing:.1em}
+.keys{display:flex; gap:16px; font-size:11px; color:var(--dim); padding-top:6px; flex-wrap:wrap}
+.keys i{display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; vertical-align:baseline}
+
+/* ---- math ---- */
+.math{border-left:2px solid var(--line); padding-left:12px; display:flex; flex-direction:column; gap:5px}
+.math p{font-size:12.5px; color:var(--dim); font-variant-numeric:tabular-nums}
+.math p:first-child{color:var(--bone)}
+
+/* ---- footer ---- */
+.split{margin-top:18px; display:flex; gap:14px; flex-wrap:wrap; justify-content:space-between; align-items:flex-start}
+.bymode{display:flex; flex-wrap:wrap; gap:14px; font-size:11px; color:var(--faint); font-variant-numeric:tabular-nums; letter-spacing:.06em}
+.bymode span b{color:var(--dim); font-weight:400}
+details{margin-top:22px; border-top:1px solid var(--line); padding-top:14px}
+summary{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); cursor:pointer; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary:before{content:"+ "; color:var(--gold)}
+details[open] summary:before{content:"- "}
+.sheet{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; margin-top:16px}
+.sheet h4{font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:7px; font-weight:600}
+.sheet p{font-size:12px; color:var(--dim); margin-bottom:3px; font-variant-numeric:tabular-nums}
+.sheet p b{color:var(--bone); font-weight:400}
+
+@media (max-width:520px){
+  .fact{flex:1 1 100%; border-right:0; border-bottom:1px solid var(--line)}
+  .fact:last-child{border-bottom:0}
+  .entry{flex:1 1 100%}
+  button.act{padding:12px 20px; flex:1}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+
+/* ---- view tabs ---- */
+.tabs{display:flex; gap:4px; margin-bottom:16px; border-bottom:1px solid var(--line)}
+.tab{
+  font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+  background:none; border:0; border-bottom:2px solid transparent; color:var(--faint);
+  padding:8px 14px; cursor:pointer; transition:.12s; margin-bottom:-1px;
+}
+.tab:hover{color:var(--dim)}
+.tab[aria-selected="true"]{color:var(--bone); border-bottom-color:var(--gold)}
+.tab:focus-visible{outline:2px solid var(--gold); outline-offset:-2px}
+.tab i{font-style:normal; color:var(--green); margin-left:6px}
+
+/* ---- course index ---- */
+.course{border:1px solid var(--line); border-radius:5px; overflow:hidden; background:var(--felt)}
+.lrow{
+  display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+  background:none; border:0; border-bottom:1px solid var(--line); color:inherit;
+  font-family:var(--mono); padding:14px 16px; cursor:pointer; transition:.12s;
+}
+.lrow:last-child{border-bottom:0}
+.lrow:hover{background:var(--raise)}
+.lrow:focus-visible{outline:2px solid var(--gold); outline-offset:-2px}
+.lnum{
+  flex:0 0 26px; height:26px; border:1px solid var(--line); border-radius:50%;
+  display:grid; place-items:center; font-size:11px; color:var(--dim);
+}
+.lrow.done .lnum{background:var(--green); border-color:var(--green); color:var(--ink)}
+.lmain{flex:1; min-width:0}
+.lmain b{display:block; font-size:14px; font-weight:600; color:var(--bone); margin-bottom:2px}
+.lmain span{display:block; font-size:11px; color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.lgo{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint)}
+.lrow.done .lgo{color:var(--green)}
+.courseTop{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px}
+.courseTop h2{font-size:13px; letter-spacing:.16em; text-transform:uppercase; font-weight:600}
+.courseTop p{font-size:11px; color:var(--dim)}
+
+/* ---- reader ---- */
+.reader{border:1px solid var(--line); border-radius:5px; background:var(--felt); overflow:hidden}
+.rhead{padding:18px 20px; border-bottom:1px solid var(--line)}
+.rhead .eyebrow{margin-bottom:6px}
+.rhead h1{font-size:22px; font-weight:600; letter-spacing:-.01em; margin-bottom:6px; font-family:var(--sans)}
+.rhead p{font-size:12px; color:var(--dim)}
+.rbody{padding:20px}
+.rbody > *{margin-bottom:16px}
+.rbody > *:last-child{margin-bottom:0}
+.prose{font-family:var(--sans); font-size:15px; line-height:1.62; color:#CFD6E2}
+.rule{
+  border-left:2px solid var(--gold); background:var(--raise); padding:12px 16px; border-radius:0 4px 4px 0;
+}
+.rule pre{font-family:var(--mono); font-size:14px; color:var(--bone); white-space:pre-wrap; line-height:1.7}
+.rule small{display:block; margin-top:8px; font-family:var(--sans); font-size:12.5px; color:var(--dim); line-height:1.55}
+.warn{
+  border-left:2px solid var(--red); background:rgba(209,75,65,.07); padding:12px 16px; border-radius:0 4px 4px 0;
+  font-family:var(--sans); font-size:13.5px; line-height:1.55; color:#D9C4C2;
+}
+.keybox{
+  border:1px dashed var(--gold); border-radius:4px; padding:12px 16px; background:rgba(212,160,60,.05);
+}
+.keybox b{display:block; font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:6px}
+.keybox span{font-family:var(--sans); font-size:14px; line-height:1.55; color:var(--bone)}
+table.tbl{width:100%; border-collapse:collapse; font-size:13px}
+table.tbl th{
+  text-align:left; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim);
+  font-weight:400; padding:0 10px 7px; border-bottom:1px solid var(--line);
+}
+table.tbl td{padding:7px 10px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums}
+table.tbl tr:last-child td{border-bottom:0}
+table.tbl td:last-child{text-align:right; color:var(--bone); font-weight:600}
+table.tbl td:first-child{color:var(--dim)}
+.cap{font-family:var(--sans); font-size:12.5px; color:var(--dim); line-height:1.55; margin-top:8px}
+.ex{border:1px solid var(--line); border-radius:4px; overflow:hidden}
+.ex > h4{
+  font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--blue); font-weight:400;
+  padding:9px 14px; background:var(--raise); border-bottom:1px solid var(--line);
+}
+.exb{padding:14px}
+.exb .facts{margin-bottom:14px}
+.steps{list-style:none; counter-reset:s; margin-bottom:14px}
+.steps li{
+  counter-increment:s; position:relative; padding:4px 0 4px 26px; font-size:13px;
+  font-variant-numeric:tabular-nums; color:#C6CEDC;
+}
+.steps li:before{
+  content:counter(s); position:absolute; left:0; top:4px; width:16px; height:16px; border-radius:50%;
+  background:var(--line); color:var(--dim); font-size:9px; display:grid; place-items:center;
+}
+.punch{
+  font-family:var(--sans); font-size:13.5px; line-height:1.6; color:var(--bone);
+  border-top:1px solid var(--line); padding-top:12px; margin-top:12px;
+}
+.rfoot{padding:16px 20px; border-top:1px solid var(--line); background:var(--raise); display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.rfoot .grow{flex:1; font-size:11px; color:var(--dim)}
+.act.ghost{background:none; color:var(--dim); border:1px solid var(--line)}
+.act.ghost:hover{color:var(--bone); border-color:var(--dim)}
+
+/* ---- checkpoint ---- */
+.cpbar{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  border:1px solid var(--gold); border-radius:4px; padding:10px 14px; margin-bottom:14px;
+  background:rgba(212,160,60,.06);
+}
+.cpbar .lab{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold)}
+.cpbar .grow{flex:1; font-size:12px; color:var(--dim)}
+.pips{display:flex; gap:5px}
+.pip{width:9px; height:9px; border-radius:50%; border:1px solid var(--line)}
+.pip.hit{background:var(--green); border-color:var(--green)}
+.pip.miss{background:var(--red); border-color:var(--red)}
+.cpdone{border:1px solid var(--line); border-radius:5px; background:var(--felt); padding:26px 20px; text-align:center}
+.cpdone h3{font-size:20px; font-family:var(--sans); font-weight:600; margin-bottom:8px}
+.cpdone h3.pass{color:var(--green)}
+.cpdone h3.fail{color:var(--gold)}
+.cpdone p{font-size:13px; color:var(--dim); margin-bottom:18px; font-family:var(--sans); line-height:1.55}
+.cpdone .row{justify-content:center}
+@media(max-width:560px){
+  .rhead h1{font-size:19px}
+  .prose{font-size:14px}
+  .lmain span{white-space:normal}
+}
+
+/* ---- layered index ---- */
+.layer{border-bottom:1px solid var(--line)}
+.layer:last-child{border-bottom:0}
+.lhead{
+  display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+  background:none; border:0; color:inherit; font-family:var(--mono); padding:14px 16px; cursor:pointer;
+}
+.lhead:hover{background:var(--raise)}
+.lhead:focus-visible{outline:2px solid var(--gold); outline-offset:-2px}
+.lbadge{
+  flex:0 0 24px; height:24px; border-radius:3px; background:var(--line); color:var(--dim);
+  display:grid; place-items:center; font-size:11px; font-weight:600;
+}
+.lhead.done .lbadge{background:var(--green); color:var(--ink)}
+.lstat{font-size:11px; color:var(--dim); font-variant-numeric:tabular-nums}
+.lcar{font-size:14px; color:var(--faint); width:12px; text-align:center}
+.llist{background:var(--ink); border-top:1px solid var(--line)}
+.llist .lrow{padding-left:32px}
+.llist .lnum{font-size:9px}
+
+/* ---- reading ---- */
+.rgroup{
+  font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold);
+  padding:14px 16px 8px; border-bottom:1px solid var(--line); background:var(--raise);
+}
+.ritem{padding:12px 16px; border-bottom:1px solid var(--line)}
+.ritem:last-child{border-bottom:0}
+.ritem b{display:block; font-size:13px; margin-bottom:3px}
+.ritem span{display:block; font-family:var(--sans); font-size:12.5px; color:var(--dim); line-height:1.5}
+
+/* ---- drill chips by layer ---- */
+.modeRow{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:6px}
+.layerTag{
+  font-family:var(--mono); font-size:10px; letter-spacing:.1em; width:30px; flex:0 0 30px;
+  background:transparent; color:var(--faint); border:1px solid var(--line);
+  border-radius:3px; padding:6px 0; cursor:pointer;
+}
+.layerTag[aria-pressed="true"]{color:var(--gold); border-color:var(--gold)}
+.layerTag:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+
+/* ---- the CFR lab ---- */
+.lab{border:1px solid var(--gold); border-radius:4px; padding:14px; background:rgba(212,160,60,.04)}
+.labTop{display:flex; flex-wrap:wrap; gap:0; border:1px solid var(--line); border-radius:4px; margin-bottom:12px; background:var(--felt)}
+.labStat{flex:1 1 110px; padding:10px 14px; border-right:1px solid var(--line)}
+.labStat:last-child{border-right:0}
+.labStat dt{font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
+.labStat dd{font-size:18px; font-variant-numeric:tabular-nums; color:var(--bone)}
+.labStat small{display:block; font-size:10px; color:var(--faint); margin-top:2px}
+.spark{margin-bottom:12px}
+.spark svg{width:100%; height:60px; display:block; background:var(--felt); border:1px solid var(--line); border-radius:3px}
+.sparkAx{display:flex; justify-content:space-between; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); padding-top:4px}
+.labBtns{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+.labBtns .act{padding:9px 14px; font-size:11px}
+table.labTbl{background:var(--felt); border:1px solid var(--line); border-radius:4px}
+table.labTbl th{padding:8px 10px}
+table.labTbl td{text-align:right; color:var(--bone); font-weight:400}
+table.labTbl td:first-child{text-align:left; color:var(--gold); font-weight:600}
+.labNote{font-family:var(--sans); font-size:12.5px; color:var(--dim); line-height:1.55; margin-top:10px}
+.labNote b{color:var(--bone)}
+@media(max-width:560px){
+  .lhead{gap:10px; padding:12px}
+  .llist .lrow{padding-left:20px}
+  .labStat{flex:1 1 90px}
+}
+
+.labCap{font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim); margin:14px 0 6px}
+table.labTbl tr.pair td{color:var(--gold)}
+table.labTbl td i{font-style:normal; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); opacity:.7}
+
+.savetag{font-size:11px; color:var(--dim)}
+.savetag i{font-style:normal; color:var(--faint)}
+.savetag.on i{color:var(--green)}
+.savetag.error i{color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="mast">
+    <div class="mark"><b>Layer 1</b> &nbsp;equity &amp; pot odds</div>
+    <div class="tape" id="tape"></div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tabLearn" role="tab" type="button">Learn</button>
+    <button class="tab" id="tabDrill" role="tab" type="button">Drill</button>
+    <button class="tab" id="tabRead" role="tab" type="button">Reading</button>
+  </div>
+
+  <div id="learnView">
+    <div class="courseTop">
+      <h2>The course</h2>
+      <p id="savetag" class="savetag"></p>
+    </div>
+    <div class="course" id="toc"></div>
+  </div>
+
+  <div id="reader" class="reader" hidden></div>
+
+  <div id="readingView" hidden>
+    <div class="courseTop"><h2>The reading list</h2><p>in order</p></div>
+    <div class="course" id="reading"></div>
+  </div>
+
+  <div id="drillView">
+  <div class="cpbar" id="cpbar" hidden></div>
+  <div class="modes" id="modes"></div>
+
+  <div class="table">
+    <div class="head">
+      <div class="eyebrow" id="eyebrow">ready</div>
+      <div class="clock" id="clock"><b>0.0</b>s</div>
+    </div>
+    <div class="decay"><i id="decay"></i></div>
+
+    <div class="body">
+      <div id="stage"></div>
+      <div class="ask" id="ask"></div>
+      <div class="row" id="controls"></div>
+      <div class="hint" id="hint"></div>
+    </div>
+
+    <div class="reveal" id="reveal" hidden></div>
+  </div>
+
+  <div class="split">
+    <div class="bymode" id="bymode"></div>
+    <button class="chip" id="reset" type="button">Reset stats</button>
+    <button class="chip" id="wipe" type="button">Clear all progress</button>
+  </div>
+  </div>
+
+  <div id="cpdone" class="cpdone" hidden></div>
+
+  <details>
+    <summary>Reference card</summary>
+    <div class="sheet">
+      <div>
+        <h4>Price of a call</h4>
+        <p><b>equity needed = call / final pot</b></p>
+        <p>Final pot includes your own call.</p>
+        <p>Half pot &rarr; 20% &middot; two thirds &rarr; 25%</p>
+        <p>Pot &rarr; 33% &middot; twice pot &rarr; 40%</p>
+      </div>
+      <div>
+        <h4>Outs to equity</h4>
+        <p><b>x4</b> with two cards to come, <b>x2</b> with one</p>
+        <p>Rule of 4 overshoots above 8 outs. Subtract the amount over 8.</p>
+        <p>Flush draw <b>9</b> &middot; open-ender <b>8</b></p>
+        <p>Gutshot <b>4</b> &middot; overcards <b>6</b></p>
+        <p>Set to boat <b>7</b> &middot; flush + open-ender <b>15</b></p>
+      </div>
+      <div>
+        <h4>Fold equity</h4>
+        <p><b>folds needed = bet / (pot + bet)</b></p>
+        <p>A bluff needs the same percentage as the price it lays.</p>
+        <p>Half pot &rarr; 33% &middot; pot &rarr; 50%</p>
+        <p>Equity when called lowers the bar.</p>
+      </div>
+      <div>
+        <h4>Implied odds</h4>
+        <p><b>extra = (1 - e) &middot; call / e - pot</b></p>
+        <p>What you must extract later to justify a call that is priced wrong now.</p>
+        <p>Only count what villain will actually pay, not their stack.</p>
+      </div>
+      <div>
+        <h4>Preflop anchors</h4>
+        <p>Pair vs pair <b>80/20</b></p>
+        <p>Pair vs two unders <b>80/20</b></p>
+        <p>Pair vs one over <b>70/30</b></p>
+        <p>Pair vs two overs <b>55/45</b></p>
+        <p>Dominated <b>75/25</b></p>
+        <p>Two overs vs two unders <b>63/37</b></p>
+      </div>
+      <div>
+        <h4>Reading the bar</h4>
+        <p>Green is equity you hold.</p>
+        <p>Gold is a threshold you must clear.</p>
+        <p>The white tick is the break-even line. Past it, call. Short of it, fold.</p>
+      </div>
+    </div>
+  </details>
+</div>
+
+<script>
+/*__ENGINE__*/
+/*__LESSONS__*/
+
+/* ============================================================
+   UI
+   ============================================================ */
+var MODE_META = {
+  ladder:"Hand ladder", read:"Read your hand", who:"Who wins",
+  potodds:"Pot odds", outs:"Outs to equity", bluff:"Fold equity",
+  implied:"Implied odds", pfeq:"Preflop equity", allin:"Call or fold",
+  combos:"Combos", blocker:"Blockers", beat:"What beats you",
+  indiff:"Indifference", alpha:"Alpha", mdf:"MDF", ratio:"Bluff ratio",
+  tstat:"t-stat", sample:"Sample size", ror:"Risk of ruin", kelly:"Kelly",
+  bayes:"Bayes and blockers", update:"Updating reads", deviate:"Deviate"
+};
+var MODE_LAYER = {
+  ladder:0, read:0, who:0,
+  potodds:1, outs:1, bluff:1, implied:1, pfeq:1, allin:1,
+  combos:2, blocker:2, beat:2,
+  indiff:3, alpha:3, mdf:3, ratio:3,
+  tstat:4, sample:4, ror:4, kelly:4,
+  bayes:5, update:5, deviate:5
+};
+var ORDER = Object.keys(MODE_LAYER);
+var THRESHOLD_MODES = { potodds:1, bluff:1, alpha:1, mdf:1, ratio:1, indiff:1 };
+var SUIT_GLYPH = { c:"\u2663", d:"\u2666", h:"\u2665", s:"\u2660" };
+
+var active = {};
+ORDER.forEach(function(m){ active[m] = MODE_LAYER[m] <= 1 ? 1 : 0; });
+var stats = { n:0, correct:0, clean:0, time:0, streak:0, best:0, mode:{} };
+ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
+
+var q = null, t0 = 0, raf = 0, answered = false;
+
+var $ = function(id){ return document.getElementById(id); };
+function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; }
+
+/* ---- mode chips ---- */
+function drawModes(){
+  var box = $("modes"); box.innerHTML = "";
+  [0,1,2,3,4,5].forEach(function(L){
+    var mine = ORDER.filter(function(m){ return MODE_LAYER[m] === L; });
+    var row = el("div","modeRow");
+    var tag = el("button","layerTag","L" + L);
+    tag.type = "button";
+    tag.title = "Toggle the whole layer";
+    var allOn = mine.every(function(m){ return active[m]; });
+    tag.setAttribute("aria-pressed", allOn ? "true" : "false");
+    tag.onclick = function(){
+      mine.forEach(function(m){ active[m] = allOn ? 0 : 1; });
+      if(!Object.keys(active).some(function(k){ return active[k]; })) active[mine[0]] = 1;
+      drawModes();
+      if(!active[q && q.mode] || answered) next();
+    };
+    row.appendChild(tag);
+    mine.forEach(function(m){
+      var b = el("button","chip",MODE_META[m]);
+      b.type = "button";
+      b.setAttribute("aria-pressed", active[m] ? "true" : "false");
+      b.onclick = function(){
+        var on = ORDER.filter(function(k){ return active[k]; });
+        if(active[m] && on.length === 1) return;      /* keep at least one drill live */
+        active[m] = !active[m];
+        drawModes();
+        if(!active[q && q.mode] || answered) next();
+      };
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+  });
+}
+
+/* ---- clock ---- */
+function tick(){
+  var s = (performance.now() - t0) / 1000;
+  $("clock").innerHTML = "<b>" + s.toFixed(1) + "</b>s &nbsp;<span style='color:var(--faint)'>/ " + q.target + "s</span>";
+  var d = $("decay");
+  d.style.width = Math.min(100, 100 * s / q.target) + "%";
+  d.classList.toggle("over", s > q.target);
+  raf = requestAnimationFrame(tick);
+}
+
+/* ---- render a question ---- */
+function next(){
+  answered = false;
+  var pool = (cp && cp.mode !== "mixed") ? [cp.mode] : ORDER.filter(function(m){ return active[m]; });
+  var mode = pool[(Math.random() * pool.length) | 0];
+  q = GENS[mode]();
+  q.mode = mode;
+
+  $("eyebrow").textContent = MODE_META[mode];
+  $("reveal").hidden = true;
+  $("decay").style.width = "0%";
+  $("decay").classList.remove("over");
+
+  /* stage: cards and/or facts */
+  var stage = $("stage"); stage.innerHTML = "";
+  if(q.cards) stage.appendChild(cardStage(q.cards));
+  if(q.lines && q.lines.length){
+    var facts = el("dl","facts");
+    q.lines.forEach(function(p){
+      var f = el("div","fact");
+      f.appendChild(el("dt", null, p[0]));
+      f.appendChild(el("dd", null, p[1]));
+      facts.appendChild(f);
+    });
+    stage.appendChild(facts);
+  }
+
+  $("ask").textContent = q.question;
+  buildControls();
+
+  t0 = performance.now();
+  cancelAnimationFrame(raf); tick();
+}
+
+function seat(label, cards, blanks){
+  var d = el("div","seat");
+  d.appendChild(el("dt", null, label));
+  var h = el("div","hand");
+  cards.forEach(function(c){
+    var txt = cardText(c), suit = txt[1];
+    var k = el("div","card" + (suit === "d" || suit === "h" ? " red" : ""));
+    k.appendChild(el("span","r", txt[0]));
+    k.appendChild(el("span","s", SUIT_GLYPH[suit]));
+    h.appendChild(k);
+  });
+  for(var i = 0; i < (blanks || 0); i++) h.appendChild(el("div","card dim"));
+  d.appendChild(h);
+  return d;
+}
+
+function buildControls(){
+  var c = $("controls"); c.innerHTML = "";
+  if(q.kind === "choice"){
+    var opts = q.options || ["CALL","FOLD"];
+    opts.forEach(function(v, i){
+      var b = el("button","act " + v.toLowerCase().replace(/[^a-z]/g,""), v);
+      b.type = "button";
+      b.onclick = function(){ submit(v); };
+      c.appendChild(b);
+    });
+    $("hint").textContent = opts.length === 2 && opts[0] === "CALL"
+      ? "Press C to call, F to fold."
+      : "Pick one. Keys 1 to " + opts.length + " work too.";
+  } else {
+    var box = el("div","entry");
+    if(q.unit === "$") box.appendChild(el("span","pre","$"));
+    var inp = el("input"); inp.id = "inp"; inp.type = "text"; inp.inputMode = "decimal";
+    inp.autocomplete = "off"; inp.placeholder = "0";
+    box.appendChild(inp);
+    if(q.unit === "%") box.appendChild(el("span","u","%"));
+    c.appendChild(box);
+    var go = el("button","act","Lock it in"); go.type = "button";
+    go.onclick = function(){ submit(inp.value); };
+    c.appendChild(go);
+    var skip = el("button","act ghost","Skip"); skip.type = "button";
+    skip.onclick = function(){ next(); };
+    c.appendChild(skip);
+    inp.focus();
+    $("hint").textContent = "Estimate. Do not compute to the decimal. Graded within " +
+      (q.unit === "$" ? "$" + Math.round(q.tol) : "\u00b1" + q.tol + (q.tol === 1 ? " point" : " points")) + ".";
+  }
+}
+
+/* ---- grading ---- */
+function submit(raw){
+  if(answered || !q) return;
+  var secs = (performance.now() - t0) / 1000;
+  var ok, said;
+  if(q.kind === "choice"){
+    said = raw;
+    ok = raw === q.answer;
+  } else {
+    var v = parseFloat(String(raw).replace(/[^0-9.\-]/g, ""));
+    if(!isFinite(v)) return;
+    said = v;
+    ok = Math.abs(v - q.answer) <= q.tol;
+  }
+  answered = true;
+  cancelAnimationFrame(raf);
+
+  var clean = ok && secs <= q.target;
+  stats.n++; stats.time += secs;
+  stats.mode[q.mode].n++;
+  if(ok){ stats.correct++; stats.streak++; stats.mode[q.mode].correct++; if(stats.streak > stats.best) stats.best = stats.streak; }
+  else stats.streak = 0;
+  if(clean) stats.clean++;
+
+  drawReveal(ok, said, secs);
+  drawTape();
+  saveSoon();
+  if(cp){ cp.marks.push(ok); drawCp(); }
+}
+
+function fmtAns(){
+  if(q.kind === "choice") return q.answer;
+  return q.unit === "$" ? "$" + Math.round(q.answer).toLocaleString() : q.answer.toFixed(1) + "%";
+}
+function fmtSaid(s){
+  if(q.kind === "choice") return s;
+  return q.unit === "$" ? "$" + Math.round(s).toLocaleString() : (Math.round(s * 10) / 10) + "%";
+}
+
+/* ---- the bar, shared by drills and lessons ---- */
+function gauge(bar, isThr){
+  var g = el("div","gauge");
+  var track = el("div","track");
+  var fill = el("div","fill");
+  if(isThr) fill.classList.add("thr");
+  else if(bar.tick != null && bar.fill < bar.tick) fill.classList.add("miss");
+  track.appendChild(fill);
+  if(bar.tick != null){
+    var tk = el("div","tick");
+    tk.style.left = Math.max(0, Math.min(100, bar.tick)) + "%";
+    track.appendChild(tk);
+  }
+  g.appendChild(track);
+  var sc = el("div","scale");
+  sc.appendChild(el("span", null, "0%"));
+  sc.appendChild(el("span", null, "50%"));
+  sc.appendChild(el("span", null, "100%"));
+  g.appendChild(sc);
+  var keys = el("div","keys");
+  var col = isThr ? "gold" : (bar.tick != null && bar.fill < bar.tick ? "red" : "green");
+  keys.appendChild(el("span", null, "<i style='background:var(--" + col + ")'></i>" + bar.fillLabel));
+  if(bar.tickLabel) keys.appendChild(el("span", null, "<i style='background:var(--bone)'></i>" + bar.tickLabel));
+  g.appendChild(keys);
+  requestAnimationFrame(function(){ fill.style.width = Math.max(0, Math.min(100, bar.fill)) + "%"; });
+  return g;
+}
+
+/* ---- card stage, shared. accepts indices or text like "Ah" ---- */
+function cid(t){ return typeof t === "number" ? t : "23456789TJQKA".indexOf(t[0]) + 13 * "cdhs".indexOf(t[1]); }
+function cardStage(c){
+  var seats = el("div","seats");
+  if(c.hero) seats.appendChild(seat("You", c.hero.map(cid)));
+  if(c.villain) seats.appendChild(seat("Villain", c.villain.map(cid)));
+  if(c.board && c.board.length){
+    var b = c.board.map(cid);
+    seats.appendChild(seat(b.length === 3 ? "Flop" : "Flop and turn", b, 5 - b.length));
+  }
+  return seats;
+}
+
+function drawReveal(ok, said, secs){
+  var r = $("reveal"); r.innerHTML = ""; r.hidden = false;
+
+  var v = el("div","verdict");
+  v.appendChild(el("span","badge " + (ok ? "ok" : "no"), ok ? "Correct" : "Off"));
+  v.appendChild(el("span","said","Answer <b>" + fmtAns() + "</b> &nbsp;&middot;&nbsp; you said " + fmtSaid(said)));
+  var fast = secs <= q.target;
+  v.appendChild(el("span","pace " + (fast ? "fast" : "slow"), secs.toFixed(1) + "s " + (fast ? "in time" : "over " + q.target + "s")));
+  r.appendChild(v);
+
+  r.appendChild(gauge(q.bar, !!THRESHOLD_MODES[q.mode]));
+
+  var m = el("div","math");
+  q.math.forEach(function(line){ m.appendChild(el("p", null, line)); });
+  r.appendChild(m);
+
+  var last = cp && cp.marks.length >= cp.of;
+  var go = el("button","act", last ? "See the result" : "Next hand"); go.type = "button";
+  go.style.marginTop = "16px";
+  go.onclick = function(){ if(cp && cp.marks.length >= cp.of) endCp(); else next(); };
+  r.appendChild(go);
+  go.focus();
+  $("hint").textContent = last ? "Press Enter for your result." : "Press Enter for the next hand.";
+}
+
+/* ---- readouts ---- */
+function drawTape(){
+  var acc = stats.n ? Math.round(100 * stats.correct / stats.n) : 0;
+  var cl  = stats.n ? Math.round(100 * stats.clean / stats.n) : 0;
+  var avg = stats.n ? (stats.time / stats.n).toFixed(1) : "0.0";
+  $("tape").innerHTML =
+    "<span>hands <b>" + stats.n + "</b></span>" +
+    "<span>accuracy <b>" + acc + "%</b></span>" +
+    "<span>in time <b>" + cl + "%</b></span>" +
+    "<span>avg <b>" + avg + "s</b></span>" +
+    "<span>streak <b>" + stats.streak + "</b>/" + stats.best + "</span>";
+  $("bymode").innerHTML = ORDER.filter(function(m){ return stats.mode[m].n; }).map(function(m){
+    var s = stats.mode[m];
+    return "<span><b>" + MODE_META[m].toLowerCase() + "</b> " + Math.round(100 * s.correct / s.n) + "% of " + s.n + "</span>";
+  }).join("") || "<span>no hands yet</span>";
+}
+
+/* ---- keys ---- */
+document.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    e.preventDefault();
+    if(answered){ if(cp && cp.marks.length >= cp.of) endCp(); else next(); }
+    else if(q && q.kind === "number"){ var i = $("inp"); if(i) submit(i.value); }
+    return;
+  }
+  if(!answered && q && q.kind === "choice"){
+    var opts = q.options || ["CALL","FOLD"];
+    if(opts.indexOf("CALL") >= 0){
+      if(e.key === "c" || e.key === "C") submit("CALL");
+      if(e.key === "f" || e.key === "F") submit("FOLD");
+    }
+    var n = parseInt(e.key, 10);
+    if(n >= 1 && n <= opts.length) submit(opts[n - 1]);
+  }
+});
+
+$("reset").onclick = function(){
+  stats = { n:0, correct:0, clean:0, time:0, streak:0, best:0, mode:{} };
+  ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
+  drawTape(); saveSoon(); next();
+};
+$("wipe").onclick = function(){
+  var b = $("wipe");
+  if(b.dataset.armed){ wipeSaved(); b.textContent = "Cleared"; delete b.dataset.armed;
+    setTimeout(function(){ b.textContent = "Clear all progress"; }, 1500); return; }
+  b.dataset.armed = "1"; b.textContent = "Sure? Click again";
+  setTimeout(function(){ if(b.dataset.armed){ delete b.dataset.armed; b.textContent = "Clear all progress"; } }, 3000);
+};
+
+
+/* ============================================================
+   LEARN
+   ============================================================ */
+var view = "learn", openId = null, cp = null, openLayer = 0;
+var progress = {};
+
+function setView(v){
+  view = v;
+  $("tabLearn").setAttribute("aria-selected", v === "learn" ? "true" : "false");
+  $("tabDrill").setAttribute("aria-selected", v === "drill" ? "true" : "false");
+  $("tabRead").setAttribute("aria-selected", v === "reading" ? "true" : "false");
+  $("learnView").hidden = !(v === "learn" && !openId);
+  $("reader").hidden   = !(v === "learn" && !!openId);
+  $("drillView").hidden = v !== "drill";
+  $("readingView").hidden = v !== "reading";
+  $("cpdone").hidden = true;
+  if(v === "reading") drawReading();
+  if(v === "drill" && !q) next();
+}
+
+function nextLesson(L){
+  var i = LESSONS.indexOf(L);
+  return i >= 0 && i < LESSONS.length - 1 ? LESSONS[i + 1] : null;
+}
+function lessonById(id){ for(var i=0;i<LESSONS.length;i++) if(LESSONS[i].id === id) return LESSONS[i]; return null; }
+
+/* ============================================================
+   PERSISTENCE
+   Uses the artifact key-value store, not browser storage.
+   Everything that changes together lives under one key.
+   ============================================================ */
+var SAVE_KEY = "poker-course-v1";
+var saveState = "off";                 /* off | on | error */
+
+/* Storage adapter. This file runs in three places and each has a different
+   idea of what persistence means, so it feature detects rather than assumes:
+     1. inside a Claude artifact  -> the sandboxed key-value store
+     2. self hosted or on disk    -> ordinary browser storage
+     3. anywhere that blocks both -> this session only, and it says so
+   Every branch is probed and wrapped, so a refusal degrades instead of throwing. */
+var STORE = (function(){
+  try{
+    if(typeof window !== "undefined" && window.storage && window.storage.get){
+      return {
+        kind: "artifact",
+        get: function(k){ return window.storage.get(k, false).then(function(r){ return r ? r.value : null; }); },
+        set: function(k, v){ return window.storage.set(k, v, false); },
+        del: function(k){ return window.storage.delete(k, false); }
+      };
+    }
+  }catch(e){}
+  try{
+    var probe = "__probe" + Math.random();
+    window.localStorage.setItem(probe, "1");
+    window.localStorage.removeItem(probe);
+    return {
+      kind: "local",
+      get: function(k){ return Promise.resolve(window.localStorage.getItem(k)); },
+      set: function(k, v){ return Promise.resolve(window.localStorage.setItem(k, v)); },
+      del: function(k){ return Promise.resolve(window.localStorage.removeItem(k)); }
+    };
+  }catch(e){}
+  return {
+    kind: "none",
+    get: function(){ return Promise.resolve(null); },
+    set: function(){ return Promise.resolve(); },
+    del: function(){ return Promise.resolve(); }
+  };
+})();
+
+function canSave(){ return STORE.kind !== "none"; }
+
+async function loadSaved(){
+  if(!canSave()){ saveState = "off"; return; }
+  saveState = "on";
+  try{
+    var raw = await STORE.get(SAVE_KEY);
+    if(!raw) return;
+    var st = JSON.parse(raw);
+    if(st.progress) progress = st.progress;
+    if(st.stats && st.stats.mode){
+      stats = st.stats;
+      ORDER.forEach(function(m){ if(!stats.mode[m]) stats.mode[m] = { n:0, correct:0 }; });
+    }
+    if(typeof st.openLayer === "number") openLayer = st.openLayer;
+  }catch(e){
+    /* no key yet is the normal first run, not a failure */
+  }
+}
+
+var saveTimer = 0;
+function saveSoon(){
+  if(!canSave()) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async function(){
+    try{
+      await STORE.set(SAVE_KEY, JSON.stringify({
+        progress: progress, stats: stats, openLayer: openLayer
+      }));
+      saveState = "on";
+    }catch(e){ saveState = "error"; }
+    drawSaveTag();
+  }, 400);
+}
+
+async function wipeSaved(){
+  progress = {};
+  stats = { n:0, correct:0, clean:0, time:0, streak:0, best:0, mode:{} };
+  ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
+  if(canSave()){
+    try{ await STORE.del(SAVE_KEY); }catch(e){}
+  }
+  drawTOC(); drawTape(); drawSaveTag();
+}
+
+function drawSaveTag(){
+  var t = $("savetag");
+  if(!t) return;
+  var done = LESSONS.filter(function(x){ return progress[x.id]; }).length;
+  var total = LESSONS.filter(function(x){ return x.mode !== "none"; }).length;
+  var msg = saveState === "error" ? "save failed"
+          : saveState !== "on"     ? "not saved in this window"
+          : STORE.kind === "local" ? "saved to this browser"
+          :                          "progress saved";
+  t.className = "savetag " + saveState;
+  t.innerHTML = done + " of " + total + " passed &nbsp;&middot;&nbsp; <i>" + msg + "</i>";
+}
+
+/* ---- index ---- */
+function drawTOC(){
+  var box = $("toc"); box.innerHTML = "";
+  LAYERS.forEach(function(L){
+    var done = L.lessons.filter(function(x){ return progress[x.id]; }).length;
+    var wrap = el("div","layer");
+
+    var head = el("button","lhead" + (done === L.lessons.length ? " done" : ""));
+    head.type = "button";
+    head.setAttribute("aria-expanded", openLayer === L.n ? "true" : "false");
+    head.innerHTML =
+      '<span class="lbadge">' + L.n + '</span>' +
+      '<span class="lmain"><b>' + L.title + '</b><span>' + L.blurb + '</span></span>' +
+      '<span class="lstat">' + done + '/' + L.lessons.length + '</span>' +
+      '<span class="lcar">' + (openLayer === L.n ? "\u2212" : "+") + '</span>';
+    head.onclick = function(){ openLayer = openLayer === L.n ? -1 : L.n; drawTOC(); saveSoon(); };
+    wrap.appendChild(head);
+
+    if(openLayer === L.n){
+      var list = el("div","llist");
+      L.lessons.forEach(function(les, i){
+        var b = el("button","lrow" + (progress[les.id] ? " done" : ""));
+        b.type = "button";
+        b.innerHTML =
+          '<span class="lnum">' + (progress[les.id] ? "\u2713" : (L.n + "." + (i + 1))) + '</span>' +
+          '<span class="lmain"><b>' + les.title + '</b><span>' + les.gist + '</span></span>' +
+          '<span class="lgo">' + (les.mode === "none" ? "lab" : (progress[les.id] ? "passed" : "read")) + '</span>';
+        b.onclick = function(){ openLesson(les.id); };
+        list.appendChild(b);
+      });
+      wrap.appendChild(list);
+    }
+    box.appendChild(wrap);
+  });
+  drawSaveTag();
+}
+
+/* ---- reading list ---- */
+function drawReading(){
+  var box = $("reading"); if(!box || box.dataset.done) return;
+  box.dataset.done = "1";
+  READING.forEach(function(g){
+    var h = el("div","rgroup", g.g);
+    box.appendChild(h);
+    g.items.forEach(function(it){
+      var d = el("div","ritem");
+      d.innerHTML = "<b>" + it[0] + "</b><span>" + it[1] + "</span>";
+      box.appendChild(d);
+    });
+  });
+}
+
+
+/* ============================================================
+   THE CFR LAB
+   ============================================================ */
+var lab = null;
+function cfrLab(){
+  var wrap = el("div","lab");
+  wrap.innerHTML =
+    '<div class="labTop">' +
+      '<div class="labStat"><dt>Iterations</dt><dd id="labIt">0</dd></div>' +
+      '<div class="labStat"><dt>Game value</dt><dd id="labV">--</dd><small>target -0.0556</small></div>' +
+      '<div class="labStat"><dt>Exploitability</dt><dd id="labE">--</dd><small>target 0</small></div>' +
+    '</div>' +
+    '<div class="spark"><svg id="labSpark" viewBox="0 0 300 60" preserveAspectRatio="none"></svg>' +
+      '<div class="sparkAx"><span>exploitability, log scale</span><span id="labSparkN">0 iters</span></div></div>' +
+    '<div class="labBtns">' +
+      '<button class="act" id="labRun" type="button">Train 1,000</button>' +
+      '<button class="act ghost" id="labRun2" type="button">Train 10,000</button>' +
+      '<button class="act ghost" id="labReset" type="button">Reset</button>' +
+    '</div>' +
+    '<table class="tbl labTbl"><thead><tr>' +
+      '<th>Card</th><th>Open bet</th><th>Call a bet</th><th>Bet after check</th><th>Call check-bet</th>' +
+    '</tr></thead><tbody id="labBody"></tbody></table>' +
+    '<div class="labNote" id="labNote"></div>';
+
+  lab = { t:new CFR(), hist:[], running:0, want:0 };
+
+  var $$ = function(sel){ return wrap.querySelector(sel); };
+  function pct(x){ return (100 * x).toFixed(1) + "%"; }
+  function paint(){
+    var t = lab.t, avg = function(k){ return t.average(k); };
+    $$("#labIt").textContent = t.iters.toLocaleString();
+    $$("#labV").textContent = t.iters ? t.gameValue().toFixed(4) : "--";
+    var e = t.iters ? exploitability(avg) : null;
+    $$("#labE").textContent = e == null ? "--" : e.toFixed(4);
+
+    var body = $$("#labBody"); body.innerHTML = "";
+    ["J","Q","K"].forEach(function(name, c){
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + name + "</td>" +
+        "<td>" + pct(avg(c + "")[1]) + "</td>" +
+        "<td>" + pct(avg(c + "b")[1]) + "</td>" +
+        "<td>" + pct(avg(c + "p")[1]) + "</td>" +
+        "<td>" + pct(avg(c + "pb")[1]) + "</td>";
+      body.appendChild(tr);
+    });
+
+    var bJ = avg("0")[1], bK = avg("2")[1];
+    var ratio = bJ > 0.002 ? (bK / bJ).toFixed(2) : "--";
+    $$("#labNote").innerHTML = t.iters < 50
+      ? "Train it. Right now this is noise."
+      : "It bets the king <b>" + ratio + "</b> times as often as it bluffs the jack. Theory says exactly <b>3.00</b>, which is alpha. Nobody told it that.";
+
+    /* sparkline, log10 of exploitability */
+    if(e != null) lab.hist.push(Math.max(e, 1e-5));
+    var h = lab.hist;
+    if(h.length > 1){
+      var pts = h.map(function(v, i){
+        var x = 300 * i / (h.length - 1);
+        var y = 58 - 56 * (Math.log10(v) + 5) / 5;      /* 1e-5 .. 1 */
+        return x.toFixed(1) + "," + Math.max(1, Math.min(59, y)).toFixed(1);
+      }).join(" ");
+      $$("#labSpark").innerHTML =
+        '<polyline points="' + pts + '" fill="none" stroke="var(--gold)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>';
+      $$("#labSparkN").textContent = t.iters.toLocaleString() + " iters";
+    }
+  }
+
+  function pump(){
+    if(!wrap.isConnected || lab.t.iters >= lab.want){ lab.running = 0; return; }
+    lab.t.train(Math.min(250, lab.want - lab.t.iters));
+    paint();
+    requestAnimationFrame(pump);
+  }
+  function run(n){
+    lab.want = lab.t.iters + n;
+    if(!lab.running){ lab.running = 1; pump(); }
+  }
+
+  var self = lab;
+  $$("#labRun").onclick = function(){ run(1000); };
+  $$("#labRun2").onclick = function(){ run(10000); };
+  $$("#labReset").onclick = function(){ self.t = new CFR(); self.hist = []; self.want = 0; $$("#labSpark").innerHTML = ""; paint(); };
+  paint();
+  return wrap;
+}
+
+/* ---- the Leduc lab ---- */
+function leducLab(){
+  var wrap = el("div","lab");
+  wrap.innerHTML =
+    '<div class="labTop">' +
+      '<div class="labStat"><dt>Iterations</dt><dd id="lIt">0</dd></div>' +
+      '<div class="labStat"><dt>Game value</dt><dd id="lV">--</dd><small>P0, chips/hand</small></div>' +
+      '<div class="labStat"><dt>Exploitability</dt><dd id="lE">--</dd><small>target 0</small></div>' +
+      '<div class="labStat"><dt>Info sets</dt><dd id="lN">288</dd><small>Kuhn has 12</small></div>' +
+    '</div>' +
+    '<div class="spark"><svg id="lSpark" viewBox="0 0 300 60" preserveAspectRatio="none"></svg>' +
+      '<div class="sparkAx"><span>exploitability, log scale</span><span id="lSparkN">0 iters</span></div></div>' +
+    '<div class="labBtns">' +
+      '<button class="act" id="lRun" type="button">Train 200</button>' +
+      '<button class="act ghost" id="lRun2" type="button">Train 2,000</button>' +
+      '<button class="act ghost" id="lStop" type="button">Stop</button>' +
+      '<button class="act ghost" id="lReset" type="button">Reset</button>' +
+    '</div>' +
+    '<div class="labCap">First round, before the board</div>' +
+    '<table class="tbl labTbl"><thead><tr><th>Card</th><th>Open bet</th><th>Fold to a bet</th><th>Call</th><th>Raise</th></tr></thead><tbody id="lB1"></tbody></table>' +
+    '<div class="labCap">Second round, after both checked</div>' +
+    '<table class="tbl labTbl"><thead><tr><th>You hold</th><th>Board</th><th>Check</th><th>Bet</th></tr></thead><tbody id="lB2"></tbody></table>' +
+    '<div class="labNote" id="lNote"></div>';
+
+  var $$ = function(sel){ return wrap.querySelector(sel); };
+  var st = { t:new Leduc(), hist:[], running:0, want:0 };
+  var R = ["J","Q","K"];
+  function pct(x){ return (100 * x).toFixed(1) + "%"; }
+
+  var frame = 0;
+  function paint(force){
+    var t = st.t, avg = function(k, n){ return t.average(k, n); };
+    $$("#lIt").textContent = t.iters.toLocaleString();
+    $$("#lV").textContent = t.iters ? t.gameValue().toFixed(4) : "--";
+    $$("#lN").textContent = t.infosets();
+    /* the exact best response walks the whole tree three times, so it is
+       measured every fourth frame rather than every one */
+    var e = null;
+    if(t.iters && (force || frame % 4 === 0)) e = lExploitability(avg);
+    frame++;
+    if(e != null) $$("#lE").textContent = e.toFixed(4);
+
+    var b1 = $$("#lB1"); b1.innerHTML = "";
+    for(var c = 0; c < 3; c++){
+      var open = avg(c + ":::", 2);          /* check, bet */
+      var face = avg(c + ":r::", 3);         /* fold, call, raise */
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + R[c] + "</td><td>" + pct(open[1]) + "</td><td>" +
+        pct(face[0]) + "</td><td>" + pct(face[1]) + "</td><td>" + pct(face[2]) + "</td>";
+      b1.appendChild(tr);
+    }
+    var b2 = $$("#lB2"); b2.innerHTML = "";
+    for(var m = 0; m < 3; m++) for(var bd = 0; bd < 3; bd++){
+      var s2 = avg(m + ":cc:" + bd + ":", 2);
+      var tr2 = document.createElement("tr");
+      if(m === bd) tr2.className = "pair";
+      tr2.innerHTML = "<td>" + R[m] + "</td><td>" + R[bd] + (m === bd ? " <i>paired</i>" : "") +
+        "</td><td>" + pct(s2[0]) + "</td><td>" + pct(s2[1]) + "</td>";
+      b2.appendChild(tr2);
+    }
+
+    var jjCheck = avg("0:cc:0:", 2)[0], jkBet = avg("0:cc:2:", 2)[1];
+    $$("#lNote").innerHTML = t.iters < 100
+      ? "Train it. Under a hundred iterations this is still noise."
+      : "Same jack, two boards. Paired with the board it is the effective nuts and it checks <b>" + pct(jjCheck) +
+        "</b> of the time, which is a trap and not weakness. On a king it is the worst hand in the deck and it bluffs <b>" +
+        pct(jkBet) + "</b>. Your card never changed. The board changed what it means, and nobody wrote that rule down.";
+
+    if(e != null) st.hist.push(Math.max(e, 1e-4));
+    var h = st.hist;
+    if(h.length > 1){
+      var pts = h.map(function(v, i){
+        var x = 300 * i / (h.length - 1);
+        var y = 58 - 56 * (Math.log10(v) + 4) / 4.7;   /* 1e-4 .. 5 */
+        return x.toFixed(1) + "," + Math.max(1, Math.min(59, y)).toFixed(1);
+      }).join(" ");
+      $$("#lSpark").innerHTML = '<polyline points="' + pts + '" fill="none" stroke="var(--gold)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>';
+      $$("#lSparkN").textContent = t.iters.toLocaleString() + " iters";
+    }
+  }
+  function pump(){
+    if(!wrap.isConnected || st.t.iters >= st.want){ st.running = 0; paint(true); return; }
+    st.t.train(Math.min(8, st.want - st.t.iters));    /* a full 120 deal sweep is heavy, so keep frames short */
+    paint(false);
+    requestAnimationFrame(pump);
+  }
+  function run(n){ st.want = st.t.iters + n; if(!st.running){ st.running = 1; pump(); } }
+
+  $$("#lRun").onclick = function(){ run(200); };
+  $$("#lRun2").onclick = function(){ run(2000); };
+  $$("#lStop").onclick = function(){ st.want = st.t.iters; };
+  $$("#lReset").onclick = function(){ st.t = new Leduc(); st.hist = []; st.want = 0; $$("#lSpark").innerHTML = ""; paint(); };
+  paint();
+  return wrap;
+}
+
+/* ---- blocks ---- */
+function drawBlock(b){
+  if(b.t === "p")    return el("p","prose", b.x);
+  if(b.t === "warn") return el("div","warn", b.x);
+  if(b.t === "key"){
+    var k = el("div","keybox");
+    k.innerHTML = "<b>Commit this</b><span>" + b.x + "</span>";
+    return k;
+  }
+  if(b.t === "rule"){
+    var r = el("div","rule");
+    r.innerHTML = "<pre>" + b.x + "</pre>" + (b.note ? "<small>" + b.note + "</small>" : "");
+    return r;
+  }
+  if(b.t === "tbl"){
+    var w = el("div");
+    var t = el("table","tbl");
+    t.innerHTML =
+      "<thead><tr>" + b.head.map(function(h){ return "<th>" + h + "</th>"; }).join("") + "</tr></thead>" +
+      "<tbody>" + b.rows.map(function(r){
+        return "<tr>" + r.map(function(c){ return "<td>" + c + "</td>"; }).join("") + "</tr>";
+      }).join("") + "</tbody>";
+    w.appendChild(t);
+    if(b.caption) w.appendChild(el("div","cap", b.caption));
+    return w;
+  }
+  if(b.t === "lab") return b.kind === "leduc" ? leducLab() : cfrLab();
+  if(b.t === "ex"){
+    var e = el("div","ex");
+    e.appendChild(el("h4", null, b.title));
+    var body = el("div","exb");
+    if(b.cards) body.appendChild(cardStage(b.cards));
+    if(b.facts){
+      var f = el("dl","facts");
+      b.facts.forEach(function(p){
+        var d = el("div","fact");
+        d.innerHTML = "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>";
+        f.appendChild(d);
+      });
+      body.appendChild(f);
+    }
+    var ol = el("ol","steps");
+    b.steps.forEach(function(x){ ol.appendChild(el("li", null, x)); });
+    body.appendChild(ol);
+    if(b.bar) body.appendChild(gauge(b.bar, b.bar.tick == null));
+    if(b.punch) body.appendChild(el("div","punch", b.punch));
+    e.appendChild(body);
+    return e;
+  }
+  return el("div");
+}
+
+/* ---- reader ---- */
+function openLesson(id){
+  openId = id;
+  var L = lessonById(id);
+  var r = $("reader"); r.innerHTML = "";
+
+  var h = el("div","rhead");
+  h.innerHTML =
+    '<div class="eyebrow">Layer ' + L.layer + ' &middot; lesson ' + (L.idx + 1) + ' of ' + L.of_n + '</div>' +
+    '<h1>' + L.title + '</h1><p>' + L.sub + '</p>';
+  r.appendChild(h);
+
+  var body = el("div","rbody");
+  L.blocks.forEach(function(b){ body.appendChild(drawBlock(b)); });
+  r.appendChild(body);
+
+  var f = el("div","rfoot");
+  var back = el("button","act ghost","Index"); back.type = "button";
+  back.onclick = function(){ openId = null; setView("learn"); window.scrollTo(0,0); };
+  f.appendChild(back);
+  if(L.mode === "none"){
+    f.appendChild(el("div","grow","No checkpoint on this one. Play with the lab until the numbers stop surprising you."));
+    var nx = nextLesson(L);
+    if(nx){ var nb = el("button","act","Next lesson"); nb.type = "button"; nb.onclick = function(){ openLesson(nx.id); }; f.appendChild(nb); }
+  } else {
+    f.appendChild(el("div","grow", progress[id] ? "Passed. Run it again any time." : "Pass the checkpoint to tick this lesson off."));
+    var go = el("button","act", progress[id] ? "Drill it again" : "Drill it &middot; " + L.pass + " of " + L.of + " to pass");
+    go.type = "button";
+    go.onclick = function(){ startCp(id); };
+    f.appendChild(go);
+  }
+  r.appendChild(f);
+
+  setView("learn");
+  window.scrollTo(0,0);
+}
+
+/* ---- checkpoint ---- */
+function startCp(id){
+  var L = lessonById(id);
+  cp = { id:id, mode:L.mode, need:L.pass, of:L.of, marks:[] };
+  openId = null;
+  if(L.mode !== "mixed"){ ORDER.forEach(function(m){ active[m] = (m === L.mode) ? 1 : 0; }); }
+  else ORDER.forEach(function(m){ active[m] = 1; });
+  $("modes").hidden = true;
+  $("cpbar").hidden = false;
+  drawCp();
+  setView("drill");
+  next();
+  window.scrollTo(0,0);
+}
+
+function drawCp(){
+  var L = lessonById(cp.id);
+  var hits = cp.marks.filter(Boolean).length;
+  var pips = "";
+  for(var i = 0; i < cp.of; i++){
+    var c = i < cp.marks.length ? (cp.marks[i] ? " hit" : " miss") : "";
+    pips += '<i class="pip' + c + '"></i>';
+  }
+  $("cpbar").innerHTML =
+    '<span class="lab">Checkpoint</span>' +
+    '<span class="grow">' + L.title + ' &nbsp;&middot;&nbsp; ' + hits + ' of ' + cp.of + ' right, need ' + cp.need + '</span>' +
+    '<span class="pips">' + pips + '</span>';
+  var q2 = document.createElement("button");
+  q2.className = "chip"; q2.type = "button"; q2.textContent = "Quit";
+  q2.onclick = function(){ quitCp(); };
+  $("cpbar").appendChild(q2);
+}
+
+function quitCp(){
+  cp = null;
+  ORDER.forEach(function(m){ active[m] = 1; });
+  $("modes").hidden = false;
+  $("cpbar").hidden = true;
+  drawModes();
+  openId = null;
+  setView("learn"); drawTOC();
+}
+
+function endCp(){
+  var L = lessonById(cp.id);
+  var hits = cp.marks.filter(Boolean).length;
+  var passed = hits >= cp.need;
+  if(passed){ progress[cp.id] = 1; saveSoon(); }
+
+  var d = $("cpdone");
+  d.innerHTML = "";
+  var nx = nextLesson(L);
+  var h = el("h3", passed ? "pass" : "fail", passed ? L.title + ": passed" : hits + " of " + cp.of + ". Not yet.");
+  var p = el("p", null, passed
+    ? "You got " + hits + " of " + cp.of + ". " + (nx ? "Next up: " + nx.title + "." : "That is the whole course. Go and use it.")
+    : "You needed " + cp.need + ". Read the lesson again, in particular the boxed rule, then come straight back. This is arithmetic, not talent.");
+  var row = el("div","row");
+  var again = el("button","act","Try again"); again.type = "button";
+  again.onclick = function(){ startCp(L.id); };
+  var read = el("button","act ghost","Reread the lesson"); read.type = "button";
+  read.onclick = function(){ cp = null; ORDER.forEach(function(m){ active[m] = 1; }); $("modes").hidden = false; $("cpbar").hidden = true; drawModes(); openLesson(L.id); };
+  var nextL = el("button","act", nx ? "Next: " + nx.title : "Back to the index"); nextL.type = "button";
+  nextL.onclick = function(){
+    cp = null; ORDER.forEach(function(m){ active[m] = 1; }); $("modes").hidden = false; $("cpbar").hidden = true; drawModes();
+    if(nx){ openLayer = nx.layer; openLesson(nx.id); }
+    else { openId = null; setView("learn"); }
+    drawTOC();
+  };
+  if(passed){ row.appendChild(nextL); row.appendChild(read); }
+  else { row.appendChild(again); row.appendChild(read); }
+  d.appendChild(h); d.appendChild(p); d.appendChild(row);
+
+  $("drillView").hidden = true;
+  d.hidden = false;
+  drawTOC();
+  window.scrollTo(0,0);
+}
+
+$("tabLearn").onclick = function(){ if(cp) quitCp(); else { openId = null; setView("learn"); } };
+$("tabRead").onclick = function(){ if(cp) quitCp(); openId = null; setView("reading"); };
+$("tabDrill").onclick = function(){ if(cp) quitCp(); ORDER.forEach(function(m){ active[m] = 1; }); $("modes").hidden = false; $("cpbar").hidden = true; drawModes(); setView("drill"); };
+
+(async function boot(){
+  await loadSaved();
+  drawModes(); drawTape(); drawTOC(); setView("learn"); drawSaveTag();
+})();
+</script>
+</body>
+</html>
