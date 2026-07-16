@@ -32,6 +32,10 @@ body{
 .tape span b{color:var(--bone); font-weight:600}
 @media(max-width:560px){ .mark .tagline{display:none} }
 
+/* The hidden attribute must beat the display:flex set on flex containers below,
+   otherwise .modes and .cpbar stay on screen when toggled hidden. */
+[hidden]{display:none !important}
+
 /* ---- mode chips ---- */
 .modes{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px}
 .chip{
@@ -2157,10 +2161,10 @@ var LESSONS_0 = [
     { t:"ex", title:"Worked example: the trap",
       cards:{ hero:["Ah","2c"], board:["Kd","Qd","Jd","Td","3s"] },
       steps:[
-        "The board alone is K Q J T of diamonds and a three.",
-        "You hold the ace of hearts, which does not make a diamond flush.",
-        "Your best five: K Q J T of diamonds plus the nine... there is no nine. So: the four diamonds plus your ace is not a flush, and K Q J T needs a nine or an ace for a straight.",
-        "You have an ace-high straight? No. A-K-Q-J-T requires your ace, giving Broadway, the best straight. You do have it."
+        "Your seven cards: Ah 2c Kd Qd Jd Td 3s.",
+        "The board already shows K Q J T, which is four to a straight. It needs an ace or a nine to complete one.",
+        "Your ace completes it: A-K-Q-J-T is Broadway, the highest straight there is. You made it with one card, and your two of clubs does nothing.",
+        "But K Q J T are all diamonds and your ace is a heart, so you have no flush. Anyone holding a single diamond does, and it beats your straight."
       ],
       punch:"You made the nut straight using one card. And notice that anyone holding a single diamond has a flush, which beats you. The board did most of the work and that means it did it for everyone." },
     { t:"warn", x:"When the board itself makes a strong hand, it makes it for the whole table. Five cards on the board that make a straight mean everyone chops. A pair on the board means everyone's two pair is live. Always ask what the board gives away for free." },

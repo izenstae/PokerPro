@@ -32,6 +32,10 @@ body{
 .tape span b{color:var(--bone); font-weight:600}
 @media(max-width:560px){ .mark .tagline{display:none} }
 
+/* The hidden attribute must beat the display:flex set on flex containers below,
+   otherwise .modes and .cpbar stay on screen when toggled hidden. */
+[hidden]{display:none !important}
+
 /* ---- mode chips ---- */
 .modes{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px}
 .chip{
