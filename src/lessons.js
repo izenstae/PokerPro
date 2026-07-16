@@ -37,7 +37,14 @@ var LESSONS_1 = [
       ["the pot","33%"],
       ["twice the pot","40%"]
     ], caption:"Notice how slowly the right column moves. Doubling the bet from half pot to pot only costs you 8 points of required equity. Big bets are cheaper to call than they feel." },
-    { t:"key", x:"Half pot is 25. Pot is 33. Double pot is 40. Interpolate everything else and never be wrong by more than a point." }
+    { t:"key", x:"Half pot is 25. Pot is 33. Double pot is 40. Interpolate everything else and never be wrong by more than a point." },
+    { t:"how", drill:"Pot odds", ask:"What equity do you need to break even on the call?",
+      steps:[
+        "You are shown three numbers: the pot, the bet, and what it costs to call (the call is always equal to the bet).",
+        "Add all three into one final pot: pot + bet + your call. That last addition, adding your own call, is the step everyone forgets.",
+        "Divide your call by that final pot and enter it as a percent. You are graded within a point, so round freely."
+      ],
+      tip:"Do not actually divide. Match the bet to an anchor: a third of the pot is 20%, half pot is 25%, two thirds is ~28%, pot is 33%, double pot is 40%. Read the size, read off the number." }
   ]
 },
 {
@@ -70,7 +77,14 @@ var LESSONS_1 = [
       ],
       bar:{ fill:35, tick:null, fillLabel:"you get there", tickLabel:"" },
       punch:"You did that in two seconds and you were off by three hundredths of a point. There is no spot at any table where that error changes a decision." },
-    { t:"key", x:"9 outs: 19% one card, 35% two. 8 outs: 17% and 31%. 4 outs: 9% and 17%. Those six numbers cover most of your drawing life." }
+    { t:"key", x:"9 outs: 19% one card, 35% two. 8 outs: 17% and 31%. 4 outs: 9% and 17%. Those six numbers cover most of your drawing life." },
+    { t:"how", drill:"Outs to equity", ask:"How often do you hit at least one out?",
+      steps:[
+        "You are given a number of outs and a street line. Read the street line first: it tells you whether one more card is coming or two.",
+        "Two cards to come: multiply outs by 4. One card to come: multiply outs by 2. That is the whole calculation.",
+        "If you have more than 8 outs and both cards are coming, subtract one point for each out above 8, because the rule of 4 runs high up there. Then enter it."
+      ],
+      tip:"Memorise three rows and you rarely have to multiply: 9 outs is 35% (two cards) or 19% (one), 8 outs is 31% or 17%, 4 outs is 17% or 9%. Most drawing spots are one of these." }
   ]
 },
 {
@@ -94,7 +108,14 @@ var LESSONS_1 = [
       bar:{ fill:35, tick:28.6, fillLabel:"your equity (estimated)", tickLabel:"price of the call" },
       punch:"Exact answer, by enumerating all 990 runouts: 39.8%. Your estimate was five points low and the decision was never in doubt. Being conservative and fast beat being precise and slow, which is the entire argument for this method." },
     { t:"warn", x:"The margin tells you how much the mistake costs. A spot where you need 30% and hold 31% barely matters either way. A spot where you need 30% and hold 55% is a catastrophe if you fold it. Spend your thinking time on the wide gaps, not the coin flips." },
-    { t:"key", x:"Price first, then equity, then compare. Always in that order, because knowing the price tells you how hard you need to work on the equity." }
+    { t:"key", x:"Price first, then equity, then compare. Always in that order, because knowing the price tells you how hard you need to work on the equity." },
+    { t:"how", drill:"Call or fold", ask:"Villain is all in with their hand face up. Call or fold?",
+      steps:[
+        "Get the price first: call divided by (pot + shove + call). That is the equity you need to break even.",
+        "Now estimate your equity: count your outs and use the x2 or x4 rule, or recognise the made-hand-versus-draw shape from the cards.",
+        "Compare and press the button. Equity above the price is CALL, below is FOLD. There is no third option and no judgement about whether you 'like' your hand."
+      ],
+      tip:"You never need to know whether you are ahead, only whether your equity beats the price. A hand that loses most of the time is still a call when the price is cheap enough. When the two numbers are within a couple of points it barely matters which way you pick." }
   ]
 },
 {
@@ -132,7 +153,14 @@ var LESSONS_1 = [
       bar:{ fill:3.2, tick:40, fillLabel:"folds needed with a draw", tickLabel:"folds needed as a pure bluff" },
       punch:"The same bet went from needing 40% folds to needing 3%. You did not change the bet. You changed the hand behind it. This is why you bluff with your draws and check your air." },
     { t:"warn", x:"The formula is exact. The input is not. Fold equity is a guess about a human being, and no amount of arithmetic will make a bad read good. Be honest about the guess and the math will take care of itself." },
-    { t:"key", x:"Half pot needs a third of folds. Pot needs half. Every point of equity when called pulls the requirement down hard." }
+    { t:"key", x:"Half pot needs a third of folds. Pot needs half. Every point of equity when called pulls the requirement down hard." },
+    { t:"how", drill:"Fold equity", ask:"How often must villain fold for this to break even?",
+      steps:[
+        "Check the 'equity when called' line. If it says 0%, this is a pure bluff: the answer is bet divided by (pot + bet), the very same number as the price you would be laying yourself.",
+        "If it shows some equity when called, the answer will be lower than that pure-bluff number, because the times he calls are no longer all losses.",
+        "Enter the percentage of the time he needs to fold."
+      ],
+      tip:"For pure bluffs use the same anchors as pot odds: third pot needs 25% folds, half pot 33%, pot 50%. For a semi-bluff start from that anchor and knock it down, since every point of equity when called buys back fold equity you no longer need." }
   ]
 },
 {
@@ -155,7 +183,14 @@ var LESSONS_1 = [
       punch:"You must extract $375 more, on average, across every river you hit. If he has $200 behind, that call is not close. It is on fire." },
     { t:"p", x:"That word average is doing the heavy lifting. The number is not what you win when he pays you off. It is what you win across every time you hit, including the times he folds, the times you check it back, and the times he was never paying anyway. If he only calls half the time you hit, you need to stack him for double the number." },
     { t:"warn", x:"Implied odds are where losing players hide their bad calls. Three tests before you count a dollar of future money. Does he have a stack deep enough to pay it? Is he the kind of player who actually pays? And when you hit, will your hand still be second best? A gutshot to the idiot end has negative implied odds. You do not win less, you lose more." },
-    { t:"key", x:"Draws want deep stacks and loose opponents. Against a short stack or a good player, the raw price is the only price you get." }
+    { t:"key", x:"Draws want deep stacks and loose opponents. Against a short stack or a good player, the raw price is the only price you get." },
+    { t:"how", drill:"Implied odds", ask:"How much extra must you win on the river to make this call break even?",
+      steps:[
+        "You are told your equity e (as a percent, in the outs line) and the pot and call. The raw price is bad on purpose, otherwise there would be nothing to solve.",
+        "Plug into extra = (1 - e) x call / e - pot. Turn e into a decimal first: 8.7% becomes 0.087.",
+        "The smaller your equity, the more the division explodes. Enter the dollar figure; you are graded within about 8%, so approximate."
+      ],
+      tip:"Read the answer as 'how much of his stack I must expect to win when I hit'. A tiny draw needs a huge payoff, so if the stacks behind are not deep enough to pay that number, the call is simply bad no matter how the math looks." }
   ]
 },
 {
@@ -189,7 +224,14 @@ var LESSONS_1 = [
       ],
       bar:{ fill:43, tick:null, fillLabel:"AK equity against QQ", tickLabel:"" },
       punch:"Nobody at the table needs the decimal. They need to know it is close, and that folding AK to a shove is losing you money." },
-    { t:"key", x:"80 / 55 / 70 / 74. Pair over pair, the flip, pair with one over, and domination. Four numbers and you have covered preflop." }
+    { t:"key", x:"80 / 55 / 70 / 74. Pair over pair, the flip, pair with one over, and domination. Four numbers and you have covered preflop." },
+    { t:"how", drill:"Preflop equity", ask:"All in preflop. What is your equity?",
+      steps:[
+        "You see two hands and no board. First name the shape: pair over pair, pair versus two overcards, pair versus one over, dominated, or two overs versus two unders.",
+        "Read off the anchor for that shape: 80/20 pair over pair, 55/45 pair versus two overs, 70/30 pair versus one over, 74/26 dominated, ~63/37 two overs versus two unders, 93/7 for a pair against a hand it dominates like AA vs AK.",
+        "Nudge it: +3 points for suited, +2 for connected. Then enter your side. You are graded within 4 points."
+      ],
+      tip:"Decide who is the favourite before you attach any number. Getting the direction right, that the pair or the dominating hand is ahead, is most of the score. The exact decimal never matters." }
   ]
 },
 {
@@ -213,7 +255,14 @@ var LESSONS_1 = [
       bar:{ fill:30, tick:29, fillLabel:"your equity", tickLabel:"price of the call" },
       punch:"Four seconds. And notice you never needed to know if you were ahead. You are not. It does not matter." },
     { t:"warn", x:"Round aggressively. 28.5 becomes 30, 34.97 becomes 35, and the villain's $37 bet into $61 becomes half pot. Every spot where rounding changes your answer was a spot worth almost nothing anyway. Precision is a trap that costs you tempo and tells the table you are thinking." },
-    { t:"key", x:"Price, equity, stacks, act. When the two numbers are within a couple of points, stop working. The decision is a coin flip and coin flips are free." }
+    { t:"key", x:"Price, equity, stacks, act. When the two numbers are within a couple of points, stop working. The decision is a coin flip and coin flips are free." },
+    { t:"how", drill:"Capstone", ask:"Everything from Layer 1, mixed together, against the clock.",
+      steps:[
+        "This checkpoint draws from every Layer 1 drill at random, so your first job on each hand is to notice which question you are being asked before you reach for a formula.",
+        "Then run the fixed order every single time: price, then equity, then is there money behind, then compare and act. The order never changes, so you never have to decide what to think about next.",
+        "Round hard and move. The clock is part of the grade here: this is the drill that trains speed, not precision."
+      ],
+      tip:"If two numbers land within a couple of points of each other, stop calculating and just act. Every spot where rounding would change your answer was a near coin flip worth almost nothing anyway." }
   ]
 }
 ];

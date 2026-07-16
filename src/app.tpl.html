@@ -238,6 +238,40 @@ table.tbl td:first-child{color:var(--dim)}
   font-family:var(--sans); font-size:13.5px; line-height:1.6; color:var(--bone);
   border-top:1px solid var(--line); padding-top:12px; margin-top:12px;
 }
+
+/* ---- in-the-drill bridge ---- */
+.how{
+  border:1px solid var(--line); border-left:2px solid var(--green);
+  border-radius:0 4px 4px 0; background:rgba(52,169,111,.05); overflow:hidden;
+}
+.how h4{
+  font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--green);
+  font-weight:600; padding:11px 16px 0;
+}
+.how h4 span{color:var(--dim); font-weight:400}
+.howask{
+  font-family:var(--sans); font-size:14.5px; line-height:1.45; color:var(--bone);
+  padding:8px 16px 2px; font-style:italic;
+}
+.howsteps{list-style:none; counter-reset:h; padding:6px 16px 6px; margin:0}
+.howsteps li{
+  counter-increment:h; position:relative; padding:5px 0 5px 28px;
+  font-family:var(--sans); font-size:13.5px; line-height:1.55; color:#C6CEDC;
+}
+.howsteps li:before{
+  content:counter(h); position:absolute; left:0; top:5px; width:17px; height:17px; border-radius:50%;
+  background:var(--green); color:var(--ink); font-family:var(--mono); font-size:9px; font-weight:600;
+  display:grid; place-items:center;
+}
+.how .tip{
+  font-family:var(--sans); font-size:12.5px; line-height:1.55; color:var(--dim);
+  padding:10px 16px 12px; border-top:1px solid var(--line); margin-top:4px;
+}
+.how .tip b{
+  color:var(--green); font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+  font-size:9.5px; margin-right:4px;
+}
+
 .rfoot{padding:16px 20px; border-top:1px solid var(--line); background:var(--raise); display:flex; gap:10px; flex-wrap:wrap; align-items:center}
 .rfoot .grow{flex:1; font-size:11px; color:var(--dim)}
 .act.ghost{background:none; color:var(--dim); border:1px solid var(--line)}
@@ -1166,6 +1200,15 @@ function drawBlock(b){
     return w;
   }
   if(b.t === "lab") return b.kind === "leduc" ? leducLab() : cfrLab();
+  if(b.t === "how"){
+    var hw = el("div","how");
+    var head = "<h4>In the drill" + (b.drill ? " <span>&middot; " + b.drill + "</span>" : "") + "</h4>";
+    var ask = b.ask ? '<p class="howask">&ldquo;' + b.ask + '&rdquo;</p>' : "";
+    var steps = '<ol class="howsteps">' + b.steps.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ol>";
+    var tip = b.tip ? '<div class="tip"><b>Shortcut</b>' + b.tip + "</div>" : "";
+    hw.innerHTML = head + ask + steps + tip;
+    return hw;
+  }
   if(b.t === "ex"){
     var e = el("div","ex");
     e.appendChild(el("h4", null, b.title));

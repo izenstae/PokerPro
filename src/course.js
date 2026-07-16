@@ -24,7 +24,14 @@ var LESSONS_0 = [
     ], caption:"Those frequencies are for the best five of seven cards, which is what you will actually be holding. Note how fast it drops. A flush feels enormous and it is, but two pair is nine times more common than a flush and it loses to it." },
     { t:"p", x:"Two details that catch everyone. Ace can be high or low, so A-2-3-4-5 is a straight, the smallest one. And when two players hold the same kind of hand, the higher one wins, then the kicker, which is the highest card left over. Two players with a pair of kings go to the next card." },
     { t:"warn", x:"Suits have no ranking. Spades do not beat hearts. If two players make the same flush, they chop. The only thing a suit does is make a flush possible." },
-    { t:"key", x:"Straight flush, quads, full house, flush, straight, trips, two pair, pair, nothing. Rarer wins. You have about ten of these to learn and you will never think about them again." }
+    { t:"key", x:"Straight flush, quads, full house, flush, straight, trips, two pair, pair, nothing. Rarer wins. You have about ten of these to learn and you will never think about them again." },
+    { t:"how", drill:"Hand ladder", ask:"Which hand wins?",
+      steps:[
+        "You are shown two hands by name, Hand A and Hand B, not as cards. Ignore everything except where each one sits on the ladder.",
+        "Run the ladder in your head, worst to best: high card, one pair, two pair, three of a kind, straight, flush, full house, four of a kind, straight flush.",
+        "Whichever hand is further up that list wins. Press A or B."
+      ],
+      tip:"The only thing this drill tests is whether the order is automatic for you. Chant the nine rungs out loud a few times and every one of these becomes instant." }
   ]
 },
 {
@@ -53,7 +60,14 @@ var LESSONS_0 = [
       ],
       punch:"You made the nut straight using one card. And notice that anyone holding a single diamond has a flush, which beats you. The board did most of the work and that means it did it for everyone." },
     { t:"warn", x:"When the board itself makes a strong hand, it makes it for the whole table. Five cards on the board that make a straight mean everyone chops. A pair on the board means everyone's two pair is live. Always ask what the board gives away for free." },
-    { t:"key", x:"Best five of seven. Your two cards are ingredients, not a hand. If the board is better than what you can build, you play the board and so does everyone else." }
+    { t:"key", x:"Best five of seven. Your two cards are ingredients, not a hand. If the board is better than what you can build, you play the board and so does everyone else." },
+    { t:"how", drill:"Read your hand", ask:"What is your best five card hand?",
+      steps:[
+        "Treat your two cards and the five board cards as one pool of seven. There is no 'my hand' and 'the board', just seven cards.",
+        "Hunt for the best five hiding in that pool by scanning down the ladder from the top: any straight flush, then quads, then a full house, and so on. Stop at the first category you can actually make.",
+        "Pick that category. Two of the seven cards will go unused, and they are worth nothing, not 'almost' anything."
+      ],
+      tip:"Scan two things first: repeated ranks (pairs on the board plus a card in your hand make trips or two pair) and suits (a flush needs five of one suit anywhere in the seven). Those two glances catch most of the strong hands." }
   ]
 },
 {
@@ -72,7 +86,14 @@ var LESSONS_0 = [
     { t:"p", x:"Position is the order you act in, and it is fixed for the whole hand. Acting last means you have watched everyone else before you decide. In a game of incomplete information, being last is a permanent, structural information advantage, and it is worth more than most of the card advantages you will ever hold." },
     { t:"p", x:"That is not a soft claim about comfort. The player in position sees a strictly larger information set at every decision node. Winrates by seat show it plainly: the same player, same cards, makes several big blinds per hundred more from the button than from early position. Nothing changed except who spoke last." },
     { t:"warn", x:"Beginners play too many hands from bad positions because the cards look nice. The cards are a small part of the equation. A mediocre hand acting last is often better than a good hand acting first." },
-    { t:"key", x:"Four streets, and the button acts last on all of them but the first. If you take one strategic habit from this whole layer, make it playing more hands in position and fewer out of it." }
+    { t:"key", x:"Four streets, and the button acts last on all of them but the first. If you take one strategic habit from this whole layer, make it playing more hands in position and fewer out of it." },
+    { t:"how", drill:"Who wins", ask:"Showdown. Who takes it?",
+      steps:[
+        "Build your best five from your two cards plus the board. Then build the villain's best five from their two cards plus the same board.",
+        "Compare on the ladder. If the categories tie, the higher cards inside the category decide it, then the kicker.",
+        "Press You, Villain, or Split. Only pick Split when the two best fives are genuinely identical."
+      ],
+      tip:"When the board itself is strong, four to a straight or a pair showing, both players often lean on it and splits appear. Check what the board hands out for free before you trust your own two cards." }
   ]
 }
 ];
@@ -99,7 +120,14 @@ var LESSONS_2 = [
       bar:{ fill:47, tick:null, fillLabel:"AK is 47% of this range", tickLabel:"" },
       punch:"Nearly half the time this monstrous 3bet range is a hand with no pair at all. You knew that as a feeling. Now you know it as 16/34, which is a number you can multiply by things." },
     { t:"warn", x:"Offsuit hands are three times as common as suited ones. When someone says \"he could have the flush draw\", they are quoting a 4 combo event against a 12 combo alternative. Suited hands are rare, which is precisely why they are valuable and why people overweight them." },
-    { t:"key", x:"6, 4, 12, 16. Pairs, suited, offsuit, both. Count the pieces, add them up, and divide. Never estimate a range you could have counted." }
+    { t:"key", x:"6, 4, 12, 16. Pairs, suited, offsuit, both. Count the pieces, add them up, and divide. Never estimate a range you could have counted." },
+    { t:"how", drill:"Combos", ask:"How many combinations exist? (and: how many combos is that range?)",
+      steps:[
+        "First read what you are being asked about. One card class like AKs, a whole written range like 'QQ+, AK', or a hand after some cards are dead.",
+        "Apply the four base counts: a pocket pair is 6, a suited hand is 4, an offsuit hand is 12, and any two ranks together are 16.",
+        "For a whole range, count each comma-separated piece on its own and add them up. Never try to eyeball the total. Then enter the number."
+      ],
+      tip:"'QQ+' means QQ, KK, AA, that is three pairs at 6 each, so 18. 'AK' with no suit note means both suited and offsuit, so 16. Break the range at the commas and the plus signs, count each chunk, sum." }
   ]
 },
 {
@@ -127,7 +155,14 @@ var LESSONS_2 = [
       ["AKs, ace and king same suit","the ace of spades","4 -> 3 combos, down 25%"],
       ["77, neither card","the ace of spades","6 -> 6, no change"]
     ], caption:"Your one card did four different things to four parts of his range. That asymmetry is the whole reason card removal changes decisions rather than just shrinking numbers." },
-    { t:"key", x:"Count his range, then delete everything you can see, then recount. The gap between those two numbers is where close decisions get decided." }
+    { t:"key", x:"Count his range, then delete everything you can see, then recount. The gap between those two numbers is where close decisions get decided." },
+    { t:"how", drill:"Card removal", ask:"How many of that hand can he still have?",
+      steps:[
+        "Start from the full combo count of the hand in question, before any cards are out: AK is 16, AA is 6, AKs is 4.",
+        "Look at every card you can see. Your hole cards and every board card are all dead cards for him.",
+        "For each dead card of a rank he needs, delete the combos that used it. One ace gone takes AK from 16 to 12 and AA from 6 to 3. Enter the survivors."
+      ],
+      tip:"The 'before' number is the only thing to have memorised. Then the drill is pure subtraction: how many of the exact cards this hand needs are already visible, and how many combos does each remove." }
   ]
 },
 {
@@ -150,7 +185,14 @@ var LESSONS_2 = [
       punch:"So when you shove here as a bluff, he cannot have the one hand that calls with total confidence. Your seven of diamonds is irrelevant and your ace of spades is worth more than a pair." },
     { t:"p", x:"This flips the naive intuition about which hands make good bluffs. The best bluffing candidate is not the hand with the least equity. It is the hand that removes the most combos from his calling range while having little showdown value of its own. Blockers are why a solver bluffs with hands that look like nothing and gives up with hands that look better." },
     { t:"warn", x:"Blockers cut both ways and beginners only see one edge. Holding the ace of spades also means you cannot be called by worse flushes, and it means his range is now weighted toward the hands you did not block. Removal changes the whole conditional distribution, not just the part you were hoping for." },
-    { t:"key", x:"Ask two questions before every bluff: what does my hand remove from his continuing range, and what does it leave behind. If the answer is nothing, pick a different bluff." }
+    { t:"key", x:"Ask two questions before every bluff: what does my hand remove from his continuing range, and what does it leave behind. If the answer is nothing, pick a different bluff." },
+    { t:"how", drill:"Blockers", ask:"How many nut flushes can he have?",
+      steps:[
+        "The board has three of one suit, so the nut flush is possible. It needs exactly one card: the ace of that suit.",
+        "Look at your own two cards. Do you hold the ace of the flush suit?",
+        "If you hold it, the answer is 0, he cannot make the nut flush at all. If you do not, he can pair that ace with any of the 12 remaining cards of the suit, so the answer is 12."
+      ],
+      tip:"This drill has only two possible answers, 0 or 12. The entire task is checking one card in your hand against the suit on the board. That single card being a blocker is why the ace of the flush suit bluffs better than a real pair." }
   ]
 },
 {
@@ -173,7 +215,14 @@ var LESSONS_2 = [
       bar:{ fill:6, tick:null, fillLabel:"1 of 16 combos beat you", tickLabel:"" },
       punch:"You are good or chopping 94% of the time against the range you gave him. If you were about to fold this to a big bet, you were not making a read, you were making an arithmetic error." },
     { t:"p", x:"Notice what happened. Your own two cards removed five of his eighteen pair combos, including five sixths of the aces. The hand that beat you got rare precisely because you held the cards it needed. That is the payoff of layer 2, and it is why you cannot do this by feel." },
-    { t:"key", x:"Every river decision is a counting problem with a small number of combos in it. If you find yourself agonising, you have stopped counting and started imagining." }
+    { t:"key", x:"Every river decision is a counting problem with a small number of combos in it. If you find yourself agonising, you have stopped counting and started imagining." },
+    { t:"how", drill:"What beats you", ask:"How many of his combos beat you right now?",
+      steps:[
+        "You are handed his range and the count of live combos left in it. Work out your own hand first: what is your best five so far.",
+        "Sort his range into categories that beat you versus categories that do not. Think in groups, sets, better two pairs, higher top pairs, not one hand at a time.",
+        "Count only the combos in the beats-you groups, using the live count that already has your cards and the board removed. Enter that number."
+      ],
+      tip:"Your own cards quietly remove combos from the very hands that beat you: an ace in your hand is an ace he cannot have. That is why the honest count is almost always kinder than the fear. Count, do not picture the one hand you are scared of." }
   ]
 }
 ];
@@ -191,7 +240,14 @@ var LESSONS_3 = [
     { t:"rule", x:"At equilibrium, mix at the frequency that makes\nthe opponent indifferent between his options.", note:"This is why it pins your strategy without needing any read on him. You are not solving for his tendencies. You are solving for the frequency at which his tendencies stop mattering." },
     { t:"p", x:"It also explains a thing that confuses everyone: at equilibrium, your own mixed actions are all worth the same to you too. If you are bluffing 33% of the time with a hand, that hand earns the same whether you bluff it or check it. The mixing is not for your benefit. It is a constraint you accept so that his best response cannot exploit you." },
     { t:"warn", x:"Two caveats that matter and get dropped. The unexploitable guarantee is a heads up, two player result. In a multiway pot the theory is far weaker, and equilibrium play can lose to two opponents who are not colluding but happen to interact badly with you. And the guarantee is about not losing, not about winning: equilibrium beats nobody who is also at equilibrium." },
-    { t:"key", x:"Equilibrium is a floor, not a ceiling. It says you cannot be exploited. Layer 5 is about deliberately leaving it to take money from people who cannot punish you for it." }
+    { t:"key", x:"Equilibrium is a floor, not a ceiling. It says you cannot be exploited. Layer 5 is about deliberately leaving it to take money from people who cannot punish you for it." },
+    { t:"how", drill:"Indifference", ask:"What fraction makes him indifferent? (your bluffs, or his calls)",
+      steps:[
+        "Read which frequency the question wants. Sometimes it asks how often you should bluff, sometimes how often he should call or defend.",
+        "Your bluffing frequency is bet / (bet + pot). His defending frequency is pot / (pot + bet). The two add up to 100%.",
+        "Compute the one it asked for from just the pot and the bet, then enter the percent. Notice you needed no read on him at all."
+      ],
+      tip:"They are one equation seen from two chairs. Work out whichever is easier, subtract from 100, and you have the other for free." }
   ]
 },
 {
@@ -219,7 +275,14 @@ var LESSONS_3 = [
       ],
       bar:{ fill:33, tick:null, fillLabel:"33% of the betting range is bluff", tickLabel:"" },
       punch:"Bluff more than that and he calls everything and prints. Bluff less and he folds everything and prints. Hit it and he cannot do anything at all." },
-    { t:"key", x:"alpha = bet / (bet + pot). Half pot is a third. Pot is a half. Your bluffs are not a mood, they are a quota you set the instant you chose a size." }
+    { t:"key", x:"alpha = bet / (bet + pot). Half pot is a third. Pot is a half. Your bluffs are not a mood, they are a quota you set the instant you chose a size." },
+    { t:"how", drill:"Alpha", ask:"What share of this betting range should be bluffs?",
+      steps:[
+        "You are given the pot and your bet. Alpha is bet / (bet + pot), the exact same formula as the pot-odds price.",
+        "Put the bet on top and (bet + pot) on the bottom, divide, enter the percent.",
+        "Sanity check against the anchors before you commit: half pot is 33%, pot is 50%, double pot is 67%."
+      ],
+      tip:"The bigger the bet, the more you are required to bluff. If your answer comes out small for a big bet, you have probably put the pot instead of the bet on top, flip the fraction." }
   ]
 },
 {
@@ -240,7 +303,14 @@ var LESSONS_3 = [
       ["twice pot","33%","67%"]
     ], caption:"Big bets let you fold a lot. Small bets do not. The player who bets a third of the pot is asking you to defend three quarters of your range, which is why small bets are annoying rather than weak." },
     { t:"warn", x:"MDF is a bound, not a strategy, and it is the most misapplied idea in poker. It answers exactly one question: how much do I defend so that betting any two cards is not free money for him. It does not say those calls are individually profitable. If he never bluffs, MDF is irrelevant and you should fold everything, which is exactly what layer 5 is for." },
-    { t:"key", x:"MDF = pot / (pot + bet). Half pot means defend two thirds. And defend does not mean call, it means do not fold." }
+    { t:"key", x:"MDF = pot / (pot + bet). Half pot means defend two thirds. And defend does not mean call, it means do not fold." },
+    { t:"how", drill:"MDF", ask:"How much of your range must continue?",
+      steps:[
+        "You are given the pot and his bet. MDF is pot / (pot + bet), which is alpha wearing the other hat.",
+        "Put the pot on top this time and (pot + bet) on the bottom. Divide, enter the percent you must not fold.",
+        "Anchors to check against: he bets a third, defend 75%; half pot, 67%; pot, 50%; double pot, 33%."
+      ],
+      tip:"'Continue' means call or raise, not call specifically. And remember MDF is only a bound against a villain who could be bluffing; it is never a reason to keep calling someone who never bluffs, which is the whole of Layer 5." }
   ]
 },
 {
@@ -262,7 +332,14 @@ var LESSONS_3 = [
       bar:{ fill:67, tick:33, fillLabel:"double pot: 67% bluffs", tickLabel:"half pot: 33% bluffs" },
       punch:"Same 12 value hands, three completely different strategies. If you want to bet big, you had better have found 24 bluffs, and if you cannot find them, you are not allowed the size. This is why solver ranges look strange: the sizing came first and the hands were fitted to it." },
     { t:"p", x:"This is also why you cannot copy one number from a solver and paste it into your game. The size, the bluff count, the value count and the defence frequency form a system. Change one and the others must move. Most players lift the size, keep their old bluff frequency, and hand away the difference." },
-    { t:"key", x:"Choose the size, then build the range the size demands. Never build a range and then reach for a size that flatters it." }
+    { t:"key", x:"Choose the size, then build the range the size demands. Never build a range and then reach for a size that flatters it." },
+    { t:"how", drill:"Bluff ratio", ask:"How many bluff combos belong in this bet?",
+      steps:[
+        "You are given the pot, your bet, and a count of value combos. First get alpha = bet / (bet + pot).",
+        "Then bluffs = value x alpha / (1 - alpha). Multiply your value count by alpha, then divide by (1 - alpha).",
+        "Enter the number of bluff combos. You are graded within about 10%, so round the arithmetic."
+      ],
+      tip:"Skip the algebra with the ratio shortcut: half pot wants 1 bluff for every 2 value, pot wants 1 to 1, double pot wants 2 to 1. Multiply the value count by that ratio and you are inside the tolerance." }
   ]
 },
 {
@@ -326,7 +403,14 @@ var LESSONS_4 = [
       bar:{ fill:25, tick:50, fillLabel:"t = 1.0", tickLabel:"t = 2, the 95% line" },
       punch:"Fifty thousand hands is months of serious play, and it does not distinguish this player from a break even player who ran slightly warm. He will tell you he is a 4 bb/100 winner. He does not know that." },
     { t:"warn", x:"It is worse than the formula suggests. You did not pick this sample at random, you picked it because it looked good, which is selection bias. Your winrate is not stationary across stakes, games and years. And poker returns have fatter tails than the normal that the t-stat assumes. Every one of those pushes the real requirement up, not down." },
-    { t:"key", x:"t = winrate x sqrt(n/100) / sd. Run it on your own graph before you believe your own graph." }
+    { t:"key", x:"t = winrate x sqrt(n/100) / sd. Run it on your own graph before you believe your own graph." },
+    { t:"how", drill:"t-stat", ask:"What is the t statistic on this winrate?",
+      steps:[
+        "You are given a winrate, a standard deviation, and a sample of hands. First get the standard error: SE = sd / sqrt(n/100). Divide the hand count by 100, then take the square root, then divide sd by that.",
+        "Then t = winrate / SE.",
+        "Enter t. It is a small number, almost always between 0 and 4. Graded within about 8%."
+      ],
+      tip:"A t below 2 means the sample cannot tell this player apart from a break-even one who ran warm. On the samples people actually have, the answer is usually near 1, which is the sobering point of the whole lesson." }
   ]
 },
 {
@@ -348,7 +432,14 @@ var LESSONS_4 = [
       punch:"And that is for a strong winrate. A 2 bb/100 grinder needs 810,000 hands. A 1 bb/100 edge needs 3.2 million, which is a career, by which time the games have changed and the edge you measured no longer exists." },
     { t:"p", x:"The quadratic is what does the damage. Halving your edge quadruples the sample. This is the same reason a strategy with a 0.3 Sharpe needs a decade of daily data and one with 1.5 needs a year, and it is why nobody sensible evaluates a system on its P&L alone." },
     { t:"p", x:"Which leads somewhere useful rather than despairing. If results cannot tell you whether you are good inside any reasonable horizon, then results are the wrong instrument. You have to evaluate your decisions directly against a benchmark, hand by hand, which is what solvers and database work are for. Process, not P&L. You have heard this before in another context." },
-    { t:"key", x:"n scales with the square of the noise to signal ratio. Six figures of hands to prove a good winrate, seven to prove a small one. Almost nobody has the sample they think they have." }
+    { t:"key", x:"n scales with the square of the noise to signal ratio. Six figures of hands to prove a good winrate, seven to prove a small one. Almost nobody has the sample they think they have." },
+    { t:"how", drill:"Sample size", ask:"How many hands before this winrate is distinguishable from zero?",
+      steps:[
+        "You are given the standard deviation and the claimed winrate. Work the inside of the formula first: 2 x sd / winrate.",
+        "Square that result, then multiply by 100. That is n = 100 x (2 x sd / winrate)^2.",
+        "The answer is large, usually six figures or more. Enter it; graded within about 10%."
+      ],
+      tip:"Halving the winrate quadruples the sample, because the ratio is squared. That single fact is why a small edge needs millions of hands and why results almost never prove anything inside a real horizon." }
   ]
 },
 {
@@ -370,7 +461,14 @@ var LESSONS_4 = [
       punch:"A genuinely good player, properly rolled by the standard advice, busts about one time in twelve. Not from playing badly. From variance, doing exactly what variance does." },
     { t:"p", x:"Now feel the exponent. Take that same player to 40 buyins and ruin drops to 0.7%. Take him to 10 buyins and it climbs to 29%. Ruin is exponential in bankroll and in winrate, and it explodes in the square of the standard deviation. Which means the single highest leverage thing available to you is almost never playing better. It is playing in games with lower variance and higher edge, and having more money behind." },
     { t:"warn", x:"The formula assumes a fixed winrate, a fixed sd, and infinite hands. Real ruin is worse: your winrate is uncertain and might be zero, you tilt after losses, and you move up in stakes exactly when your roll is fat, which resets the clock. Treat the number as an optimistic bound." },
-    { t:"key", x:"Ruin falls exponentially with bankroll and edge. Being right is not the same as surviving long enough to collect." }
+    { t:"key", x:"Ruin falls exponentially with bankroll and edge. Being right is not the same as surviving long enough to collect." },
+    { t:"how", drill:"Risk of ruin", ask:"What is the chance you ever go broke?",
+      steps:[
+        "You are given winrate, standard deviation, and a bankroll. The bankroll line already gives you big blinds (buyins x 100) alongside the buyin count; use the bb figure.",
+        "Form the exponent: -2 x winrate x bankroll / sd^2. Everything is in bb per 100 hands.",
+        "Take e to that power and multiply by 100 for a percent. Enter it; graded within about 15%."
+      ],
+      tip:"The whole answer lives in the exponent. A more negative exponent means a tiny risk. Adding bankroll or winrate drives ruin down fast, while more variance, the sd squared on the bottom, drives it up hard." }
   ]
 },
 {
@@ -392,7 +490,14 @@ var LESSONS_4 = [
       punch:"And now you can see where 20 to 40 buyins comes from. It is not a superstition. It is roughly half to quarter Kelly, which is what anyone sane runs when the edge itself is an estimate." },
     { t:"p", x:"The reason nobody plays full Kelly is the same reason nobody runs a book at full Kelly. Full Kelly maximises log growth on the assumption your edge estimate is exact. It is not exact, you established that two lessons ago, and Kelly is brutally asymmetric about overestimation: bet twice the optimal fraction and your growth rate goes to zero, not to double." },
     { t:"p", x:"Half Kelly gives up 25% of the growth rate for roughly half the volatility and a far shorter drawdown. Quarter Kelly gives up 44% of growth and makes the ride survivable by a human being. Since your edge estimate has a standard error the size of the edge, fractional Kelly is not caution. It is the correct answer to a parameter you do not know." },
-    { t:"key", x:"f* = edge / variance, then divide by two or four because you do not know your edge. That is the entire theory of bankroll management." }
+    { t:"key", x:"f* = edge / variance, then divide by two or four because you do not know your edge. That is the entire theory of bankroll management." },
+    { t:"how", drill:"Kelly", ask:"Full Kelly risks what fraction of your roll? Give 1/x, answer x.",
+      steps:[
+        "You are given the edge and the variance (variance is sd squared, already worked out for you). The Kelly fraction is f = edge / variance.",
+        "The drill wants the denominator x, not the fraction. So answer x = variance / edge, that is, 1 divided by f.",
+        "Enter that x. Graded within about 10%."
+      ],
+      tip:"That x, in big blinds, doubles as your full-Kelly bankroll; divide by 100 for buyins. The drill asks for full Kelly, but remember nobody runs full Kelly in practice, half or quarter is the sane number." }
   ]
 }
 ];
@@ -418,7 +523,14 @@ var LESSONS_5 = [
       bar:{ fill:57, tick:53, fillLabel:"posterior: 57% pairs", tickLabel:"prior: 53% pairs" },
       punch:"You hold AK, so he is less likely to hold AK, so he is more likely to hold the pairs that beat you. The hand that made you want to play is the hand that made playing worse. Four points, and it decides marginal spots." },
     { t:"p", x:"This generalises into the habit that separates layer 5 from wishful thinking. Every observation is a likelihood ratio applied to a prior. Your cards are an observation. The board is an observation. His sizing is an observation. None of them are conclusions, and all of them multiply." },
-    { t:"key", x:"Count the range, remove your cards, divide. Your own hand is evidence about his, and it usually points the wrong way for you." }
+    { t:"key", x:"Count the range, remove your cards, divide. Your own hand is evidence about his, and it usually points the wrong way for you." },
+    { t:"how", drill:"Bayes and blockers", ask:"He 3bets. How often does he hold that pair group?",
+      steps:[
+        "Count his written range two ways: the total combos, and how many of them are the pair group the question asks about.",
+        "Now remove your two cards from both counts. Your ace deletes his ace combos, your king deletes his king combos, and so on.",
+        "Divide surviving pairs by surviving total and enter the percent. Graded within 3 points."
+      ],
+      tip:"Holding a card he needs makes that specific hand rarer, so strong blockers usually push the answer toward the hands that beat you, not away from them. The hand that made you want to play is the hand that made playing worse." }
   ]
 },
 {
@@ -440,7 +552,14 @@ var LESSONS_5 = [
       bar:{ fill:57, tick:45, fillLabel:"posterior 57%", tickLabel:"prior 45%" },
       punch:"He folded 80% in your sample and you moved him to 57%, not 80%. Ten hands is worth a twelve point move against a twenty hand prior. That is the correct amount of updating and it will feel far too timid, which is the point." },
     { t:"warn", x:"The failure mode is not being too slow. It is one dramatic showdown rewriting the whole model. He shows a bluff, and suddenly he is a maniac. That is a sample of one against a prior of a thousand hands of population data, and it should move you almost nothing. The reason to write the prior down is so that a single vivid hand cannot delete it." },
-    { t:"key", x:"Equilibrium is the prior. Reads are evidence with a weight equal to their sample size. Update, do not overwrite." }
+    { t:"key", x:"Equilibrium is the prior. Reads are evidence with a weight equal to their sample size. Update, do not overwrite." },
+    { t:"how", drill:"Updating reads", ask:"What is your posterior estimate of his fold frequency?",
+      steps:[
+        "You are given a population baseline, a prior strength in hands, and what you observed (folds in some number of chances).",
+        "Turn the baseline into imagined folds: baseline percent x prior strength. That is your prior successes.",
+        "Posterior = (prior successes + observed folds) / (prior strength + observations). Enter the percent; graded within 2 points."
+      ],
+      tip:"The answer always lands between the baseline and what you saw, and much closer to the baseline than a small sample feels it should. That is the point: a handful of hands is a nudge, not a rewrite." }
   ]
 },
 {
@@ -463,7 +582,14 @@ var LESSONS_5 = [
       punch:"MDF says defend half your range. MDF is wrong here and knowing why is the whole layer. MDF only protects you against a bet that could be any two cards. His bet cannot be any two cards. He does not bluff. So defending is a rule for a game you are not in." },
     { t:"p", x:"And the cost of deviating is exactly the exposure you take on. Fold every bluff catcher and you are now exploitable by a player who starts bluffing. Against most opponents that is a trade you make gladly, because they will not notice and they will not adjust. Against a good one, you go back to the equilibrium and you stay there." },
     { t:"warn", x:"The discipline is knowing which one you are in. Most players believe they are deviating on reads when they are actually just playing badly and calling it a read. The test is whether you can state the equilibrium frequency, state his frequency, and state your evidence for the second number. If you cannot do all three, you are not exploiting anyone. You are guessing." },
-    { t:"key", x:"Equilibrium is the fallback and the measuring stick. Deviate hard when the read is real, snap back to the baseline when it is not, and always be able to say which one you are doing." }
+    { t:"key", x:"Equilibrium is the fallback and the measuring stick. Deviate hard when the read is real, snap back to the baseline when it is not, and always be able to say which one you are doing." },
+    { t:"how", drill:"Deviate", ask:"You hold a pure bluff catcher. Call or fold?",
+      steps:[
+        "The drill hands you two numbers directly: the equilibrium bluff rate, which is your indifference point, and your read on how often he actually bluffs.",
+        "Compare them. If he bluffs more than the equilibrium rate, CALL. If he bluffs less, FOLD.",
+        "That is the entire decision. Do not reach for MDF here."
+      ],
+      tip:"Look at the bar: your read is the moving fill, indifference is the tick. Fill past the tick means call, short of it means fold. Every dollar you make is the gap between those two marks, so trust the read the drill gave you." }
   ]
 }
 ];
