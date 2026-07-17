@@ -215,7 +215,7 @@ function genBeat() {
 
 function genAlpha() {
   var pot = pick(POTS), bet = betOf(pot, pick(FRACS));
-  var a = 100 * bet / (bet + pot);
+  var a = 100 * bet / (pot + 2 * bet);
   return {
     mode: "alpha", target: 8,
     lines: [["Pot", money(pot)], ["Your bet", money(bet)]],
@@ -223,9 +223,9 @@ function genAlpha() {
     kind: "number", unit: "%", answer: a, tol: 1.5,
     bar: { fill: a, tick: null, fillLabel: "bluffs, " + a.toFixed(1) + "% of the betting range", tickLabel: "" },
     math: [
-      "alpha = bet / (bet + pot) = " + money(bet) + " / " + money(bet + pot) + " = " + a.toFixed(1) + "%",
-      "This is the same arithmetic as the price you are laying him. You bluff at exactly the frequency his call is break even.",
-      "Value combos should be the other " + (100 - a).toFixed(1) + "%, so " + (a / (100 - a)).toFixed(2) + " bluffs for every value bet."
+      "alpha = bet / (pot + 2 x bet) = " + money(bet) + " / " + money(pot + 2 * bet) + " = " + a.toFixed(1) + "%",
+      "This is the same arithmetic as the pot-odds price you are laying him. You bluff at exactly the frequency that makes his call break even.",
+      "Value combos are the other " + (100 - a).toFixed(1) + "%, so " + (a / (100 - a)).toFixed(2) + " bluffs for every value bet."
     ]
   };
 }
@@ -242,7 +242,7 @@ function genMDF() {
     math: [
       "MDF = pot / (pot + bet) = " + money(pot) + " / " + money(pot + bet) + " = " + m.toFixed(1) + "%",
       "Fold more than " + (100 - m).toFixed(1) + "% and his any-two-cards bluff prints money whatever he holds.",
-      "MDF and alpha are the same equation seen from the two seats: " + m.toFixed(1) + " + " + (100 - m).toFixed(1) + " = 100."
+      "Its mirror is the fold frequency a pure bluff needs, " + (100 - m).toFixed(1) + "%, so MDF and that sum to 100. Alpha, the bluff quota, uses pot + 2 x bet and is a separate number."
     ]
   };
 }
@@ -250,7 +250,7 @@ function genMDF() {
 function genRatio() {
   var pot = pick(POTS), bet = betOf(pot, pick([0.33, 0.5, 0.66, 0.75, 1, 1.5, 2]));
   var val = pick([6, 8, 9, 10, 12, 15, 16, 18, 20, 24]);
-  var a = bet / (bet + pot);
+  var a = bet / (pot + 2 * bet);
   var bluffs = val * a / (1 - a);
   return {
     mode: "ratio", target: 20,
@@ -260,7 +260,7 @@ function genRatio() {
     bar: { fill: 100 * bluffs / (bluffs + val), tick: null,
            fillLabel: bluffs.toFixed(1) + " bluffs to " + val + " value = " + (100 * bluffs / (bluffs + val)).toFixed(1) + "% bluffs", tickLabel: "" },
     math: [
-      "alpha = " + money(bet) + " / " + money(bet + pot) + " = " + (100 * a).toFixed(1) + "%",
+      "alpha = " + money(bet) + " / " + money(pot + 2 * bet) + " = " + (100 * a).toFixed(1) + "%",
       "bluffs / (value + bluffs) = alpha, so bluffs = value x alpha / (1 - alpha)",
       "= " + val + " x " + a.toFixed(3) + " / " + (1 - a).toFixed(3) + " = " + bluffs.toFixed(1) + " combos.",
       "Bigger bet, more bluffs allowed. The size you pick writes your own bluffing quota, which is why sizing is a mechanism design problem and not a feel."
@@ -270,7 +270,7 @@ function genRatio() {
 
 function genIndiff() {
   var pot = pick(POTS), bet = betOf(pot, pick(FRACS));
-  var a = 100 * bet / (bet + pot);
+  var a = 100 * bet / (pot + 2 * bet);
   var m = 100 * pot / (pot + bet);
   var askMDF = Math.random() < 0.5;
   return {
@@ -286,7 +286,7 @@ function genIndiff() {
       ? ["He must make YOUR bluffs break even, so he defends MDF = pot / (pot + bet) = " + m.toFixed(1) + "%.",
          "His call frequency is not chosen for his own benefit. It is chosen so that you cannot profit by bluffing every hand.",
          "This is the indifference principle. Each player's frequency is pinned by what it does to the other one."]
-      : ["You must make HIS calls break even, so you bluff alpha = bet / (bet + pot) = " + a.toFixed(1) + "%.",
+      : ["You must make HIS calls break even, so you bluff alpha = bet / (pot + 2 x bet) = " + a.toFixed(1) + "%.",
          "At this frequency his bluff catcher wins exactly as much by calling as by folding. He has no decision left to get right.",
          "You are not trying to trick him. You are removing his ability to be correct."]
   };
@@ -426,12 +426,11 @@ function genUpdate() {
 function genDeviate() {
   var pot = pick([60, 80, 100, 120, 150]);
   var bet = betOf(pot, pick([0.5, 0.66, 0.75, 1]));
-  var a = 100 * bet / (bet + pot);
+  var a = 100 * bet / (pot + 2 * bet);
   var actual = Math.random() < 0.5
     ? a * pick([0.2, 0.3, 0.45])                      /* underbluffs */
     : Math.min(92, a * pick([1.6, 2, 2.5]));          /* overbluffs */
   var call = actual > a;
-  var price = 100 * bet / (pot + bet + bet);
   return {
     mode: "deviate", target: 20,
     lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Equilibrium bluff rate here", a.toFixed(1) + "%"],

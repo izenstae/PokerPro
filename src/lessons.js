@@ -144,14 +144,14 @@ var LESSONS_1 = [
       punch:"Ask yourself honestly: out of every ten times, does this player really pass six? If yes, the bluff loses. That is now a question about him, not about you." },
     { t:"p", x:"Now add cards to it. If you have a draw, the times they call are not all losses, and every point of equity when called buys you back fold equity you no longer need." },
     { t:"ex", title:"Worked example: semi-bluff",
-      facts:[["Pot","$90"],["Your bet","$60"],["Equity when called","30%"]],
+      facts:[["Pot","$90"],["Your bet","$60"],["Equity when called","20%"]],
       steps:[
-        "When called: 0.30 x $150 won minus 0.70 x $60 lost = $45 - $42 = a $3 loss.",
-        "When they fold you take $90 clean.",
-        "f x $90 = $3, so f = 3 / (3 + 90) = 3.2%."
+        "When called: 0.20 x $150 won minus 0.80 x $60 lost = $30 - $48 = an $18 loss.",
+        "When they fold you take the $90 pot clean.",
+        "Break even: f x $90 = (1 - f) x $18, so f = 18 / (90 + 18) = 16.7%."
       ],
-      bar:{ fill:3.2, tick:40, fillLabel:"folds needed with a draw", tickLabel:"folds needed as a pure bluff" },
-      punch:"The same bet went from needing 40% folds to needing 3%. You did not change the bet. You changed the hand behind it. This is why you bluff with your draws and check your air." },
+      bar:{ fill:16.7, tick:40, fillLabel:"folds needed with a draw", tickLabel:"folds needed as a pure bluff" },
+      punch:"The same bet went from needing 40% folds to needing 17%. You did not change the bet. You changed the hand behind it, and the equity you bring when called buys down the folds you need. This is why you bluff with your draws and check your air." },
     { t:"warn", x:"The formula is exact. The input is not. Fold equity is a guess about a human being, and no amount of arithmetic will make a bad read good. Be honest about the guess and the math will take care of itself." },
     { t:"key", x:"Half pot needs a third of folds. Pot needs half. Every point of equity when called pulls the requirement down hard." },
     { t:"how", drill:"Fold equity", ask:"How often must villain fold for this to break even?",
@@ -171,7 +171,7 @@ var LESSONS_1 = [
   blocks: [
     { t:"p", x:"Everything in lesson one assumed the hand ends the moment you call. But you are on the flop, there are two more cards and possibly another bet, and if you hit your draw the villain may hand you his whole stack." },
     { t:"p", x:"That future money is real and you are allowed to count it. Carefully." },
-    { t:"rule", x:"extra = (1 - e) x call / e - pot", note:"e is your equity, call is what you are paying, pot is the middle before your call. The answer is how much more you must win on later streets, on average, for the call to break even." },
+    { t:"rule", x:"extra = (1 - e) x call / e - (pot + bet)", note:"e is your equity, call is what you are paying, and (pot + bet) is everything already in the middle right now, before your call. The answer is how much more you must win on later streets, on average, for the call to break even." },
     { t:"ex", title:"Worked example",
       facts:[["Pot","$100"],["Villain bets","$50"],["To call","$50"],["Your outs","4 (gutshot, 8.7%)"]],
       steps:[
@@ -187,7 +187,7 @@ var LESSONS_1 = [
     { t:"how", drill:"Implied odds", ask:"How much extra must you win on the river to make this call break even?",
       steps:[
         "You are told your equity e (as a percent, in the outs line) and the pot and call. The raw price is bad on purpose, otherwise there would be nothing to solve.",
-        "Plug into extra = (1 - e) x call / e - pot. Turn e into a decimal first: 8.7% becomes 0.087.",
+        "Plug into extra = (1 - e) x call / e - (pot + bet), where (pot + bet) is the whole middle before your call. Turn e into a decimal first: 8.7% becomes 0.087.",
         "The smaller your equity, the more the division explodes. Enter the dollar figure; you are graded within about 8%, so approximate."
       ],
       tip:"Read the answer as 'how much of his stack I must expect to win when I hit'. A tiny draw needs a huge payoff, so if the stacks behind are not deep enough to pay that number, the call is simply bad no matter how the math looks." }
@@ -206,7 +206,7 @@ var LESSONS_1 = [
       ["Pair vs two overcards (77 vs AK)","55 / 45"],
       ["Pair vs one over, one under (77 vs A5)","70 / 30"],
       ["Dominated (AK vs AQ)","74 / 26"],
-      ["Two live overs vs two unders (KQ vs 87)","64 / 36"],
+      ["Two live overs vs two unders (KQ vs 87)","63 / 37"],
       ["Pair vs a hand it dominates (AA vs AK)","93 / 7"]
     ], caption:"The famous coin flip is pair against two overcards, and it is not actually a flip. The pair is a 55/45 favourite, because it is already the best hand and the overcards have to improve." },
     { t:"p", x:"Then two small adjustments, worth remembering because they are the entire argument for playing suited cards." },

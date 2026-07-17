@@ -158,11 +158,11 @@ var LESSONS_2 = [
     { t:"key", x:"Count his range, then delete everything you can see, then recount. The gap between those two numbers is where close decisions get decided." },
     { t:"how", drill:"Card removal", ask:"How many of that hand can he still have?",
       steps:[
-        "Start from the full combo count of the hand in question, before any cards are out: AK is 16, AA is 6, AKs is 4.",
-        "Look at every card you can see. Your hole cards and every board card are all dead cards for him.",
-        "For each dead card of a rank he needs, delete the combos that used it. One ace gone takes AK from 16 to 12 and AA from 6 to 3. Enter the survivors."
+        "This drill mixes three questions: a plain combo count of one hand class, a whole range's count, or the count left after some cards are dead. Removal is the last one, and what this lesson is about.",
+        "Whatever it asks, start from the clean count: pair 6, suited 4, offsuit 12, both 16; for a range, add the pieces up.",
+        "Then, if cards are showing (your hole cards or a board), delete the combos that need a card you can see. One ace gone takes AK from 16 to 12, AA from 6 to 3. Enter what survives."
       ],
-      tip:"The 'before' number is the only thing to have memorised. Then the drill is pure subtraction: how many of the exact cards this hand needs are already visible, and how many combos does each remove." }
+      tip:"The clean 'before' counts are the only thing to memorise. When dead cards appear the drill is pure subtraction: how many of the exact cards this hand needs are already visible, and how many combos does each one remove." }
   ]
 },
 {
@@ -243,46 +243,46 @@ var LESSONS_3 = [
     { t:"key", x:"Equilibrium is a floor, not a ceiling. It says you cannot be exploited. Layer 5 is about deliberately leaving it to take money from people who cannot punish you for it." },
     { t:"how", drill:"Indifference", ask:"What fraction makes him indifferent? (your bluffs, or his calls)",
       steps:[
-        "Read which frequency the question wants. Sometimes it asks how often you should bluff, sometimes how often he should call or defend.",
-        "Your bluffing frequency is bet / (bet + pot). His defending frequency is pot / (pot + bet). The two add up to 100%.",
-        "Compute the one it asked for from just the pot and the bet, then enter the percent. Notice you needed no read on him at all."
+        "Read which frequency the question wants. Sometimes it asks how often you should bluff, sometimes how often he must call or defend.",
+        "Your bluffing frequency is bet / (pot + 2 x bet), the pot-odds price. His defending frequency, MDF, is pot / (pot + bet).",
+        "Compute the one it asked for from just the pot and the bet, then enter the percent. Neither needs any read on him."
       ],
-      tip:"They are one equation seen from two chairs. Work out whichever is easier, subtract from 100, and you have the other for free." }
+      tip:"Watch the denominators, they are the whole game: the bluff quota adds the bet twice (pot + 2 x bet), MDF adds it once (pot + bet). They are cousins, not complements, so do not get one by subtracting the other from 100." }
   ]
 },
 {
   id: "alpha", mode: "alpha", pass: 4, of: 5,
   title: "Alpha",
   sub: "Your bluffing quota",
-  gist: "alpha = bet / (bet + pot). Your bet size writes it for you.",
+  gist: "alpha = bet / (pot + 2 x bet). Your bet size writes it for you.",
   blocks: [
     { t:"p", x:"Make the indifference principle concrete. You bet the river. He holds a bluff catcher, a hand that beats your bluffs and loses to your value. What has to be true for him to be indifferent between calling and folding?" },
     { t:"p", x:"Folding earns him zero. Calling earns him the pot plus your bet when you were bluffing, and costs him the call when you were not. Set those equal and solve. The bluff frequency that comes out is called alpha." },
-    { t:"rule", x:"alpha = bet / (bet + pot)", note:"The share of your betting range that should be bluffs. Not the share of your hands. The share of the hands you bet." },
+    { t:"rule", x:"alpha = bet / (pot + 2 x bet)", note:"The share of your betting range that should be bluffs. Not the share of your hands. The share of the hands you bet. It is the pot-odds price from layer 1: add the bet twice, once for his call and once for yours." },
     { t:"p", x:"Look closely at that formula. It is identical to the pot odds formula from layer 1. That is not a coincidence and it is worth sitting with: the price you lay him is the frequency you must bluff at. You are not choosing two things. You are choosing one thing twice." },
     { t:"tbl", head:["You bet","alpha","Bluffs per value bet"], rows:[
-      ["half pot","33%","1 bluff : 2 value"],
-      ["three quarters","43%","3 bluffs : 4 value"],
-      ["pot","50%","1 bluff : 1 value"],
-      ["twice pot","67%","2 bluffs : 1 value"]
+      ["half pot","25%","1 bluff : 3 value"],
+      ["three quarters","30%","3 bluffs : 7 value"],
+      ["pot","33%","1 bluff : 2 value"],
+      ["twice pot","40%","2 bluffs : 3 value"]
     ], caption:"Bet bigger and you are allowed, in fact required, to bluff more. The bigger bet lays him a worse price, and a worse price means he folds more, and if he folds more you must be bluffing more or he could simply fold everything." },
     { t:"ex", title:"Worked example",
       facts:[["Pot","$100"],["Your river bet","$50"]],
       steps:[
-        "alpha = 50 / (50 + 100) = 33%.",
-        "So one third of the hands you bet should be bluffs.",
-        "If you have 8 value combos, you want 4 bluffs: 4 / 12 = 33%."
+        "alpha = 50 / (100 + 2 x 50) = 50 / 200 = 25%.",
+        "So one quarter of the hands you bet should be bluffs.",
+        "If you have 9 value combos, you want 3 bluffs: 3 / 12 = 25%."
       ],
-      bar:{ fill:33, tick:null, fillLabel:"33% of the betting range is bluff", tickLabel:"" },
+      bar:{ fill:25, tick:null, fillLabel:"25% of the betting range is bluff", tickLabel:"" },
       punch:"Bluff more than that and he calls everything and prints. Bluff less and he folds everything and prints. Hit it and he cannot do anything at all." },
-    { t:"key", x:"alpha = bet / (bet + pot). Half pot is a third. Pot is a half. Your bluffs are not a mood, they are a quota you set the instant you chose a size." },
+    { t:"key", x:"alpha = bet / (pot + 2 x bet), the pot-odds price again. Half pot is a quarter. Pot is a third. Your bluffs are not a mood, they are a quota you set the instant you chose a size." },
     { t:"how", drill:"Alpha", ask:"What share of this betting range should be bluffs?",
       steps:[
-        "You are given the pot and your bet. Alpha is bet / (bet + pot), the exact same formula as the pot-odds price.",
-        "Put the bet on top and (bet + pot) on the bottom, divide, enter the percent.",
-        "Sanity check against the anchors before you commit: half pot is 33%, pot is 50%, double pot is 67%."
+        "You are given the pot and your bet. Alpha is bet / (pot + 2 x bet), the exact same formula as the layer 1 pot-odds price.",
+        "Put the bet on top and (pot + 2 x bet) on the bottom, divide, enter the percent.",
+        "Sanity check against the anchors before you commit: half pot is 25%, pot is 33%, double pot is 40%."
       ],
-      tip:"The bigger the bet, the more you are required to bluff. If your answer comes out small for a big bet, you have probably put the pot instead of the bet on top, flip the fraction." }
+      tip:"The bigger the bet, the more you are required to bluff. The one trap is the denominator: add the bet twice, once for his call and once for yours, exactly like the price you lay him. Forget one and every answer comes out too high." }
   ]
 },
 {
@@ -294,7 +294,7 @@ var LESSONS_3 = [
     { t:"p", x:"Now you are the one facing the bet. Ask the mirrored question: how often must you continue so that his bluffs are not automatically profitable?" },
     { t:"p", x:"If he bets and you fold too often, he can bet with every hand he holds, including the worst ones, and profit without ever showing a card. Your defence frequency has to be high enough to kill that." },
     { t:"rule", x:"MDF = pot / (pot + bet)", note:"The share of your range that must continue. Continue means call or raise, not call specifically." },
-    { t:"p", x:"And notice: MDF + alpha = 1. They are the same equation seen from the two seats. His bluffing quota and your defending quota are the same number wearing different clothes, which is what you would expect from a zero sum game where one player's constraint is the other's freedom." },
+    { t:"p", x:"And notice the mirror, but mind which numbers. Defend less than MDF and his pure bluff prints for free, so the fold frequency that keeps him honest is 1 - MDF = bet / (pot + bet). That number and MDF are the two seats at one equation, and they sum to 100. His bluffing quota alpha is a third, separate number, the pot-odds price bet / (pot + 2 x bet). Cousins, not twins, so never get one by subtracting the other from 100." },
     { t:"tbl", head:["He bets","You must defend","You may fold"], rows:[
       ["a third","75%","25%"],
       ["half pot","67%","33%"],
@@ -306,8 +306,8 @@ var LESSONS_3 = [
     { t:"key", x:"MDF = pot / (pot + bet). Half pot means defend two thirds. And defend does not mean call, it means do not fold." },
     { t:"how", drill:"MDF", ask:"How much of your range must continue?",
       steps:[
-        "You are given the pot and his bet. MDF is pot / (pot + bet), which is alpha wearing the other hat.",
-        "Put the pot on top this time and (pot + bet) on the bottom. Divide, enter the percent you must not fold.",
+        "You are given the pot and his bet. MDF is pot / (pot + bet). Note the denominator: pot plus one bet, not the pot-plus-two-bets you used for alpha.",
+        "Put the pot on top and (pot + bet) on the bottom. Divide, enter the percent you must not fold.",
         "Anchors to check against: he bets a third, defend 75%; half pot, 67%; pot, 50%; double pot, 33%."
       ],
       tip:"'Continue' means call or raise, not call specifically. And remember MDF is only a bound against a villain who could be bluffing; it is never a reason to keep calling someone who never bluffs, which is the whole of Layer 5." }
@@ -325,21 +325,21 @@ var LESSONS_3 = [
     { t:"ex", title:"Worked example",
       facts:[["Pot","$100"],["Value combos","12"]],
       steps:[
-        "Bet $50: alpha = 33%, so bluffs = 12 x 0.33/0.67 = 6. Range of 18.",
-        "Bet $100: alpha = 50%, so bluffs = 12 x 0.5/0.5 = 12. Range of 24.",
-        "Bet $200: alpha = 67%, so bluffs = 12 x 0.67/0.33 = 24. Range of 36."
+        "Bet $50: alpha = 25%, so bluffs = 12 x 0.25/0.75 = 4. Range of 16.",
+        "Bet $100: alpha = 33%, so bluffs = 12 x 0.33/0.67 = 6. Range of 18.",
+        "Bet $200: alpha = 40%, so bluffs = 12 x 0.40/0.60 = 8. Range of 20."
       ],
-      bar:{ fill:67, tick:33, fillLabel:"double pot: 67% bluffs", tickLabel:"half pot: 33% bluffs" },
-      punch:"Same 12 value hands, three completely different strategies. If you want to bet big, you had better have found 24 bluffs, and if you cannot find them, you are not allowed the size. This is why solver ranges look strange: the sizing came first and the hands were fitted to it." },
+      bar:{ fill:40, tick:25, fillLabel:"double pot: 40% bluffs", tickLabel:"half pot: 25% bluffs" },
+      punch:"Same 12 value hands, three completely different strategies. If you want to bet big, you had better have found 8 bluffs, and if you cannot find them, you are not allowed the size. This is why solver ranges look strange: the sizing came first and the hands were fitted to it." },
     { t:"p", x:"This is also why you cannot copy one number from a solver and paste it into your game. The size, the bluff count, the value count and the defence frequency form a system. Change one and the others must move. Most players lift the size, keep their old bluff frequency, and hand away the difference." },
     { t:"key", x:"Choose the size, then build the range the size demands. Never build a range and then reach for a size that flatters it." },
     { t:"how", drill:"Bluff ratio", ask:"How many bluff combos belong in this bet?",
       steps:[
-        "You are given the pot, your bet, and a count of value combos. First get alpha = bet / (bet + pot).",
+        "You are given the pot, your bet, and a count of value combos. First get alpha = bet / (pot + 2 x bet).",
         "Then bluffs = value x alpha / (1 - alpha). Multiply your value count by alpha, then divide by (1 - alpha).",
         "Enter the number of bluff combos. You are graded within about 10%, so round the arithmetic."
       ],
-      tip:"Skip the algebra with the ratio shortcut: half pot wants 1 bluff for every 2 value, pot wants 1 to 1, double pot wants 2 to 1. Multiply the value count by that ratio and you are inside the tolerance." }
+      tip:"Skip the algebra with the ratio shortcut: half pot wants 1 bluff for every 3 value, pot wants 1 for 2, double pot wants 2 for 3. Multiply the value count by that ratio and you are inside the tolerance." }
   ]
 },
 {
@@ -572,13 +572,13 @@ var LESSONS_5 = [
     { t:"p", x:"Against an opponent at equilibrium, your bluff catcher is indifferent. Zero. That is what indifference means. Every dollar you have ever won came from the gap between his frequency and the equilibrium frequency, which means your entire job is finding gaps and your equilibrium knowledge is what lets you see them." },
     { t:"rule", x:"1. Compute the equilibrium frequency.\n2. Estimate his actual frequency.\n3. Deviate in the direction of the gap.\n4. Go back to equilibrium when the read is thin.", note:"Step 1 is not optional and this is the point people miss. You cannot spot a deviation without knowing the baseline it deviates from." },
     { t:"ex", title:"Worked example",
-      facts:[["Pot","$100"],["He bets","$100"],["Equilibrium bluff rate","50%"],["Your read","he bluffs about 15%"]],
+      facts:[["Pot","$100"],["He bets","$100"],["Equilibrium bluff rate","33%"],["Your read","he bluffs about 15%"]],
       steps:[
-        "Your bluff catcher needs him bluffing 50% to break even.",
+        "Your bluff catcher needs him bluffing 33% to break even (a pot-sized bet lays you that price).",
         "He bluffs 15%.",
         "Fold. Every bluff catcher, every time, until he changes."
       ],
-      bar:{ fill:15, tick:50, fillLabel:"his actual bluff rate 15%", tickLabel:"indifference at 50%" },
+      bar:{ fill:15, tick:33, fillLabel:"his actual bluff rate 15%", tickLabel:"indifference at 33%" },
       punch:"MDF says defend half your range. MDF is wrong here and knowing why is the whole layer. MDF only protects you against a bet that could be any two cards. His bet cannot be any two cards. He does not bluff. So defending is a rule for a game you are not in." },
     { t:"p", x:"And the cost of deviating is exactly the exposure you take on. Fold every bluff catcher and you are now exploitable by a player who starts bluffing. Against most opponents that is a trade you make gladly, because they will not notice and they will not adjust. Against a good one, you go back to the equilibrium and you stay there." },
     { t:"warn", x:"The discipline is knowing which one you are in. Most players believe they are deviating on reads when they are actually just playing badly and calling it a read. The test is whether you can state the equilibrium frequency, state his frequency, and state your evidence for the second number. If you cannot do all three, you are not exploiting anyone. You are guessing." },
