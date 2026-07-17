@@ -378,7 +378,24 @@ var LESSONS_3 = [
     { t:"p", x:"Give it a couple of thousand iterations and then read the second table, because that is where Leduc earns its place in this course. The same jack plays completely differently depending on the card in the middle. On a jack it is the effective nuts and the solver traps with it. On a king it is worthless and the solver bluffs with it at a low frequency. Nothing about your card changed. The board changed, so the meaning of your card changed." },
     { t:"p", x:"Card removal shows up here for the first time too, quietly, in the arithmetic. When you hold a king there is only one king left in the deck, so the chance the board pairs your opponent's king, or hands you a king-high board, is not what it would be if you held a jack. The solver never reasons about this. It just plays the tree, and the tree already knows." },
     { t:"warn", x:"Notice the exploitability floor. Kuhn drops under 0.001 in a second. Leduc is still around 0.01 after a few thousand iterations, because vanilla CFR walks all 120 deals through the whole tree every single iteration. This is exactly where the field went next: Monte Carlo CFR samples the tree instead of enumerating it, and abstraction buckets similar hands together. Bowling's 2015 solve of limit hold'em is this algorithm plus a decade of that engineering." },
-    { t:"key", x:"Kuhn proves the algorithm works. Leduc proves it survives a board. Everything past here is sampling and abstraction, which is engineering rather than a new idea. Your next build is a river subgame with real ranges, and you already have the range engine for it in layer 2." }
+    { t:"key", x:"Kuhn proves the algorithm works. Leduc proves it survives a board. Everything past here is sampling and abstraction, which is engineering rather than a new idea. The next lesson is that build: a river subgame with real ranges, using the range engine from layer 2." }
+  ]
+},
+{
+  id: "river", mode: "none", pass: 0, of: 0,
+  title: "The river subgame",
+  sub: "A solver for the spot you actually face",
+  gist: "Real ranges, a real board, and the same forty-line loop.",
+  blocks: [
+    { t:"p", x:"Kuhn and Leduc were toy decks so the whole tree would fit on the screen. This one is not a toy. The board is five real cards, both players hold ranges written in the layer 2 notation, and the evaluator from layer 0 decides every showdown. The solver underneath is the same regret matching you already watched converge twice." },
+    { t:"p", x:"The river is the honest place to start with real cards, because it is the one street with no cards to come. Nothing is random any more. Each player has a range, the board is fixed, and the only questions left are how much to bet, how often to bluff, and how much to call. That is a finite game, and a finite game can be solved exactly." },
+    { t:"rule", x:"OOP:  check  /  bet ½ pot  /  bet pot\n   after a check, IP:  check  /  bet ½  /  bet pot\n      facing the bet, OOP:  fold  /  call\n   after a bet, IP:  fold  /  call", note:"A deliberately small bet-size tree, no raising. What is left is sizing, bluff frequency and defence frequency, which is most of what river study actually is." },
+    { t:"p", x:"Every combo pair that survives card removal is one deal, its showdown decided once against the fixed board and cached. The solver sweeps all of them each iteration, exactly as Leduc sweeps its 120. Type any two ranges and any board below and it solves the spot you type." },
+    { t:"lab", kind:"river" },
+    { t:"p", x:"Read the top table first. The value hands jam the pot, the pure air jams the pot, and the medium hands check. That is polarisation, and it is the single most important idea about betting: a bet says my hand is either very good or very bad, because those are the two kinds of hand that want to make the pot bigger. Nobody wrote that rule into the solver. It is regret matching discovering that betting your middling hands only gets called by better and folds out worse." },
+    { t:"p", x:"Now the bottom table, which is layer 3 and layer 2 in the same picture. Against a pot-size bet the price is alpha equals one third, so you defend about two thirds or you are exploitable to any two cards. But the solver does not defend two thirds of every hand equally. It keeps the bluff-catchers that hold a card the value bets need, and folds the ones that do not. Minimum defence frequency told you how much to call. Card removal told you which hands. Neither alone is the answer." },
+    { t:"warn", x:"This is still vanilla CFR sweeping every deal, so exploitability floors out around a hundredth of a chip rather than at zero, and a very wide pair of ranges will make it crawl. The fixes are the ones the last lesson named: sample the deals instead of enumerating them, and bucket similar combos. That is the road from this page to a production solver, and it is engineering, not a new idea." },
+    { t:"key", x:"You have now built the thing that sells for a subscription. A real board, two real ranges, exact best-response exploitability, and a strategy that polarises and defends by blockers without being told to. Everything a commercial solver adds on top is scale: more streets, more sizes, sampled instead of enumerated. The idea is the forty lines you have watched converge three times." }
   ]
 }
 ];
@@ -603,7 +620,7 @@ var LAYERS = [
   { n:2, title:"Combinatorics of ranges", sub:"A few weeks", lessons:LESSONS_2,
     blurb:"Where most people stall. Stop putting him on a hand and start counting combos, removal and blockers." },
   { n:3, title:"Game theory", sub:"The real content", lessons:LESSONS_3,
-    blurb:"Indifference, alpha, MDF, sizing as mechanism design, and two working solvers you can watch converge." },
+    blurb:"Indifference, alpha, MDF, sizing as mechanism design, and three working solvers you can watch converge." },
   { n:4, title:"Variance and bankroll", sub:"Familiar ground", lessons:LESSONS_4,
     blurb:"Kelly, risk of ruin, and the t-stat on your own winrate. This is a backtesting problem wearing a hoodie." },
   { n:5, title:"Exploitative deviation", sub:"Where the money is", lessons:LESSONS_5,
@@ -636,6 +653,6 @@ var READING = [
     ["PokerTracker", "Your own database. The only honest source on your own leaks."]
   ]},
   { g:"The project", items:[
-    ["Implement CFR yourself", "Kuhn first, then Leduc. Both labs above are in this page: about 90 lines and 200 lines respectively. Write your own from the regret matching rule, check it against these, then extend to a river subgame with real ranges using the layer 2 engine. You will understand a solver in a way no amount of reading its output can give you."]
+    ["Implement CFR yourself", "Kuhn first, then Leduc, then the river subgame. All three labs are in this page: about 90, 200 and 260 lines. Write your own from the regret matching rule and check it against these. The river lab already points the same loop at real ranges and a real board using the layer 2 engine, so the next move is scale: sample the deals instead of enumerating them, and add a second street. You will understand a solver in a way no amount of reading its output can give you."]
   ]}
 ];
