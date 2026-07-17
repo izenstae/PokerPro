@@ -19,6 +19,25 @@
    No raising - a deliberately small tree. What is left is sizing,
    bluff frequency and defence frequency, which is most of what
    river study is actually about.
+
+   TWO ENGINES, ONE EQUILIBRIUM.
+   - Vanilla CFR (train) sweeps every combo pair each iteration. Exact,
+     but the cost grows with the product of the two range sizes, which is
+     why very wide ranges crawl.
+   - Monte Carlo CFR (trainMC), external sampling: one deal per iteration,
+     the traverser explores all of its actions while the opponent's action
+     is sampled. Each iteration is O(tree) instead of O(deals), so it
+     reaches the same equilibrium far faster on wide ranges. This is the
+     algorithm every commercial solver actually runs.
+
+   ABSTRACTION (buckets).
+   Pass {buckets:K} and the combos are grouped into K strength buckets, so
+   the number of information sets stops growing with the range. Similar
+   hands share a strategy. Card removal and every showdown stay exact at
+   the combo level; only the decision node is shared. Fewer buckets solve
+   faster and use less memory, at the cost of a strategy that a full-range
+   best response can exploit a little more - which the exploitability
+   number shows you directly.
    ============================================================ */
 
 var RV_POT = 6;                       /* dead money already in the middle */
@@ -69,14 +88,36 @@ var RV_ROOT = rvBuildTree();
 var RV_SLOT_ACTS = [["check", "½", "pot"], ["check", "½", "pot"],
   ["fold", "call"], ["fold", "call"], ["fold", "call"], ["fold", "call"]];
 
+/* ---------- abstraction helper ----------
+   group combo indices into K strength buckets by their showdown score on
+   this board (equal-frequency quantiles). Returns a bucket index per combo
+   and the number of buckets actually used (min(K, combos)). */
+function rvBucketize(scores, K) {
+  var n = scores.length;
+  if (n === 0) return { b: [], k: 0 };
+  var kk = Math.min(K, n);
+  var order = [];
+  for (var i = 0; i < n; i++) order.push(i);
+  order.sort(function (a, b) { return scores[a] - scores[b]; });
+  var b = new Array(n);
+  for (var p = 0; p < n; p++) {
+    var bk = Math.floor(p * kk / n);
+    if (bk >= kk) bk = kk - 1;
+    b[order[p]] = bk;
+  }
+  return { b: b, k: kk };
+}
+
 /* ---------- solver ----------
    range0 / range1 are combo arrays ([lo,hi] card indices) from
-   parseRange. board is a 5-card index array. */
-function River(range0, range1, board) {
+   parseRange. board is a 5-card index array.
+   opts.buckets: strength buckets per player (0 / undefined = one bucket
+   per combo, i.e. no abstraction). */
+function River(range0, range1, board, opts) {
+  opts = opts || {};
   this.board = board.slice();
   this.r0 = removeDead(range0, board);
   this.r1 = removeDead(range1, board);
-  this.maxC = Math.max(this.r0.length, this.r1.length, 1);
   this.nd = new Map();
   this.iters = 0;
   this.valueSum = 0;
@@ -98,15 +139,28 @@ function River(range0, range1, board) {
     this.SIGN.push(row);
   }
   this.deals = deals;
+
+  /* abstraction: map each combo to a strength bucket (or itself) */
+  var K = opts.buckets | 0;
+  if (K > 0) {
+    var g0 = rvBucketize(s0, K), g1 = rvBucketize(s1, K);
+    this.b0 = g0.b; this.b1 = g1.b; this.nb0 = g0.k; this.nb1 = g1.k;
+  } else {
+    this.b0 = s0.map(function (_, k) { return k; });
+    this.b1 = s1.map(function (_, k) { return k; });
+    this.nb0 = this.r0.length; this.nb1 = this.r1.length;
+  }
+  this.buckets = K;
+  this.maxC = Math.max(this.nb0, this.nb1, 1);
 }
-River.prototype.stat = function (actor, idx, slot, n) {
-  var k = (actor * this.maxC + idx) * 6 + slot, v = this.nd.get(k);
+River.prototype.stat = function (actor, bIdx, slot, n) {
+  var k = (actor * this.maxC + bIdx) * 6 + slot, v = this.nd.get(k);
   if (!v) { v = { r: new Float64Array(n), s: new Float64Array(n), n: n }; this.nd.set(k, v); }
   return v;
 };
-/* normalized average strategy at one infoset (uniform before it is touched) */
-River.prototype.avg = function (actor, idx, slot, n) {
-  var v = this.nd.get((actor * this.maxC + idx) * 6 + slot), out = [], j;
+/* normalized average strategy at one infoset (bucket) - uniform before it is touched */
+River.prototype.avg = function (actor, bIdx, slot, n) {
+  var v = this.nd.get((actor * this.maxC + bIdx) * 6 + slot), out = [], j;
   if (!v) { for (j = 0; j < n; j++) out[j] = 1 / n; return out; }
   var t = 0; for (j = 0; j < v.n; j++) t += v.s[j];
   if (t <= 0) { for (j = 0; j < v.n; j++) out[j] = 1 / v.n; return out; }
@@ -121,11 +175,12 @@ function rvMatch(r, n) {
   return out;
 }
 
+/* ---------- vanilla CFR: sweep every deal each iteration ---------- */
 River.prototype.walk = function (node, deal, p0, p1) {
   if (node.term) return node.pay[deal.sign + 1];
   var actor = node.actor, n = node.n;
-  var idx = actor === 0 ? deal.i0 : deal.i1;
-  var nd = this.stat(actor, idx, node.slot, n);
+  var b = actor === 0 ? this.b0[deal.i0] : this.b1[deal.i1];
+  var nd = this.stat(actor, b, node.slot, n);
   var sig = rvMatch(nd.r, n);
 
   var util = [], v = 0, i;
@@ -153,14 +208,74 @@ River.prototype.train = function (iters) {
   }
   return this;
 };
+
+/* ---------- Monte Carlo CFR: external sampling ----------
+   One deal per iteration. At the traverser's nodes we explore every action
+   and accumulate regret; at the opponent's nodes we sample a single action
+   and accumulate their average strategy. Alternating the traverser lets
+   each player's average strategy build up on the iterations where they are
+   sampled. Sampling the deal uniformly from the live pairs is exactly the
+   chance distribution, so the estimates are unbiased. */
+River.prototype.esWalk = function (node, deal, trav) {
+  if (node.term) { var p0 = node.pay[deal.sign + 1]; return trav === 0 ? p0 : -p0; }
+  var actor = node.actor, n = node.n;
+  var b = actor === 0 ? this.b0[deal.i0] : this.b1[deal.i1];
+  var nd = this.stat(actor, b, node.slot, n);
+  var sig = rvMatch(nd.r, n);
+  if (actor === trav) {
+    var util = [], v = 0, i;
+    for (i = 0; i < n; i++) { util[i] = this.esWalk(node.kids[i], deal, trav); v += sig[i] * util[i]; }
+    for (i = 0; i < n; i++) nd.r[i] += util[i] - v;
+    return v;
+  }
+  for (var j = 0; j < n; j++) nd.s[j] += sig[j];
+  var a = 0, x = Math.random(), acc = 0;
+  for (; a < n - 1; a++) { acc += sig[a]; if (x < acc) break; }
+  return this.esWalk(node.kids[a], deal, trav);
+};
+River.prototype.trainMC = function (iters) {
+  var D = this.deals;
+  if (!D.length) return this;
+  for (var k = 0; k < iters; k++) {
+    this.esWalk(RV_ROOT, D[(Math.random() * D.length) | 0], this.iters & 1);
+    this.iters++;
+  }
+  return this;
+};
+
+/* game value to P0. Vanilla tracks a running mean of its sweeps; either
+   engine can report the exact value of the current average strategies. */
 River.prototype.gameValue = function () { return this.iters ? this.valueSum / this.iters : 0; };
 River.prototype.infosets = function () { return this.nd.size; };
+
+/* exact expected value to P0 when both play their average strategy,
+   over every live deal. Works for either engine. */
+River.prototype._pairEV = function (node, i0, i1, sign) {
+  if (node.term) return node.pay[sign + 1];
+  var actor = node.actor, n = node.n;
+  var b = actor === 0 ? this.b0[i0] : this.b1[i1];
+  var st = this.avg(actor, b, node.slot, n), v = 0;
+  for (var a = 0; a < n; a++) if (st[a] > 0) v += st[a] * this._pairEV(node.kids[a], i0, i1, sign);
+  return v;
+};
+River.prototype.evUnderAvg = function () {
+  var D = this.deals, m = D.length || 1, total = 0;
+  for (var d = 0; d < D.length; d++) total += this._pairEV(RV_ROOT, D[d].i0, D[d].i1, D[d].sign);
+  return total / m;
+};
+/* per-combo-pair value to P0 (river pot RV_POT) under the average strategy,
+   used by the turn solver to back the river's equity up a street. */
+River.prototype.pairValue0 = function (i0, i1, sign) {
+  return this._pairEV(RV_ROOT, i0, i1, sign);
+};
 
 /* ---------- exact best response ----------
    Same idea as the Leduc lab: walk the tree for one of my combos
    carrying a vector of the opponent's reach probability over each of
    their combos. That makes my information set fully determined, so I
-   maximise over an infoset instead of peeking at their hand. */
+   maximise over an infoset instead of peeking at their hand. The
+   opponent plays its (possibly bucketed) average strategy, so the number
+   this returns is how exploitable that strategy is by a full-range reply. */
 River.prototype.brWalk = function (me, myIdx, oppReach, node) {
   if (node.term) {
     var v = 0;
@@ -185,7 +300,8 @@ River.prototype.brWalk = function (me, myIdx, oppReach, node) {
     var sub = new Float64Array(oppReach.length), live = false;
     for (var q = 0; q < oppReach.length; q++) {
       if (!oppReach[q]) continue;
-      var st = this.avg(opp, q, node.slot, node.n);
+      var oppB = opp === 0 ? this.b0[q] : this.b1[q];
+      var st = this.avg(opp, oppB, node.slot, node.n);
       sub[q] = oppReach[q] * st[b];
       if (sub[q] > 0) live = true;
     }
@@ -210,14 +326,17 @@ River.prototype.exploitability = function () { return this.bestResponse(0) + thi
 
 /* ---------- strategy readout, grouped by hand class ----------
    Averages the combos of a class (weighted by how many survive on this
-   board) into one row, the way a solver grid shows it. */
+   board) into one row, the way a solver grid shows it. With abstraction on,
+   combos in the same bucket share a strategy, so the rows reflect the
+   bucketed play. */
 River.prototype.byClass = function (player, slot) {
   var range = player === 0 ? this.r0 : this.r1, n = RV_SLOT_ACTS[slot].length;
+  var bucket = player === 0 ? this.b0 : this.b1;
   var groups = {}, order = [], i;
   for (i = 0; i < range.length; i++) {
     var name = comboName(range[i]);
     if (!groups[name]) { groups[name] = { w: 0, s: new Array(n).fill(0) }; order.push(name); }
-    var g = groups[name], st = this.avg(player, i, slot, n);
+    var g = groups[name], st = this.avg(player, bucket[i], slot, n);
     for (var a = 0; a < n; a++) g.s[a] += st[a];
     g.w++;
   }
@@ -228,6 +347,6 @@ River.prototype.byClass = function (player, slot) {
 };
 
 if (typeof module !== "undefined") module.exports = {
-  River: River, rvPayoff0: rvPayoff0, RV_POT: RV_POT, RV_SIZES: RV_SIZES,
-  RV_SIZE_LABEL: RV_SIZE_LABEL, RV_SLOT_ACTS: RV_SLOT_ACTS
+  River: River, rvPayoff0: rvPayoff0, rvState: rvState, RV_POT: RV_POT, RV_SIZES: RV_SIZES,
+  RV_SIZE_LABEL: RV_SIZE_LABEL, RV_SLOT_ACTS: RV_SLOT_ACTS, RV_ROOT: RV_ROOT, rvBucketize: rvBucketize
 };

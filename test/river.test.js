@@ -52,6 +52,42 @@ d.train(1200);
 console.log("\nnuts vs air game value to P0:", d.gameValue().toFixed(4), "(>= +2.9, wins the pot every time)");
 chk("dominant range wins at least the dead pot", d.gameValue() > 2.9);
 
+/* ---- Monte Carlo CFR (external sampling) finds the same equilibrium ----
+   The vanilla solver above ran the spot exactly. Sampling one deal per
+   iteration should agree on the value and drive exploitability down too. */
+const mc = new River(OOP, IP, B);
+let mprev = 0, me0 = null;
+console.log("\nMonte Carlo CFR (one sampled deal per iteration)");
+console.log("iters     value     exploitability");
+for (const m of [50000, 300000, 1200000]) {
+  mc.trainMC(m - mprev); mprev = m;
+  const ex = mc.exploitability();
+  if (me0 === null) me0 = ex;
+  console.log(String(m).padStart(9), mc.evUnderAvg().toFixed(4).padStart(9), ex.toFixed(5).padStart(12));
+}
+chk("MC agrees with vanilla on the game value (within 0.02)", Math.abs(mc.evUnderAvg() - t.evUnderAvg()) < 0.02);
+chk("MC exploitability fell during training", mc.exploitability() < me0);
+chk("MC drove exploitability small (< 0.05)", mc.exploitability() < 0.05);
+
+/* ---- abstraction: strength buckets cut the information sets ----
+   Grouping combos into K strength buckets should collapse the infoset count
+   far below the full-combo solver, converge to a nearby value, and cost a
+   little exploitability that shrinks as the buckets get finer. */
+const full = new River(OOP, IP, B); full.train(1500);
+console.log("\nAbstraction (strength buckets)");
+console.log("buckets   infosets   value     exploitability");
+console.log("full   ".padEnd(9), String(full.infosets()).padStart(6), "  ", full.evUnderAvg().toFixed(4).padStart(8), full.exploitability().toFixed(4).padStart(10));
+let coarseExpl = null, fineExpl = null;
+for (const k of [3, 12]) {
+  const b = new River(OOP, IP, B, { buckets: k }); b.train(1500);
+  if (k === 3) coarseExpl = b.exploitability();
+  if (k === 12) fineExpl = b.exploitability();
+  console.log(("K=" + k).padEnd(9), String(b.infosets()).padStart(6), "  ", b.evUnderAvg().toFixed(4).padStart(8), b.exploitability().toFixed(4).padStart(10));
+}
+const bk = new River(OOP, IP, B, { buckets: 6 });
+chk("buckets cut the infoset count well below the full solve", bk.infosets() < full.infosets() / 2);
+chk("finer buckets are less exploitable than coarse ones", fineExpl < coarseExpl);
+
 /* ---- what the real spot learned ---- */
 console.log("\n--- IP (in position) betting after OOP checks ---");
 t.byClass(1, 1).forEach(g => {   /* slot 1 = IP acting after a check: check / bet ½ / bet pot */
