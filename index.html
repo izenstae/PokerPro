@@ -334,6 +334,9 @@ table.tbl td:first-child{color:var(--dim)}
 .ritem:last-child{border-bottom:0}
 .ritem b{display:block; font-size:13px; margin-bottom:3px}
 .ritem span{display:block; font-family:var(--sans); font-size:12.5px; color:var(--dim); line-height:1.5}
+.ritem .rlink{display:inline-block; margin-top:7px; font-size:11px; letter-spacing:.04em; color:var(--gold); text-decoration:none; border-bottom:1px solid transparent}
+.ritem .rlink:hover{border-bottom-color:var(--gold)}
+.ritem .rlink:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
 
 /* ---- drill chips by layer ---- */
 .modeRow{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:6px}
@@ -2730,7 +2733,7 @@ LAYERS.forEach(function (L) {
 
 var READING = [
   { g:"Start here", items:[
-    ["The Mathematics of Poker", "Chen and Ankenman. Chen was a quant at Susquehanna. Derives toy games from first principles and builds to real spots. Written for you specifically."],
+    ["The Mathematics of Poker", "Chen and Ankenman. Chen was a quant at Susquehanna. Derives toy games from first principles and builds to real spots. Written for you specifically.", "https://www.pokerbooks.lt/books/en/The_Mathematics_of_Poker.pdf"],
     ["Play Optimal Poker 1 and 2", "Brokos. The same equilibrium intuition through toy games, without the machinery. Read alongside Chen."],
     ["Modern Poker Theory", "Acevedo. Solver output organised into heuristics you can actually carry to a table."]
   ]},
@@ -3243,6 +3246,11 @@ function drawReading(){
     g.items.forEach(function(it){
       var d = el("div","ritem");
       d.innerHTML = "<b>" + it[0] + "</b><span>" + it[1] + "</span>";
+      if(it[2]){
+        var a = el("a","rlink","Read the PDF →");
+        a.href = it[2]; a.target = "_blank"; a.rel = "noopener noreferrer";
+        d.appendChild(a);
+      }
       box.appendChild(d);
     });
   });

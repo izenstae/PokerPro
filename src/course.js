@@ -620,7 +620,7 @@ LAYERS.forEach(function (L) {
 
 var READING = [
   { g:"Start here", items:[
-    ["The Mathematics of Poker", "Chen and Ankenman. Chen was a quant at Susquehanna. Derives toy games from first principles and builds to real spots. Written for you specifically."],
+    ["The Mathematics of Poker", "Chen and Ankenman. Chen was a quant at Susquehanna. Derives toy games from first principles and builds to real spots. Written for you specifically.", "https://www.pokerbooks.lt/books/en/The_Mathematics_of_Poker.pdf"],
     ["Play Optimal Poker 1 and 2", "Brokos. The same equilibrium intuition through toy games, without the machinery. Read alongside Chen."],
     ["Modern Poker Theory", "Acevedo. Solver output organised into heuristics you can actually carry to a table."]
   ]},
