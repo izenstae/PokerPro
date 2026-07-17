@@ -377,6 +377,19 @@ table.labTbl td:first-child{text-align:left; color:var(--gold); font-weight:600}
 table.labTbl tr.pair td{color:var(--gold)}
 table.labTbl td i{font-style:normal; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); opacity:.7}
 
+/* ---- the river subgame lab ---- */
+.rvForm{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px}
+.rvField{display:flex; flex-direction:column; gap:4px}
+.rvField.wide{grid-column:1 / -1}
+.rvField label{font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim)}
+.rvField input{font-family:var(--mono, monospace); font-size:12.5px; color:var(--bone); background:var(--felt);
+  border:1px solid var(--line); border-radius:3px; padding:8px 10px}
+.rvField input:focus{outline:none; border-color:var(--gold)}
+.rvErr{font-family:var(--sans); font-size:12px; color:var(--loss, #d47); margin:-4px 0 10px}
+.rvBadge{font-size:10px; letter-spacing:.1em; color:var(--faint)}
+table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
+@media(max-width:560px){ .rvForm{grid-template-columns:1fr} }
+
 .savetag{font-size:11px; color:var(--dim)}
 .savetag i{font-style:normal; color:var(--faint)}
 .savetag.on i{color:var(--green)}
@@ -1185,6 +1198,145 @@ function leducLab(){
   return wrap;
 }
 
+/* ---- the river subgame lab ----
+   The board is complete, two real ranges go in, and the same CFR
+   loop from Kuhn and Leduc solves the actual spot. Ranges and board
+   are editable, parsed by the layer 2 engine. */
+function rvCardIdx(tok){
+  var r = RANKS.indexOf((tok[0]||"").toUpperCase()), s = SUITS.indexOf((tok[1]||"").toLowerCase());
+  return (r < 0 || s < 0) ? -1 : s * 13 + r;
+}
+function rvParseBoard(str){
+  var clean = String(str).replace(/[\s,]+/g, "");
+  if(clean.length !== 10) return null;
+  var out = [], seen = {};
+  for(var i = 0; i < 10; i += 2){
+    var c = rvCardIdx(clean.substr(i, 2));
+    if(c < 0 || seen[c]) return null;
+    seen[c] = 1; out.push(c);
+  }
+  return out;
+}
+var RV_DEF = {
+  oop: "AQ, AJ, KQ, 99, 88",
+  ip:  "AA, KK, AK, 77, QJs, JTs, T9s, 65s",
+  board: "As Kd 7h 3c 2s"
+};
+function riverLab(){
+  var wrap = el("div","lab");
+  wrap.innerHTML =
+    '<div class="rvForm">' +
+      '<div class="rvField"><label>Out of position &middot; checks first</label><input id="rvOOP" value="' + RV_DEF.oop + '"></div>' +
+      '<div class="rvField"><label>In position &middot; acts last</label><input id="rvIP" value="' + RV_DEF.ip + '"></div>' +
+      '<div class="rvField wide"><label>Board &middot; five cards</label><input id="rvBoard" value="' + RV_DEF.board + '"></div>' +
+    '</div>' +
+    '<div class="rvErr" id="rvErr" hidden></div>' +
+    '<div class="labTop">' +
+      '<div class="labStat"><dt>Iterations</dt><dd id="rvIt">0</dd></div>' +
+      '<div class="labStat"><dt>OOP expectation</dt><dd id="rvV">--</dd><small>chips, dead pot 6</small></div>' +
+      '<div class="labStat"><dt>Exploitability</dt><dd id="rvE">--</dd><small>target 0</small></div>' +
+      '<div class="labStat"><dt>Deals</dt><dd id="rvD">--</dd><small id="rvDsub">combo pairs</small></div>' +
+    '</div>' +
+    '<div class="spark"><svg id="rvSpark" viewBox="0 0 300 60" preserveAspectRatio="none"></svg>' +
+      '<div class="sparkAx"><span>exploitability, log scale</span><span id="rvSparkN">0 iters</span></div></div>' +
+    '<div class="labBtns">' +
+      '<button class="act" id="rvSolve" type="button">Solve this spot</button>' +
+      '<button class="act ghost" id="rvRun" type="button">Train 100</button>' +
+      '<button class="act ghost" id="rvRun2" type="button">Train 500</button>' +
+      '<button class="act ghost" id="rvStop" type="button">Stop</button>' +
+    '</div>' +
+    '<div class="labCap">In position, after a check &middot; who bets, and how big</div>' +
+    '<table class="tbl labTbl"><thead><tr><th>Hand</th><th>Check</th><th>Bet ½</th><th>Bet pot</th></tr></thead><tbody id="rvB1"></tbody></table>' +
+    '<div class="labCap">Out of position, facing the pot-size bet &middot; the bluff-catch</div>' +
+    '<table class="tbl labTbl"><thead><tr><th>Hand</th><th>Fold</th><th>Call</th></tr></thead><tbody id="rvB2"></tbody></table>' +
+    '<div class="labNote" id="rvNote"></div>';
+
+  var $$ = function(sel){ return wrap.querySelector(sel); };
+  var st = { t:null, hist:[], running:0, want:0, frame:0 };
+  function pct(x){ return (100 * x).toFixed(0) + "%"; }
+
+  function build(){
+    var oop = parseRange($$("#rvOOP").value), ip = parseRange($$("#rvIP").value);
+    var board = rvParseBoard($$("#rvBoard").value);
+    var err = $$("#rvErr");
+    if(!board){ err.hidden = false; err.textContent = "The board needs exactly five distinct cards, e.g. As Kd 7h 3c 2s."; return false; }
+    if(!oop.length || !ip.length){ err.hidden = false; err.textContent = "Both ranges must parse to at least one combo. Try notation like QQ+, AJs+, KQ."; return false; }
+    var t = new River(oop, ip, board);
+    if(!t.deals.length){ err.hidden = false; err.textContent = "These ranges block each other completely on this board, so there are no deals to solve."; return false; }
+    if(t.deals.length > 12000){ err.hidden = false; err.textContent = "That is " + t.deals.length.toLocaleString() + " combo pairs, too many to solve smoothly in a browser. Tighten a range."; return false; }
+    err.hidden = true;
+    st.t = t; st.hist = []; st.want = 0; st.frame = 0;
+    $$("#rvSpark").innerHTML = "";
+    $$("#rvD").textContent = t.deals.length.toLocaleString();
+    $$("#rvDsub").textContent = t.r0.length + " x " + t.r1.length + " combos";
+    return true;
+  }
+
+  function paint(force){
+    var t = st.t; if(!t) return;
+    $$("#rvIt").textContent = t.iters.toLocaleString();
+    $$("#rvV").textContent = t.iters ? t.gameValue().toFixed(3) : "--";
+    /* the exact best response walks the tree twice, so measure it every
+       fourth frame rather than every one */
+    var e = null;
+    if(t.iters && (force || st.frame % 4 === 0)) e = t.exploitability();
+    st.frame++;
+    if(e != null) $$("#rvE").textContent = e.toFixed(4);
+
+    var b1 = $$("#rvB1"); b1.innerHTML = "";
+    t.byClass(1, 1).forEach(function(g){          /* IP after a check: check / bet½ / bet pot */
+      var tr = document.createElement("tr");
+      var bet = g.freq[1] + g.freq[2];
+      if(g.freq[0] > 0.5) tr.className = "bluff";
+      tr.innerHTML = "<td>" + g.name + "</td><td>" + pct(g.freq[0]) + "</td><td>" +
+        pct(g.freq[1]) + "</td><td>" + pct(g.freq[2]) + "</td>";
+      b1.appendChild(tr);
+    });
+    var b2 = $$("#rvB2"); b2.innerHTML = "";
+    t.byClass(0, 5).forEach(function(g){          /* OOP facing the pot bet: fold / call */
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + g.name + "</td><td>" + pct(g.freq[0]) + "</td><td>" + pct(g.freq[1]) + "</td>";
+      b2.appendChild(tr);
+    });
+
+    /* MDF headline: against a pot bet, alpha = 1/3, so defend ~2/3 */
+    var def = t.byClass(0, 5), callAvg = 0, nC = 0;
+    def.forEach(function(g){ callAvg += g.freq[1]; nC++; });
+    callAvg = nC ? callAvg / nC : 0;
+    $$("#rvNote").innerHTML = t.iters < 60
+      ? "Solve it, then train. Under about sixty iterations this is still noise."
+      : "Look at the top table. The nuts and pure air both jam the pot; the medium hands check. That is polarisation, and nobody wrote it down &mdash; regret matching found it. In the bottom table, against a pot-size bet the price is alpha = <b>1/3</b>, so minimum defence is <b>two thirds</b>. This range calls about <b>" + pct(callAvg) + "</b>, and the hands it keeps are chosen by which cards block the value combos. Change the board above and every number moves.";
+
+    if(e != null) st.hist.push(Math.max(e, 1e-3));
+    var h = st.hist;
+    if(h.length > 1){
+      var pts = h.map(function(v, i){
+        var x = 300 * i / (h.length - 1);
+        var y = 58 - 56 * (Math.log10(v) + 3) / 3.6;   /* 1e-3 .. ~4 */
+        return x.toFixed(1) + "," + Math.max(1, Math.min(59, y)).toFixed(1);
+      }).join(" ");
+      $$("#rvSpark").innerHTML = '<polyline points="' + pts + '" fill="none" stroke="var(--gold)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>';
+      $$("#rvSparkN").textContent = t.iters.toLocaleString() + " iters";
+    }
+  }
+
+  function pump(){
+    if(!wrap.isConnected || !st.t || st.t.iters >= st.want){ st.running = 0; paint(true); return; }
+    st.t.train(Math.min(6, st.want - st.t.iters));   /* a full deal sweep is heavy, keep frames short */
+    paint(false);
+    requestAnimationFrame(pump);
+  }
+  function run(n){ if(!st.t) return; st.want = st.t.iters + n; if(!st.running){ st.running = 1; pump(); } }
+
+  $$("#rvSolve").onclick = function(){ st.running = 0; if(build()) paint(true); };
+  $$("#rvRun").onclick = function(){ run(100); };
+  $$("#rvRun2").onclick = function(){ run(500); };
+  $$("#rvStop").onclick = function(){ if(st.t) st.want = st.t.iters; };
+
+  build(); paint(true);
+  return wrap;
+}
+
 /* ---- blocks ---- */
 function drawBlock(b){
   if(b.t === "p")    return el("p","prose", b.x);
@@ -1211,7 +1363,7 @@ function drawBlock(b){
     if(b.caption) w.appendChild(el("div","cap", b.caption));
     return w;
   }
-  if(b.t === "lab") return b.kind === "leduc" ? leducLab() : cfrLab();
+  if(b.t === "lab") return b.kind === "river" ? riverLab() : b.kind === "leduc" ? leducLab() : cfrLab();
   if(b.t === "how"){
     var hw = el("div","how");
     var head = "<h4>In the drill" + (b.drill ? " <span>&middot; " + b.drill + "</span>" : "") + "</h4>";

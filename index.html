@@ -377,6 +377,19 @@ table.labTbl td:first-child{text-align:left; color:var(--gold); font-weight:600}
 table.labTbl tr.pair td{color:var(--gold)}
 table.labTbl td i{font-style:normal; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); opacity:.7}
 
+/* ---- the river subgame lab ---- */
+.rvForm{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px}
+.rvField{display:flex; flex-direction:column; gap:4px}
+.rvField.wide{grid-column:1 / -1}
+.rvField label{font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim)}
+.rvField input{font-family:var(--mono, monospace); font-size:12.5px; color:var(--bone); background:var(--felt);
+  border:1px solid var(--line); border-radius:3px; padding:8px 10px}
+.rvField input:focus{outline:none; border-color:var(--gold)}
+.rvErr{font-family:var(--sans); font-size:12px; color:var(--loss, #d47); margin:-4px 0 10px}
+.rvBadge{font-size:10px; letter-spacing:.1em; color:var(--faint)}
+table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
+@media(max-width:560px){ .rvForm{grid-template-columns:1fr} }
+
 .savetag{font-size:11px; color:var(--dim)}
 .savetag i{font-style:normal; color:var(--faint)}
 .savetag.on i{color:var(--green)}
@@ -1384,6 +1397,235 @@ function lBestResponse(avg, me) {
 function lExploitability(avg) {
   return lBestResponse(avg, 0) + lBestResponse(avg, 1);
 }
+
+/* ============================================================
+   THE RIVER SUBGAME
+   The board is complete. Nothing is coming. Two players each hold
+   a range, one is out of position and acts first, and the only
+   questions left are how much to bet, how often to bluff, and how
+   much to call. That is a small enough game to solve exactly, and
+   it is the spot you actually face.
+
+   This reuses the layer 2 range engine (parseRange, removeDead,
+   comboName) and the 7-card evaluator (eval7). The CFR machinery
+   is the same regret-matching loop as Kuhn and Leduc, pointed at
+   a fixed five-card board with two real ranges and a bet-size tree.
+
+   The tree (heads up, one street, OOP = player 0 acts first):
+     OOP:  check | bet 1/2 pot | bet pot
+       after a check, IP:  check (showdown) | bet 1/2 | bet pot
+         facing that bet, OOP:  fold | call (showdown)
+       after a bet, IP:  fold | call (showdown)
+   No raising - a deliberately small tree. What is left is sizing,
+   bluff frequency and defence frequency, which is most of what
+   river study is actually about.
+   ============================================================ */
+
+var RV_POT = 6;                       /* dead money already in the middle */
+var RV_SIZES = [0.5, 1.0];            /* bet as a fraction of the pot */
+var RV_SIZE_LABEL = ["½ pot", "pot"];
+
+/* replay a history string into [contrib0, contrib1] and last bettor.
+   tokens: x=check h=bet½ p=betpot f=fold c=call */
+function rvState(h) {
+  var c = [0, 0], turn = 0, bettor = -1;
+  for (var i = 0; i < h.length; i++) {
+    var t = h[i];
+    if (t === "x") turn = 1 - turn;
+    else if (t === "h" || t === "p") {
+      c[turn] = (t === "h" ? RV_SIZES[0] : RV_SIZES[1]) * RV_POT;
+      bettor = turn; turn = 1 - turn;
+    } else if (t === "c") c[turn] = c[1 - turn];
+  }
+  return { c: c, bettor: bettor };
+}
+/* payoff to player 0. sign0: +1 P0 wins showdown, -1 P1 wins, 0 chop. */
+function rvPayoff0(h, sign0) {
+  var last = h[h.length - 1], fold = last === "f";
+  var s = rvState(h), c = s.c, pot = RV_POT + c[0] + c[1], collect0;
+  if (fold) collect0 = s.bettor === 0 ? pot : 0;
+  else collect0 = sign0 > 0 ? pot : (sign0 < 0 ? 0 : pot / 2);
+  return collect0 - (RV_POT / 2 + c[0]);   /* each already "owns" half the dead pot */
+}
+
+/* ---------- the betting tree, built once as an explicit graph ----------
+   Six decision nodes (slots 0..5); the rest are terminals whose payoff
+   is a function only of the showdown sign, precomputed here. */
+function rvBuildTree() {
+  function show(h) { return { term: 1, pay: [rvPayoff0(h, -1), rvPayoff0(h, 0), rvPayoff0(h, 1)] }; }
+  function fold(h) { var p = rvPayoff0(h, 0); return { term: 1, pay: [p, p, p] }; }
+  function dec(slot, actor, toks, kids) { return { term: 0, slot: slot, actor: actor, n: toks.length, kids: kids }; }
+
+  var nH  = dec(2, 1, ["f", "c"], [fold("hf"), show("hc")]);   /* IP faces the ½-pot open */
+  var nP  = dec(3, 1, ["f", "c"], [fold("pf"), show("pc")]);   /* IP faces the pot open   */
+  var nXH = dec(4, 0, ["f", "c"], [fold("xhf"), show("xhc")]); /* OOP faces IP's ½-pot bet */
+  var nXP = dec(5, 0, ["f", "c"], [fold("xpf"), show("xpc")]); /* OOP faces IP's pot bet   */
+  var nX  = dec(1, 1, ["x", "h", "p"], [show("xx"), nXH, nXP]);/* IP after OOP checks      */
+  var root = dec(0, 0, ["x", "h", "p"], [nX, nH, nP]);         /* OOP opens                */
+  return root;
+}
+var RV_ROOT = rvBuildTree();
+/* slot -> the actions offered there, for readouts */
+var RV_SLOT_ACTS = [["check", "½", "pot"], ["check", "½", "pot"],
+  ["fold", "call"], ["fold", "call"], ["fold", "call"], ["fold", "call"]];
+
+/* ---------- solver ----------
+   range0 / range1 are combo arrays ([lo,hi] card indices) from
+   parseRange. board is a 5-card index array. */
+function River(range0, range1, board) {
+  this.board = board.slice();
+  this.r0 = removeDead(range0, board);
+  this.r1 = removeDead(range1, board);
+  this.maxC = Math.max(this.r0.length, this.r1.length, 1);
+  this.nd = new Map();
+  this.iters = 0;
+  this.valueSum = 0;
+
+  /* showdown sign for every (P0 combo, P1 combo) against the fixed
+     board; -2 marks a pair that shares a card and never occurs. */
+  var bd = board, score = function (c) { return eval7([c[0], c[1], bd[0], bd[1], bd[2], bd[3], bd[4]]); };
+  var s0 = this.r0.map(score), s1 = this.r1.map(score);
+  this.SIGN = [];
+  var deals = [], i, j;
+  for (i = 0; i < this.r0.length; i++) {
+    var a0 = this.r0[i][0], b0 = this.r0[i][1], row = new Int8Array(this.r1.length);
+    for (j = 0; j < this.r1.length; j++) {
+      var a1 = this.r1[j][0], b1 = this.r1[j][1];
+      if (a0 === a1 || a0 === b1 || b0 === a1 || b0 === b1) { row[j] = -2; continue; }
+      row[j] = s0[i] > s1[j] ? 1 : (s0[i] < s1[j] ? -1 : 0);
+      deals.push({ i0: i, i1: j, sign: row[j] });
+    }
+    this.SIGN.push(row);
+  }
+  this.deals = deals;
+}
+River.prototype.stat = function (actor, idx, slot, n) {
+  var k = (actor * this.maxC + idx) * 6 + slot, v = this.nd.get(k);
+  if (!v) { v = { r: new Float64Array(n), s: new Float64Array(n), n: n }; this.nd.set(k, v); }
+  return v;
+};
+/* normalized average strategy at one infoset (uniform before it is touched) */
+River.prototype.avg = function (actor, idx, slot, n) {
+  var v = this.nd.get((actor * this.maxC + idx) * 6 + slot), out = [], j;
+  if (!v) { for (j = 0; j < n; j++) out[j] = 1 / n; return out; }
+  var t = 0; for (j = 0; j < v.n; j++) t += v.s[j];
+  if (t <= 0) { for (j = 0; j < v.n; j++) out[j] = 1 / v.n; return out; }
+  for (j = 0; j < v.n; j++) out[j] = v.s[j] / t;
+  return out;
+};
+function rvMatch(r, n) {
+  var t = 0, out = [], i;
+  for (i = 0; i < n; i++) { out[i] = r[i] > 0 ? r[i] : 0; t += out[i]; }
+  if (t > 0) for (i = 0; i < n; i++) out[i] /= t;
+  else for (i = 0; i < n; i++) out[i] = 1 / n;
+  return out;
+}
+
+River.prototype.walk = function (node, deal, p0, p1) {
+  if (node.term) return node.pay[deal.sign + 1];
+  var actor = node.actor, n = node.n;
+  var idx = actor === 0 ? deal.i0 : deal.i1;
+  var nd = this.stat(actor, idx, node.slot, n);
+  var sig = rvMatch(nd.r, n);
+
+  var util = [], v = 0, i;
+  for (i = 0; i < n; i++) {
+    util[i] = actor === 0
+      ? this.walk(node.kids[i], deal, p0 * sig[i], p1)
+      : this.walk(node.kids[i], deal, p0, p1 * sig[i]);
+    v += sig[i] * util[i];
+  }
+  var myReach = actor === 0 ? p0 : p1, oppReach = actor === 0 ? p1 : p0, sgn = actor === 0 ? 1 : -1;
+  for (i = 0; i < n; i++) {
+    nd.r[i] += oppReach * sgn * (util[i] - v);
+    nd.s[i] += myReach * sig[i];
+  }
+  return v;
+};
+
+River.prototype.train = function (iters) {
+  var D = this.deals, m = D.length || 1;
+  for (var k = 0; k < iters; k++) {
+    var v = 0;
+    for (var d = 0; d < D.length; d++) v += this.walk(RV_ROOT, D[d], 1, 1);
+    this.valueSum += v / m;
+    this.iters++;
+  }
+  return this;
+};
+River.prototype.gameValue = function () { return this.iters ? this.valueSum / this.iters : 0; };
+River.prototype.infosets = function () { return this.nd.size; };
+
+/* ---------- exact best response ----------
+   Same idea as the Leduc lab: walk the tree for one of my combos
+   carrying a vector of the opponent's reach probability over each of
+   their combos. That makes my information set fully determined, so I
+   maximise over an infoset instead of peeking at their hand. */
+River.prototype.brWalk = function (me, myIdx, oppReach, node) {
+  if (node.term) {
+    var v = 0;
+    for (var j = 0; j < oppReach.length; j++) {
+      if (!oppReach[j]) continue;
+      var sign0 = me === 0 ? this.SIGN[myIdx][j] : this.SIGN[j][myIdx];   /* -2 never survives here */
+      var pay0 = node.pay[sign0 + 1];
+      v += oppReach[j] * (me === 0 ? pay0 : -pay0);
+    }
+    return v;
+  }
+  if (node.actor === me) {
+    var best = -Infinity;
+    for (var a = 0; a < node.n; a++) {
+      var val = this.brWalk(me, myIdx, oppReach, node.kids[a]);
+      if (val > best) best = val;
+    }
+    return best;
+  }
+  var opp = 1 - me, total = 0;
+  for (var b = 0; b < node.n; b++) {
+    var sub = new Float64Array(oppReach.length), live = false;
+    for (var q = 0; q < oppReach.length; q++) {
+      if (!oppReach[q]) continue;
+      var st = this.avg(opp, q, node.slot, node.n);
+      sub[q] = oppReach[q] * st[b];
+      if (sub[q] > 0) live = true;
+    }
+    if (live) total += this.brWalk(me, myIdx, sub, node.kids[b]);
+  }
+  return total;
+};
+River.prototype.bestResponse = function (me) {
+  var mine = me === 0 ? this.r0 : this.r1, opp = me === 0 ? this.r1 : this.r0;
+  var m = this.deals.length || 1, total = 0;
+  for (var i = 0; i < mine.length; i++) {
+    var reach = new Float64Array(opp.length);
+    for (var j = 0; j < opp.length; j++) {
+      var sign = me === 0 ? this.SIGN[i][j] : this.SIGN[j][i];
+      reach[j] = sign === -2 ? 0 : 1;
+    }
+    total += this.brWalk(me, i, reach, RV_ROOT);
+  }
+  return total / m;
+};
+River.prototype.exploitability = function () { return this.bestResponse(0) + this.bestResponse(1); };
+
+/* ---------- strategy readout, grouped by hand class ----------
+   Averages the combos of a class (weighted by how many survive on this
+   board) into one row, the way a solver grid shows it. */
+River.prototype.byClass = function (player, slot) {
+  var range = player === 0 ? this.r0 : this.r1, n = RV_SLOT_ACTS[slot].length;
+  var groups = {}, order = [], i;
+  for (i = 0; i < range.length; i++) {
+    var name = comboName(range[i]);
+    if (!groups[name]) { groups[name] = { w: 0, s: new Array(n).fill(0) }; order.push(name); }
+    var g = groups[name], st = this.avg(player, i, slot, n);
+    for (var a = 0; a < n; a++) g.s[a] += st[a];
+    g.w++;
+  }
+  return order.map(function (name) {
+    var g = groups[name];
+    return { name: name, count: g.w, freq: g.s.map(function (x) { return x / g.w; }) };
+  });
+};
 
 /* ============================================================
    DRILLS for layers 0, 2, 3, 4, 5
@@ -2491,7 +2733,24 @@ var LESSONS_3 = [
     { t:"p", x:"Give it a couple of thousand iterations and then read the second table, because that is where Leduc earns its place in this course. The same jack plays completely differently depending on the card in the middle. On a jack it is the effective nuts and the solver traps with it. On a king it is worthless and the solver bluffs with it at a low frequency. Nothing about your card changed. The board changed, so the meaning of your card changed." },
     { t:"p", x:"Card removal shows up here for the first time too, quietly, in the arithmetic. When you hold a king there is only one king left in the deck, so the chance the board pairs your opponent's king, or hands you a king-high board, is not what it would be if you held a jack. The solver never reasons about this. It just plays the tree, and the tree already knows." },
     { t:"warn", x:"Notice the exploitability floor. Kuhn drops under 0.001 in a second. Leduc is still around 0.01 after a few thousand iterations, because vanilla CFR walks all 120 deals through the whole tree every single iteration. This is exactly where the field went next: Monte Carlo CFR samples the tree instead of enumerating it, and abstraction buckets similar hands together. Bowling's 2015 solve of limit hold'em is this algorithm plus a decade of that engineering." },
-    { t:"key", x:"Kuhn proves the algorithm works. Leduc proves it survives a board. Everything past here is sampling and abstraction, which is engineering rather than a new idea. Your next build is a river subgame with real ranges, and you already have the range engine for it in layer 2." }
+    { t:"key", x:"Kuhn proves the algorithm works. Leduc proves it survives a board. Everything past here is sampling and abstraction, which is engineering rather than a new idea. The next lesson is that build: a river subgame with real ranges, using the range engine from layer 2." }
+  ]
+},
+{
+  id: "river", mode: "none", pass: 0, of: 0,
+  title: "The river subgame",
+  sub: "A solver for the spot you actually face",
+  gist: "Real ranges, a real board, and the same forty-line loop.",
+  blocks: [
+    { t:"p", x:"Kuhn and Leduc were toy decks so the whole tree would fit on the screen. This one is not a toy. The board is five real cards, both players hold ranges written in the layer 2 notation, and the evaluator from layer 0 decides every showdown. The solver underneath is the same regret matching you already watched converge twice." },
+    { t:"p", x:"The river is the honest place to start with real cards, because it is the one street with no cards to come. Nothing is random any more. Each player has a range, the board is fixed, and the only questions left are how much to bet, how often to bluff, and how much to call. That is a finite game, and a finite game can be solved exactly." },
+    { t:"rule", x:"OOP:  check  /  bet ½ pot  /  bet pot\n   after a check, IP:  check  /  bet ½  /  bet pot\n      facing the bet, OOP:  fold  /  call\n   after a bet, IP:  fold  /  call", note:"A deliberately small bet-size tree, no raising. What is left is sizing, bluff frequency and defence frequency, which is most of what river study actually is." },
+    { t:"p", x:"Every combo pair that survives card removal is one deal, its showdown decided once against the fixed board and cached. The solver sweeps all of them each iteration, exactly as Leduc sweeps its 120. Type any two ranges and any board below and it solves the spot you type." },
+    { t:"lab", kind:"river" },
+    { t:"p", x:"Read the top table first. The value hands jam the pot, the pure air jams the pot, and the medium hands check. That is polarisation, and it is the single most important idea about betting: a bet says my hand is either very good or very bad, because those are the two kinds of hand that want to make the pot bigger. Nobody wrote that rule into the solver. It is regret matching discovering that betting your middling hands only gets called by better and folds out worse." },
+    { t:"p", x:"Now the bottom table, which is layer 3 and layer 2 in the same picture. Against a pot-size bet the price is alpha equals one third, so you defend about two thirds or you are exploitable to any two cards. But the solver does not defend two thirds of every hand equally. It keeps the bluff-catchers that hold a card the value bets need, and folds the ones that do not. Minimum defence frequency told you how much to call. Card removal told you which hands. Neither alone is the answer." },
+    { t:"warn", x:"This is still vanilla CFR sweeping every deal, so exploitability floors out around a hundredth of a chip rather than at zero, and a very wide pair of ranges will make it crawl. The fixes are the ones the last lesson named: sample the deals instead of enumerating them, and bucket similar combos. That is the road from this page to a production solver, and it is engineering, not a new idea." },
+    { t:"key", x:"You have now built the thing that sells for a subscription. A real board, two real ranges, exact best-response exploitability, and a strategy that polarises and defends by blockers without being told to. Everything a commercial solver adds on top is scale: more streets, more sizes, sampled instead of enumerated. The idea is the forty lines you have watched converge three times." }
   ]
 }
 ];
@@ -2716,7 +2975,7 @@ var LAYERS = [
   { n:2, title:"Combinatorics of ranges", sub:"A few weeks", lessons:LESSONS_2,
     blurb:"Where most people stall. Stop putting him on a hand and start counting combos, removal and blockers." },
   { n:3, title:"Game theory", sub:"The real content", lessons:LESSONS_3,
-    blurb:"Indifference, alpha, MDF, sizing as mechanism design, and two working solvers you can watch converge." },
+    blurb:"Indifference, alpha, MDF, sizing as mechanism design, and three working solvers you can watch converge." },
   { n:4, title:"Variance and bankroll", sub:"Familiar ground", lessons:LESSONS_4,
     blurb:"Kelly, risk of ruin, and the t-stat on your own winrate. This is a backtesting problem wearing a hoodie." },
   { n:5, title:"Exploitative deviation", sub:"Where the money is", lessons:LESSONS_5,
@@ -2749,7 +3008,7 @@ var READING = [
     ["PokerTracker", "Your own database. The only honest source on your own leaks."]
   ]},
   { g:"The project", items:[
-    ["Implement CFR yourself", "Kuhn first, then Leduc. Both labs above are in this page: about 90 lines and 200 lines respectively. Write your own from the regret matching rule, check it against these, then extend to a river subgame with real ranges using the layer 2 engine. You will understand a solver in a way no amount of reading its output can give you."]
+    ["Implement CFR yourself", "Kuhn first, then Leduc, then the river subgame. All three labs are in this page: about 90, 200 and 260 lines. Write your own from the regret matching rule and check it against these. The river lab already points the same loop at real ranges and a real board using the layer 2 engine, so the next move is scale: sample the deals instead of enumerating them, and add a second street. You will understand a solver in a way no amount of reading its output can give you."]
   ]}
 ];
 
@@ -3439,6 +3698,145 @@ function leducLab(){
   return wrap;
 }
 
+/* ---- the river subgame lab ----
+   The board is complete, two real ranges go in, and the same CFR
+   loop from Kuhn and Leduc solves the actual spot. Ranges and board
+   are editable, parsed by the layer 2 engine. */
+function rvCardIdx(tok){
+  var r = RANKS.indexOf((tok[0]||"").toUpperCase()), s = SUITS.indexOf((tok[1]||"").toLowerCase());
+  return (r < 0 || s < 0) ? -1 : s * 13 + r;
+}
+function rvParseBoard(str){
+  var clean = String(str).replace(/[\s,]+/g, "");
+  if(clean.length !== 10) return null;
+  var out = [], seen = {};
+  for(var i = 0; i < 10; i += 2){
+    var c = rvCardIdx(clean.substr(i, 2));
+    if(c < 0 || seen[c]) return null;
+    seen[c] = 1; out.push(c);
+  }
+  return out;
+}
+var RV_DEF = {
+  oop: "AQ, AJ, KQ, 99, 88",
+  ip:  "AA, KK, AK, 77, QJs, JTs, T9s, 65s",
+  board: "As Kd 7h 3c 2s"
+};
+function riverLab(){
+  var wrap = el("div","lab");
+  wrap.innerHTML =
+    '<div class="rvForm">' +
+      '<div class="rvField"><label>Out of position &middot; checks first</label><input id="rvOOP" value="' + RV_DEF.oop + '"></div>' +
+      '<div class="rvField"><label>In position &middot; acts last</label><input id="rvIP" value="' + RV_DEF.ip + '"></div>' +
+      '<div class="rvField wide"><label>Board &middot; five cards</label><input id="rvBoard" value="' + RV_DEF.board + '"></div>' +
+    '</div>' +
+    '<div class="rvErr" id="rvErr" hidden></div>' +
+    '<div class="labTop">' +
+      '<div class="labStat"><dt>Iterations</dt><dd id="rvIt">0</dd></div>' +
+      '<div class="labStat"><dt>OOP expectation</dt><dd id="rvV">--</dd><small>chips, dead pot 6</small></div>' +
+      '<div class="labStat"><dt>Exploitability</dt><dd id="rvE">--</dd><small>target 0</small></div>' +
+      '<div class="labStat"><dt>Deals</dt><dd id="rvD">--</dd><small id="rvDsub">combo pairs</small></div>' +
+    '</div>' +
+    '<div class="spark"><svg id="rvSpark" viewBox="0 0 300 60" preserveAspectRatio="none"></svg>' +
+      '<div class="sparkAx"><span>exploitability, log scale</span><span id="rvSparkN">0 iters</span></div></div>' +
+    '<div class="labBtns">' +
+      '<button class="act" id="rvSolve" type="button">Solve this spot</button>' +
+      '<button class="act ghost" id="rvRun" type="button">Train 100</button>' +
+      '<button class="act ghost" id="rvRun2" type="button">Train 500</button>' +
+      '<button class="act ghost" id="rvStop" type="button">Stop</button>' +
+    '</div>' +
+    '<div class="labCap">In position, after a check &middot; who bets, and how big</div>' +
+    '<table class="tbl labTbl"><thead><tr><th>Hand</th><th>Check</th><th>Bet ½</th><th>Bet pot</th></tr></thead><tbody id="rvB1"></tbody></table>' +
+    '<div class="labCap">Out of position, facing the pot-size bet &middot; the bluff-catch</div>' +
+    '<table class="tbl labTbl"><thead><tr><th>Hand</th><th>Fold</th><th>Call</th></tr></thead><tbody id="rvB2"></tbody></table>' +
+    '<div class="labNote" id="rvNote"></div>';
+
+  var $$ = function(sel){ return wrap.querySelector(sel); };
+  var st = { t:null, hist:[], running:0, want:0, frame:0 };
+  function pct(x){ return (100 * x).toFixed(0) + "%"; }
+
+  function build(){
+    var oop = parseRange($$("#rvOOP").value), ip = parseRange($$("#rvIP").value);
+    var board = rvParseBoard($$("#rvBoard").value);
+    var err = $$("#rvErr");
+    if(!board){ err.hidden = false; err.textContent = "The board needs exactly five distinct cards, e.g. As Kd 7h 3c 2s."; return false; }
+    if(!oop.length || !ip.length){ err.hidden = false; err.textContent = "Both ranges must parse to at least one combo. Try notation like QQ+, AJs+, KQ."; return false; }
+    var t = new River(oop, ip, board);
+    if(!t.deals.length){ err.hidden = false; err.textContent = "These ranges block each other completely on this board, so there are no deals to solve."; return false; }
+    if(t.deals.length > 12000){ err.hidden = false; err.textContent = "That is " + t.deals.length.toLocaleString() + " combo pairs, too many to solve smoothly in a browser. Tighten a range."; return false; }
+    err.hidden = true;
+    st.t = t; st.hist = []; st.want = 0; st.frame = 0;
+    $$("#rvSpark").innerHTML = "";
+    $$("#rvD").textContent = t.deals.length.toLocaleString();
+    $$("#rvDsub").textContent = t.r0.length + " x " + t.r1.length + " combos";
+    return true;
+  }
+
+  function paint(force){
+    var t = st.t; if(!t) return;
+    $$("#rvIt").textContent = t.iters.toLocaleString();
+    $$("#rvV").textContent = t.iters ? t.gameValue().toFixed(3) : "--";
+    /* the exact best response walks the tree twice, so measure it every
+       fourth frame rather than every one */
+    var e = null;
+    if(t.iters && (force || st.frame % 4 === 0)) e = t.exploitability();
+    st.frame++;
+    if(e != null) $$("#rvE").textContent = e.toFixed(4);
+
+    var b1 = $$("#rvB1"); b1.innerHTML = "";
+    t.byClass(1, 1).forEach(function(g){          /* IP after a check: check / bet½ / bet pot */
+      var tr = document.createElement("tr");
+      var bet = g.freq[1] + g.freq[2];
+      if(g.freq[0] > 0.5) tr.className = "bluff";
+      tr.innerHTML = "<td>" + g.name + "</td><td>" + pct(g.freq[0]) + "</td><td>" +
+        pct(g.freq[1]) + "</td><td>" + pct(g.freq[2]) + "</td>";
+      b1.appendChild(tr);
+    });
+    var b2 = $$("#rvB2"); b2.innerHTML = "";
+    t.byClass(0, 5).forEach(function(g){          /* OOP facing the pot bet: fold / call */
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + g.name + "</td><td>" + pct(g.freq[0]) + "</td><td>" + pct(g.freq[1]) + "</td>";
+      b2.appendChild(tr);
+    });
+
+    /* MDF headline: against a pot bet, alpha = 1/3, so defend ~2/3 */
+    var def = t.byClass(0, 5), callAvg = 0, nC = 0;
+    def.forEach(function(g){ callAvg += g.freq[1]; nC++; });
+    callAvg = nC ? callAvg / nC : 0;
+    $$("#rvNote").innerHTML = t.iters < 60
+      ? "Solve it, then train. Under about sixty iterations this is still noise."
+      : "Look at the top table. The nuts and pure air both jam the pot; the medium hands check. That is polarisation, and nobody wrote it down &mdash; regret matching found it. In the bottom table, against a pot-size bet the price is alpha = <b>1/3</b>, so minimum defence is <b>two thirds</b>. This range calls about <b>" + pct(callAvg) + "</b>, and the hands it keeps are chosen by which cards block the value combos. Change the board above and every number moves.";
+
+    if(e != null) st.hist.push(Math.max(e, 1e-3));
+    var h = st.hist;
+    if(h.length > 1){
+      var pts = h.map(function(v, i){
+        var x = 300 * i / (h.length - 1);
+        var y = 58 - 56 * (Math.log10(v) + 3) / 3.6;   /* 1e-3 .. ~4 */
+        return x.toFixed(1) + "," + Math.max(1, Math.min(59, y)).toFixed(1);
+      }).join(" ");
+      $$("#rvSpark").innerHTML = '<polyline points="' + pts + '" fill="none" stroke="var(--gold)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>';
+      $$("#rvSparkN").textContent = t.iters.toLocaleString() + " iters";
+    }
+  }
+
+  function pump(){
+    if(!wrap.isConnected || !st.t || st.t.iters >= st.want){ st.running = 0; paint(true); return; }
+    st.t.train(Math.min(6, st.want - st.t.iters));   /* a full deal sweep is heavy, keep frames short */
+    paint(false);
+    requestAnimationFrame(pump);
+  }
+  function run(n){ if(!st.t) return; st.want = st.t.iters + n; if(!st.running){ st.running = 1; pump(); } }
+
+  $$("#rvSolve").onclick = function(){ st.running = 0; if(build()) paint(true); };
+  $$("#rvRun").onclick = function(){ run(100); };
+  $$("#rvRun2").onclick = function(){ run(500); };
+  $$("#rvStop").onclick = function(){ if(st.t) st.want = st.t.iters; };
+
+  build(); paint(true);
+  return wrap;
+}
+
 /* ---- blocks ---- */
 function drawBlock(b){
   if(b.t === "p")    return el("p","prose", b.x);
@@ -3465,7 +3863,7 @@ function drawBlock(b){
     if(b.caption) w.appendChild(el("div","cap", b.caption));
     return w;
   }
-  if(b.t === "lab") return b.kind === "leduc" ? leducLab() : cfrLab();
+  if(b.t === "lab") return b.kind === "river" ? riverLab() : b.kind === "leduc" ? leducLab() : cfrLab();
   if(b.t === "how"){
     var hw = el("div","how");
     var head = "<h4>In the drill" + (b.drill ? " <span>&middot; " + b.drill + "</span>" : "") + "</h4>";
