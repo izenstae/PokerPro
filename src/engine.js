@@ -181,6 +181,9 @@ function classifyPreflop(h, v) {
   var suitNote = (hs || vs) ? " Suitedness is worth roughly 2 to 4 points." : "";
 
   function pairVsCards(pr, cr) {
+    var sharesRank = (cr[0] === pr || cr[1] === pr);
+    var hasOvercard = cr[0] > pr;
+    if (sharesRank && !hasOvercard) return "Pair against a hand it dominates, like AA vs AK: about 93/7 for the pair.";
     if (cr[0] < pr) return "Pair against two undercards: about 80/20 for the pair.";
     if (cr[1] > pr) return "Pair against two overcards: near a flip, about 55/45 for the pair.";
     return "Pair against one overcard: about 70/30 for the pair.";
@@ -190,7 +193,7 @@ function classifyPreflop(h, v) {
   if (!hp && vp) return pairVsCards(vr[0], hr) + suitNote;
 
   var shared = (hr[0] === vr[0] || hr[0] === vr[1] || hr[1] === vr[0] || hr[1] === vr[1]);
-  if (shared) return "Domination: sharing a card with the worse kicker is about 25/75." + suitNote;
+  if (shared) return "Domination: sharing a card with the worse kicker is about 26/74." + suitNote;
   if (hr[1] > vr[0] || vr[1] > hr[0]) return "Two overcards against two undercards: about 63/37 for the higher hand." + suitNote;
   return "Interlocked unpaired hands: usually 55/45 to 60/40 toward the stronger top card." + suitNote;
 }
