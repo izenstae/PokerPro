@@ -93,9 +93,13 @@ body{
 .entry .pre{color:var(--dim); font-size:20px; padding-right:2px}
 button.act{
   font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
-  background:var(--bone); color:var(--ink); border:0; border-radius:4px; padding:0 20px; cursor:pointer;
+  background:var(--bone); color:var(--ink); border:0; border-radius:4px; padding:12px 20px; min-height:44px; min-width:56px;
+  font-weight:600; cursor:pointer; transition:background .12s, color .12s, border-color .12s, transform .06s;
 }
 button.act:hover{background:#fff}
+button.act:active{transform:translateY(1px)}
+button.act.go{background:var(--gold); color:#150f02}
+button.act.go:hover{background:#E5B455}
 button.act.ghost{background:transparent; color:var(--dim); border:1px solid var(--line)}
 button.act.ghost:hover{color:var(--bone); border-color:var(--bone)}
 button.act.call{background:var(--green); color:#08130D; padding:14px 28px; font-size:14px}
@@ -163,6 +167,7 @@ details[open] summary:before{content:"- "}
 .tab[aria-selected="true"]{color:var(--bone); border-bottom-color:var(--gold)}
 .tab:focus-visible{outline:2px solid var(--gold); outline-offset:-2px}
 .tab i{font-style:normal; color:var(--green); margin-left:6px}
+.tab i.due{display:inline-block; min-width:17px; padding:1px 5px; border-radius:9px; background:var(--gold); color:#150f02; font-size:10px; letter-spacing:0; font-weight:700; text-align:center}
 
 /* ---- course index ---- */
 .course{border:1px solid var(--line); border-radius:5px; overflow:hidden; background:var(--felt)}
@@ -287,7 +292,7 @@ table.tbl td:first-child{color:var(--dim)}
   border:1px solid var(--gold); border-radius:4px; padding:10px 14px; margin-bottom:14px;
   background:rgba(212,160,60,.06);
 }
-.cpbar .lab{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold)}
+.cpbar .lab{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); border:0; background:none; padding:0; margin:0}
 .cpbar .grow{flex:1; font-size:12px; color:var(--dim)}
 .pips{display:flex; gap:5px}
 .pip{width:9px; height:9px; border-radius:50%; border:1px solid var(--line)}
@@ -403,6 +408,48 @@ table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
 .rvProg{height:5px; border-radius:3px; background:var(--line); overflow:hidden; margin-bottom:8px}
 .rvProg span{display:block; height:100%; width:0; background:var(--gold); transition:width .12s linear}
 
+/* ---- train: the daily schedule ---- */
+.tstats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:12px}
+.tstat{background:var(--felt); border:1px solid var(--line); border-radius:5px; padding:12px 14px}
+.tstat b{display:block; font-size:20px; font-family:var(--sans); font-weight:600; color:var(--bone); font-variant-numeric:tabular-nums}
+.tstat span{font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim)}
+@media(max-width:560px){ .tstats{grid-template-columns:repeat(2,1fr)} }
+.tspark{display:flex; align-items:flex-end; gap:3px; height:38px; margin-bottom:4px}
+.tspark i{flex:1; background:var(--line); border-radius:2px 2px 0 0; min-height:2px}
+.tspark i.on{background:var(--gold)}
+.tspark i.now{background:var(--bone)}
+.tspark i.now:not(.on){background:var(--faint)}
+.tsparkcap{font-size:10px; color:var(--faint); letter-spacing:.08em; margin-bottom:16px; display:flex; justify-content:space-between}
+.today{background:linear-gradient(180deg, rgba(212,160,60,.07), rgba(212,160,60,0) 70%), var(--felt); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:5px; padding:20px; margin-bottom:24px}
+.today .kick{font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:6px}
+.today h3{font-family:var(--sans); font-size:17px; font-weight:600; margin-bottom:6px}
+.today p{font-family:var(--sans); font-size:13px; color:var(--dim); line-height:1.55; margin-bottom:14px}
+.today .row{display:flex; gap:10px; flex-wrap:wrap}
+.mbar{height:5px; border-radius:3px; background:var(--line); overflow:hidden; margin:2px 0 14px}
+.mbar span{display:block; height:100%; background:var(--green)}
+.sklayer{font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); margin:14px 0 6px}
+.skrow{display:grid; grid-template-columns:minmax(0,1.6fr) auto minmax(0,.9fr) 48px 48px 64px; gap:10px; align-items:center;
+  padding:7px 10px; border-bottom:1px solid var(--line); font-size:11.5px; font-variant-numeric:tabular-nums}
+.skrow .nm{color:var(--bone); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.skrow .lv{color:var(--dim); font-size:10px; letter-spacing:.1em; text-transform:uppercase}
+.skrow .nb{color:var(--dim); text-align:right}
+.skrow .du{text-align:right; color:var(--faint)}
+.skrow .du.due{color:var(--gold)}
+.skrow:hover{background:var(--felt)}
+.skrow.locked{opacity:.5}
+.skrow.locked .lv{grid-column:3 / -1; text-transform:none; letter-spacing:0; font-size:11px; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.boxes{display:flex; gap:3px}
+.boxes i{width:9px; height:9px; border-radius:2px; border:1px solid var(--line)}
+.boxes i.on{background:var(--green); border-color:var(--green)}
+.boxes i.top{background:var(--gold); border-color:var(--gold)}
+@media(max-width:560px){ .skrow{grid-template-columns:minmax(0,1fr) auto 44px; } .skrow .lv,.skrow .nb{display:none} }
+.howsrs{margin-top:22px; font-family:var(--sans); font-size:13px; color:var(--dim); line-height:1.6}
+.howsrs summary{cursor:pointer; font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim)}
+.howsrs ol{margin:10px 0 0 18px} .howsrs li{margin-bottom:8px} .howsrs b{color:var(--bone)}
+.srsline{font-family:var(--sans); font-size:12.5px; color:var(--dim); margin:-4px 0 12px}
+.srsline b{color:var(--bone)} .srsline.up b{color:var(--green)} .srsline.miss b{color:var(--red)}
+.recall{font-family:var(--sans); font-size:15px; line-height:1.6; color:var(--bone); border-left:3px solid var(--gold); padding:10px 14px; margin-top:12px; background:var(--raise); border-radius:0 4px 4px 0}
+
 .savetag{font-size:11px; color:var(--dim)}
 .savetag i{font-style:normal; color:var(--faint)}
 .savetag.on i{color:var(--green)}
@@ -422,9 +469,31 @@ table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
   </div>
 
   <div class="tabs" role="tablist">
+    <button class="tab" id="tabTrain" role="tab" type="button">Train</button>
     <button class="tab" id="tabLearn" role="tab" type="button">Learn</button>
     <button class="tab" id="tabDrill" role="tab" type="button">Drill</button>
     <button class="tab" id="tabRead" role="tab" type="button">Reading</button>
+  </div>
+
+  <div id="trainView" hidden>
+    <div class="tstats" id="tstats"></div>
+    <div class="tspark" id="tspark"></div>
+    <div class="tsparkcap"><span>minutes trained, last 21 days</span><span id="tsparkmax"></span></div>
+    <div class="today" id="today"></div>
+    <div class="courseTop"><h2>Skills</h2><p>box &middot; accuracy &middot; pace &middot; next review</p></div>
+    <div class="mbar" id="mbar"></div>
+    <div id="skills"></div>
+    <details class="howsrs">
+      <summary>How the schedule makes it stick</summary>
+      <ol>
+        <li><b>Spacing.</b> Every skill sits in a box. It only climbs a box on a day it is due, after three clean answers in a row. The gaps grow: 1, 3, 7, 16, 35, 80, 180 days. Cramming a skill that is not due keeps it warm but never moves it up. Remembering across a gap is what makes it permanent.</li>
+        <li><b>Speed is the test.</b> Right is not enough. The clock goal starts at the drill's target and tightens 6% per box, down to 60% of it. A right answer over the goal does not count toward the run. Second nature means you stop computing and just know, and the only honest measure of that is the clock.</li>
+        <li><b>Misses come back.</b> A wrong answer drops the skill one box, makes it due now, and puts it back in front of you two questions later, while the explanation is still fresh.</li>
+        <li><b>Interleaving.</b> Sessions mix skills and never ask the same one twice running when there is a choice. Mixed practice feels harder and sticks far better, and it trains the thing you need at a table: recognising which tool the spot calls for.</li>
+        <li><b>Recall.</b> Passing a lesson puts its &ldquo;Commit this&rdquo; rule on the same schedule. Say the rule out loud before you reveal it, then grade yourself honestly.</li>
+        <li><b>Little and often.</b> Fifteen or twenty minutes a day beats three hours on a Sunday. Clear the due list daily; the hours compound because nothing you have learned is allowed to decay.</li>
+      </ol>
+    </details>
   </div>
 
   <div id="learnView">
@@ -557,6 +626,40 @@ ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
 
 var q = null, t0 = 0, raf = 0, answered = false;
 
+/* ---- the schedule: every drill and every lesson rule is a skill in srs.js ---- */
+var skills = {};                 /* id -> srs state */
+var plog = {};                   /* local day -> { s: seconds trained, n: answers, ok: right } */
+var sess = null;                 /* a Train session, while one runs */
+var freeCtx = { last:null, retry:[] };
+var doneAt = 0;                  /* when the last answer landed, so reading the solution counts as training */
+
+var RULES = {}, LESSON_OF = {};
+LESSONS.forEach(function(L){
+  if(L.mode === "none") return;
+  if(MODE_META[L.mode] && !LESSON_OF[L.mode]) LESSON_OF[L.mode] = L;
+  var k = L.blocks.filter(function(b){ return b.t === "key"; })[0];
+  if(k) RULES["rule:" + L.id] = { lesson:L, x:k.x };
+});
+function isSkill(id){ return !!(MODE_META[id] || RULES[id]); }
+function skillName(id){ return RULES[id] ? RULES[id].lesson.title : MODE_META[id]; }
+function skillOf(id){ return skills[id] || (skills[id] = srsNew()); }
+function logDay(secs, n, ok){
+  var k = srsDayKey(Date.now());
+  var d = plog[k] || (plog[k] = { s:0, n:0, ok:0 });
+  d.s += secs; d.n += n; d.ok += ok;
+  if(sess) sess.secs += secs;
+}
+function ruleCard(id){
+  return { kind:"recall", target:20, options:["Had it","Missed it"], answer:"Had it", math:[], bar:null,
+    question:"Recall the rule from \u201c" + RULES[id].lesson.title + "\u201d. Say it out loud, then reveal it." };
+}
+function fmtIn(ms){
+  if(ms <= 0) return "due";
+  var h = ms / 36e5;
+  return h < 1 ? "<1h" : h < 36 ? Math.round(h) + "h" : Math.round(h / 24) + "d";
+}
+function fmtDur(secs){ return secs > 0 && secs < 60 ? "<1m" : secs < 3600 ? Math.round(secs / 60) + "m" : (secs / 3600).toFixed(1) + "h"; }
+
 var $ = function(id){ return document.getElementById(id); };
 function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; }
 
@@ -598,22 +701,33 @@ function drawModes(){
 /* ---- clock ---- */
 function tick(){
   var s = (performance.now() - t0) / 1000;
-  $("clock").innerHTML = "<b>" + s.toFixed(1) + "</b>s &nbsp;<span style='color:var(--faint)'>/ " + q.target + "s</span>";
+  $("clock").innerHTML = "<b>" + s.toFixed(1) + "</b>s &nbsp;<span style='color:var(--faint)'>/ " + q.goal + "s</span>";
   var d = $("decay");
-  d.style.width = Math.min(100, 100 * s / q.target) + "%";
-  d.classList.toggle("over", s > q.target);
+  d.style.width = Math.min(100, 100 * s / q.goal) + "%";
+  d.classList.toggle("over", s > q.goal);
   raf = requestAnimationFrame(tick);
 }
 
 /* ---- render a question ---- */
 function next(){
+  var now = Date.now();
+  if(doneAt){ logDay(Math.min(60, (now - doneAt) / 1000), 0, 0); doneAt = 0; }
   answered = false;
-  var pool = (cp && cp.mode !== "mixed") ? [cp.mode] : ORDER.filter(function(m){ return active[m]; });
-  var mode = pool[(Math.random() * pool.length) | 0];
-  q = GENS[mode]();
+  var mode, ctx = null;
+  if(cp){
+    var pool = cp.mode !== "mixed" ? [cp.mode] : ORDER;
+    mode = pool[(Math.random() * pool.length) | 0];
+  } else {
+    ctx = sess ? sess.ctx : freeCtx;
+    srsTickRetry(ctx);
+    mode = srsPick(sess ? sess.pool : ORDER.filter(function(m){ return active[m]; }), skills, now, ctx);
+    ctx.last = mode;
+  }
+  q = RULES[mode] ? ruleCard(mode) : GENS[mode]();
   q.mode = mode;
+  q.goal = srsGoal(q.target, skills[mode] ? skills[mode].box : 0);
 
-  $("eyebrow").textContent = MODE_META[mode];
+  $("eyebrow").textContent = (RULES[mode] ? "Recall" : MODE_META[mode]) + " \u00b7 " + srsLevel(skills[mode]);
   $("reveal").hidden = true;
   $("decay").style.width = "0%";
   $("decay").classList.remove("over");
@@ -657,6 +771,14 @@ function seat(label, cards, blanks){
 
 function buildControls(){
   var c = $("controls"); c.innerHTML = "";
+  if(q.kind === "recall"){
+    var sh = el("button","act","Show the rule"); sh.type = "button";
+    sh.onclick = showRule;
+    c.appendChild(sh);
+    sh.focus();
+    $("hint").textContent = "Retrieve it before you look. Enter or Space reveals.";
+    return;
+  }
   if(q.kind === "choice"){
     var opts = q.options || ["CALL","FOLD"];
     opts.forEach(function(v, i){
@@ -688,12 +810,28 @@ function buildControls(){
   }
 }
 
+/* recall cards: the clock stops at the reveal, then you grade yourself */
+function showRule(){
+  if(!q || q.kind !== "recall" || q.shown || answered) return;
+  q.shown = (performance.now() - t0) / 1000;
+  cancelAnimationFrame(raf);
+  $("ask").appendChild(el("div","recall", RULES[q.mode].x));
+  var c = $("controls"); c.innerHTML = "";
+  q.options.forEach(function(v){
+    var b = el("button","act", v); b.type = "button";
+    b.onclick = function(){ submit(v); };
+    c.appendChild(b);
+  });
+  $("hint").textContent = "Had it means the substance, not the wording. Keys 1 and 2 work too.";
+}
+
 /* ---- grading ---- */
 function submit(raw){
   if(answered || !q) return;
-  var secs = (performance.now() - t0) / 1000;
+  if(q.kind === "recall" && !q.shown) return;
+  var secs = q.kind === "recall" ? q.shown : (performance.now() - t0) / 1000;
   var ok, said;
-  if(q.kind === "choice"){
+  if(q.kind === "choice" || q.kind === "recall"){
     said = raw;
     ok = raw === q.answer;
   } else {
@@ -705,27 +843,61 @@ function submit(raw){
   answered = true;
   cancelAnimationFrame(raf);
 
-  var clean = ok && secs <= q.target;
-  stats.n++; stats.time += secs;
-  stats.mode[q.mode].n++;
-  if(ok){ stats.correct++; stats.streak++; stats.mode[q.mode].correct++; if(stats.streak > stats.best) stats.best = stats.streak; }
-  else stats.streak = 0;
-  if(clean) stats.clean++;
+  if(!RULES[q.mode]){
+    stats.n++; stats.time += secs;
+    stats.mode[q.mode].n++;
+    if(ok){ stats.correct++; stats.streak++; stats.mode[q.mode].correct++; if(stats.streak > stats.best) stats.best = stats.streak; }
+    else stats.streak = 0;
+    if(ok && secs <= q.goal) stats.clean++;
+  }
+
+  var sk = skillOf(q.mode);
+  if(sess){
+    if(!(q.mode in sess.from)) sess.from[q.mode] = sk.box;
+    sess.n++; if(ok) sess.ok++;
+  }
+  q.res = srsRecord(sk, ok, secs, q.target, Date.now());
+  logDay(Math.min(secs, q.target * 3 + 20), 1, ok ? 1 : 0);
+  doneAt = Date.now();
+  if(!ok && !cp) srsQueueRetry(sess ? sess.ctx : freeCtx, q.mode);
 
   drawReveal(ok, said, secs);
   drawTape();
   saveSoon();
   if(cp){ cp.marks.push(ok); drawCp(); }
+  if(sess) drawSess();
+  drawTrainTab();
 }
 
-function fmtAns(){
-  if(q.kind === "choice") return q.answer;
-  return q.unit === "$" ? "$" + Math.round(q.answer).toLocaleString() : q.answer.toFixed(1) + "%";
+/* what the answer did to the schedule, in one line */
+function srsLine(){
+  var r = q.res, s = skills[q.mode], d = el("div","srsline " + r.ev);
+  if(r.ev === "up")
+    d.innerHTML = "<b>Up to " + srsLevel(s) + ", box " + r.box + ".</b> Next review in " + r.days + (r.days === 1 ? " day." : " days.");
+  else if(r.ev === "miss")
+    d.innerHTML = "<b>" + (s.box || s.lapses ? "Down to box " + s.box : "Not yet") + ".</b> It comes back in two questions, while this is fresh.";
+  else if(r.ev === "slow")
+    d.innerHTML = "Right, but over the <b>" + r.goal + "s</b> goal for this box. Only answers inside the goal build the run.";
+  else if(Date.now() >= s.due)
+    d.innerHTML = "Clean. <b>" + r.run + " of " + r.need + "</b> in a row toward the next box.";
+  else
+    d.innerHTML = "Clean. Not due for <b>" + fmtIn(s.due - Date.now()) + "</b>; this keeps it warm, the review moves it up.";
+  return d;
 }
-function fmtSaid(s){
-  if(q.kind === "choice") return s;
-  return q.unit === "$" ? "$" + Math.round(s).toLocaleString() : (Math.round(s * 10) / 10) + "%";
+
+function advance(){
+  if(cp && cp.marks.length >= cp.of) endCp();
+  else if(sess && sessOver()) endSession();
+  else next();
 }
+
+function fmtNum(x, exact){
+  if(q.unit === "$") return "$" + Math.round(x).toLocaleString();
+  if(q.unit === "%") return (exact ? x.toFixed(1) : Math.round(x * 10) / 10) + "%";
+  return Math.abs(x) >= 100 ? Math.round(x).toLocaleString() : String(Math.round(x * 100) / 100);   /* counts, hands, t */
+}
+function fmtAns(){ return q.kind === "choice" ? q.answer : fmtNum(q.answer, true); }
+function fmtSaid(s){ return q.kind === "choice" ? s : fmtNum(s, false); }
 
 /* ---- the bar, shared by drills and lessons ---- */
 function gauge(bar, isThr){
@@ -772,22 +944,24 @@ function drawReveal(ok, said, secs){
   var r = $("reveal"); r.innerHTML = ""; r.hidden = false;
 
   var v = el("div","verdict");
-  v.appendChild(el("span","badge " + (ok ? "ok" : "no"), ok ? "Correct" : "Off"));
-  v.appendChild(el("span","said","Answer <b>" + fmtAns() + "</b> &nbsp;&middot;&nbsp; you said " + fmtSaid(said)));
-  var fast = secs <= q.target;
-  v.appendChild(el("span","pace " + (fast ? "fast" : "slow"), secs.toFixed(1) + "s " + (fast ? "in time" : "over " + q.target + "s")));
+  var rc = q.kind === "recall";
+  v.appendChild(el("span","badge " + (ok ? "ok" : "no"), rc ? (ok ? "Had it" : "Missed") : (ok ? "Correct" : "Off")));
+  if(!rc) v.appendChild(el("span","said","Answer <b>" + fmtAns() + "</b> &nbsp;&middot;&nbsp; you said " + fmtSaid(said)));
+  var fast = secs <= q.goal;
+  v.appendChild(el("span","pace " + (fast ? "fast" : "slow"), secs.toFixed(1) + "s " + (fast ? "in time" : "over " + q.goal + "s")));
   r.appendChild(v);
+  r.appendChild(srsLine());
 
-  r.appendChild(gauge(q.bar, !!THRESHOLD_MODES[q.mode]));
+  if(q.bar) r.appendChild(gauge(q.bar, !!THRESHOLD_MODES[q.mode]));
 
   var m = el("div","math");
   q.math.forEach(function(line){ m.appendChild(el("p", null, line)); });
   r.appendChild(m);
 
-  var last = cp && cp.marks.length >= cp.of;
+  var last = (cp && cp.marks.length >= cp.of) || (sess && sessOver());
   var go = el("button","act", last ? "See the result" : "Next hand"); go.type = "button";
   go.style.marginTop = "16px";
-  go.onclick = function(){ if(cp && cp.marks.length >= cp.of) endCp(); else next(); };
+  go.onclick = advance;
   r.appendChild(go);
   go.focus();
   $("hint").textContent = last ? "Press Enter for your result." : "Press Enter for the next hand.";
@@ -812,9 +986,16 @@ function drawTape(){
 
 /* ---- keys ---- */
 document.addEventListener("keydown", function(e){
+  if($("drillView").hidden) return;
+  if(!answered && q && q.kind === "recall"){
+    if(!q.shown && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); showRule(); return; }
+    if(q.shown && (e.key === "1" || e.key === "2")){ submit(q.options[+e.key - 1]); return; }
+    if(e.key === "Enter") e.preventDefault();
+    return;
+  }
   if(e.key === "Enter"){
     e.preventDefault();
-    if(answered){ if(cp && cp.marks.length >= cp.of) endCp(); else next(); }
+    if(answered) advance();
     else if(q && q.kind === "number"){ var i = $("inp"); if(i) submit(i.value); }
     return;
   }
@@ -851,6 +1032,11 @@ var progress = {};
 
 function setView(v){
   view = v;
+  $("tabTrain").setAttribute("aria-selected", v === "train" ? "true" : "false");
+  $("trainView").hidden = v !== "train";
+  $("tape").hidden = v !== "drill";
+  if(v === "train") drawTrain();
+  drawTrainTab();
   $("tabLearn").setAttribute("aria-selected", v === "learn" ? "true" : "false");
   $("tabDrill").setAttribute("aria-selected", v === "drill" ? "true" : "false");
   $("tabRead").setAttribute("aria-selected", v === "reading" ? "true" : "false");
@@ -928,6 +1114,15 @@ async function loadSaved(){
       ORDER.forEach(function(m){ if(!stats.mode[m]) stats.mode[m] = { n:0, correct:0 }; });
     }
     if(typeof st.openLayer === "number") openLayer = st.openLayer;
+    if(st.skills) skills = st.skills;
+    if(st.plog) plog = st.plog;
+    /* lessons passed before the schedule existed: put them on it, due now */
+    LESSONS.forEach(function(L){
+      if(!progress[L.id]) return;
+      [L.mode, "rule:" + L.id].forEach(function(id){
+        if(isSkill(id) && !skills[id]){ var k = skillOf(id); k.box = 1; k.due = Date.now(); }
+      });
+    });
   }catch(e){
     /* no key yet is the normal first run, not a failure */
   }
@@ -938,9 +1133,10 @@ function saveSoon(){
   if(!canSave()) return;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async function(){
+    saveTimer = 0;
     try{
       await STORE.set(SAVE_KEY, JSON.stringify({
-        progress: progress, stats: stats, openLayer: openLayer
+        progress: progress, stats: stats, openLayer: openLayer, skills: skills, plog: plog
       }));
       saveState = "on";
     }catch(e){ saveState = "error"; }
@@ -948,14 +1144,21 @@ function saveSoon(){
   }, 400);
 }
 
+/* closing the tab inside the save delay would lose the last answers: flush now */
+window.addEventListener("pagehide", function(){
+  if(!saveTimer || !canSave()) return;
+  clearTimeout(saveTimer); saveTimer = 0;
+  try{ STORE.set(SAVE_KEY, JSON.stringify({ progress: progress, stats: stats, openLayer: openLayer, skills: skills, plog: plog })); }catch(e){}
+});
+
 async function wipeSaved(){
-  progress = {};
+  progress = {}; skills = {}; plog = {}; freeCtx = { last:null, retry:[] };
   stats = { n:0, correct:0, clean:0, time:0, streak:0, best:0, mode:{} };
   ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
   if(canSave()){
     try{ await STORE.del(SAVE_KEY); }catch(e){}
   }
-  drawTOC(); drawTape(); drawSaveTag();
+  drawTOC(); drawTape(); drawSaveTag(); drawTrain();
 }
 
 function drawSaveTag(){
@@ -1006,6 +1209,174 @@ function drawTOC(){
     box.appendChild(wrap);
   });
   drawSaveTag();
+}
+
+/* ============================================================
+   TRAIN: the daily schedule
+   ============================================================ */
+function drawTrain(){
+  if(!$("tstats")) return;
+  var now = Date.now();
+  var ids = Object.keys(skills).filter(isSkill);
+  var due = srsDueList(ids, skills, now);
+  var total = 0;
+  Object.keys(plog).forEach(function(k){ total += plog[k].s; });
+  var tk = plog[srsDayKey(now)];
+  var auto = ORDER.filter(function(m){ return skills[m] && skills[m].box >= 6; }).length;
+
+  $("tstats").innerHTML = [
+    [fmtDur(total), "trained, all time"],
+    [fmtDur(tk ? tk.s : 0), "today"],
+    [srsDayStreak(plog, now) + "", "day streak"],
+    [auto + "/" + ORDER.length, "skills automatic"]
+  ].map(function(x){ return '<div class="tstat"><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join("");
+
+  var days = [], mx = 0;
+  for(var i = 20; i >= 0; i--){
+    var d = plog[srsDayKey(now - i * SRS_DAY)];
+    var m = d ? d.s / 60 : 0;
+    days.push(m); if(m > mx) mx = m;
+  }
+  $("tspark").innerHTML = days.map(function(m, i){
+    return '<i class="' + (m > 0 ? "on" : "") + (i === 20 ? " now" : "") + '" style="height:' +
+      (mx ? Math.max(4, 100 * m / mx) : 4) + '%" title="' + Math.round(m) + ' min"></i>';
+  }).join("");
+  $("tsparkmax").textContent = mx ? "peak " + Math.round(mx) + " min" : "";
+
+  var box = $("today"); box.innerHTML = "";
+  box.appendChild(el("div","kick", new Date(now).toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" })));
+  var row = el("div","row");
+  function btn(label, cls, fn){ var b = el("button","act" + (cls ? " " + cls : ""), label); b.type = "button"; b.onclick = fn; row.appendChild(b); return b; }
+  if(!ids.length){
+    box.appendChild(el("h3", null, "Nothing on the schedule yet"));
+    box.appendChild(el("p", null, "Every lesson checkpoint you pass puts that skill and its rule here, with the first review tomorrow. From then on this page tells you exactly what to practise each day, and nothing you have learned is allowed to fade."));
+    btn("Start the course", "go", function(){ openId = null; setView("learn"); });
+  } else if(due.length){
+    var est = due.reduce(function(a, id){
+      var s = skills[id];
+      return a + (RULES[id] ? 25 : (4 + s.box) * (s.n ? s.secs / s.n + 6 : 20));
+    }, 0);
+    box.appendChild(el("h3", null, due.length + (due.length === 1 ? " review" : " reviews") + " due"));
+    var names = due.slice(0, 7).map(skillName).join(", ") + (due.length > 7 ? " and " + (due.length - 7) + " more" : "");
+    box.appendChild(el("p", null, names + ". About " + Math.max(1, Math.round(est / 60)) + " minutes, mixed together, with a little from your other skills woven in."));
+    btn("Start today's session", "go", function(){ startSession("due"); }).focus();
+    btn("Practise weakest", "ghost", function(){ startSession("extra"); });
+  } else {
+    var soon = ids.slice().sort(function(a, b){ return skills[a].due - skills[b].due; })[0];
+    box.appendChild(el("h3", null, "All clear for now"));
+    box.appendChild(el("p", null, "Next review: " + skillName(soon) + ", in " + fmtIn(skills[soon].due - now) +
+      ". Extra practice keeps skills warm and fixes weak spots, but only a review on its due day moves a skill up. Or open the next lesson and add a new skill."));
+    btn("Practise weakest", "go", function(){ startSession("extra"); });
+    btn("Next lesson", "ghost", function(){
+      var nx = LESSONS.filter(function(L){ return L.mode !== "none" && !progress[L.id]; })[0];
+      if(nx){ openLayer = nx.layer; openLesson(nx.id); } else { openId = null; setView("learn"); }
+    });
+  }
+  box.appendChild(row);
+
+  var pts = ORDER.reduce(function(a, m){ return a + (skills[m] ? skills[m].box : 0); }, 0);
+  var pct = 100 * pts / (ORDER.length * SRS_TOP);
+  $("mbar").innerHTML = '<span style="width:' + pct.toFixed(1) + '%"></span>';
+  $("mbar").title = Math.round(pct) + "% of the way to every skill at the top box";
+
+  var list = $("skills"); list.innerHTML = "";
+  function srow(id, name){
+    var s = skills[id], r = el("div","skrow" + (s ? "" : " locked"));
+    var bx = "";
+    for(var j = 1; j <= SRS_TOP; j++) bx += '<i class="' + (s && s.box >= j ? (s.box >= 6 ? "top" : "on") : "") + '"></i>';
+    if(!s){
+      var L = LESSON_OF[id];
+      r.innerHTML = '<span class="nm">' + name + '</span><span class="boxes">' + bx + '</span>' +
+        '<span class="lv">' + (L ? "unlocks when you pass &ldquo;" + L.title + "&rdquo;" : "not started") + '</span>';
+      return r;
+    }
+    var rc = srsRecent(s, 20), goalX = srsGoal(1, s.box);
+    r.innerHTML = '<span class="nm">' + name + '</span><span class="boxes">' + bx + '</span>' +
+      '<span class="lv">' + srsLevel(s) + '</span>' +
+      '<span class="nb" title="accuracy, last ' + rc.n + '">' + (rc.n ? Math.round(100 * rc.acc) + "%" : "&ndash;") + '</span>' +
+      '<span class="nb" title="median time as a multiple of this box&rsquo;s goal; under 1 is inside it">' + (rc.n && rc.pace ? (rc.pace / goalX).toFixed(1) + "&times;" : "&ndash;") + '</span>' +
+      '<span class="du' + (now >= s.due ? " due" : "") + '">' + fmtIn(s.due - now) + '</span>';
+    return r;
+  }
+  [0,1,2,3,4,5].forEach(function(Ln){
+    list.appendChild(el("div","sklayer", "Layer " + Ln + " &middot; " + LAYERS[Ln].title));
+    ORDER.filter(function(m){ return MODE_LAYER[m] === Ln; }).forEach(function(m){ list.appendChild(srow(m, MODE_META[m])); });
+  });
+  var rules = Object.keys(RULES).filter(function(id){ return skills[id]; });
+  list.appendChild(el("div","sklayer", "Rules to recall &middot; " + rules.length + " of " + Object.keys(RULES).length + " unlocked"));
+  rules.forEach(function(id){ list.appendChild(srow(id, skillName(id))); });
+}
+
+function drawTrainTab(){
+  var n = srsDueList(Object.keys(skills).filter(isSkill), skills, Date.now()).length;
+  $("tabTrain").innerHTML = "Train" + (n ? ' <i class="due" title="' + n + ' due">' + n + '</i>' : "");
+}
+
+/* a session: the due list first, interleaved, with light filler from the rest */
+function startSession(kind){
+  var now = Date.now();
+  var drills = ORDER.filter(function(m){ return skills[m]; });
+  var pool = kind === "due"
+    ? drills.concat(srsDueList(Object.keys(RULES), skills, now))
+    : drills;
+  if(!pool.length) return;
+  sess = { kind:kind, pool:pool, ctx:{ last:null, retry:[], idle: kind === "due" ? 0.15 : 0.6 },
+           n:0, ok:0, secs:0, cap: kind === "due" ? 60 : 20, from:{} };
+  if(cp) cp = null;
+  openId = null;
+  $("modes").hidden = true;
+  $("cpbar").hidden = false;
+  drawSess();
+  setView("drill");
+  next();
+  window.scrollTo(0,0);
+}
+
+function sessDue(){ return srsDueList(sess.pool, skills, Date.now()); }
+function sessOver(){ return sess.n >= sess.cap || (sess.kind === "due" && !sessDue().length); }
+
+function drawSess(){
+  var left = sess.kind === "due" ? sessDue().length + " due left" : (sess.cap - sess.n) + " to go";
+  $("cpbar").innerHTML =
+    '<span class="lab">' + (sess.kind === "due" ? "Today" : "Weak spots") + '</span>' +
+    '<span class="grow">' + left + ' &nbsp;&middot;&nbsp; ' + sess.n + ' answered' +
+    (sess.n ? ', ' + Math.round(100 * sess.ok / sess.n) + '% right' : '') + '</span>';
+  var b = el("button","chip","End"); b.type = "button";
+  b.onclick = endSession;
+  $("cpbar").appendChild(b);
+}
+
+function endSession(){
+  var S = sess; sess = null;
+  $("modes").hidden = false; $("cpbar").hidden = true;
+  var ups = [], downs = [];
+  Object.keys(S.from).forEach(function(id){
+    var b = skills[id].box;
+    if(b > S.from[id]) ups.push(skillName(id) + " to " + srsLevel(skills[id]));
+    else if(b < S.from[id]) downs.push(skillName(id));
+  });
+  saveSoon();
+
+  var d = $("cpdone"); d.innerHTML = "";
+  var left = srsDueList(Object.keys(skills).filter(isSkill), skills, Date.now()).length;
+  d.appendChild(el("h3", "pass", S.n ? (left ? "Session ended" : "Done for today") : "Nothing answered"));
+  var msg = S.n + " answers, " + (S.n ? Math.round(100 * S.ok / S.n) : 0) + "% right, " + fmtDur(S.secs) + ". ";
+  if(ups.length) msg += "Moved up: " + ups.join(", ") + ". ";
+  if(downs.length) msg += "Slipped, and back tomorrow or sooner: " + downs.join(", ") + ". ";
+  msg += left ? left + " still due; pick it up whenever you have ten minutes." : "Everything due is cleared. Come back tomorrow; the gap is what makes it stick.";
+  d.appendChild(el("p", null, msg));
+  var row = el("div","row");
+  var back = el("button","act","Back to Train"); back.type = "button";
+  back.onclick = function(){ setView("train"); window.scrollTo(0,0); };
+  var more = el("button","act ghost", left ? "Keep going" : "Practise weakest"); more.type = "button";
+  more.onclick = function(){ startSession(left ? "due" : "extra"); };
+  row.appendChild(back); row.appendChild(more);
+  d.appendChild(row);
+
+  $("drillView").hidden = true;
+  d.hidden = false;
+  back.focus();
+  window.scrollTo(0,0);
 }
 
 /* ---- reading list ---- */
@@ -1712,14 +2083,18 @@ function endCp(){
   var L = lessonById(cp.id);
   var hits = cp.marks.filter(Boolean).length;
   var passed = hits >= cp.need;
-  if(passed){ progress[cp.id] = 1; saveSoon(); }
+  if(passed){
+    progress[cp.id] = 1;
+    [L.mode, "rule:" + L.id].forEach(function(id){ if(isSkill(id)) srsGraduate(skillOf(id), Date.now()); });
+    saveSoon();
+  }
 
   var d = $("cpdone");
   d.innerHTML = "";
   var nx = nextLesson(L);
   var h = el("h3", passed ? "pass" : "fail", passed ? L.title + ": passed" : hits + " of " + cp.of + ". Not yet.");
   var p = el("p", null, passed
-    ? "You got " + hits + " of " + cp.of + ". " + (nx ? "Next up: " + nx.title + "." : "That is the whole course. Go and use it.")
+    ? "You got " + hits + " of " + cp.of + ". It is on your schedule now: first review tomorrow, in Train. " + (nx ? "Next up: " + nx.title + "." : "That is the whole course. Go and use it.")
     : "You needed " + cp.need + ". Read the lesson again, in particular the boxed rule, then come straight back. This is arithmetic, not talent.");
   var row = el("div","row");
   var again = el("button","act","Try again"); again.type = "button";
@@ -1743,13 +2118,23 @@ function endCp(){
   window.scrollTo(0,0);
 }
 
-$("tabLearn").onclick = function(){ if(cp) quitCp(); else { openId = null; setView("learn"); } };
-$("tabRead").onclick = function(){ if(cp) quitCp(); openId = null; setView("reading"); };
-$("tabDrill").onclick = function(){ if(cp) quitCp(); ORDER.forEach(function(m){ active[m] = 1; }); $("modes").hidden = false; $("cpbar").hidden = true; drawModes(); setView("drill"); };
+function leaveSession(){ if(sess){ sess = null; $("modes").hidden = false; $("cpbar").hidden = true; } }
+$("tabTrain").onclick = function(){ if(cp) quitCp(); leaveSession(); openId = null; setView("train"); };
+$("tabLearn").onclick = function(){ leaveSession(); if(cp) quitCp(); else { openId = null; setView("learn"); } };
+$("tabRead").onclick = function(){ leaveSession(); if(cp) quitCp(); openId = null; setView("reading"); };
+$("tabDrill").onclick = function(){
+  var wasSess = !!sess || !!cp;
+  leaveSession(); if(cp) quitCp();
+  ORDER.forEach(function(m){ active[m] = 1; }); $("modes").hidden = false; $("cpbar").hidden = true; drawModes();
+  setView("drill");
+  if(wasSess) next();
+};
 
 (async function boot(){
   await loadSaved();
-  drawModes(); drawTape(); drawTOC(); setView("learn"); drawSaveTag();
+  drawModes(); drawTape(); drawTOC();
+  setView(Object.keys(skills).some(isSkill) ? "train" : "learn");
+  drawSaveTag();
 })();
 </script>
 </body>

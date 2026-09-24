@@ -2,11 +2,11 @@
 
 Poker, for people who already know the math.
 
-A single-file browser course that goes from *"what beats what"* to Bayesian exploitation, structured the way you'd learn a trading discipline rather than a card game. No dependencies, no build step at runtime, no network calls. One HTML file, 255kb.
+A single-file browser course that goes from *"what beats what"* to Bayesian exploitation, structured the way you'd learn a trading discipline rather than a card game. The goal isn't to have read it. The goal is that the maths turns into reflex. A built-in spaced-repetition schedule decides what you practise each day and only calls a skill learned once you're right *and* fast, on separate days, weeks apart. No dependencies, no build step at runtime, no network calls. One HTML file, about 280kb.
 
 ### ▶ **[Open the trainer → izenstae.github.io/PokerPro](https://izenstae.github.io/PokerPro/)**
 
-Runs entirely in your browser. Nothing to install. Includes four live CFR solvers — Kuhn, Leduc, a **river subgame solver** you point at your own ranges and board (with a Monte Carlo engine and strength-bucket abstraction on a switch), and a **two-street turn solver** that solves every river as a subgame and backs the value up.
+Runs entirely in your browser. Nothing to install. Open **Train** once a day, clear what's due (usually 10 to 20 minutes), and the schedule handles the rest. Includes four live CFR solvers — Kuhn, Leduc, a **river subgame solver** you point at your own ranges and board (with a Monte Carlo engine and strength-bucket abstraction on a switch), and a **two-street turn solver** that solves every river as a subgame and backs the value up.
 
 ---
 
@@ -21,7 +21,31 @@ Runs entirely in your browser. Nothing to install. Includes four live CFR solver
 | **4** | Variance and bankroll: t-stat, sample size, ruin, Kelly | 4 drills |
 | **5** | Exploitative deviation: Bayes, updating, deviating | 3 drills |
 
-29 lessons, 23 drill generators, checkpoints that unlock progress, and progress that persists.
+29 lessons (25 with a checkpoint, 4 labs), 23 drill generators, 25 recall cards, and a daily schedule that keeps all of it from fading.
+
+The app has four tabs:
+
+- **Train**: today's reviews, time trained, day streak, and every skill's box, accuracy, pace and next review date.
+- **Learn**: the course. Read a lesson, then pass its checkpoint to put that skill on the schedule.
+- **Drill**: free practice on any mix of drills, weighted towards your weak and due skills.
+- **Reading**: the reading list.
+
+## How it makes things stick
+
+Every drill is a *skill*, and so is every lesson's boxed "Commit this" rule. The skills run on a Leitner schedule (`src/srs.js`) built around a few well-established findings on durable learning:
+
+| Principle | What the app does |
+|---|---|
+| **Spaced retrieval** | Each skill sits in one of 8 boxes. It moves up a box only on a day it's due, after 3 clean answers in a row (5 for a brand-new skill). The review gaps grow: 1, 3, 7, 16, 35, 80, 180 days. Practising a skill before it's due keeps it fresh but never moves it up. |
+| **Fluency, not just accuracy** | Each drill has a time target. A skill's time goal starts at that target and gets 6% shorter per box, down to 60% of it. A right answer over the goal doesn't count toward moving up, because the clock is the honest test of whether something has become automatic. |
+| **Immediate correction** | A miss drops the skill one box, makes it due again right away, and asks it again two questions later while the worked solution is still fresh. |
+| **Interleaving** | Sessions mix skills and avoid asking the same skill twice in a row. Due skills make up most of a session, with a few questions from your other skills mixed in. |
+| **Free recall** | Passing a lesson also schedules its rule as a recall card. You say the rule out loud, reveal it, and mark whether you got it. |
+| **Distributed practice** | Train shows time trained, a 21-day chart and a day streak, and tells you when you've cleared everything due. Short daily sessions beat long weekend ones. |
+
+A skill counts as **automatic** at box 6. To get there it needs clean, fast answers after gaps of 1, 3, 7, 16 and 35 days, so about two months of daily 15-minute sessions puts a skill there for good. The Train tab counts automatic skills out of 23 and shows overall progress toward the top box.
+
+Passing a checkpoint schedules that drill and its rule for review the next day. Progress saved by earlier versions carries over: any lesson you'd already passed goes on the schedule, due now.
 
 ## The labs
 
@@ -55,6 +79,7 @@ npm test
 - `leduc.test.js` — Leduc reaches 288 infosets, exploitability -> 0, best responses bracket the game value
 - `river.test.js` — river payoff units, exploitability falls under 0.05, Monte Carlo agrees with the enumerator on the value, strength buckets cut the info sets and finer buckets are less exploitable, a dominant range wins the dead pot (18 assertions)
 - `turn.test.js` — turn payoff units, all 48 river subgames solved and backed up, exploitability falls under 0.06, best responses bracket the game value, the chunked backup reproduces the one-shot solve, abstraction cuts the info sets (14 assertions)
+- `srs.test.js` — the schedule: early practice never moves a skill up, a due review does, slow answers don't count, the time goal gets shorter, misses drop a box, the picker favours due and weak skills, interleaves and brings a miss back two questions later, day streaks (25 assertions)
 
 `npm run test:brute` cross-checks the evaluator against brute force over 200k hands (slow).
 
@@ -71,9 +96,10 @@ src/
   river.js          river subgame CFR (vanilla + Monte Carlo) with bucket abstraction
   turn.js           two-street turn solver: solve every river, back the value up
   drills.js         the 17 generators for layers 0, 2, 3, 4, 5
+  srs.js            the schedule: Leitner boxes, time goals, skill picker, practice log
   lessons.js        layer 1 lesson content
   course.js         layers 0, 2, 3, 4, 5 + assembly + reading list
-  app.tpl.html      UI shell, CSS, and the four lab widgets
+  app.tpl.html      UI shell, CSS, Train view, sessions, and the four lab widgets
 test/
 ```
 
@@ -92,7 +118,7 @@ Push, then **Settings → Pages → Source: Deploy from a branch → `main` / `(
 
 ## Storage
 
-Progress is saved through an adapter that feature-detects its host:
+Lesson progress, drill stats, every skill's schedule and the daily practice log are saved under one key, through an adapter that feature-detects its host:
 
 1. inside a Claude artifact → the sandboxed key-value store
 2. self-hosted or opened from disk → `localStorage`
