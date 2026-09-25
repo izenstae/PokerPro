@@ -2,7 +2,7 @@
 
 Poker, for people who already know the math.
 
-A single-file browser course that goes from *"what beats what"* to Bayesian exploitation, structured the way you'd learn a trading discipline rather than a card game. The goal isn't to have read it. The goal is that the maths turns into reflex. A built-in spaced-repetition schedule decides what you practise each day and only calls a skill learned once you're right *and* fast, on separate days, weeks apart. No dependencies, no build step at runtime, no network calls. One HTML file, about 280kb.
+A single-file browser course that goes from *"what beats what"* to Bayesian exploitation, structured the way you'd learn a trading discipline rather than a card game. The goal isn't to have read it. The goal is that the maths turns into reflex. A built-in spaced-repetition schedule decides what you practise each day and only calls a skill learned once you're right *and* fast, on separate days, weeks apart. No dependencies, no build step at runtime, and no network calls unless you turn on sync. One HTML file, about 280kb.
 
 ### ▶ **[Open the trainer → izenstae.github.io/PokerPro](https://izenstae.github.io/PokerPro/)**
 
@@ -97,6 +97,7 @@ src/
   turn.js           two-street turn solver: solve every river, back the value up
   drills.js         the 17 generators for layers 0, 2, 3, 4, 5
   srs.js            the schedule: Leitner boxes, time goals, skill picker, practice log
+  sync.js           cross-device sync: the progress merge and a tiny GitHub Gist client
   lessons.js        layer 1 lesson content
   course.js         layers 0, 2, 3, 4, 5 + assembly + reading list
   app.tpl.html      UI shell, CSS, Train view, sessions, and the four lab widgets
@@ -125,6 +126,19 @@ Lesson progress, drill stats, every skill's schedule and the daily practice log 
 3. anywhere that blocks both → session only, and the header says so
 
 Every branch is probed and wrapped, so a refusal degrades instead of throwing.
+
+### Sync across devices
+
+Browser storage belongs to one browser, so a computer and an iPad each keep their own copy. To share one, open **Train → Sync across devices**, [create a GitHub token](https://github.com/settings/tokens/new?scopes=gist&description=PokerPro%20sync) with only the `gist` scope, and paste it on each device. The app finds or creates one secret gist, `pokerpro-progress.json`, and talks to the GitHub API directly. There's still no server of its own.
+
+It syncs on load, a few seconds after you answer, and when you come back to the tab. Each sync pulls the gist, merges it with local progress, and pushes only if the gist is behind. The merge in `src/sync.js` is commutative and idempotent, so devices converge whatever order they sync in:
+
+- passed lessons: the union
+- each skill's schedule: the copy answered most recently
+- the practice log: per day, the larger of each figure
+- drill stats: the most recently reset copy, then the one with more answers
+
+**Clear all progress** and **Reset stats** stamp a new epoch, and a newer epoch beats an older one outright, so a wipe spreads to other devices instead of being merged back in. The token lives only in that browser's storage.
 
 ## Where to take it next
 

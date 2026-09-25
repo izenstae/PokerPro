@@ -454,6 +454,14 @@ table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
 .savetag i{font-style:normal; color:var(--faint)}
 .savetag.on i{color:var(--green)}
 .savetag.error i{color:var(--red)}
+.syncp{margin-top:10px}
+.syncp p{margin-bottom:10px}
+.syncp a{color:var(--gold)}
+.syncp .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.syncp input{flex:1; min-width:0; font-family:var(--mono, monospace); font-size:12.5px; color:var(--bone); background:var(--felt);
+  border:1px solid var(--line); border-radius:4px; padding:8px 10px}
+.syncp input:focus{outline:none; border-color:var(--gold)}
+.syncp .st{font-size:12px} .syncp .st b{color:var(--green)} .syncp .st.error b{color:var(--red)}
 </style>
 </head>
 <body>
@@ -493,6 +501,10 @@ table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
         <li><b>Recall.</b> Passing a lesson puts its &ldquo;Commit this&rdquo; rule on the same schedule. Say the rule out loud before you reveal it, then grade yourself honestly.</li>
         <li><b>Little and often.</b> Fifteen or twenty minutes a day beats three hours on a Sunday. Clear the due list daily; the hours compound because nothing you have learned is allowed to decay.</li>
       </ol>
+    </details>
+    <details class="howsrs" id="syncBox">
+      <summary>Sync across devices</summary>
+      <div class="syncp" id="syncBody"></div>
     </details>
   </div>
 
@@ -1013,6 +1025,7 @@ document.addEventListener("keydown", function(e){
 $("reset").onclick = function(){
   stats = { n:0, correct:0, clean:0, time:0, streak:0, best:0, mode:{} };
   ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
+  statsEpoch = Date.now();
   drawTape(); saveSoon(); next();
 };
 $("wipe").onclick = function(){
@@ -1062,6 +1075,7 @@ function lessonById(id){ for(var i=0;i<LESSONS.length;i++) if(LESSONS[i].id === 
    ============================================================ */
 var SAVE_KEY = "poker-course-v1";
 var saveState = "off";                 /* off | on | error */
+var epoch = 0, statsEpoch = 0;         /* when progress / stats were last wiped, so a sync cannot resurrect them */
 
 /* Storage adapter. This file runs in three places and each has a different
    idea of what persistence means, so it feature detects rather than assumes:
@@ -1108,14 +1122,8 @@ async function loadSaved(){
     var raw = await STORE.get(SAVE_KEY);
     if(!raw) return;
     var st = JSON.parse(raw);
-    if(st.progress) progress = st.progress;
-    if(st.stats && st.stats.mode){
-      stats = st.stats;
-      ORDER.forEach(function(m){ if(!stats.mode[m]) stats.mode[m] = { n:0, correct:0 }; });
-    }
+    applyState(st);
     if(typeof st.openLayer === "number") openLayer = st.openLayer;
-    if(st.skills) skills = st.skills;
-    if(st.plog) plog = st.plog;
     /* lessons passed before the schedule existed: put them on it, due now */
     LESSONS.forEach(function(L){
       if(!progress[L.id]) return;
@@ -1128,6 +1136,23 @@ async function loadSaved(){
   }
 }
 
+/* everything that syncs, and putting it back */
+function snapshot(){
+  return { progress: progress, stats: stats, openLayer: openLayer, skills: skills, plog: plog,
+           epoch: epoch, statsEpoch: statsEpoch };
+}
+function applyState(st){
+  if(st.progress) progress = st.progress;
+  if(st.stats && st.stats.mode){
+    stats = st.stats;
+    ORDER.forEach(function(m){ if(!stats.mode[m]) stats.mode[m] = { n:0, correct:0 }; });
+  }
+  if(st.skills) skills = st.skills;
+  if(st.plog) plog = st.plog;
+  epoch = +st.epoch || 0;
+  statsEpoch = +st.statsEpoch || 0;
+}
+
 var saveTimer = 0;
 function saveSoon(){
   if(!canSave()) return;
@@ -1135,12 +1160,11 @@ function saveSoon(){
   saveTimer = setTimeout(async function(){
     saveTimer = 0;
     try{
-      await STORE.set(SAVE_KEY, JSON.stringify({
-        progress: progress, stats: stats, openLayer: openLayer, skills: skills, plog: plog
-      }));
+      await STORE.set(SAVE_KEY, JSON.stringify(snapshot()));
       saveState = "on";
     }catch(e){ saveState = "error"; }
     drawSaveTag();
+    syncSoon();
   }, 400);
 }
 
@@ -1148,16 +1172,20 @@ function saveSoon(){
 window.addEventListener("pagehide", function(){
   if(!saveTimer || !canSave()) return;
   clearTimeout(saveTimer); saveTimer = 0;
-  try{ STORE.set(SAVE_KEY, JSON.stringify({ progress: progress, stats: stats, openLayer: openLayer, skills: skills, plog: plog })); }catch(e){}
+  try{ STORE.set(SAVE_KEY, JSON.stringify(snapshot())); }catch(e){}
+  syncFlush();
 });
 
 async function wipeSaved(){
   progress = {}; skills = {}; plog = {}; freeCtx = { last:null, retry:[] };
   stats = { n:0, correct:0, clean:0, time:0, streak:0, best:0, mode:{} };
   ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
+  epoch = statsEpoch = Date.now();
   if(canSave()){
-    try{ await STORE.del(SAVE_KEY); }catch(e){}
+    /* keep the new epoch on disk, so the next sync spreads the wipe instead of undoing it */
+    try{ if(sync.token) await STORE.set(SAVE_KEY, JSON.stringify(snapshot())); else await STORE.del(SAVE_KEY); }catch(e){}
   }
+  syncSoon();
   drawTOC(); drawTape(); drawSaveTag(); drawTrain();
 }
 
@@ -1168,10 +1196,122 @@ function drawSaveTag(){
   var total = LESSONS.filter(function(x){ return x.mode !== "none"; }).length;
   var msg = saveState === "error" ? "save failed"
           : saveState !== "on"     ? "not saved in this window"
+          : sync.token && sync.state === "error" ? "saved here, sync failed"
+          : sync.token             ? "saved and synced"
           : STORE.kind === "local" ? "saved to this browser"
           :                          "progress saved";
   t.className = "savetag " + saveState;
   t.innerHTML = done + " of " + total + " passed &nbsp;&middot;&nbsp; <i>" + msg + "</i>";
+}
+
+/* ---- sync between devices, through a private gist (src/sync.js) ---- */
+var SYNC_KEY = "poker-sync-v1";
+var sync = { token:"", gist:"", state:"off", msg:"", at:0, busy:null, again:false, timer:0, dirty:false, remote:null };
+
+async function syncLoadCfg(){
+  try{
+    var c = JSON.parse((await STORE.get(SYNC_KEY)) || "null");
+    if(c && c.token){ sync.token = c.token; sync.gist = c.gist || ""; sync.state = "on"; }
+  }catch(e){}
+}
+function syncSaveCfg(){
+  try{ return STORE.set(SYNC_KEY, JSON.stringify({ token: sync.token, gist: sync.gist })); }
+  catch(e){ return Promise.resolve(); }
+}
+function syncLocal(){ return syncNorm(snapshot()); }
+
+function syncSoon(){
+  if(!sync.token) return;
+  sync.dirty = true;
+  clearTimeout(sync.timer);
+  sync.timer = setTimeout(syncNow, 4000);
+}
+
+/* pull, merge, and push back only if the gist is behind */
+function syncNow(){
+  if(!sync.token) return Promise.resolve();
+  if(sync.busy){ sync.again = true; return sync.busy; }
+  clearTimeout(sync.timer); sync.timer = 0;
+  sync.state = "busy"; drawSync();
+  sync.busy = (async function(){
+    try{
+      if(!sync.gist){ sync.gist = await syncFindGist(sync.token, syncLocal()); await syncSaveCfg(); }
+      var remote = await syncRead(sync.token, sync.gist);
+      sync.dirty = false;
+      var mine = syncLocal(), merged = syncMerge(mine, remote), out = syncCanon(merged);
+      if(out !== syncCanon(mine)){
+        applyState(merged);
+        try{ await STORE.set(SAVE_KEY, JSON.stringify(snapshot())); }catch(e){}
+        drawTOC(); drawTape(); drawTrain(); drawTrainTab();
+      }
+      if(out !== syncCanon(remote)) await syncWrite(sync.token, sync.gist, merged);
+      sync.remote = merged;
+      sync.state = "on"; sync.msg = ""; sync.at = Date.now();
+    }catch(e){
+      sync.state = "error"; sync.msg = (e && e.message) || "no connection";
+    }
+    sync.busy = null;
+    drawSync(); drawSaveTag();
+    if(sync.again){ sync.again = false; syncSoon(); }
+  })();
+  return sync.busy;
+}
+
+/* the page is going away: push what we have without waiting for a pull */
+function syncFlush(){
+  if(!sync.token || !sync.gist || !sync.remote || !(sync.dirty || saveTimer)) return;
+  try{ syncWrite(sync.token, sync.gist, syncMerge(syncLocal(), sync.remote), true).catch(function(){}); }catch(e){}
+}
+
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "hidden") syncFlush();
+  else if(sync.token) syncNow();
+});
+
+function drawSync(){
+  var box = $("syncBody");
+  if(!box) return;
+  if(!sync.token){
+    box.innerHTML =
+      '<p>Progress lives in this browser. To carry it between your devices, sync it through a private (secret) GitHub gist. ' +
+      'No server is involved: the app talks to GitHub directly and merges each device&rsquo;s progress.</p>' +
+      '<ol><li><a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=PokerPro%20sync" target="_blank" rel="noopener">Create a GitHub token</a> ' +
+      'with only the <b>gist</b> scope. Pick an expiry you&rsquo;re happy with.</li>' +
+      '<li>Paste it below, here and on each of your other devices. They all find the same gist.</li></ol>' +
+      '<div class="row"><input id="syncTok" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_&hellip;">' +
+      '<button class="chip" id="syncGo" type="button">Connect</button></div>' +
+      (sync.msg ? '<p class="st error" style="margin-top:10px"><b>Couldn&rsquo;t connect:</b> ' + sync.msg + '</p>' : '');
+    $("syncGo").onclick = async function(){
+      var t = $("syncTok").value.trim();
+      if(!t) return;
+      sync.token = t; sync.gist = ""; sync.msg = "";
+      await syncNow();
+      if(sync.state === "error"){ var m = sync.msg; sync.token = ""; sync.gist = ""; sync.state = "off"; sync.msg = m; }
+      else await syncSaveCfg();
+      drawSync(); drawSaveTag();
+    };
+    return;
+  }
+  var when = sync.at ? fmtAgo(Date.now() - sync.at) : "not yet";
+  box.innerHTML =
+    '<p class="st ' + sync.state + '">' +
+    (sync.state === "busy" ? "<b>Syncing&hellip;</b>"
+     : sync.state === "error" ? "<b>Sync failed:</b> " + sync.msg + ". Your progress is still saved on this device."
+     : "<b>Synced</b> with a private gist &middot; last synced " + when) + '</p>' +
+    '<p>Progress syncs whenever you answer, and whenever you come back to this tab. Every device with the same token shares it.</p>' +
+    '<div class="row"><button class="chip" id="syncNowBtn" type="button">Sync now</button>' +
+    '<button class="chip" id="syncOff" type="button">Disconnect this device</button></div>';
+  $("syncNowBtn").onclick = function(){ syncNow(); };
+  $("syncOff").onclick = async function(){
+    clearTimeout(sync.timer);
+    sync.token = ""; sync.gist = ""; sync.state = "off"; sync.msg = ""; sync.remote = null;
+    try{ await STORE.del(SYNC_KEY); }catch(e){}
+    drawSync(); drawSaveTag();
+  };
+}
+function fmtAgo(ms){
+  var m = Math.round(ms / 6e4);
+  return m < 1 ? "just now" : m < 60 ? m + " min ago" : Math.round(m / 60) + "h ago";
 }
 
 /* ---- index ---- */
@@ -2132,9 +2272,14 @@ $("tabDrill").onclick = function(){
 
 (async function boot(){
   await loadSaved();
+  await syncLoadCfg();
   drawModes(); drawTape(); drawTOC();
   setView(Object.keys(skills).some(isSkill) ? "train" : "learn");
-  drawSaveTag();
+  drawSaveTag(); drawSync();
+  if(sync.token){
+    await syncNow();
+    if(view === "learn" && !openId && Object.keys(skills).some(isSkill)) setView("train");
+  }
 })();
 </script>
 </body>
