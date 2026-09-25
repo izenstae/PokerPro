@@ -28,11 +28,12 @@ A path in nine stages, from never having played to the maths strong players use.
 
 43 lessons (39 with a checkpoint, 4 labs), 37 drill generators, 39 formulas in the Library (every numeric anchor checked by a test), and a daily schedule that keeps all of it from fading. Every new lesson is built on a formula from the reading list: Chen and Ankenman's *Mathematics of Poker* (the AKQ game, multi-street bluffing, geometric sizing), Acevedo's *Modern Poker Theory* (equity realisation, SPR), and the standard tournament models (Sklansky–Chubukov, Malmuth–Harville ICM).
 
-The app has four sections, plus sync. On a phone or iPad in portrait they sit in a bottom tab bar:
+The app has five sections, plus sync. On a phone or iPad in portrait they sit in a bottom tab bar:
 
 - **Home**: one clear next step (reviews due, or the next lesson), your streak and time, where you are on the path, what is coming up on the schedule, and a formula of the day.
 - **Learn**: the path, stage by stage, with progress and the next lesson marked. Each lesson has a section map, formula cards with every symbol explained, definitions on key terms (hover or tap the dotted underline), a free "Try one" question before the checkpoint, and previous/next links.
 - **Practice**: today's reviews, free practice on any mix of drills, and the skill table with each skill's box, accuracy, pace and next review.
+- **Play**: a six-handed no-limit table against four styles of opponent. Every decision you make is priced and graded, with a hand-by-hand review and a session score that shows which lessons your mistakes come from.
 - **Library**: every formula in the course (searchable, grouped by topic, each linked to its lesson), a glossary, and the reading list.
 - **Sync**: tap the indicator at the top right to share progress between devices.
 
@@ -54,6 +55,26 @@ Every drill is a *skill*, and so is every lesson's boxed "Commit this" rule. The
 A skill counts as **automatic** at box 6. To get there it needs clean, fast answers after gaps of 1, 3, 7, 16 and 35 days, so about two months of daily 15-minute sessions puts a skill there for good. The Train tab counts automatic skills out of 23 and shows overall progress toward the top box.
 
 Passing a checkpoint schedules that drill and its rule for review the next day. Progress saved by earlier versions carries over: any lesson you'd already passed goes on the schedule, due now.
+
+## The Play table
+
+Six-handed no-limit hold'em, 100 big blinds, you against five bots. Each bot plays one of four styles, and each style is built from this course's own maths:
+
+| Style | Preflop | Facing a bet | Betting |
+|---|---|---|---|
+| **Reg** | the standard charts | defends about MDF | bets a value share of its range and bluffs at alpha |
+| **Nit** | a seat tighter | defends about 65% of MDF | bluffs at a fifth of alpha |
+| **Station** | wide, limps | defends 1.45× MDF | bets small, almost never bluffs |
+| **Maniac** | a seat or two looser, 3-bets a lot | defends 1.1× MDF | bets big and bluffs at twice alpha |
+
+Because each bot plays a known policy (a probability of folding, calling and raising for all 1,326 hands), the coach can:
+
+- **Track every range exactly.** Every action multiplies each hand's weight by the chance it would have taken that action (Bayes' rule).
+- **Price every option.** Fold is 0. Check is R × equity × pot. Call is R × equity × (pot + call) − call. A bet or raise is P(everyone folds) × pot, plus, for each way it can be called, R × equity against the continuing range × the final pot − the bet. R is equity realisation: 1 on the river or all in, otherwise set by position.
+- **Grade the decision.** The EV you gave up, relative to the pot: Best, Good, Inaccuracy, Mistake or Blunder.
+- **Tag the concepts.** Each decision is linked to the lessons it exercises (pot odds, MDF, c-bets, opening ranges…), so the session's leaks point back at the curriculum.
+
+The pricing looks one street ahead and treats an opponent's raise as a call, so treat differences of a few tenths of a big blind as ties. Your all-time table stats are saved on this device.
 
 ## The labs
 
@@ -108,6 +129,10 @@ src/
   srs.js            the schedule: Leitner boxes, time goals, skill picker, practice log
   sync.js           cross-device sync: the progress merge and a tiny GitHub Gist client
   library.js        the formula registry, the glossary, and the formula notation renderer
+  holdem.js         the six-handed table: blinds, min-raises, all-ins, side pots, showdown
+  bots.js           the opponents: preflop charts and range-based postflop policies, range tracking
+  coach.js          equity against tracked ranges, the EV of every option, grades
+  play.js           a session: bots, ranges, graded decisions, leaks, history
   lessons.js        stage 1 lesson content
   course.js         the original lessons outside stage 1, and the reading list
   lessons2.js       the lessons added for the zero-to-pro path

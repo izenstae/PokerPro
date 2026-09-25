@@ -37,11 +37,11 @@ function sc(cat, a, b, c, d, e) {
   return ((((cat * 13 + a) * 13 + b) * 13 + c) * 13 + d) * 13 + e;
 }
 
-/* cards: array-like of 7 card indices */
+/* cards: array-like of 5 to 7 card indices (the best five are scored) */
 function eval7(cards) {
   _rc.fill(0); _sc.fill(0); _sm.fill(0);
-  var rm = 0, i, cd, r, s;
-  for (i = 0; i < 7; i++) {
+  var rm = 0, i, cd, r, s, n = cards.length;
+  for (i = 0; i < n; i++) {
     cd = cards[i]; r = cd % 13; s = (cd / 13) | 0;
     _rc[r]++; _sc[s]++; _sm[s] |= 1 << r; rm |= 1 << r;
   }

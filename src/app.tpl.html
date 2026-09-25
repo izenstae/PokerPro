@@ -775,6 +775,143 @@ table.tbl{font-size:14px}
 @media(max-width:560px){ .gitem{grid-template-columns:1fr} }
 #readingView .course{border-radius:10px}
 .sempty{font-size:14px; color:var(--faint)}
+
+/* ============================================================
+   PLAY
+   ============================================================ */
+#playView .vhead{margin-bottom:10px}
+.pabout{margin:-4px 0 14px} .pabout ol li{margin-bottom:10px} .pabout a{color:var(--gold)}
+.hplay{margin-top:16px}
+.pctl{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:flex-end; margin-bottom:16px}
+.pctl label{display:flex; flex-direction:column; gap:4px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim)}
+.pctl select{font-family:var(--sans); font-size:14px; color:var(--bone); background:var(--felt); border:1px solid var(--line); border-radius:7px; padding:7px 10px; text-transform:none; letter-spacing:0}
+.pctl label.pchk{flex-direction:row; align-items:center; gap:7px; text-transform:none; letter-spacing:0; font-size:13.5px; color:var(--dim); padding-bottom:7px}
+.pctl input[type=checkbox]{accent-color:var(--gold); width:16px; height:16px}
+.playgrid{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:18px; align-items:start}
+@media(max-width:980px){ .playgrid{grid-template-columns:1fr} }
+.felt{position:relative; width:100%; aspect-ratio:16/10; border-radius:200px / 140px; margin:8px 0 18px;
+  background:radial-gradient(ellipse at 50% 42%, #24674c 0%, #1a4d39 55%, #123628 100%);
+  border:10px solid #2a1f16; box-shadow:0 0 0 2px #4a3522 inset, 0 0 0 1px #0a0d12, 0 18px 40px rgba(0,0,0,.45)}
+@media(max-width:620px){ .felt{aspect-ratio:10/13; border-radius:120px / 160px; border-width:7px} }
+.pseat{position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; width:128px; z-index:2}
+.pbox{background:rgba(14,18,26,.92); border:1.5px solid var(--line); border-radius:10px; padding:6px 9px; width:100%; text-align:center; transition:box-shadow .15s, border-color .15s}
+.pseat.me .pbox{border-color:var(--gold)}
+.pseat.acting .pbox{box-shadow:0 0 0 3px rgba(212,160,60,.55), 0 0 18px rgba(212,160,60,.35)}
+.pseat.out{opacity:.42}
+.pseat.winner .pbox{box-shadow:0 0 0 3px rgba(52,169,111,.6)}
+.pname{display:flex; align-items:center; justify-content:center; gap:5px; font-size:13px; white-space:nowrap}
+.pname b{font-weight:600; overflow:hidden; text-overflow:ellipsis; max-width:66px}
+.pseat.me .pname b{max-width:none; overflow:visible}
+.ppos{font-size:10px; font-weight:700; letter-spacing:.04em; color:var(--dim); background:var(--raise); border-radius:4px; padding:0 4px}
+.pdealer{font-size:10px; font-weight:800; color:#1a1a1a; background:#f3efe4; border-radius:50%; width:16px; height:16px; display:inline-grid; place-items:center}
+.pstack{font-size:12.5px; color:var(--bone); font-variant-numeric:tabular-nums}
+.pstack em{font-style:normal; color:var(--red); font-weight:600; font-size:11px}
+.phud{margin-left:5px; font-size:10.5px; color:var(--faint)}
+.pstyle{font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase}
+.pcards{display:flex; gap:3px; margin-bottom:-6px; min-height:44px; position:relative; z-index:1}
+.pc{display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:32px; height:44px; background:#f4f1ea; color:#15171c; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,.35); line-height:1; font-family:var(--sans)}
+.pc b{font-size:15px; font-weight:700} .pc i{font-style:normal; font-size:13px}
+.pc.red{color:#c8352b}
+.pc.back{background:repeating-linear-gradient(45deg, #2d4f8a 0 4px, #24416f 4px 8px); border:2px solid #e9e5db}
+.pc.slot{background:rgba(255,255,255,.05); box-shadow:none; border:1px dashed rgba(255,255,255,.18)}
+.pc.bd{width:40px; height:56px} .pc.bd b{font-size:19px} .pc.bd i{font-size:16px}
+.pc.slot{width:40px; height:56px}
+.pc.sm{width:22px; height:30px; border-radius:3px} .pc.sm b{font-size:11px} .pc.sm i{font-size:9.5px}
+.pbet{margin-top:5px; font-size:12px; font-weight:700; color:#15171c; background:#e9c46a; border-radius:10px; padding:1px 8px; font-variant-numeric:tabular-nums}
+.pact{margin-top:4px; font-size:11.5px; color:#eae6da; background:rgba(0,0,0,.45); border-radius:6px; padding:1px 7px; white-space:nowrap}
+.pwon{margin-top:4px; font-size:12px; font-weight:700; color:#bff0d3}
+.pcenter{position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); text-align:center}
+.pboard{display:flex; gap:5px; justify-content:center}
+.ppot{margin-top:8px; font-size:14px; color:#e3eee8} .ppot b{font-variant-numeric:tabular-nums} .ppot span{color:#a9c7b8; font-size:12.5px}
+.phandno{font-size:11px; color:#8fb3a2; margin-top:2px}
+@media(max-width:620px){
+  .pseat{width:96px}
+  .pname{font-size:11.5px} .pname b{max-width:46px}
+  .pc{width:24px; height:34px} .pc b{font-size:12px} .pc i{font-size:10px}
+  .pcards{min-height:34px}
+  .pc.bd,.pc.slot{width:30px; height:42px} .pc.bd b{font-size:14px} .pc.bd i{font-size:12px}
+  .pboard{gap:3px}
+  .pstack{font-size:11.5px} .phud{display:none}
+  .pcenter{top:47%}
+}
+#actbar{margin-bottom:10px}
+#actbar .row{gap:8px; margin-bottom:8px}
+#actbar button.act{min-width:92px}
+#actbar button.act.fold{padding:12px 22px} #actbar button.act.call{padding:12px 22px}
+kbd{font-family:var(--mono); font-size:10px; border:1px solid currentColor; border-radius:3px; padding:0 4px; margin-left:6px; opacity:.6}
+.psizes button.act{background:var(--raise); color:var(--bone); border:1px solid var(--line); font-size:13.5px; padding:10px 14px}
+.psizes button.act:hover{border-color:var(--gold); background:var(--raise)}
+.pcustom{display:flex; gap:6px}
+.pcustom input{width:110px; font-family:var(--sans); font-size:15px; color:var(--bone); background:var(--felt); border:1px solid var(--line); border-radius:8px; padding:9px 10px}
+.pcustom input:focus{outline:none; border-color:var(--gold)}
+.pwait{font-size:14px; color:var(--dim); padding:14px 0}
+.presult{display:flex; flex-direction:column; gap:3px; margin-bottom:10px}
+.presult b{font-size:18px} .presult span{font-size:13.5px; color:var(--dim)}
+.presult.up b,.up{color:var(--green)} .presult.down b,.down{color:var(--red)}
+#pHint{background:var(--felt); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:13.5px}
+#pHint:empty{display:none}
+.pfacts{display:flex; flex-wrap:wrap; gap:6px 16px; color:var(--dim)} .pfacts b{color:var(--bone)}
+.pranges{margin-top:6px; color:var(--dim); font-size:13px}
+.pfull{margin-top:8px; display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; color:var(--dim)}
+.pfull b{color:var(--bone)}
+.pfull span{background:var(--raise); border-radius:6px; padding:2px 8px; font-size:12.5px; color:var(--bone)}
+.pfull span.best{background:rgba(52,169,111,.2); color:#bff0d3}
+.pmuted{color:var(--faint)}
+.playside{display:flex; flex-direction:column; gap:14px}
+.gbadge{display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; border-radius:5px; padding:2px 8px; color:#0d1117}
+.gbadge.sm{font-size:9.5px; padding:1px 5px}
+.g-best{background:#34A96F} .g-good{background:#8fce6a} .g-inacc{background:#e5c04c} .g-mist{background:#e8894a} .g-blun{background:#D14B41; color:#fff}
+.pgrade{display:flex; align-items:center; gap:10px; font-size:14px; margin-bottom:8px}
+.pyou{font-size:13.5px; color:var(--dim); margin-bottom:8px} .pyou b{color:var(--bone)}
+.plines{margin:0 0 8px 18px; font-size:13.5px; line-height:1.55; color:#cfd6e2} .plines li{margin-bottom:4px}
+.pconcepts{display:flex; flex-wrap:wrap; gap:6px}
+.pconcept{font-size:12.5px; color:var(--gold); text-decoration:none; border:1px solid rgba(212,160,60,.45); border-radius:14px; padding:2px 10px}
+.pconcept:hover{background:rgba(212,160,60,.1)}
+.pscore{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:10px}
+.pscore div{text-align:center} .pscore b{display:block; font-size:22px; font-weight:650; font-variant-numeric:tabular-nums}
+.pscore span{font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--faint)}
+.pscore b.hi,.ptrend i.hi{color:var(--green)} .pscore b.mid{color:var(--gold)} .pscore b.lo{color:var(--red)}
+.ptrend{display:flex; align-items:flex-end; gap:2px; height:34px; margin-bottom:8px}
+.ptrend i{flex:1; border-radius:2px 2px 0 0; background:var(--green)} .ptrend i.mid{background:var(--gold)} .ptrend i.lo{background:var(--red)}
+.pgbar{display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--line)}
+.pglegend{display:flex; flex-wrap:wrap; gap:4px 10px; font-size:11.5px; color:var(--dim); margin:6px 0 4px}
+.pglegend i{display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:4px}
+.clist small{color:var(--faint); font-size:11.5px; margin-left:4px}
+.clist a{color:var(--bone); text-decoration:none} .clist a:hover{color:var(--gold)}
+.phist{display:flex; flex-direction:column}
+.phist button{display:grid; grid-template-columns:34px 52px 34px 1fr auto; align-items:center; gap:6px; width:100%; background:none; border:0; border-bottom:1px solid var(--line); color:var(--bone); font-family:var(--sans); font-size:13px; padding:7px 2px; cursor:pointer; text-align:left}
+.phist button:hover,.phist button[aria-pressed="true"]{background:var(--raise)}
+.phn{color:var(--faint); font-size:11.5px} .php{font-size:11px; color:var(--dim)} .phist b{font-variant-numeric:tabular-nums; font-size:12.5px}
+.phc{display:flex; gap:2px}
+#pReview{margin-top:20px}
+.prevtop{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; font-size:14px}
+.prevtop b{margin-left:auto; font-size:16px} .prevb{display:flex; gap:3px; margin-left:8px}
+.prevlog{border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:16px; font-size:13px; display:flex; flex-direction:column; gap:6px}
+.prevlog div{display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center}
+.prevlog em{font-style:normal; font-weight:600; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); width:74px}
+.prevlog span{color:var(--dim); display:inline-flex; align-items:center; gap:3px} .prevlog span.me{color:var(--bone); font-weight:600}
+.pdec{border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:14px; background:var(--felt)}
+.pdech{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; font-size:14px}
+.pdech span{display:inline-flex; gap:3px}
+table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:10px}
+.pevt th{text-align:left; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); font-weight:500; padding:4px 6px; border-bottom:1px solid var(--line)}
+.pevt td{padding:7px 6px; border-bottom:1px solid var(--line); vertical-align:middle}
+.pevt tr.best td{background:rgba(52,169,111,.08)} .pevt tr.mine td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
+.pevt em{font-style:normal; font-size:10px; font-weight:700; text-transform:uppercase; color:var(--gold); margin-left:4px} .pevt em.b{color:var(--green)}
+.pevt td.num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.pevt td.barc{position:relative; width:22%; min-width:70px}
+.pevt td.barc i{position:absolute; left:50%; top:4px; bottom:4px; width:1px; background:var(--dim)}
+.evbar{position:absolute; top:9px; height:10px; background:var(--green); border-radius:2px} .evbar.neg{background:var(--red)}
+.pevt td.note{color:var(--dim); font-size:12.5px}
+@media(max-width:620px){ .pevt td.note,.pevt th:last-child{display:none} }
+.popps{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; margin-bottom:10px}
+.popp{background:var(--ink); border:1px solid var(--line); border-radius:8px; padding:10px; font-size:13px}
+.pmk{display:flex; height:10px; border-radius:3px; overflow:hidden; margin:8px 0 5px}
+.pmkl{display:flex; flex-wrap:wrap; gap:3px 9px; font-size:11px; color:var(--dim)}
+.pmkl i{display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:3px}
+.ptop{font-size:11.5px; color:var(--faint); margin-top:6px}
+.mk-straightflush,.mk-fourofakind{background:#b388eb} .mk-fullhouse{background:#9b72d8} .mk-flush{background:#5b8cc4} .mk-straight{background:#4fb3c9}
+.mk-threeofakind{background:#34A96F} .mk-twopair{background:#8fce6a} .mk-onepair{background:#e5c04c} .mk-draw{background:#e8894a} .mk-highcard{background:#6b7280}
 </style>
 </head>
 <body>
@@ -869,6 +1006,23 @@ table.tbl{font-size:14px}
     <div id="readingView" hidden>
       <div class="course" id="reading"></div>
     </div>
+  </section>
+
+  <section id="playView" hidden>
+    <div id="playTop"></div>
+    <div class="playgrid">
+      <div>
+        <div class="felt" id="felt"></div>
+        <div id="actbar"></div>
+        <div id="pHint"></div>
+      </div>
+      <aside class="playside">
+        <div class="panel" id="pFeedback"></div>
+        <div class="panel" id="pSession"></div>
+        <div class="panel" id="pHistory"></div>
+      </aside>
+    </div>
+    <div class="panel" id="pReview" hidden></div>
   </section>
 
   <section id="syncView" class="syncv" hidden></section>
@@ -2756,13 +2910,14 @@ function leaveSession(){ if(sess){ sess = null; $("modes").hidden = false; $("cp
    ============================================================ */
 var sub = { practice:"review", library:"formulas" };
 var curHash = "";
-var VIEWS = ["home", "learn", "practice", "library", "sync"];
+var VIEWS = ["home", "learn", "practice", "play", "library", "sync"];
 var SUBS = { practice:["review", "drill", "skills"], library:["formulas", "glossary", "reading"] };
 
 var ICON = {
   home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>',
   learn:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8 17.2c5-1 3-6.4 8-9.8"/><path d="M4 6h4M6 4v4"/></svg>',
   practice:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" /></svg>',
+  play:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3M6 6l2.1 2.1M15.9 15.9 18 18M18 6l-2.1 2.1M8.1 15.9 6 18"/></svg>',
   library:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4 9.5 4 12 5.5v14C9.5 18 6.5 18 4 19.5z"/><path d="M20 5.5C17.5 4 14.5 4 12 5.5v14c2.5-1.5 5.5-1.5 8 0z"/></svg>'
 };
 
@@ -2770,7 +2925,7 @@ function drawNav(){
   var n = $("nav");
   if(!n.dataset.built){
     n.dataset.built = "1";
-    n.innerHTML = [["home","Home"],["learn","Learn"],["practice","Practice"],["library","Library"]].map(function(x){
+    n.innerHTML = [["home","Home"],["learn","Learn"],["practice","Practice"],["play","Play"],["library","Library"]].map(function(x){
       return '<a class="navi" id="nav_' + x[0] + '" href="#/' + x[0] + '">' + ICON[x[0]] + '<span>' + x[1] + '</span><i class="nbadge" hidden></i></a>';
     }).join("");
   }
@@ -2841,6 +2996,7 @@ function setView(v){
   $("practiceView").hidden = v !== "practice";
   $("libraryView").hidden = v !== "library";
   $("syncView").hidden = v !== "sync";
+  $("playView").hidden = v !== "play";
   $("cpdone").hidden = true;
   document.body.dataset.view = v;
   if(v !== "learn" || !openId) $("readbar").style.width = "0";
@@ -2849,6 +3005,7 @@ function setView(v){
   if(v === "practice") drawPractice();
   if(v === "library") drawLibrary();
   if(v === "sync") drawSyncView();
+  if(v === "play") drawPlay();
   drawNav();
   syncHash();
 }
@@ -2980,6 +3137,17 @@ function drawHome(){
   grid.appendChild(fc);
 
   box.appendChild(grid);
+
+  /* the table: decision quality over every hand played */
+  var pt = el("div", "panel hplay");
+  var C = pcareer;
+  var lk = C ? playLeaks(C, 5)[0] : null;
+  pt.innerHTML = '<div class="ph"><h3>At the table</h3><a href="#/play">Play &rsaquo;</a></div>' + (C && C.decisions
+    ? '<div class="pscore"><div><b class="' + (C.quality >= 0.8 ? "hi" : C.quality >= 0.55 ? "mid" : "lo") + '">' + Math.round(100 * C.quality) + '</b><span>decision score</span></div><div><b>' + C.hands + '</b><span>hands</span></div><div><b>' + C.decisions + '</b><span>decisions</span></div><div><b>' + (C.lost / C.hands).toFixed(2) + '</b><span>EV lost / hand</span></div></div>' +
+      (lk ? '<p class="pnote">Biggest leak so far: <a href="#/learn/' + lk.id + '">' + ((lessonById(lk.id) || {}).title || lk.id) + '</a>, ' + lk.lost.toFixed(1) + ' bb given up over ' + lk.n + ' decisions.</p>' : "")
+    : '<p class="pnote">Put the lessons to work at a six-handed table. Every decision is priced against what your opponents really hold and graded, with links back to the lesson behind it.</p>');
+  pt.appendChild(btnEl(C && C.decisions ? "Play more hands" : "Sit down and play", "ghost", function(){ location.hash = "#/play"; }));
+  box.appendChild(pt);
 
   var foot = el("p", "hfoot");
   foot.innerHTML = '<span id="savetag" class="savetag"></span> &middot; <a href="#/sync">Sync &amp; backup</a>';
@@ -3422,12 +3590,358 @@ function drawGlossary(){
   }).join("") || '<p class="sempty">No term matches &ldquo;' + fxEsc(q) + '&rdquo;.</p>';
   $("glcount").textContent = rows.length + " of " + GLOSSARY.length;
 }
+/* ============================================================
+   PLAY SCREEN: the six-handed table, the coach, the session
+   ============================================================ */
+var PLAY_KEY = "poker-sim-v1";
+var pg = null;
+var pset = { lineup:"mixed", coach:"numbers", labels:true, speed:500, auto:false };
+var pcareer = null, pTimer = 0, pReview = null, pFeedback = null;
+var GRADE_CLS = { Best:"g-best", Good:"g-good", Inaccuracy:"g-inacc", Mistake:"g-mist", Blunder:"g-blun" };
+var CAT_ORDER = ["straight flush","four of a kind","full house","flush","straight","three of a kind","two pair","one pair","draw","high card"];
+
+async function playLoad(){
+  try{
+    var s = JSON.parse((await STORE.get(PLAY_KEY)) || "null");
+    if(s){ if(s.set) Object.assign(pset, s.set); pcareer = s.career || null; }
+  }catch(e){}
+}
+function playSave(){ try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer })); }catch(e){} }
+
+function pCard(c, cls){
+  if(c == null) return '<span class="pc back' + (cls ? " " + cls : "") + '"></span>';
+  var t = cardText(c), red = t[1] === "d" || t[1] === "h";
+  return '<span class="pc' + (red ? " red" : "") + (cls ? " " + cls : "") + '"><b>' + (t[0] === "T" ? "10" : t[0]) + '</b><i>' + SUIT_GLYPH[t[1]] + '</i></span>';
+}
+function pBB(x){ return (Math.round(x * 100) / 100) + ""; }
+function pSigned(x){ return (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(Math.round(x * 100) / 100) + " bb"; }
+function pPct(x){ return Math.round(100 * x) + "%"; }
+function lessonLink(id){ var L = lessonById(id); return L ? '<a class="pconcept" href="#/learn/' + id + '">' + L.title + ' &rsaquo;</a>' : ""; }
+
+function drawPlay(){
+  if(!pg){ pg = playNew(pset.lineup); }
+  drawPlayTop();
+  if(!pg.t.hand){ playNextHand(); return; }
+  drawFelt(); drawActBar(); drawPlaySide(); drawPlayReview();
+  playLoop();
+}
+
+function drawPlayTop(){
+  var box = $("playTop");
+  if(box.dataset.built) { box.querySelectorAll("select").forEach(function(s){ s.value = pset[s.dataset.k] + ""; }); $("pLabels").checked = pset.labels; $("pAuto").checked = pset.auto; return; }
+  box.dataset.built = "1";
+  box.innerHTML =
+    '<div class="vhead"><div><h1>Play</h1><p>Six-handed no-limit hold&rsquo;em, 100 big blinds. Every decision you make is priced against what your opponents actually hold and how they actually play, then graded.</p></div></div>' +
+    '<div class="pctl">' +
+      '<label>Table<select data-k="lineup">' + Object.keys(PLAY_LINEUPS).map(function(k){ return '<option value="' + k + '">' + PLAY_LINEUPS[k].name + '</option>'; }).join("") + '</select></label>' +
+      '<label>Coach<select data-k="coach"><option value="off">After I act</option><option value="numbers">Numbers before I act</option><option value="full">Everything (training wheels)</option></select></label>' +
+      '<label>Speed<select data-k="speed"><option value="900">Slow</option><option value="500">Normal</option><option value="150">Fast</option><option value="0">Instant</option></select></label>' +
+      '<label class="pchk"><input type="checkbox" id="pLabels"> Show opponent styles</label>' +
+      '<label class="pchk"><input type="checkbox" id="pAuto"> Deal the next hand automatically</label>' +
+    '</div>' +
+    '<details class="howsrs pabout"><summary>How the table works</summary><ol>' +
+      '<li><b>The opponents</b> each play one of four styles, built from this course&rsquo;s maths so you can exploit them the way the lessons say. ' + Object.keys(BOT_STYLES).map(function(k){ var S = BOT_STYLES[k]; return '<b style="color:' + S.color + '">' + S.name + '</b> (' + S.tag.toLowerCase() + '): ' + S.about; }).join(" ") + '</li>' +
+      '<li><b>Their ranges are tracked exactly.</b> Every action they take narrows their range by Bayes&rsquo; rule, from the strategy that style plays, the idea in <a href="#/learn/update">Updating on reads</a>. The small numbers on a seat are that player&rsquo;s VPIP / PFR so far.</li>' +
+      '<li><b>Every decision is priced.</b> Fold is zero; check and call use your equity against their ranges, realised by position; bets and raises use exactly how often each opponent would fold. See <a href="#/learn/ev">Expected value</a> and <a href="#/learn/eqr">Equity realisation</a>.</li>' +
+      '<li><b>Grades</b> measure the EV you gave up against the size of the pot: <span class="gbadge sm g-best">Best</span> within 3% (or 0.05 bb), <span class="gbadge sm g-good">Good</span> within 10%, <span class="gbadge sm g-inacc">Inaccuracy</span> 22%, <span class="gbadge sm g-mist">Mistake</span> 45%, then <span class="gbadge sm g-blun">Blunder</span>.</li>' +
+      '<li><b>Scores.</b> The decision score is a running average of your grades out of 100. Winnings swing with the cards over any short session; EV lost is the part you control. Leaks show which lessons your lost EV comes from.</li>' +
+      '<li><b>Limits.</b> The pricing looks one street ahead, with realisation standing in for later streets, and treats an opponent&rsquo;s raise as a call. Treat differences of a few tenths of a big blind as ties.</li>' +
+    '</ol></details>';
+  box.querySelectorAll("select").forEach(function(s){
+    s.value = pset[s.dataset.k] + "";
+    s.onchange = function(){
+      var k = s.dataset.k;
+      pset[k] = k === "speed" ? +s.value : s.value;
+      playSave();
+      if(k === "lineup"){ clearTimeout(pTimer); pg = playNew(pset.lineup); pReview = null; pFeedback = null; playNextHand(); }
+      else { drawFelt(); drawActBar(); }
+    };
+  });
+  $("pLabels").checked = pset.labels;
+  $("pLabels").onchange = function(){ pset.labels = this.checked; playSave(); drawFelt(); drawPlaySide(); };
+  $("pAuto").checked = pset.auto;
+  $("pAuto").onchange = function(){ pset.auto = this.checked; playSave(); if(pset.auto && pg.t.hand && pg.t.hand.over) playLoop(); };
+}
+
+function playNextHand(){
+  clearTimeout(pTimer);
+  playDeal(pg);
+  pReview = null;
+  drawFelt(); drawActBar(); drawPlaySide(); drawPlayReview();
+  playLoop();
+}
+
+function playLoop(){
+  clearTimeout(pTimer);
+  if(view !== "play" || !pg || !pg.t.hand) return;
+  var h = pg.t.hand;
+  if(h.over){
+    if(pset.auto) pTimer = setTimeout(function(){ if(view === "play") playNextHand(); }, 2600);
+    return;
+  }
+  if(playHeroTurn(pg)){
+    drawFelt(); drawActBar();
+    /* think ahead while the hero reads the table */
+    if(pset.coach === "full") setTimeout(function(){ if(playHeroTurn(pg)){ playAnalyze(pg); drawPlayHint(); } }, 30);
+    return;
+  }
+  pTimer = setTimeout(function(){
+    if(view !== "play" || !pg.t.hand || pg.t.hand.over || playHeroTurn(pg)) return;
+    playBotStep(pg);
+    if(pg.t.hand.over) onHandOver();
+    drawFelt(); drawActBar();
+    playLoop();
+  }, pset.speed);
+}
+
+function onHandOver(){
+  pcareer = playCareerAdd(pcareer, pg.session, pg);
+  playSave();
+  drawPlaySide();
+}
+
+function heroAct(a){
+  if(!playHeroTurn(pg)) return;
+  var d = playHeroAct(pg, a);
+  pFeedback = d;
+  if(pg.t.hand.over) onHandOver();
+  drawFelt(); drawActBar(); drawPlaySide();
+  playLoop();
+}
+
+/* ---- the felt ---- */
+var SEAT_XY = [[50, 86], [11, 68], [11, 20], [50, 6], [89, 20], [89, 68]];
+function drawFelt(){
+  var t = pg.t, h = t.hand, box = $("felt");
+  if(!h) return;
+  var html = "";
+  var lastBy = {};
+  h.log.forEach(function(e){ if(e.street === h.street || h.over) lastBy[e.seat] = e; });
+  t.players.forEach(function(p, i){
+    var k = (i - pg.hero + 6) % 6, xy = SEAT_XY[k];
+    var me = i === pg.hero, acting = h.toAct === i && !h.over;
+    var showCards = me || (h.over && h.result.showdown && !p.folded);
+    var st = pg.styles[i] ? BOT_STYLES[pg.styles[i]] : null;
+    var e = lastBy[i], act = "";
+    if(e && e.type !== "sb" && e.type !== "bb") act = e.type === "raise" || e.type === "bet" ? (e.type === "bet" ? "Bet " : "Raise to ") + pBB(e.to) : e.type === "call" ? "Call " + pBB(e.amt) : e.type === "check" ? "Check" : "Fold";
+    var H = pg.hud[i];
+    var hud = !me && H.hands >= 3 ? '<span class="phud" title="VPIP / PFR over ' + H.hands + ' hands">' + Math.round(100 * H.vpip / H.hands) + '/' + Math.round(100 * H.pfr / H.hands) + '</span>' : "";
+    var won = h.over && h.result.won[i] > 0 ? '<span class="pwon">+' + pBB(h.result.won[i]) + '</span>' : "";
+    html += '<div class="pseat' + (me ? " me" : "") + (p.folded ? " out" : "") + (acting ? " acting" : "") + (h.over && h.result.won[i] > 0 ? " winner" : "") + '" style="left:' + xy[0] + '%;top:' + xy[1] + '%">' +
+      '<div class="pcards">' + (p.cards.length ? (showCards ? pCard(p.cards[0]) + pCard(p.cards[1]) : p.folded ? "" : pCard(null) + pCard(null)) : "") + '</div>' +
+      '<div class="pbox"' + (st && pset.labels ? ' style="border-color:' + st.color + '"' : "") + '>' +
+        '<div class="pname"><b>' + p.name + '</b><span class="ppos">' + hPos(t, i) + '</span>' + (t.button === i ? '<span class="pdealer">D</span>' : "") + '</div>' +
+        '<div class="pstack">' + pBB(p.stack) + ' bb' + (p.allIn ? ' <em>all in</em>' : "") + hud + '</div>' +
+        (st && pset.labels ? '<div class="pstyle" style="color:' + st.color + '">' + st.name + '</div>' : "") +
+      '</div>' +
+      (p.bet > 0 && !h.over ? '<div class="pbet">' + pBB(p.bet) + '</div>' : "") +
+      (act ? '<div class="pact">' + act + '</div>' : "") + won +
+    '</div>';
+  });
+  var board = "";
+  for(var b = 0; b < 5; b++) board += b < h.board.length ? pCard(h.board[b], "bd") : '<span class="pc slot"></span>';
+  var potNow = hPot(t);
+  html += '<div class="pcenter"><div class="pboard">' + board + '</div><div class="ppot">Pot <b>' + pBB(potNow) + ' bb</b>' +
+    (h.over ? "" : ' <span>&middot; ' + ["preflop","flop","turn","river"][Math.min(3, h.street)] + '</span>') + '</div>' +
+    '<div class="phandno">Hand #' + h.no + '</div></div>';
+  box.innerHTML = html;
+}
+
+/* ---- your move ---- */
+function drawActBar(){
+  var box = $("actbar"), hint = $("pHint"), t = pg.t, h = t.hand;
+  if(!h) return;
+  if(h.over){
+    var net = h.result.net[pg.hero];
+    var ds = pg.history[0] ? pg.history[0].decisions : [];
+    var worst = ds.reduce(function(a, d){ return !a || d.G.quality < a.G.quality ? d : a; }, null);
+    box.innerHTML = '<div class="presult ' + (net > 0 ? "up" : net < 0 ? "down" : "") + '"><b>' + (net > 0 ? "You won " + pBB(net) + " bb" : net < 0 ? "You lost " + pBB(-net) + " bb" : "No money changed hands") + '</b>' +
+      '<span>' + (ds.length ? ds.length + (ds.length === 1 ? " decision" : " decisions") + ", EV given up " + pBB(ds.reduce(function(a, d){ return a + d.G.loss; }, 0)) + " bb" + (worst ? " &middot; worst: " + worst.G.grade : "") : "You folded without a decision to grade: it was folded to you and you had nothing to do, or you folded preflop.") + '</span></div>';
+    var row = el("div","row");
+    row.appendChild(btnEl("Next hand", "go", playNextHand));
+    if(pg.history[0]) row.appendChild(btnEl("Review this hand", "ghost", function(){ pReview = pg.history[0].no; drawPlayReview(); $("pReview").scrollIntoView({ behavior:"smooth", block:"start" }); }));
+    box.appendChild(row);
+    hint.innerHTML = "";
+    return;
+  }
+  if(!playHeroTurn(pg)){
+    box.innerHTML = '<div class="pwait">' + t.players[h.toAct].name + ' is thinking&hellip;</div>';
+    return;
+  }
+  var L = hLegal(t);
+  box.innerHTML = "";
+  var row = el("div","row pact-row");
+  if(L.toCall > 0) row.appendChild(btnEl("Fold <kbd>F</kbd>", "fold", function(){ heroAct({ type:"fold" }); }));
+  row.appendChild(btnEl(L.toCall > 0 ? "Call " + pBB(L.toCall) + " <kbd>C</kbd>" : "Check <kbd>C</kbd>", "call", function(){ heroAct({ type: L.toCall > 0 ? "call" : "check" }); }));
+  box.appendChild(row);
+  if(L.canRaise){
+    var sizes = coachSizes(t, L);
+    var r2 = el("div","row psizes");
+    sizes.forEach(function(s){ r2.appendChild(btnEl(s.label, "", function(){ heroAct({ type:"raise", to:s.to }); })); });
+    var cust = el("div","pcustom");
+    cust.innerHTML = '<input id="pAmt" type="number" inputmode="decimal" step="0.5" min="' + L.minTo + '" max="' + L.maxTo + '" placeholder="' + L.minTo + '&ndash;' + L.maxTo + '">';
+    var go = btnEl((t.hand.currentBet ? "Raise to" : "Bet") + " <kbd>R</kbd>", "ghost", function(){
+      var v = parseFloat($("pAmt").value);
+      if(!isFinite(v)){ $("pAmt").focus(); return; }
+      heroAct({ type:"raise", to: Math.max(L.minTo, Math.min(L.maxTo, v)) });
+    });
+    cust.appendChild(go);
+    r2.appendChild(cust);
+    box.appendChild(r2);
+  }
+  drawPlayHint();
+}
+
+/* what the coach shows before you act; redrawn on its own so the buttons never move under a finger */
+function drawPlayHint(){
+  var hint = $("pHint"), t = pg.t, h = t.hand;
+  if(!h || h.over || !playHeroTurn(pg)){ hint.innerHTML = ""; return; }
+  var L = hLegal(t);
+  if(pset.coach === "off"){ hint.innerHTML = '<span class="pmuted">Coach is set to speak after you act. Change it above to see the numbers first.</span>'; return; }
+  var opps = t.players.filter(function(q){ return q.i !== pg.hero && !q.folded; });
+  var price = L.toCall ? L.toCall / (L.pot + L.toCall) : 0;
+  var eff = Math.min.apply(null, [t.players[pg.hero].stack].concat(opps.map(function(q){ return q.stack; })));
+  var facts = [["Pot", pBB(L.pot) + " bb"], ["To call", pBB(L.toCall) + " bb"]];
+  if(L.toCall) facts.push(["Pot odds", pPct(price)]);
+  if(h.street > 0) facts.push(["SPR", (eff / Math.max(1, L.pot)).toFixed(1)]);
+  facts.push(["Position", hPos(t, pg.hero) + (h.street > 0 ? (heroIP(t, pg.hero) ? ", in position" : ", out of position") : "")]);
+  var rng = opps.map(function(q){
+    var acted = h.log.some(function(e){ return e.seat === q.i && e.type !== "sb" && e.type !== "bb"; });
+    return q.name + (acted ? " " + (100 * rangeMass(pg.ranges[q.i]) / 1326).toFixed(0) + "% of hands" : " yet to act");
+  }).join(" &middot; ");
+  var html = '<div class="pfacts">' + facts.map(function(f){ return '<span>' + f[0] + ' <b>' + f[1] + '</b></span>'; }).join("") + '</div>' +
+    '<div class="pranges">Ranges now: ' + rng + '</div>';
+  if(pset.coach === "full"){
+    var A = pg.pending;
+    if(A){
+      html += '<div class="pfull">Your equity vs their ranges <b>' + pPct(A.eq) + '</b>. ' + A.options.map(function(o){
+        return '<span class="' + (o.key === A.best ? "best" : "") + '">' + o.label + ' ' + pSigned(o.ev) + '</span>';
+      }).join("") + '</div>';
+    } else html += '<div class="pfull pmuted">Working out the EV of each option&hellip;</div>';
+  }
+  hint.innerHTML = html;
+}
+
+/* ---- the side panel: last decision, session, history ---- */
+function drawPlaySide(){
+  var fb = $("pFeedback");
+  if(pFeedback){
+    var d = pFeedback, G = d.G, A = d.A;
+    var best = A.options.filter(function(o){ return o.key === A.best; })[0];
+    var mine = A.options.filter(function(o){ return o.key === G.chosen; })[0] || best;
+    fb.innerHTML = '<div class="ph"><h3>Last decision</h3><span>' + ["Preflop","Flop","Turn","River"][A.street] + ' &middot; ' + A.pos + '</span></div>' +
+      '<div class="pgrade"><span class="gbadge ' + GRADE_CLS[G.grade] + '">' + G.grade + '</span><span>' + (G.loss < 0.05 ? "No EV given up" : "EV given up <b>" + pBB(G.loss) + " bb</b>") + '</span></div>' +
+      '<div class="pyou">You: <b>' + mine.label + '</b>' + (G.chosen !== A.best ? ' &middot; ' + (G.grade === "Best" ? "within a whisker of " : "Best: ") + '<b>' + best.label + '</b>' : "") + '</div>' +
+      '<ul class="plines">' + G.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
+      '<div class="pconcepts">' + G.concepts.map(lessonLink).join("") + '</div>';
+  } else {
+    fb.innerHTML = '<div class="ph"><h3>Coach</h3></div><p class="pnote">After each of your decisions the coach grades it here: what every option was worth against what your opponents actually hold, and which lesson it comes from.</p>';
+  }
+
+  var S = pg.session, C = pcareer;
+  var score = S.decisions ? Math.round(100 * S.quality) : null;
+  var cscore = C && C.decisions ? Math.round(100 * C.quality) : null;
+  var gsum = S.decisions || 1;
+  var leaks = playLeaks(S.decisions >= 12 ? S : (C || S), 3).slice(0, 3);
+  $("pSession").innerHTML = '<div class="ph"><h3>Session</h3><a href="#" id="pNewSess">New session</a></div>' +
+    '<div class="pscore"><div><b class="' + (score == null ? "" : score >= 80 ? "hi" : score >= 55 ? "mid" : "lo") + '">' + (score == null ? "&ndash;" : score) + '</b><span>decision score</span></div>' +
+      '<div><b>' + S.hands + '</b><span>hands</span></div><div><b class="' + (S.net >= 0 ? "hi" : "lo") + '">' + pSigned(S.net).replace(" bb","") + '</b><span>bb won</span></div>' +
+      '<div><b>' + (S.hands ? (S.lost / S.hands).toFixed(2) : "&ndash;") + '</b><span>EV lost / hand</span></div></div>' +
+    (S.trend.length > 1 ? '<div class="ptrend">' + S.trend.slice(-40).map(function(v){ return '<i style="height:' + Math.max(6, v) + '%" class="' + (v >= 85 ? "hi" : v >= 55 ? "mid" : "lo") + '"></i>'; }).join("") + '</div>' : "") +
+    '<div class="pgbar">' + Object.keys(S.grades).map(function(k){ return S.grades[k] ? '<span class="' + GRADE_CLS[k] + '" style="flex:' + S.grades[k] + '" title="' + k + ': ' + S.grades[k] + '"></span>' : ""; }).join("") + '</div>' +
+    '<div class="pglegend">' + Object.keys(S.grades).map(function(k){ return '<span><i class="' + GRADE_CLS[k] + '"></i>' + k + ' ' + S.grades[k] + '</span>'; }).join("") + '</div>' +
+    '<p class="pnote">The decision score is a running average of your grades: 100 means every recent decision was the best option or within a whisker of it. bb won swings with the cards; EV lost is the part you control.' + (cscore != null ? ' All time: <b>' + cscore + '</b> over ' + C.decisions + ' decisions, ' + C.hands + ' hands, ' + pSigned(C.net) + '.' : "") + '</p>' +
+    (leaks.length ? '<div class="ph" style="margin-top:14px"><h3>Biggest leaks</h3><span>EV given up</span></div><div class="clist">' + leaks.map(function(l){
+      var L = lessonById(l.id);
+      return '<div><span>' + (L ? '<a href="#/learn/' + l.id + '">' + L.title + '</a>' : l.id) + ' <small>' + l.n + ' decisions</small></span><b>' + l.lost.toFixed(1) + ' bb</b></div>';
+    }).join("") + '</div>' : "");
+  $("pNewSess").onclick = function(e){ e.preventDefault(); clearTimeout(pTimer); pg = playNew(pset.lineup); pFeedback = null; pReview = null; playNextHand(); };
+
+  var hist = $("pHistory");
+  hist.innerHTML = '<div class="ph"><h3>Hands</h3><span>tap to review</span></div>' + (pg.history.length ? '<div class="phist">' + pg.history.slice(0, 12).map(function(x){
+    var worst = x.decisions.reduce(function(a, d){ return !a || d.G.quality < a.G.quality ? d : a; }, null);
+    return '<button type="button" data-no="' + x.no + '"' + (pReview === x.no ? ' aria-pressed="true"' : "") + '><span class="phn">#' + x.no + '</span><span class="phc">' + pCard(x.cards[0], "sm") + pCard(x.cards[1], "sm") + '</span><span class="php">' + x.pos + '</span>' +
+      (worst ? '<span class="gbadge sm ' + GRADE_CLS[worst.G.grade] + '">' + worst.G.grade + '</span>' : '<span class="pmuted">no decision</span>') +
+      '<b class="' + (x.net > 0 ? "up" : x.net < 0 ? "down" : "") + '">' + pSigned(x.net) + '</b></button>';
+  }).join("") + '</div>' : '<p class="pnote">Finished hands appear here.</p>');
+  hist.querySelectorAll("button[data-no]").forEach(function(b){
+    b.onclick = function(){ pReview = +b.dataset.no; drawPlayReview(); drawPlaySide(); $("pReview").scrollIntoView({ behavior:"smooth", block:"start" }); };
+  });
+}
+
+/* ---- the hand review ---- */
+function drawPlayReview(){
+  var box = $("pReview");
+  var x = pReview == null ? null : pg.history.filter(function(y){ return y.no === pReview; })[0];
+  if(!x){ box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false;
+  var streets = ["Preflop","Flop","Turn","River"];
+  var html = '<div class="ph"><h3>Hand #' + x.no + ' review</h3><a href="#" id="pCloseRev">Close</a></div>' +
+    '<div class="prevtop"><span>' + x.pos + '</span>' + pCard(x.cards[0]) + pCard(x.cards[1]) + '<span class="prevb">' + x.board.map(function(c){ return pCard(c, "sm"); }).join("") + '</span>' +
+    '<b class="' + (x.net > 0 ? "up" : x.net < 0 ? "down" : "") + '">' + pSigned(x.net) + '</b></div>';
+  /* the action, street by street */
+  html += '<div class="prevlog">' + [0,1,2,3].map(function(s){
+    var es = x.log.filter(function(e){ return e.street === s && e.type !== "sb" && e.type !== "bb"; });
+    if(!es.length) return "";
+    return '<div><em>' + streets[s] + '</em>' + es.map(function(e){
+      var who = x.names[e.seat];
+      var me = e.seat === 0, s3 = me ? "" : "s";
+      var what = e.type === "raise" ? "raise" + s3 + " to " + pBB(e.to) : e.type === "bet" ? "bet" + s3 + " " + pBB(e.to) : e.type === "call" ? "call" + s3 + " " + pBB(e.amt) : e.type + s3;
+      return '<span class="' + (e.seat === 0 ? "me" : "") + '">' + who + ' ' + what + '</span>';
+    }).join("") + '</div>';
+  }).join("") + (x.shown ? '<div><em>Showdown</em>' + x.shown.map(function(c, i){ return c ? '<span class="' + (i === 0 ? "me" : "") + '">' + x.names[i] + ' ' + pCard(c[0], "sm") + pCard(c[1], "sm") + (x.result.won[i] > 0 ? ' wins ' + pBB(x.result.won[i]) : "") + '</span>' : ""; }).join("") + '</div>' : "") + '</div>';
+
+  if(!x.decisions.length) html += '<p class="pnote">You had no decision to grade in this hand.</p>';
+  x.decisions.forEach(function(d, k){
+    var A = d.A, G = d.G;
+    var maxAbs = Math.max.apply(null, A.options.map(function(o){ return Math.abs(o.ev); }).concat([0.5]));
+    html += '<div class="pdec"><div class="pdech"><span class="gbadge ' + GRADE_CLS[G.grade] + '">' + G.grade + '</span><b>' + streets[A.street] + '</b>' +
+      '<span>' + A.board.map(function(c){ return pCard(c, "sm"); }).join("") + '</span><span class="pmuted">pot ' + pBB(A.pot) + (A.toCall ? ', ' + pBB(A.toCall) + ' to call' : "") + (A.spr != null ? ', SPR ' + A.spr.toFixed(1) : "") + '</span></div>' +
+      '<table class="pevt"><thead><tr><th>Option</th><th>EV</th><th></th><th>Notes</th></tr></thead><tbody>' + A.options.map(function(o){
+        var w = 50 * Math.abs(o.ev) / maxAbs, neg = o.ev < 0;
+        var note = o.type === "fold" ? "Folding forfeits the pot: zero by definition." :
+          o.type === "check" ? "Keep " + pPct(A.eq) + " equity, realise about " + pPct(o.R) + " of it." :
+          o.type === "call" ? "Pay " + pBB(A.toCall) + " for " + pPct(A.eq) + " of " + pBB(A.pot + A.toCall) + (o.R < 1 ? ", realised at " + pPct(o.R) : "") + "." :
+          o.bet ? (o.bet.responders.length ? o.bet.responders.map(function(r){ return x.names[r.seat] + " folds " + pPct(r.pFold); }).join(", ") + (o.bet.responders[0].eqCalled != null ? "; called, you have " + pPct(o.bet.responders[0].eqCalled) : "") : "Everyone else is all in.") : "";
+        return '<tr class="' + (o.key === A.best ? "best " : "") + (o.key === G.chosen ? "mine" : "") + '"><td>' + o.label + (o.key === G.chosen ? ' <em>you</em>' : "") + (o.key === A.best ? ' <em class="b">best</em>' : "") + '</td>' +
+          '<td class="num">' + pSigned(o.ev) + '</td><td class="barc"><span class="evbar' + (neg ? " neg" : "") + '" style="width:' + w.toFixed(1) + '%;' + (neg ? "right:50%" : "left:50%") + '"></span><i></i></td><td class="note">' + note + '</td></tr>';
+      }).join("") + '</tbody></table>' +
+      '<ul class="plines">' + G.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
+      '<div class="popps">' + A.opps.map(function(o){
+        var mk = o.makeup;
+        var bar = mk ? '<div class="pmk">' + CAT_ORDER.filter(function(c){ return mk[c] > 0.005; }).map(function(c){ return '<span style="flex:' + mk[c] + '" class="mk-' + c.replace(/ /g, "") + '" title="' + c + ' ' + pPct(mk[c]) + '"></span>'; }).join("") + '</div>' +
+          '<div class="pmkl">' + CAT_ORDER.filter(function(c){ return mk[c] > 0.02; }).map(function(c){ return '<span><i class="mk-' + c.replace(/ /g, "") + '"></i>' + c + ' ' + pPct(mk[c]) + '</span>'; }).join("") + '</div>' : "";
+        return '<div class="popp"><b>' + o.name + '</b> <span class="pmuted">' + o.pos + (pset.labels ? " &middot; " + BOT_STYLES[o.style].name : "") + ' &middot; range ' + o.rangePct.toFixed(1) + '% of hands</span>' + bar +
+          '<div class="ptop">' + (o.rangePct > 90 ? "Any two cards: they had not acted yet." : "Most likely: " + o.top.map(function(t2){ return t2[0] + ' ' + pPct(t2[1]); }).join(", ")) + '</div></div>';
+      }).join("") + '</div>' +
+      '<div class="pconcepts">' + G.concepts.map(lessonLink).join("") + '</div></div>';
+  });
+  html += '<p class="pnote">How this is priced: your opponents&rsquo; ranges are tracked exactly, by Bayes&rsquo; rule, from the strategies they play; their fold rates come from those same strategies. Each option looks one street ahead, with equity realisation standing in for the streets after that, and a raise by an opponent counted as a call. Treat small differences as ties.</p>';
+  box.innerHTML = html;
+  $("pCloseRev").onclick = function(e){ e.preventDefault(); pReview = null; drawPlayReview(); drawPlaySide(); };
+}
+
+/* keys at the table: F fold, C check or call, R focus the bet box, Enter/Space next hand */
+document.addEventListener("keydown", function(e){
+  if(view !== "play" || !pg || !pg.t.hand) return;
+  if(e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)){
+    if(e.key === "Enter" && e.target.id === "pAmt"){ var b = e.target.parentNode.querySelector("button"); if(b) b.click(); }
+    return;
+  }
+  if(pg.t.hand.over){ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); playNextHand(); } return; }
+  if(!playHeroTurn(pg)) return;
+  var L = hLegal(pg.t);
+  if((e.key === "f" || e.key === "F") && L.toCall > 0) heroAct({ type:"fold" });
+  else if(e.key === "c" || e.key === "C") heroAct({ type: L.toCall > 0 ? "call" : "check" });
+  else if((e.key === "r" || e.key === "R") && $("pAmt")){ e.preventDefault(); $("pAmt").focus(); }
+});
 
 $("syncPill").onclick = function(){ location.hash = "#/sync"; };
 
 (async function boot(){
   await loadSaved();
   await syncLoadCfg();
+  await playLoad();
   var hadHash = /^#\/./.test(location.hash);
   drawModes(); drawTape();
   route();
