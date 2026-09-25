@@ -13,24 +13,12 @@
   --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+html{height:100%} body{min-height:100%}
 body{
   background:var(--ink); color:var(--bone); font-family:var(--mono);
   font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
-  display:flex; justify-content:center; padding:20px 16px 60px;
 }
-.wrap{width:100%; max-width:760px}
 
-/* ---- masthead ---- */
-.mast{display:flex; align-items:center; justify-content:space-between; gap:12px 24px; flex-wrap:wrap; margin-bottom:22px; padding-bottom:16px; border-bottom:1px solid var(--line)}
-.mark{display:flex; align-items:baseline; gap:12px}
-.mark .suit{align-self:center; color:var(--gold); font-size:16px; line-height:1}
-.mark .wordmark{font-size:16px; letter-spacing:.01em; color:var(--dim); font-weight:500}
-.mark .wordmark b{color:var(--bone); font-weight:700}
-.mark .tagline{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); white-space:nowrap}
-.tape{display:flex; gap:18px; font-size:11px; letter-spacing:.08em; color:var(--dim); font-variant-numeric:tabular-nums}
-.tape span b{color:var(--bone); font-weight:600}
-@media(max-width:560px){ .mark .tagline{display:none} }
 
 /* The hidden attribute must beat the display:flex set on flex containers below,
    otherwise .modes and .cpbar stay on screen when toggled hidden. */
@@ -155,19 +143,6 @@ details[open] summary:before{content:"- "}
   button.act{padding:12px 20px; flex:1}
 }
 @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
-
-/* ---- view tabs ---- */
-.tabs{display:flex; gap:4px; margin-bottom:16px; border-bottom:1px solid var(--line)}
-.tab{
-  font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
-  background:none; border:0; border-bottom:2px solid transparent; color:var(--faint);
-  padding:8px 14px; cursor:pointer; transition:.12s; margin-bottom:-1px;
-}
-.tab:hover{color:var(--dim)}
-.tab[aria-selected="true"]{color:var(--bone); border-bottom-color:var(--gold)}
-.tab:focus-visible{outline:2px solid var(--gold); outline-offset:-2px}
-.tab i{font-style:normal; color:var(--green); margin-left:6px}
-.tab i.due{display:inline-block; min-width:17px; padding:1px 5px; border-radius:9px; background:var(--gold); color:#150f02; font-size:10px; letter-spacing:0; font-weight:700; text-align:center}
 
 /* ---- course index ---- */
 .course{border:1px solid var(--line); border-radius:5px; overflow:hidden; background:var(--felt)}
@@ -535,40 +510,300 @@ table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
 .sfile{position:relative; overflow:hidden; display:inline-block}
 .sfile input{position:absolute; inset:0; opacity:0; cursor:pointer}
 .syncv .howsrs{margin-top:10px}
+/* ============================================================
+   SHELL: header, navigation, Home, Path, reader, Library
+   ============================================================ */
+body{display:block; padding:0; font-family:var(--sans)}
+.wrap{max-width:960px; margin:0 auto; padding:24px 20px 80px}
+.narrow{max-width:760px; margin-left:auto; margin-right:auto}
+
+/* ---- header ---- */
+.top{position:sticky; top:0; z-index:30; background:rgba(20,26,36,.92); backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px); border-bottom:1px solid var(--line)}
+.topin{max-width:960px; margin:0 auto; padding:0 20px; height:58px; display:flex; align-items:center; gap:20px}
+.brand{display:flex; align-items:center; gap:9px; text-decoration:none; color:var(--dim); font-size:17px; letter-spacing:.01em; flex:0 0 auto}
+.brand .suit{color:var(--gold); font-size:18px}
+.brand b{color:var(--bone); font-weight:700}
+.nav{display:flex; gap:4px; flex:1; justify-content:center}
+.navi{position:relative; display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:8px; color:var(--dim); text-decoration:none; font-size:14px; font-weight:500; transition:background .12s, color .12s}
+.navi svg{width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+.navi:hover{color:var(--bone); background:var(--felt)}
+.navi[aria-current="page"]{color:var(--bone); background:var(--raise)}
+.navi[aria-current="page"] svg{stroke:var(--gold)}
+.navi:focus-visible{outline:2px solid var(--gold); outline-offset:1px}
+.nbadge{font-style:normal; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--gold); color:#150f02; font-size:10.5px; font-weight:700; display:inline-grid; place-items:center; font-family:var(--sans)}
+.topr{flex:0 0 auto; display:flex; align-items:center; margin-left:auto}
+.readbar{position:absolute; left:0; bottom:-1px; height:2px; width:0; background:var(--gold); transition:width .08s linear}
+
+@media(max-width:760px){
+  /* a backdrop filter would make the header the containing block of the fixed bottom nav */
+  .top{backdrop-filter:none; -webkit-backdrop-filter:none; background:var(--ink)}
+  .topin{height:52px; padding:0 16px}
+  .nav{position:fixed; left:0; right:0; bottom:0; z-index:30; justify-content:space-around; gap:0;
+    background:rgba(20,26,36,.97); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-top:1px solid var(--line);
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .navi{flex-direction:column; gap:3px; padding:5px 10px; font-size:11px; border-radius:8px; flex:1; max-width:110px}
+  .navi[aria-current="page"]{background:none}
+  .navi[aria-current="page"] span{color:var(--gold)}
+  .navi .nbadge{position:absolute; top:1px; left:calc(50% + 6px); height:16px; min-width:16px; font-size:9.5px}
+  .wrap{padding:18px 16px calc(96px + env(safe-area-inset-bottom))}
+  .spill{font-size:10px; padding:3px 9px}
+}
+
+/* ---- shared ---- */
+.sech{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); font-weight:600; margin-bottom:12px}
+.panel{background:var(--felt); border:1px solid var(--line); border-radius:10px; padding:18px}
+.ph{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:12px}
+.ph h3{font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); font-weight:600}
+.ph a,.ph span{font-size:12.5px; color:var(--faint)}
+.ph a{color:var(--gold); text-decoration:none}
+.ph a:hover{text-decoration:underline}
+.pnote{font-size:13px; color:var(--dim); line-height:1.55; margin-top:10px}
+.pbar{height:6px; border-radius:3px; background:var(--line); overflow:hidden}
+.pbar span{display:block; height:100%; background:var(--green); border-radius:3px}
+.clist > div{display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px}
+.clist > div:last-child{border-bottom:0}
+.clist span{color:var(--bone)} .clist b{font-weight:500; color:var(--dim); white-space:nowrap} .clist b.due{color:var(--gold)}
+.hfoot{margin-top:28px; font-size:12px; color:var(--faint); text-align:center}
+.hfoot a{color:var(--dim)}
+button.act{font-family:var(--sans); letter-spacing:.02em; text-transform:none; font-size:14px; border-radius:8px}
+button.act.call,button.act.fold{font-size:15px}
+.chip{font-family:var(--sans); letter-spacing:.02em; text-transform:none; font-size:12.5px; border-radius:6px}
+.subnav{display:inline-flex; gap:2px; background:var(--felt); border:1px solid var(--line); border-radius:9px; padding:3px; margin-bottom:20px}
+.subnav a{padding:7px 14px; border-radius:7px; color:var(--dim); text-decoration:none; font-size:13.5px; font-weight:500}
+.subnav a:hover{color:var(--bone)}
+.subnav a[aria-current="page"]{background:var(--raise); color:var(--bone); box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.vhead{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin-bottom:16px}
+.vhead h1{font-size:26px; font-weight:650; letter-spacing:-.01em}
+.vhead p{font-size:14px; color:var(--dim); margin-top:4px; max-width:60ch; line-height:1.5}
+
+/* ---- home ---- */
+.hgreet{margin-bottom:18px}
+.hgreet h1{font-size:28px; font-weight:650; letter-spacing:-.015em}
+.hgreet p{color:var(--dim); font-size:14px; margin-top:2px}
+.hero{background:linear-gradient(135deg, rgba(212,160,60,.13), rgba(212,160,60,0) 60%), var(--felt); border:1px solid var(--line); border-left:4px solid var(--gold); border-radius:10px; padding:24px; margin-bottom:16px}
+.hero .kick{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:8px}
+.hero h2{font-size:23px; font-weight:650; letter-spacing:-.01em; margin-bottom:8px}
+.hero p{font-size:15px; color:var(--dim); line-height:1.6; margin-bottom:18px; max-width:62ch}
+.hero .hmeta{color:var(--faint)}
+.tstats.h5{grid-template-columns:repeat(5,1fr); margin-bottom:16px}
+.tstat{border-radius:10px}
+.tstat b{font-family:var(--sans)}
+.tstat span{font-family:var(--sans); letter-spacing:.08em}
+@media(max-width:760px){ .tstats.h5{grid-template-columns:repeat(3,1fr)} .tstats.h5 .tstat:nth-child(n+4){grid-column:span 1} }
+@media(max-width:420px){ .tstats.h5{grid-template-columns:repeat(2,1fr)} }
+.hgrid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+@media(max-width:760px){ .hgrid{grid-template-columns:1fr} }
+.pstage{display:flex; gap:12px; align-items:flex-start; margin-bottom:12px}
+.pstage b{display:block; font-size:16px; margin-bottom:2px}
+.pstage div span{font-size:13px; color:var(--dim); line-height:1.45}
+.snum{flex:0 0 32px; height:32px; border-radius:50%; background:var(--raise); border:1px solid var(--line); display:grid; place-items:center; font-weight:700; font-size:14px; color:var(--gold)}
+.pcap{font-size:12px; color:var(--faint); margin:6px 0 12px}
+.plist{display:flex; flex-direction:column; gap:2px}
+.pl{display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:6px; color:var(--dim); text-decoration:none; font-size:14px}
+.pl:hover{background:var(--raise); color:var(--bone)}
+.pl i{font-style:normal; width:20px; height:20px; border-radius:50%; border:1px solid var(--line); display:grid; place-items:center; font-size:10px; flex:0 0 20px}
+.pl.done{color:var(--bone)} .pl.done i{background:var(--green); border-color:var(--green); color:var(--ink)}
+.pl.next{color:var(--bone); background:rgba(212,160,60,.08)} .pl.next i{border-color:var(--gold); color:var(--gold)}
+.pl.lab i{color:var(--blue); border-color:var(--blue)}
+
+/* ---- the path ---- */
+.pathhead{display:flex; justify-content:space-between; gap:24px; align-items:flex-end; margin-bottom:18px; flex-wrap:wrap}
+.pathhead h1{font-size:28px; font-weight:650; letter-spacing:-.015em}
+.pathhead p{font-size:14.5px; color:var(--dim); line-height:1.55; max-width:56ch; margin-top:4px}
+.pathprog{min-width:180px}
+.pathprog b{font-size:26px; font-weight:650} .pathprog b span{font-size:15px; color:var(--faint); font-weight:500}
+.pathprog small{display:block; font-size:12px; color:var(--dim); margin:0 0 8px}
+.pathnext{display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:var(--felt); border:1px solid var(--gold); border-radius:10px; padding:14px 18px; margin-bottom:22px}
+.pathnext span{font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); font-weight:600}
+.pathnext b{font-size:16px} .pathnext em{font-style:normal; color:var(--faint); font-size:13px; flex:1}
+.stages{list-style:none; position:relative}
+.stages:before{content:""; position:absolute; left:33px; top:26px; bottom:26px; width:2px; background:var(--line)}
+.stage{position:relative; margin-bottom:12px; background:var(--felt); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+.stage.cur{border-color:rgba(212,160,60,.6)}
+.shead{display:flex; align-items:center; gap:14px; width:100%; text-align:left; background:none; border:0; color:inherit; font-family:var(--sans); padding:16px 18px; cursor:pointer}
+.shead:hover{background:var(--raise)}
+.shead:focus-visible{outline:2px solid var(--gold); outline-offset:-2px}
+.stage .snum{position:relative; z-index:1; background:var(--ink)}
+.stage.done .snum{background:var(--green); border-color:var(--green); color:var(--ink)}
+.stage.cur .snum{border-color:var(--gold)}
+.smain{flex:1; min-width:0}
+.smain b{display:block; font-size:16.5px; font-weight:600; margin-bottom:3px}
+.smain span{display:block; font-size:13.5px; color:var(--dim); line-height:1.45}
+.sside{flex:0 0 130px; text-align:right}
+.sprog{display:block; height:5px; border-radius:3px; background:var(--line); overflow:hidden; margin-bottom:5px}
+.sprog i{display:block; height:100%; background:var(--green)}
+.sside small{font-size:11.5px; color:var(--faint)}
+.lcar{font-size:18px; color:var(--faint); width:14px; text-align:center}
+.slessons{border-top:1px solid var(--line); background:rgba(0,0,0,.12)}
+.lrow2{display:flex; align-items:center; gap:14px; padding:13px 18px 13px 22px; border-bottom:1px solid var(--line); text-decoration:none; color:inherit}
+.lrow2:last-child{border-bottom:0}
+.lrow2:hover{background:var(--raise)}
+.lic{flex:0 0 26px; height:26px; border-radius:50%; border:1px solid var(--line); display:grid; place-items:center; font-size:10.5px; color:var(--dim); font-variant-numeric:tabular-nums}
+.lrow2.done .lic{background:var(--green); border-color:var(--green); color:var(--ink)}
+.lrow2.next{background:rgba(212,160,60,.07)} .lrow2.next .lic{border-color:var(--gold); color:var(--gold)}
+.lrow2.lab .lic{border-color:var(--blue); color:var(--blue)}
+.lrow2 .lmain b{font-size:15px}
+.lrow2 .lmain span{font-size:13px; white-space:normal}
+.lmeta{font-size:12.5px; color:var(--dim); text-align:right; white-space:nowrap}
+.lmeta small{font-size:11px; color:var(--faint)}
+.lrow2.done .lmeta small{color:var(--green)} .lrow2.next .lmeta small{color:var(--gold)}
+.duechip{font-style:normal; font-size:10.5px; font-weight:600; color:#150f02; background:var(--gold); border-radius:4px; padding:1px 6px; margin-left:6px; vertical-align:2px}
+@media(max-width:560px){
+  .stages:before{left:31px}
+  .shead{padding:14px; gap:12px}
+  .sside{display:none}
+  .lrow2{padding:12px 14px}
+  .lmeta{display:none}
+}
+
+/* ---- reader ---- */
+.reader{border:0; background:none; overflow:visible; max-width:760px; margin:0 auto}
+.rhead{padding:6px 0 18px; border-bottom:1px solid var(--line); margin-bottom:8px}
+.crumbs{font-size:13px; color:var(--faint); display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px}
+.crumbs a{color:var(--dim); text-decoration:none} .crumbs a:hover{color:var(--gold)}
+.rhead h1{font-size:32px; font-weight:650; letter-spacing:-.02em; line-height:1.15; margin-bottom:6px}
+.rsub{font-size:15px; color:var(--dim)}
+.rgist{font-size:17px; line-height:1.55; color:var(--bone); margin-top:14px; padding-left:14px; border-left:3px solid var(--gold); max-width:60ch}
+.rmeta{display:flex; gap:8px; flex-wrap:wrap; margin-top:16px}
+.rmeta span{font-size:12.5px; color:var(--dim); background:var(--felt); border:1px solid var(--line); border-radius:20px; padding:4px 11px}
+.rmeta span.ok{color:var(--green); border-color:rgba(52,169,111,.5)}
+.rjump{position:sticky; top:58px; z-index:5; display:flex; gap:6px; overflow-x:auto; padding:10px 0; background:var(--ink); margin-bottom:10px; scrollbar-width:none}
+.rjump::-webkit-scrollbar{display:none}
+.rjump a{flex:0 0 auto; font-size:12.5px; color:var(--dim); text-decoration:none; border:1px solid var(--line); border-radius:20px; padding:5px 12px}
+.rjump a:hover{color:var(--bone); border-color:var(--dim)}
+@media(max-width:760px){ .rjump{top:52px} .rhead h1{font-size:26px} .rgist{font-size:16px} }
+.rbody{padding:10px 0 0}
+.rbody > *{margin-bottom:20px}
+.prose{font-size:16.5px; line-height:1.7; color:#D3D9E3; max-width:66ch}
+.rule{border-left:3px solid var(--gold); border-radius:0 8px 8px 0; padding:14px 18px}
+.rule:before{content:"Formula"; display:block; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:6px}
+.rule pre{font-size:15px}
+.rule small{font-size:14px}
+.warn{border-radius:0 8px 8px 0; font-size:15px; padding:14px 18px}
+.keybox{border-radius:8px; padding:16px 18px}
+.keybox b{font-size:10.5px}
+.keybox span{font-size:16px}
+.ex{border-radius:8px; background:var(--felt)}
+.ex > h4{font-size:11px; letter-spacing:.14em; font-weight:600}
+.steps li{font-family:var(--sans); font-size:14.5px; line-height:1.55; padding:6px 0 6px 30px}
+.steps li:before{top:7px; width:19px; height:19px; font-size:10px; font-family:var(--mono)}
+.punch{font-size:15px}
+.how{border-radius:0 8px 8px 0}
+.howsteps li{font-size:15px}
+table.tbl{font-size:14px}
+.cap{font-size:13.5px}
+.rfoot{margin-top:30px; border:0; background:none; padding:0; display:block}
+.rcp{background:var(--felt); border:1px solid var(--gold); border-radius:10px; padding:18px 20px; display:flex; flex-direction:column; gap:6px; align-items:flex-start}
+.rcp b{font-size:16px}
+.rcp span{font-size:13.5px; color:var(--dim); margin-bottom:8px}
+.rpn{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
+.rpn a{display:block; background:var(--felt); border:1px solid var(--line); border-radius:10px; padding:12px 16px; color:var(--bone); text-decoration:none; font-size:14.5px; font-weight:500}
+.rpn a:hover{border-color:var(--dim)}
+.rpn a small{display:block; font-size:11.5px; color:var(--faint); font-weight:400; margin-bottom:2px}
+.rpn a.nx{text-align:right}
+
+/* ---- formulas ---- */
+.fxsec{border-top:1px solid var(--line); padding-top:22px}
+.fx{background:var(--felt); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin-bottom:12px}
+.panel .fx{background:none; border:0; padding:0; margin:0}
+.fxh{display:flex; justify-content:space-between; gap:10px; align-items:baseline; margin-bottom:12px}
+.fxh b{font-size:15px}
+.fxh a{font-size:12.5px; color:var(--gold); text-decoration:none; white-space:nowrap}
+.fxh a:hover{text-decoration:underline}
+.fxm{font-family:"Cambria Math","STIX Two Math","Latin Modern Math",Georgia,serif; font-size:21px; color:var(--bone); background:var(--ink); border:1px solid var(--line); border-radius:8px; padding:14px 16px; overflow-x:auto; line-height:1.5}
+.fxl{display:block; white-space:nowrap} .fxl + .fxl{margin-top:6px}
+.fxf{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; margin:0 3px; line-height:1.25}
+.fxn{padding:0 4px 2px; border-bottom:1.5px solid currentColor}
+.fxd{padding:2px 4px 0}
+.fxr .fxro{border-top:1.5px solid currentColor; padding:0 2px; margin-left:1px}
+.fxm sup,.fxm sub{font-size:.62em}
+.fxv{display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin-top:12px; font-size:13.5px}
+.fxv > div{display:contents}
+.fxv dt{font-family:"Cambria Math",Georgia,serif; color:var(--gold); white-space:nowrap}
+.fxv dd{color:var(--dim); line-height:1.45}
+.fxa{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
+.fxa span{font-size:12.5px; color:var(--dim); background:var(--raise); border-radius:6px; padding:4px 9px}
+.fxa b{color:var(--bone); font-weight:600}
+.fxnote{font-size:13.5px; color:var(--dim); line-height:1.55; margin-top:10px}
+
+/* ---- try one ---- */
+.trycard{border-top:1px solid var(--line); padding-top:22px}
+.trysub{font-size:14px; color:var(--dim); margin:-4px 0 14px}
+.tryq{background:var(--felt); border:1px solid var(--line); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:18px}
+.tryq .ask{margin-bottom:14px}
+.tryout:not(:empty){margin-top:16px; padding-top:14px; border-top:1px solid var(--line)}
+.tryout .math p{font-family:var(--sans); font-size:14px}
+
+/* ---- glossary terms ---- */
+.gl{border-bottom:1px dotted var(--gold); cursor:help; color:inherit}
+.gl:focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:2px}
+.gltip{position:fixed; z-index:50; max-width:290px; background:var(--raise); border:1px solid var(--dim); border-radius:8px; padding:10px 12px; font-size:13.5px; line-height:1.5; color:#CFD6E2; box-shadow:0 8px 28px rgba(0,0,0,.45); pointer-events:none}
+.gltip b{display:block; color:var(--gold); font-size:12px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px}
+.gltip small{display:block; color:var(--faint); font-size:11.5px; margin-top:5px}
+
+/* ---- practice ---- */
+.today{border-radius:10px}
+.today h3{font-size:19px}
+.today p{font-size:14.5px}
+.today .kick{font-family:var(--sans); letter-spacing:.12em}
+#weak{margin-bottom:24px}
+.skrow.skhead{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); border-bottom:1px solid var(--line)}
+.skrow.skhead:hover{background:none}
+.skrow .nm{font-family:var(--sans); font-size:13.5px}
+.skrow .lv a{color:var(--gold)}
+.mbarcap{font-size:12.5px; color:var(--dim); margin:-6px 0 14px}
+.tape{display:flex; gap:6px 18px; flex-wrap:wrap; margin-bottom:14px; font-size:12.5px; color:var(--dim); font-variant-numeric:tabular-nums}
+.tape span b{color:var(--bone); font-weight:600}
+.practop{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+
+/* ---- library ---- */
+.libsearch{display:flex; align-items:center; gap:10px; margin-bottom:18px}
+.libsearch input{flex:1; min-width:0; font-family:var(--sans); font-size:15px; color:var(--bone); background:var(--felt); border:1px solid var(--line); border-radius:8px; padding:11px 14px}
+.libsearch input:focus{outline:none; border-color:var(--gold)}
+.libsearch span{font-size:12.5px; color:var(--faint); white-space:nowrap}
+.libh{font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); font-weight:600; margin:22px 0 10px}
+.libh:first-child{margin-top:0}
+.fxgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.fxgrid .fx{margin:0}
+@media(max-width:760px){ .fxgrid{grid-template-columns:1fr} }
+.gletter{font-size:13px; font-weight:700; color:var(--gold); margin:18px 0 6px; padding-bottom:4px; border-bottom:1px solid var(--line)}
+.gitem{display:grid; grid-template-columns:minmax(150px, 220px) 1fr auto; gap:6px 16px; padding:10px 0; border-bottom:1px solid var(--line); align-items:baseline}
+.gitem b{font-size:14.5px}
+.gitem b small{display:block; font-weight:400; font-size:12px; color:var(--faint)}
+.gitem span{font-size:14px; color:var(--dim); line-height:1.5}
+.gitem a{font-size:12.5px; color:var(--gold); text-decoration:none; white-space:nowrap}
+@media(max-width:560px){ .gitem{grid-template-columns:1fr} }
+#readingView .course{border-radius:10px}
+.sempty{font-size:14px; color:var(--faint)}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <div class="mast">
-    <div class="mark">
-      <span class="suit">&spades;</span>
-      <span class="wordmark">Poker<b>Pro</b></span>
-      <span class="tagline">poker for people who know the math</span>
-    </div>
-    <div class="mastr">
-      <div class="tape" id="tape"></div>
-      <button class="spill off" id="syncPill" type="button"><i></i>Sync off</button>
-    </div>
+<header class="top">
+  <div class="topin">
+    <a class="brand" href="#/home" aria-label="PokerPro home"><span class="suit">&spades;</span><span>Poker<b>Pro</b></span></a>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="topr"><button class="spill off" id="syncPill" type="button"><i></i>Sync off</button></div>
   </div>
+  <div class="readbar" id="readbar"></div>
+</header>
 
-  <div class="tabs" role="tablist">
-    <button class="tab" id="tabTrain" role="tab" type="button">Train</button>
-    <button class="tab" id="tabLearn" role="tab" type="button">Learn</button>
-    <button class="tab" id="tabDrill" role="tab" type="button">Drill</button>
-    <button class="tab" id="tabRead" role="tab" type="button">Reading</button>
-    <button class="tab" id="tabSync" role="tab" type="button">Sync</button>
-  </div>
+<main class="wrap">
 
-  <div id="trainView" hidden>
-    <div class="tstats" id="tstats"></div>
-    <div class="tspark" id="tspark"></div>
-    <div class="tsparkcap"><span>minutes trained, last 21 days</span><span id="tsparkmax"></span></div>
-    <div class="today" id="today"></div>
-    <div class="courseTop"><h2>Skills</h2><p>box &middot; accuracy &middot; pace &middot; next review</p></div>
-    <div class="mbar" id="mbar"></div>
-    <div id="skills"></div>
-    <details class="howsrs">
+  <section id="homeView" hidden></section>
+
+  <section id="learnView" hidden></section>
+
+  <article id="reader" class="reader" hidden></article>
+
+  <section id="practiceView" hidden>
+    <div class="vhead"><div><h1>Practice</h1><p>Reviews keep what you have learned from fading. Free practice drills anything, weighted toward your weak and due skills.</p></div></div>
+    <nav class="subnav" id="pracNav" aria-label="Practice">
+      <a href="#/practice/review" data-s="review">Today</a><a href="#/practice/drill" data-s="drill">Free practice</a><a href="#/practice/skills" data-s="skills">Skills</a>
+    </nav>
+    <div id="pracReview" hidden>
+      <div class="today" id="today"></div>
+      <div class="panel" id="weak" hidden></div>
+      <details class="howsrs">
       <summary>How the schedule makes it stick</summary>
       <ol>
         <li><b>Spacing.</b> Every skill sits in a box. It only climbs a box on a day it is due, after three clean answers in a row. The gaps grow: 1, 3, 7, 16, 35, 80, 180 days. Cramming a skill that is not due keeps it warm but never moves it up. Remembering across a gap is what makes it permanent.</li>
@@ -579,26 +814,14 @@ table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
         <li><b>Little and often.</b> Fifteen or twenty minutes a day beats three hours on a Sunday. Clear the due list daily; the hours compound because nothing you have learned is allowed to decay.</li>
       </ol>
     </details>
-  </div>
-
-  <div id="learnView">
-    <div class="courseTop">
-      <h2>The course</h2>
-      <p id="savetag" class="savetag"></p>
     </div>
-    <div class="course" id="toc"></div>
-  </div>
-
-  <div id="reader" class="reader" hidden></div>
-
-  <div id="syncView" class="syncv" hidden></div>
-
-  <div id="readingView" hidden>
-    <div class="courseTop"><h2>The reading list</h2><p>in order</p></div>
-    <div class="course" id="reading"></div>
-  </div>
-
+    <div id="pracSkills" hidden>
+      <div class="mbar" id="mbar"></div>
+      <p class="mbarcap" id="mbarcap"></p>
+      <div id="skills"></div>
+    </div>
   <div id="drillView">
+  <div class="tape" id="tape"></div>
   <div class="cpbar" id="cpbar" hidden></div>
   <div class="modes" id="modes"></div>
 
@@ -626,57 +849,32 @@ table.labTbl tr.bluff td:first-child{color:var(--bone); opacity:.85}
   </div>
   </div>
 
-  <div id="cpdone" class="cpdone" hidden></div>
+  
+    <div id="cpdone" class="cpdone" hidden></div>
+  </section>
 
-  <details>
-    <summary>Reference card</summary>
-    <div class="sheet">
-      <div>
-        <h4>Price of a call</h4>
-        <p><b>equity needed = call / final pot</b></p>
-        <p>Final pot includes your own call.</p>
-        <p>Half pot &rarr; 20% &middot; two thirds &rarr; 25%</p>
-        <p>Pot &rarr; 33% &middot; twice pot &rarr; 40%</p>
-      </div>
-      <div>
-        <h4>Outs to equity</h4>
-        <p><b>x4</b> with two cards to come, <b>x2</b> with one</p>
-        <p>Rule of 4 overshoots above 8 outs. Subtract the amount over 8.</p>
-        <p>Flush draw <b>9</b> &middot; open-ender <b>8</b></p>
-        <p>Gutshot <b>4</b> &middot; overcards <b>6</b></p>
-        <p>Set to boat <b>7</b> &middot; flush + open-ender <b>15</b></p>
-      </div>
-      <div>
-        <h4>Fold equity</h4>
-        <p><b>folds needed = bet / (pot + bet)</b></p>
-        <p>A bluff needs the same percentage as the price it lays.</p>
-        <p>Half pot &rarr; 33% &middot; pot &rarr; 50%</p>
-        <p>Equity when called lowers the bar.</p>
-      </div>
-      <div>
-        <h4>Implied odds</h4>
-        <p><b>extra = (1 - e) &middot; call / e - pot</b></p>
-        <p>What you must extract later to justify a call that is priced wrong now.</p>
-        <p>Only count what villain will actually pay, not their stack.</p>
-      </div>
-      <div>
-        <h4>Preflop anchors</h4>
-        <p>Pair vs pair <b>80/20</b></p>
-        <p>Pair vs two unders <b>80/20</b></p>
-        <p>Pair vs one over <b>70/30</b></p>
-        <p>Pair vs two overs <b>55/45</b></p>
-        <p>Dominated <b>75/25</b></p>
-        <p>Two overs vs two unders <b>63/37</b></p>
-      </div>
-      <div>
-        <h4>Reading the bar</h4>
-        <p>Green is equity you hold.</p>
-        <p>Gold is a threshold you must clear.</p>
-        <p>The white tick is the break-even line. Past it, call. Short of it, fold.</p>
-      </div>
+  <section id="libraryView" hidden>
+    <div class="vhead"><div><h1>Library</h1><p>Every formula in the course with what each symbol means, the terms you will meet, and the books behind it all.</p></div></div>
+    <nav class="subnav" id="libNav" aria-label="Library">
+      <a href="#/library/formulas" data-s="formulas">Formulas</a><a href="#/library/glossary" data-s="glossary">Glossary</a><a href="#/library/reading" data-s="reading">Reading</a>
+    </nav>
+    <div id="libFormulas" hidden>
+      <div class="libsearch"><input id="fxq" type="search" placeholder="Search formulas: pot odds, MDF, variance&hellip;" autocomplete="off"><span id="fxcount"></span></div>
+      <div id="fxlist"></div>
     </div>
-  </details>
-</div>
+    <div id="libGlossary" hidden>
+      <div class="libsearch"><input id="glq" type="search" placeholder="Search terms" autocomplete="off"><span id="glcount"></span></div>
+      <div id="gllist"></div>
+    </div>
+    <div id="readingView" hidden>
+      <div class="course" id="reading"></div>
+    </div>
+  </section>
+
+  <section id="syncView" class="syncv" hidden></section>
+
+</main>
+<div class="gltip" id="gltip" role="tooltip" hidden></div>
 
 <script>
 /*__ENGINE__*/
@@ -728,7 +926,7 @@ LESSONS.forEach(function(L){
   if(k) RULES["rule:" + L.id] = { lesson:L, x:k.x };
 });
 function isSkill(id){ return !!(MODE_META[id] || RULES[id]); }
-function skillName(id){ return RULES[id] ? RULES[id].lesson.title : MODE_META[id]; }
+function skillName(id){ return RULES[id] ? "Recall: " + RULES[id].lesson.title : MODE_META[id]; }
 function skillOf(id){ return skills[id] || (skills[id] = srsNew()); }
 function logDay(secs, n, ok){
   var k = srsDayKey(Date.now());
@@ -1022,7 +1220,7 @@ function cardStage(c){
   if(c.villain) seats.appendChild(seat("Villain", c.villain.map(cid)));
   if(c.board && c.board.length){
     var b = c.board.map(cid);
-    seats.appendChild(seat(b.length === 3 ? "Flop" : "Flop and turn", b, 5 - b.length));
+    seats.appendChild(seat(b.length === 3 ? "Flop" : b.length === 4 ? "Flop and turn" : "Board", b, 5 - b.length));
   }
   return seats;
 }
@@ -1118,32 +1316,7 @@ $("wipe").onclick = function(){
 var view = "learn", openId = null, cp = null, openLayer = 0;
 var progress = {};
 
-function setView(v){
-  view = v;
-  $("tabTrain").setAttribute("aria-selected", v === "train" ? "true" : "false");
-  $("trainView").hidden = v !== "train";
-  $("tape").hidden = v !== "drill";
-  if(v === "train") drawTrain();
-  drawTrainTab();
-  $("tabLearn").setAttribute("aria-selected", v === "learn" ? "true" : "false");
-  $("tabDrill").setAttribute("aria-selected", v === "drill" ? "true" : "false");
-  $("tabRead").setAttribute("aria-selected", v === "reading" ? "true" : "false");
-  $("tabSync").setAttribute("aria-selected", v === "sync" ? "true" : "false");
-  $("syncView").hidden = v !== "sync";
-  $("learnView").hidden = !(v === "learn" && !openId);
-  $("reader").hidden   = !(v === "learn" && !!openId);
-  $("drillView").hidden = v !== "drill";
-  $("readingView").hidden = v !== "reading";
-  $("cpdone").hidden = true;
-  if(v === "reading") drawReading();
-  if(v === "sync") drawSyncView();
-  if(v === "drill" && !q) next();
-}
 
-function nextLesson(L){
-  var i = LESSONS.indexOf(L);
-  return i >= 0 && i < LESSONS.length - 1 ? LESSONS[i + 1] : null;
-}
 function lessonById(id){ for(var i=0;i<LESSONS.length;i++) if(LESSONS[i].id === id) return LESSONS[i]; return null; }
 
 /* ============================================================
@@ -1799,142 +1972,11 @@ function syncWire(){
 }
 
 /* ---- index ---- */
-function drawTOC(){
-  var box = $("toc"); box.innerHTML = "";
-  LAYERS.forEach(function(L){
-    var done = L.lessons.filter(function(x){ return progress[x.id]; }).length;
-    var wrap = el("div","layer");
-
-    var head = el("button","lhead" + (done === L.lessons.length ? " done" : ""));
-    head.type = "button";
-    head.setAttribute("aria-expanded", openLayer === L.n ? "true" : "false");
-    head.innerHTML =
-      '<span class="lbadge">' + L.n + '</span>' +
-      '<span class="lmain"><b>' + L.title + '</b><span>' + L.blurb + '</span></span>' +
-      '<span class="lstat">' + done + '/' + L.lessons.length + '</span>' +
-      '<span class="lcar">' + (openLayer === L.n ? "\u2212" : "+") + '</span>';
-    head.onclick = function(){ openLayer = openLayer === L.n ? -1 : L.n; drawTOC(); saveSoon(); };
-    wrap.appendChild(head);
-
-    if(openLayer === L.n){
-      var list = el("div","llist");
-      L.lessons.forEach(function(les, i){
-        var b = el("button","lrow" + (progress[les.id] ? " done" : ""));
-        b.type = "button";
-        b.innerHTML =
-          '<span class="lnum">' + (progress[les.id] ? "\u2713" : (L.n + "." + (i + 1))) + '</span>' +
-          '<span class="lmain"><b>' + les.title + '</b><span>' + les.gist + '</span></span>' +
-          '<span class="lgo">' + (les.mode === "none" ? "lab" : (progress[les.id] ? "passed" : "read")) + '</span>';
-        b.onclick = function(){ openLesson(les.id); };
-        list.appendChild(b);
-      });
-      wrap.appendChild(list);
-    }
-    box.appendChild(wrap);
-  });
-  drawSaveTag();
-}
 
 /* ============================================================
    TRAIN: the daily schedule
    ============================================================ */
-function drawTrain(){
-  if(!$("tstats")) return;
-  var now = Date.now();
-  var ids = Object.keys(skills).filter(isSkill);
-  var due = srsDueList(ids, skills, now);
-  var total = 0;
-  Object.keys(plog).forEach(function(k){ total += plog[k].s; });
-  var tk = plog[srsDayKey(now)];
-  var auto = ORDER.filter(function(m){ return skills[m] && skills[m].box >= 6; }).length;
 
-  $("tstats").innerHTML = [
-    [fmtDur(total), "trained, all time"],
-    [fmtDur(tk ? tk.s : 0), "today"],
-    [srsDayStreak(plog, now) + "", "day streak"],
-    [auto + "/" + ORDER.length, "skills automatic"]
-  ].map(function(x){ return '<div class="tstat"><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join("");
-
-  var days = [], mx = 0;
-  for(var i = 20; i >= 0; i--){
-    var d = plog[srsDayKey(now - i * SRS_DAY)];
-    var m = d ? d.s / 60 : 0;
-    days.push(m); if(m > mx) mx = m;
-  }
-  $("tspark").innerHTML = days.map(function(m, i){
-    return '<i class="' + (m > 0 ? "on" : "") + (i === 20 ? " now" : "") + '" style="height:' +
-      (mx ? Math.max(4, 100 * m / mx) : 4) + '%" title="' + Math.round(m) + ' min"></i>';
-  }).join("");
-  $("tsparkmax").textContent = mx ? "peak " + Math.round(mx) + " min" : "";
-
-  var box = $("today"); box.innerHTML = "";
-  box.appendChild(el("div","kick", new Date(now).toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" })));
-  var row = el("div","row");
-  function btn(label, cls, fn){ var b = el("button","act" + (cls ? " " + cls : ""), label); b.type = "button"; b.onclick = fn; row.appendChild(b); return b; }
-  if(!ids.length){
-    box.appendChild(el("h3", null, "Nothing on the schedule yet"));
-    box.appendChild(el("p", null, "Every lesson checkpoint you pass puts that skill and its rule here, with the first review tomorrow. From then on this page tells you exactly what to practise each day, and nothing you have learned is allowed to fade."));
-    btn("Start the course", "go", function(){ openId = null; setView("learn"); });
-  } else if(due.length){
-    var est = due.reduce(function(a, id){
-      var s = skills[id];
-      return a + (RULES[id] ? 25 : (4 + s.box) * (s.n ? s.secs / s.n + 6 : 20));
-    }, 0);
-    box.appendChild(el("h3", null, due.length + (due.length === 1 ? " review" : " reviews") + " due"));
-    var names = due.slice(0, 7).map(skillName).join(", ") + (due.length > 7 ? " and " + (due.length - 7) + " more" : "");
-    box.appendChild(el("p", null, names + ". About " + Math.max(1, Math.round(est / 60)) + " minutes, mixed together, with a little from your other skills woven in."));
-    btn("Start today's session", "go", function(){ startSession("due"); }).focus();
-    btn("Practise weakest", "ghost", function(){ startSession("extra"); });
-  } else {
-    var soon = ids.slice().sort(function(a, b){ return skills[a].due - skills[b].due; })[0];
-    box.appendChild(el("h3", null, "All clear for now"));
-    box.appendChild(el("p", null, "Next review: " + skillName(soon) + ", in " + fmtIn(skills[soon].due - now) +
-      ". Extra practice keeps skills warm and fixes weak spots, but only a review on its due day moves a skill up. Or open the next lesson and add a new skill."));
-    btn("Practise weakest", "go", function(){ startSession("extra"); });
-    btn("Next lesson", "ghost", function(){
-      var nx = LESSONS.filter(function(L){ return L.mode !== "none" && !progress[L.id]; })[0];
-      if(nx){ openLayer = nx.layer; openLesson(nx.id); } else { openId = null; setView("learn"); }
-    });
-  }
-  box.appendChild(row);
-
-  var pts = ORDER.reduce(function(a, m){ return a + (skills[m] ? skills[m].box : 0); }, 0);
-  var pct = 100 * pts / (ORDER.length * SRS_TOP);
-  $("mbar").innerHTML = '<span style="width:' + pct.toFixed(1) + '%"></span>';
-  $("mbar").title = Math.round(pct) + "% of the way to every skill at the top box";
-
-  var list = $("skills"); list.innerHTML = "";
-  function srow(id, name){
-    var s = skills[id], r = el("div","skrow" + (s ? "" : " locked"));
-    var bx = "";
-    for(var j = 1; j <= SRS_TOP; j++) bx += '<i class="' + (s && s.box >= j ? (s.box >= 6 ? "top" : "on") : "") + '"></i>';
-    if(!s){
-      var L = LESSON_OF[id];
-      r.innerHTML = '<span class="nm">' + name + '</span><span class="boxes">' + bx + '</span>' +
-        '<span class="lv">' + (L ? "unlocks when you pass &ldquo;" + L.title + "&rdquo;" : "not started") + '</span>';
-      return r;
-    }
-    var rc = srsRecent(s, 20), goalX = srsGoal(1, s.box);
-    r.innerHTML = '<span class="nm">' + name + '</span><span class="boxes">' + bx + '</span>' +
-      '<span class="lv">' + srsLevel(s) + '</span>' +
-      '<span class="nb" title="accuracy, last ' + rc.n + '">' + (rc.n ? Math.round(100 * rc.acc) + "%" : "&ndash;") + '</span>' +
-      '<span class="nb" title="median time as a multiple of this box&rsquo;s goal; under 1 is inside it">' + (rc.n && rc.pace ? (rc.pace / goalX).toFixed(1) + "&times;" : "&ndash;") + '</span>' +
-      '<span class="du' + (now >= s.due ? " due" : "") + '">' + fmtIn(s.due - now) + '</span>';
-    return r;
-  }
-  [0,1,2,3,4,5].forEach(function(Ln){
-    list.appendChild(el("div","sklayer", "Layer " + Ln + " &middot; " + LAYERS[Ln].title));
-    ORDER.filter(function(m){ return MODE_LAYER[m] === Ln; }).forEach(function(m){ list.appendChild(srow(m, MODE_META[m])); });
-  });
-  var rules = Object.keys(RULES).filter(function(id){ return skills[id]; });
-  list.appendChild(el("div","sklayer", "Rules to recall &middot; " + rules.length + " of " + Object.keys(RULES).length + " unlocked"));
-  rules.forEach(function(id){ list.appendChild(srow(id, skillName(id))); });
-}
-
-function drawTrainTab(){
-  var n = srsDueList(Object.keys(skills).filter(isSkill), skills, Date.now()).length;
-  $("tabTrain").innerHTML = "Train" + (n ? ' <i class="due" title="' + n + ' due">' + n + '</i>' : "");
-}
 
 /* a session: the due list first, interleaved, with light filler from the rest */
 function startSession(kind){
@@ -2624,41 +2666,6 @@ function drawBlock(b){
 }
 
 /* ---- reader ---- */
-function openLesson(id){
-  openId = id;
-  var L = lessonById(id);
-  var r = $("reader"); r.innerHTML = "";
-
-  var h = el("div","rhead");
-  h.innerHTML =
-    '<div class="eyebrow">Layer ' + L.layer + ' &middot; lesson ' + (L.idx + 1) + ' of ' + L.of_n + '</div>' +
-    '<h1>' + L.title + '</h1><p>' + L.sub + '</p>';
-  r.appendChild(h);
-
-  var body = el("div","rbody");
-  L.blocks.forEach(function(b){ body.appendChild(drawBlock(b)); });
-  r.appendChild(body);
-
-  var f = el("div","rfoot");
-  var back = el("button","act ghost","Index"); back.type = "button";
-  back.onclick = function(){ openId = null; setView("learn"); window.scrollTo(0,0); };
-  f.appendChild(back);
-  if(L.mode === "none"){
-    f.appendChild(el("div","grow","No checkpoint on this one. Play with the lab until the numbers stop surprising you."));
-    var nx = nextLesson(L);
-    if(nx){ var nb = el("button","act","Next lesson"); nb.type = "button"; nb.onclick = function(){ openLesson(nx.id); }; f.appendChild(nb); }
-  } else {
-    f.appendChild(el("div","grow", progress[id] ? "Passed. Run it again any time." : "Pass the checkpoint to tick this lesson off."));
-    var go = el("button","act", progress[id] ? "Drill it again" : "Drill it &middot; " + L.pass + " of " + L.of + " to pass");
-    go.type = "button";
-    go.onclick = function(){ startCp(id); };
-    f.appendChild(go);
-  }
-  r.appendChild(f);
-
-  setView("learn");
-  window.scrollTo(0,0);
-}
 
 /* ---- checkpoint ---- */
 function startCp(id){
@@ -2694,13 +2701,9 @@ function drawCp(){
 }
 
 function quitCp(){
-  cp = null;
-  ORDER.forEach(function(m){ active[m] = 1; });
-  $("modes").hidden = false;
-  $("cpbar").hidden = true;
-  drawModes();
-  openId = null;
-  setView("learn"); drawTOC();
+  var id = cp && cp.id;
+  clearCp();
+  if(id) goLesson(id); else location.hash = "#/learn";
 }
 
 function endCp(){
@@ -2743,28 +2746,691 @@ function endCp(){
 }
 
 function leaveSession(){ if(sess){ sess = null; $("modes").hidden = false; $("cpbar").hidden = true; } }
-$("tabTrain").onclick = function(){ if(cp) quitCp(); leaveSession(); openId = null; setView("train"); };
-$("tabLearn").onclick = function(){ leaveSession(); if(cp) quitCp(); else { openId = null; setView("learn"); } };
-$("tabRead").onclick = function(){ leaveSession(); if(cp) quitCp(); openId = null; setView("reading"); };
-$("tabSync").onclick = function(){ leaveSession(); if(cp) quitCp(); openId = null; setView("sync"); };
-$("syncPill").onclick = function(){ $("tabSync").onclick(); window.scrollTo(0, 0); };
-$("tabDrill").onclick = function(){
-  var wasSess = !!sess || !!cp;
-  leaveSession(); if(cp) quitCp();
-  ORDER.forEach(function(m){ active[m] = 1; }); $("modes").hidden = false; $("cpbar").hidden = true; drawModes();
-  setView("drill");
-  if(wasSess) next();
+/* ============================================================
+   SHELL: navigation, routing, Home, the Path, the reader,
+   Practice and the Library. Every screen has an address
+   (#/learn/alpha, #/library/formulas), so the back button and
+   bookmarks behave the way you expect.
+   ============================================================ */
+var sub = { practice:"review", library:"formulas" };
+var curHash = "";
+var VIEWS = ["home", "learn", "practice", "library", "sync"];
+var SUBS = { practice:["review", "drill", "skills"], library:["formulas", "glossary", "reading"] };
+
+var ICON = {
+  home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>',
+  learn:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8 17.2c5-1 3-6.4 8-9.8"/><path d="M4 6h4M6 4v4"/></svg>',
+  practice:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" /></svg>',
+  library:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4 9.5 4 12 5.5v14C9.5 18 6.5 18 4 19.5z"/><path d="M20 5.5C17.5 4 14.5 4 12 5.5v14c2.5-1.5 5.5-1.5 8 0z"/></svg>'
 };
+
+function drawNav(){
+  var n = $("nav");
+  if(!n.dataset.built){
+    n.dataset.built = "1";
+    n.innerHTML = [["home","Home"],["learn","Learn"],["practice","Practice"],["library","Library"]].map(function(x){
+      return '<a class="navi" id="nav_' + x[0] + '" href="#/' + x[0] + '">' + ICON[x[0]] + '<span>' + x[1] + '</span><i class="nbadge" hidden></i></a>';
+    }).join("");
+  }
+  VIEWS.forEach(function(v){
+    var a = $("nav_" + v);
+    if(a){ if(view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); }
+  });
+  drawTrainTab();
+}
+/* the due-review count, on the Practice tab */
+function drawTrainTab(){
+  var b = $("nav_practice");
+  if(!b) return;
+  var n = srsDueList(Object.keys(skills).filter(isSkill), skills, Date.now()).length;
+  var i = b.querySelector(".nbadge");
+  i.hidden = !n; i.textContent = n;
+  i.title = n + (n === 1 ? " review" : " reviews") + " due";
+}
+
+function hashFor(){
+  if(view === "learn" && openId) return "#/learn/" + openId;
+  if(view === "practice" || view === "library") return "#/" + view + "/" + sub[view];
+  return "#/" + view;
+}
+function syncHash(){
+  var h = hashFor();
+  curHash = h;
+  if(location.hash !== h){
+    if(location.hash) location.hash = h;
+    else history.replaceState(null, "", h);
+  }
+}
+window.addEventListener("hashchange", function(){ if(location.hash !== curHash) route(); });
+
+/* leave a checkpoint without navigating anywhere */
+function clearCp(){
+  if(!cp) return;
+  cp = null;
+  ORDER.forEach(function(m){ active[m] = 1; });
+  $("modes").hidden = false; $("cpbar").hidden = true;
+  drawModes();
+}
+
+function route(){
+  var parts = location.hash.replace(/^#\/?/, "").split("/");
+  var v = VIEWS.indexOf(parts[0]) >= 0 ? parts[0] : null, arg = parts[1];
+  if(!v) v = Object.keys(skills).some(isSkill) ? "home" : "learn";
+  if(v !== "practice"){ leaveSession(); clearCp(); }
+  if(v === "learn" && arg && lessonById(arg)){ openLesson(arg); return; }
+  if(v === "learn") openId = null;
+  if(SUBS[v] && SUBS[v].indexOf(arg) >= 0){
+    if(v === "practice" && arg !== "drill"){ leaveSession(); clearCp(); }
+    sub[v] = arg;
+  }
+  setView(v);
+  window.scrollTo(0, 0);
+}
+
+function setView(v){
+  /* the old names, still used by the drill and session code */
+  if(v === "train") v = "home";
+  if(v === "drill"){ v = "practice"; sub.practice = "drill"; }
+  if(v === "reading"){ v = "library"; sub.library = "reading"; }
+  view = v;
+  $("homeView").hidden = v !== "home";
+  $("learnView").hidden = !(v === "learn" && !openId);
+  $("reader").hidden = !(v === "learn" && !!openId);
+  $("practiceView").hidden = v !== "practice";
+  $("libraryView").hidden = v !== "library";
+  $("syncView").hidden = v !== "sync";
+  $("cpdone").hidden = true;
+  document.body.dataset.view = v;
+  if(v !== "learn" || !openId) $("readbar").style.width = "0";
+  if(v === "home") drawHome();
+  if(v === "learn" && !openId) drawPath();
+  if(v === "practice") drawPractice();
+  if(v === "library") drawLibrary();
+  if(v === "sync") drawSyncView();
+  drawNav();
+  syncHash();
+}
+
+/* ---- small helpers ---- */
+function passable(L){ return L.mode !== "none"; }
+function nextUp(){ return LESSONS.filter(function(L){ return passable(L) && !progress[L.id]; })[0] || null; }
+function stageOf(L){ return LAYERS[L.layer]; }
+function lessonMinutes(L){
+  var chars = 0;
+  L.blocks.forEach(function(b){
+    [b.x, b.note, b.caption, b.punch, b.tip, b.ask].forEach(function(t){ if(t) chars += String(t).length; });
+    (b.steps || []).forEach(function(t){ chars += t.length; });
+    (b.rows || []).forEach(function(r){ chars += r.join(" ").length; });
+    if(b.t === "lab") chars += 5000;
+  });
+  return Math.max(2, Math.round(chars / 5 / 190));
+}
+function stageDone(S){ return S.lessons.filter(function(x){ return progress[x.id]; }).length; }
+function stageCount(S){ return S.lessons.length; }
+function lessonDue(L){
+  var now = Date.now();
+  return [L.mode, "rule:" + L.id].some(function(id){ return skills[id] && isSkill(id) && now >= skills[id].due; });
+}
+function goLesson(id){ location.hash = "#/learn/" + id; }
+function btnEl(label, cls, fn){ var b = el("button", "act" + (cls ? " " + cls : ""), label); b.type = "button"; b.onclick = fn; return b; }
+
+/* ============================================================
+   HOME: one clear next step, then the numbers that matter
+   ============================================================ */
+function drawHome(){
+  var box = $("homeView"); box.innerHTML = "";
+  var now = Date.now();
+  var ids = Object.keys(skills).filter(isSkill);
+  var due = srsDueList(ids, skills, now);
+  var nx = nextUp();
+  var total = LESSONS.filter(passable).length;
+  var passed = LESSONS.filter(function(L){ return passable(L) && progress[L.id]; }).length;
+  var hr = new Date(now).getHours();
+
+  box.appendChild(el("div", "hgreet",
+    '<h1>' + (hr < 5 ? "Late night" : hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening") + '</h1>' +
+    '<p>' + new Date(now).toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" }) + '</p>'));
+
+  /* the hero: exactly one thing to do next */
+  var hero = el("div", "hero"), row = el("div", "row");
+  if(due.length){
+    var est = due.reduce(function(a, id){
+      var s = skills[id];
+      return a + (RULES[id] ? 25 : (4 + s.box) * (s.n ? s.secs / s.n + 6 : 20));
+    }, 0);
+    hero.innerHTML = '<div class="kick">Today &middot; reviews</div><h2>' + due.length + (due.length === 1 ? " skill is" : " skills are") + ' due for review</h2>' +
+      '<p>' + due.slice(0, 5).map(skillName).join(", ") + (due.length > 5 ? " and " + (due.length - 5) + " more" : "") +
+      '. About ' + Math.max(1, Math.round(est / 60)) + ' minutes. Reviews come first: they are what makes a skill permanent.</p>';
+    row.appendChild(btnEl("Start reviews", "go", function(){ startSession("due"); }));
+    if(nx) row.appendChild(btnEl("Then: " + nx.title, "ghost", function(){ goLesson(nx.id); }));
+  } else if(nx){
+    var S = stageOf(nx);
+    hero.innerHTML = '<div class="kick">Continue &middot; Stage ' + S.n + ', ' + S.title + '</div><h2>' + nx.title + '</h2>' +
+      '<p>' + nx.gist + ' <span class="hmeta">' + lessonMinutes(nx) + ' min read, then a ' + nx.of + '-question checkpoint.</span></p>';
+    row.appendChild(btnEl(passed ? "Open the lesson" : "Start the first lesson", "go", function(){ goLesson(nx.id); }));
+    if(ids.length) row.appendChild(btnEl("Practise weakest", "ghost", function(){ startSession("extra"); }));
+  } else {
+    hero.innerHTML = '<div class="kick">The whole path</div><h2>Every lesson passed</h2><p>Keep the reviews up so none of it fades, and put it to work in practice.</p>';
+    row.appendChild(btnEl("Practise weakest", "go", function(){ startSession("extra"); }));
+  }
+  hero.appendChild(row);
+  box.appendChild(hero);
+
+  /* the numbers */
+  var tot = 0; Object.keys(plog).forEach(function(k){ tot += plog[k].s; });
+  var tk = plog[srsDayKey(now)];
+  var auto = ORDER.filter(function(m){ return skills[m] && skills[m].box >= 6; }).length;
+  var streak = srsDayStreak(plog, now);
+  box.appendChild(el("div", "tstats h5", [
+    [streak + (streak === 1 ? " day" : " days"), "streak"],
+    [fmtDur(tk ? tk.s : 0), "today"],
+    [fmtDur(tot), "all time"],
+    [passed + "/" + total, "lessons passed"],
+    [auto + "/" + ORDER.length, "skills automatic"]
+  ].map(function(x){ return '<div class="tstat"><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join("")));
+
+  var grid = el("div", "hgrid");
+
+  /* where you are on the path */
+  var cur = nx ? stageOf(nx) : LAYERS[LAYERS.length - 1];
+  var pc = el("div", "panel");
+  var dn = stageDone(cur), ct = stageCount(cur);
+  pc.innerHTML = '<div class="ph"><h3>Your path</h3><a href="#/learn">Full path &rsaquo;</a></div>' +
+    '<div class="pstage"><span class="snum">' + cur.n + '</span><div><b>' + cur.title + '</b><span>' + cur.blurb + '</span></div></div>' +
+    '<div class="pbar"><span style="width:' + (100 * dn / ct).toFixed(1) + '%"></span></div><div class="pcap">' + dn + ' of ' + ct + ' lessons in this stage &middot; ' + passed + ' of ' + total + ' overall</div>' +
+    '<div class="plist">' + cur.lessons.map(function(L){
+      var st = progress[L.id] ? "done" : nx && L.id === nx.id ? "next" : !passable(L) ? "lab" : "";
+      return '<a class="pl ' + st + '" href="#/learn/' + L.id + '"><i>' + (st === "done" ? "✓" : st === "lab" ? "◇" : st === "next" ? "▶" : "") + '</i>' + L.title + '</a>';
+    }).join("") + '</div>';
+  grid.appendChild(pc);
+
+  /* activity */
+  var days = [], mx = 0;
+  for(var i = 20; i >= 0; i--){
+    var d = plog[srsDayKey(now - i * SRS_DAY)];
+    var m = d ? d.s / 60 : 0;
+    days.push(m); if(m > mx) mx = m;
+  }
+  var ac = el("div", "panel");
+  ac.innerHTML = '<div class="ph"><h3>Last 3 weeks</h3><span>' + (mx ? "best day " + Math.round(mx) + " min" : "minutes trained") + '</span></div>' +
+    '<div class="tspark">' + days.map(function(m, i){
+      return '<i class="' + (m > 0 ? "on" : "") + (i === 20 ? " now" : "") + '" style="height:' + (mx ? Math.max(4, 100 * m / mx) : 4) + '%" title="' + Math.round(m) + ' min"></i>';
+    }).join("") + '</div><div class="tsparkcap"><span>3 weeks ago</span><span>today</span></div>' +
+    '<p class="pnote">' + (streak >= 2 ? "A " + streak + "-day streak. " : "") + 'Fifteen minutes a day beats three hours on a Sunday: spacing is what makes it stick.</p>';
+  grid.appendChild(ac);
+
+  /* coming up on the schedule */
+  var up = ids.filter(function(id){ return skills[id].due > now; }).sort(function(a, b){ return skills[a].due - skills[b].due; }).slice(0, 5);
+  var cu = el("div", "panel");
+  cu.innerHTML = '<div class="ph"><h3>Coming up</h3><a href="#/practice/skills">All skills &rsaquo;</a></div>' +
+    (up.length || due.length
+      ? '<div class="clist">' + due.slice(0, 3).map(function(id){ return '<div><span>' + skillName(id) + '</span><b class="due">due now</b></div>'; }).join("") +
+        up.map(function(id){ return '<div><span>' + skillName(id) + '</span><b>in ' + fmtIn(skills[id].due - now) + '</b></div>'; }).join("") + '</div>'
+      : '<p class="pnote">Nothing scheduled yet. Pass a lesson&rsquo;s checkpoint and its skill appears here with its first review tomorrow.</p>');
+  grid.appendChild(cu);
+
+  /* a formula to keep warm: rotates daily, from lessons you have reached */
+  var pool = FORMULAS.filter(function(f){ return progress[f.lesson]; });
+  if(!pool.length) pool = FORMULAS.slice(0, 3);
+  var fod = pool[Math.floor(now / SRS_DAY) % pool.length];
+  var fc = el("div", "panel");
+  fc.innerHTML = '<div class="ph"><h3>Formula of the day</h3><a href="#/library/formulas">Library &rsaquo;</a></div>' + fxCard(fod, true);
+  grid.appendChild(fc);
+
+  box.appendChild(grid);
+
+  var foot = el("p", "hfoot");
+  foot.innerHTML = '<span id="savetag" class="savetag"></span> &middot; <a href="#/sync">Sync &amp; backup</a>';
+  box.appendChild(foot);
+  drawSaveTag();
+}
+function drawTrain(){ if(view === "home") drawHome(); if(view === "practice") drawPractice(); }
+
+/* ============================================================
+   THE PATH: every stage, in order, with where you are on it
+   ============================================================ */
+function drawTOC(){ if(view === "learn" && !openId) drawPath(); if(view === "home") drawHome(); }
+function drawPath(){
+  var box = $("learnView"); box.innerHTML = "";
+  var nx = nextUp();
+  var total = LESSONS.filter(passable).length;
+  var passed = LESSONS.filter(function(L){ return passable(L) && progress[L.id]; }).length;
+  var head = el("div", "pathhead");
+  head.innerHTML = '<div><h1>The path</h1><p>From the rules of the game to the maths the best players use. Each lesson ends with a short checkpoint; pass it and the skill joins your review schedule.</p></div>' +
+    '<div class="pathprog"><b>' + passed + '<span>/' + total + '</span></b><small>lessons passed</small><div class="pbar"><span style="width:' + (100 * passed / total).toFixed(1) + '%"></span></div></div>';
+  box.appendChild(head);
+  if(nx){
+    var cont = el("div", "pathnext");
+    cont.innerHTML = '<span>Next up</span><b>' + nx.title + '</b><em>Stage ' + nx.layer + ' &middot; ' + lessonMinutes(nx) + ' min</em>';
+    cont.appendChild(btnEl("Continue", "go", function(){ goLesson(nx.id); }));
+    box.appendChild(cont);
+  }
+
+  var list = el("ol", "stages");
+  LAYERS.forEach(function(S){
+    var dn = stageDone(S), ct = stageCount(S);
+    var isCur = nx ? nx.layer === S.n : false;
+    var open = openLayer === S.n;
+    var li = el("li", "stage" + (dn === ct ? " done" : "") + (isCur ? " cur" : "") + (open ? " open" : ""));
+    var hb = el("button", "shead");
+    hb.type = "button";
+    hb.setAttribute("aria-expanded", open ? "true" : "false");
+    hb.innerHTML = '<span class="snum">' + (dn === ct ? "✓" : S.n) + '</span>' +
+      '<span class="smain"><b>' + S.title + '</b><span>' + S.blurb + '</span></span>' +
+      '<span class="sside"><span class="sprog"><i style="width:' + (100 * dn / ct).toFixed(0) + '%"></i></span><small>' + dn + '/' + ct + (S.sub ? ' &middot; ' + S.sub : "") + '</small></span>' +
+      '<span class="lcar">' + (open ? "−" : "+") + '</span>';
+    hb.onclick = function(){ openLayer = open ? -1 : S.n; drawPath(); saveSoon(); };
+    li.appendChild(hb);
+    if(open){
+      var ul = el("div", "slessons");
+      S.lessons.forEach(function(L, i){
+        var st = progress[L.id] ? "done" : nx && L.id === nx.id ? "next" : !passable(L) ? "lab" : "";
+        var a = el("a", "lrow2 " + st);
+        a.href = "#/learn/" + L.id;
+        a.innerHTML = '<span class="lic">' + (st === "done" ? "✓" : st === "lab" ? "◇" : S.n + "." + (i + 1)) + '</span>' +
+          '<span class="lmain"><b>' + L.title + (lessonDue(L) ? ' <em class="duechip">review due</em>' : "") + '</b><span>' + L.gist + '</span></span>' +
+          '<span class="lmeta">' + lessonMinutes(L) + ' min<br><small>' + (st === "done" ? "passed" : st === "lab" ? "lab" : st === "next" ? "next up" : "checkpoint") + '</small></span>';
+        ul.appendChild(a);
+      });
+      li.appendChild(ul);
+    }
+    list.appendChild(li);
+  });
+  box.appendChild(list);
+  var foot = el("p", "hfoot");
+  foot.innerHTML = '<span id="savetag" class="savetag"></span>';
+  box.appendChild(foot);
+  drawSaveTag();
+}
+
+/* ============================================================
+   THE READER: a lesson as sections, with its formulas laid out,
+   terms defined in place, and a question to try before the checkpoint
+   ============================================================ */
+var SEC_NAME = { idea:"The idea", formula:"Formula", ex:"Worked examples", warn:"Watch out", key:"Remember", how:"In the drill", lab:"Lab", try:"Try one", fx:"Formula sheet" };
+function openLesson(id){
+  clearCp(); leaveSession();
+  openId = id;
+  var L = lessonById(id), S = stageOf(L);
+  openLayer = L.layer;
+  var r = $("reader"); r.innerHTML = "";
+  var fxs = formulasForLesson(id);
+
+  var h = el("div","rhead");
+  h.innerHTML =
+    '<nav class="crumbs"><a href="#/learn">Path</a><span>&rsaquo;</span><a href="#/learn" data-stage="' + S.n + '">Stage ' + S.n + ' &middot; ' + S.title + '</a><span>&rsaquo;</span>Lesson ' + (L.idx + 1) + ' of ' + L.of_n + '</nav>' +
+    '<h1>' + L.title + '</h1><p class="rsub">' + L.sub + '</p>' +
+    '<p class="rgist">' + L.gist + '</p>' +
+    '<div class="rmeta"><span>' + lessonMinutes(L) + ' min read</span>' +
+    (passable(L) ? '<span>Checkpoint: ' + L.pass + ' of ' + L.of + '</span>' : '<span>Interactive lab</span>') +
+    (MODE_META[L.mode] ? '<span>Skill: ' + MODE_META[L.mode] + '</span>' : "") +
+    (progress[id] ? '<span class="ok">✓ Passed</span>' : "") + '</div>';
+  r.appendChild(h);
+  h.querySelector("[data-stage]").onclick = function(){ openLayer = S.n; };
+
+  /* sections: group the blocks so there is a map of the lesson */
+  var body = el("div","rbody"), secs = [], firstOf = {};
+  function mark(kind, node){
+    if(firstOf[kind]) return;
+    firstOf[kind] = 1;
+    node.id = "sec-" + kind;
+    secs.push(kind);
+  }
+  L.blocks.forEach(function(b){
+    if(b.t === "how" && fxs.length) body.appendChild(fxSection(fxs, mark));
+    var n = drawBlock(b);
+    var kind = b.t === "p" || b.t === "tbl" ? "idea" : b.t === "rule" ? "formula" : b.t;
+    if(SEC_NAME[kind]) mark(kind, n);
+    body.appendChild(n);
+  });
+  if(fxs.length && !firstOf.fx) body.appendChild(fxSection(fxs, mark));
+  var tryMode = MODE_META[L.mode] ? L.mode : L.mode === "mixed" ? "allin" : null;
+  if(tryMode){
+    var tc = el("div", "trycard");
+    mark("try", tc);
+    body.appendChild(tc);
+    miniQ(tc, tryMode);
+  }
+  r.appendChild(body);
+
+  var jump = el("nav","rjump");
+  jump.innerHTML = secs.map(function(k){ return '<a href="#sec-' + k + '" data-k="' + k + '">' + SEC_NAME[k] + '</a>'; }).join("");
+  jump.onclick = function(e){
+    var a = e.target.closest("a[data-k]");
+    if(!a) return;
+    e.preventDefault();
+    var t = $("sec-" + a.dataset.k);
+    if(t) window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 76, behavior: "smooth" });
+  };
+  if(secs.length > 1) r.insertBefore(jump, body);
+
+  glossify(body, L.id);
+
+  /* the footer: previous, the checkpoint, next */
+  var f = el("div","rfoot");
+  var i = LESSONS.indexOf(L), prev = LESSONS[i - 1], nx = LESSONS[i + 1];
+  if(passable(L)){
+    var cpBox = el("div", "rcp");
+    cpBox.innerHTML = '<b>' + (progress[id] ? "Passed. Run the checkpoint again any time." : "Ready? Pass the checkpoint to add this skill to your reviews.") + '</b>' +
+      '<span>' + L.of + ' questions, ' + L.pass + ' right to pass. Timed, but only accuracy counts here.</span>';
+    cpBox.appendChild(btnEl(progress[id] ? "Retake checkpoint" : "Start checkpoint", "go", function(){ startCp(id); }));
+    f.appendChild(cpBox);
+  } else {
+    f.appendChild(el("div", "rcp", "<b>No checkpoint on this one.</b><span>Play with the lab until the numbers stop surprising you.</span>"));
+  }
+  var pn = el("div", "rpn");
+  pn.innerHTML = (prev ? '<a href="#/learn/' + prev.id + '"><small>&lsaquo; Previous</small>' + prev.title + '</a>' : '<span></span>') +
+    (nx ? '<a class="nx" href="#/learn/' + nx.id + '"><small>Next &rsaquo;</small>' + nx.title + '</a>' : '<a class="nx" href="#/learn"><small>Done</small>Back to the path</a>');
+  f.appendChild(pn);
+  r.appendChild(f);
+
+  setView("learn");
+  window.scrollTo(0,0);
+  readProgress();
+}
+function nextLesson(L){ var i = LESSONS.indexOf(L); return LESSONS[i + 1] || null; }
+
+function fxSection(fxs, mark){
+  var s = el("div", "fxsec");
+  s.innerHTML = '<h3 class="sech">Formula sheet</h3>' + fxs.map(function(f){ return fxCard(f, false); }).join("");
+  mark("fx", s);
+  return s;
+}
+function fxCard(f, compact){
+  return '<div class="fx"><div class="fxh"><b>' + f.name + '</b>' +
+    (compact || openId !== f.lesson ? '<a href="#/learn/' + f.lesson + '">' + (lessonById(f.lesson) || {}).title + ' &rsaquo;</a>' : "") + '</div>' +
+    '<div class="fxm">' + fxHTML(f.f) + '</div>' +
+    (f.vars && f.vars.length ? '<dl class="fxv">' + f.vars.map(function(v){ return '<div><dt>' + fxHTML(v[0]) + '</dt><dd>' + v[1] + '</dd></div>'; }).join("") + '</dl>' : "") +
+    (f.anchors && f.anchors.length ? '<div class="fxa">' + f.anchors.map(function(a){ return '<span>' + a[0] + ' <b>' + a[1] + '</b></span>'; }).join("") + '</div>' : "") +
+    (f.note && !compact ? '<p class="fxnote">' + f.note + '</p>' : f.note ? '<p class="fxnote">' + f.note + '</p>' : "") + '</div>';
+}
+
+/* reading progress, as a thin bar under the header */
+function readProgress(){
+  var bar = $("readbar"), r = $("reader");
+  if(view !== "learn" || !openId || r.hidden){ bar.style.width = "0"; return; }
+  var top = r.getBoundingClientRect().top + window.scrollY;
+  var span = r.offsetHeight - window.innerHeight + 80;
+  var p = span > 0 ? Math.min(1, Math.max(0, (window.scrollY - top + 80) / span)) : 1;
+  bar.style.width = (100 * p).toFixed(1) + "%";
+}
+window.addEventListener("scroll", readProgress, { passive:true });
+
+/* ---- terms defined in place ---- */
+function glossify(root, lessonId){
+  var used = {}, sel = ".prose, .warn, .keybox span, .rule small, .steps li, .punch, .howsteps li, .cap";
+  root.querySelectorAll(sel).forEach(function(node){
+    var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
+    var texts = [], t;
+    while((t = walker.nextNode())) texts.push(t);
+    texts.forEach(function(tn){
+      if(tn.parentNode.closest(".gl, a, button, code")) return;
+      var guard = 0;
+      while(tn && guard++ < 6){
+        var m = glossFind(tn.nodeValue);
+        if(!m) return;
+        var key = m.entry[0];
+        if(used[key] || m.entry[3] === lessonId){
+          /* already defined here, or this lesson is its home: look past it */
+          var rest = tn.splitText(m.at + m.len);
+          tn = rest; continue;
+        }
+        used[key] = 1;
+        var mid = tn.splitText(m.at), after = mid.splitText(m.len);
+        var sp = el("span", "gl");
+        sp.tabIndex = 0;
+        sp.setAttribute("role", "button");
+        sp.dataset.g = GLOSSARY.indexOf(m.entry);
+        sp.textContent = mid.nodeValue;
+        mid.parentNode.replaceChild(sp, mid);
+        tn = after;
+      }
+    });
+  });
+}
+function glossShow(t){
+  var tip = $("gltip"), g = GLOSSARY[+t.dataset.g];
+  if(!g) return;
+  var home = lessonById(g[3]);
+  tip.innerHTML = '<b>' + g[0] + '</b>' + g[2] + (home ? '<small>From &ldquo;' + home.title + '&rdquo;</small>' : "");
+  tip.hidden = false;
+  var r = t.getBoundingClientRect(), w = tip.offsetWidth, hgt = tip.offsetHeight;
+  var x = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+  var y = r.bottom + 8;
+  if(y + hgt > window.innerHeight - 8) y = r.top - hgt - 8;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+  glossShow.cur = t;
+}
+function glossHide(){ $("gltip").hidden = true; glossShow.cur = null; }
+document.addEventListener("pointerover", function(e){ var t = e.target.closest && e.target.closest(".gl"); if(t && e.pointerType === "mouse") glossShow(t); });
+document.addEventListener("pointerout", function(e){ var t = e.target.closest && e.target.closest(".gl"); if(t && e.pointerType === "mouse") glossHide(); });
+document.addEventListener("focusin", function(e){ if(e.target.classList && e.target.classList.contains("gl")) glossShow(e.target); });
+document.addEventListener("focusout", function(e){ if(e.target.classList && e.target.classList.contains("gl")) glossHide(); });
+document.addEventListener("click", function(e){
+  var t = e.target.closest && e.target.closest(".gl");
+  if(t){ if(glossShow.cur === t) glossHide(); else glossShow(t); return; }
+  if(!$("gltip").hidden) glossHide();
+});
+window.addEventListener("scroll", function(){ if(!$("gltip").hidden) glossHide(); }, { passive:true });
+
+/* ---- one practice question, inside the lesson: free, untimed, not graded ---- */
+function miniFmt(qq, x){
+  if(qq.kind === "choice") return x;
+  if(qq.unit === "$") return "$" + Math.round(x).toLocaleString();
+  if(qq.unit === "%") return (Math.round(x * 10) / 10) + "%";
+  return Math.abs(x) >= 100 ? Math.round(x).toLocaleString() : String(Math.round(x * 100) / 100);
+}
+function miniQ(box, mode){
+  var qq = GENS[mode]();
+  box.innerHTML = '<h3 class="sech">Try one</h3><p class="trysub">Retrieval beats rereading. Answer before you look: this one is free, untimed, and not scored.</p>';
+  var card = el("div", "tryq");
+  if(qq.cards) card.appendChild(cardStage(qq.cards));
+  if(qq.lines && qq.lines.length){
+    var facts = el("dl","facts");
+    qq.lines.forEach(function(p){ facts.appendChild(el("div","fact", "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>")); });
+    card.appendChild(facts);
+  }
+  card.appendChild(el("div","ask", qq.question));
+  var ctl = el("div","row");
+  var out = el("div","tryout");
+  function done(ok, said){
+    ctl.querySelectorAll("button, input").forEach(function(b){ b.disabled = true; });
+    out.innerHTML = "";
+    var v = el("div","verdict");
+    v.appendChild(el("span","badge " + (ok ? "ok" : "no"), ok ? "Correct" : "Not quite"));
+    v.appendChild(el("span","said", "Answer <b>" + miniFmt(qq, qq.answer) + "</b>" + (said != null ? " &nbsp;&middot;&nbsp; you said " + miniFmt(qq, said) : "")));
+    out.appendChild(v);
+    if(qq.bar) out.appendChild(gauge(qq.bar, !!THRESHOLD_MODES[mode]));
+    var m = el("div","math");
+    qq.math.forEach(function(line){ m.appendChild(el("p", null, line)); });
+    out.appendChild(m);
+    var again = btnEl("Another one", "ghost", function(){ miniQ(box, mode); });
+    again.style.marginTop = "14px";
+    out.appendChild(again);
+  }
+  if(qq.kind === "choice"){
+    qq.options.forEach(function(o){ ctl.appendChild(btnEl(o, o.toLowerCase().replace(/[^a-z]/g,""), function(){ done(o === qq.answer, o); })); });
+  } else {
+    var entry = el("div","entry");
+    if(qq.unit === "$") entry.appendChild(el("span","pre","$"));
+    var inp = el("input"); inp.type = "text"; inp.inputMode = "decimal"; inp.autocomplete = "off"; inp.placeholder = "0";
+    entry.appendChild(inp);
+    if(qq.unit === "%") entry.appendChild(el("span","u","%"));
+    ctl.appendChild(entry);
+    var check = function(){
+      var v = parseFloat(String(inp.value).replace(/[^0-9.\-]/g, ""));
+      if(!isFinite(v)){ inp.focus(); return; }
+      done(Math.abs(v - qq.answer) <= qq.tol, v);
+    };
+    inp.onkeydown = function(e){ if(e.key === "Enter") check(); };
+    ctl.appendChild(btnEl("Check", "", check));
+    ctl.appendChild(btnEl("Show me", "ghost", function(){ done(false, null); }));
+  }
+  card.appendChild(ctl);
+  card.appendChild(out);
+  box.appendChild(card);
+}
+
+/* ============================================================
+   PRACTICE: reviews, free drilling, and the skill table
+   ============================================================ */
+function drawPractice(){
+  var run = !!sess || !!cp;
+  $("pracNav").hidden = run;
+  var s = run ? "drill" : sub.practice;
+  $("pracNav").querySelectorAll("a").forEach(function(a){
+    if(a.dataset.s === s) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+  $("pracReview").hidden = s !== "review";
+  $("pracSkills").hidden = s !== "skills";
+  $("drillView").hidden = s !== "drill";
+  if(s === "review") drawToday();
+  if(s === "skills") drawSkills();
+  if(s === "drill"){ $("modes").hidden = run; if(!q) next(); }
+}
+
+function drawToday(){
+  var box = $("today"); if(!box) return;
+  box.innerHTML = "";
+  var now = Date.now();
+  var ids = Object.keys(skills).filter(isSkill);
+  var due = srsDueList(ids, skills, now);
+  box.appendChild(el("div","kick", new Date(now).toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" })));
+  var row = el("div","row");
+  if(!ids.length){
+    box.appendChild(el("h3", null, "Nothing on the schedule yet"));
+    box.appendChild(el("p", null, "Every lesson checkpoint you pass puts that skill and its rule here, with the first review tomorrow. From then on this page tells you exactly what to practise each day. Until then, free practice is open to everything."));
+    row.appendChild(btnEl("Go to the path", "go", function(){ location.hash = "#/learn"; }));
+    row.appendChild(btnEl("Free practice", "ghost", function(){ location.hash = "#/practice/drill"; }));
+  } else if(due.length){
+    var est = due.reduce(function(a, id){
+      var s = skills[id];
+      return a + (RULES[id] ? 25 : (4 + s.box) * (s.n ? s.secs / s.n + 6 : 20));
+    }, 0);
+    box.appendChild(el("h3", null, due.length + (due.length === 1 ? " review" : " reviews") + " due"));
+    box.appendChild(el("p", null, due.slice(0, 7).map(skillName).join(", ") + (due.length > 7 ? " and " + (due.length - 7) + " more" : "") +
+      ". About " + Math.max(1, Math.round(est / 60)) + " minutes, mixed together, with a little from your other skills woven in."));
+    row.appendChild(btnEl("Start today's session", "go", function(){ startSession("due"); }));
+    row.appendChild(btnEl("Practise weakest", "ghost", function(){ startSession("extra"); }));
+  } else {
+    var soon = ids.slice().sort(function(a, b){ return skills[a].due - skills[b].due; })[0];
+    box.appendChild(el("h3", null, "All clear for now"));
+    box.appendChild(el("p", null, "Next review: " + skillName(soon) + ", in " + fmtIn(skills[soon].due - now) +
+      ". Extra practice keeps skills warm and fixes weak spots, but only a review on its due day moves a skill up."));
+    row.appendChild(btnEl("Practise weakest", "go", function(){ startSession("extra"); }));
+    var nx = nextUp();
+    if(nx) row.appendChild(btnEl("Next lesson: " + nx.title, "ghost", function(){ goLesson(nx.id); }));
+  }
+  box.appendChild(row);
+
+  /* weakest three, by recent accuracy */
+  var weak = ids.filter(function(id){ return MODE_META[id] && srsRecent(skills[id], 20).n >= 3; })
+    .sort(function(a, b){ return srsRecent(skills[a], 20).acc - srsRecent(skills[b], 20).acc; }).slice(0, 3);
+  var wb = $("weak");
+  wb.innerHTML = weak.length ? '<div class="ph"><h3>Weakest right now</h3><span>recent accuracy</span></div><div class="clist">' +
+    weak.map(function(id){ var r = srsRecent(skills[id], 20); return '<div><span>' + skillName(id) + '</span><b>' + Math.round(100 * r.acc) + '%</b></div>'; }).join("") + '</div>' : "";
+  wb.hidden = !weak.length;
+}
+
+function drawSkills(){
+  if(!$("skills")) return;
+  var now = Date.now();
+  var pts = ORDER.reduce(function(a, m){ return a + (skills[m] ? skills[m].box : 0); }, 0);
+  var pct = 100 * pts / (ORDER.length * SRS_TOP);
+  $("mbar").innerHTML = '<span style="width:' + pct.toFixed(1) + '%"></span>';
+  $("mbar").title = Math.round(pct) + "% of the way to every skill at the top box";
+  $("mbarcap").textContent = Math.round(pct) + "% of the way to every skill automatic";
+
+  var list = $("skills"); list.innerHTML = "";
+  list.appendChild(el("div","skrow skhead", '<span class="nm">Skill</span><span>Box</span><span class="lv">Level</span><span class="nb">Acc.</span><span class="nb">Pace</span><span class="du">Next</span>'));
+  function srow(id, name){
+    var s = skills[id], r = el("div","skrow" + (s ? "" : " locked"));
+    var bx = "";
+    for(var j = 1; j <= SRS_TOP; j++) bx += '<i class="' + (s && s.box >= j ? (s.box >= 6 ? "top" : "on") : "") + '"></i>';
+    if(!s){
+      var L = LESSON_OF[id];
+      r.innerHTML = '<span class="nm">' + name + '</span><span class="boxes">' + bx + '</span>' +
+        '<span class="lv">' + (L ? 'unlocks with <a href="#/learn/' + L.id + '">' + L.title + '</a>' : "not started") + '</span>';
+      return r;
+    }
+    var rc = srsRecent(s, 20), goalX = srsGoal(1, s.box);
+    r.innerHTML = '<span class="nm">' + name + '</span><span class="boxes">' + bx + '</span>' +
+      '<span class="lv">' + srsLevel(s) + '</span>' +
+      '<span class="nb" title="accuracy, last ' + rc.n + '">' + (rc.n ? Math.round(100 * rc.acc) + "%" : "&ndash;") + '</span>' +
+      '<span class="nb" title="median time as a multiple of this box&rsquo;s goal; under 1 is inside it">' + (rc.n && rc.pace ? (rc.pace / goalX).toFixed(1) + "&times;" : "&ndash;") + '</span>' +
+      '<span class="du' + (now >= s.due ? " due" : "") + '">' + fmtIn(s.due - now) + '</span>';
+    return r;
+  }
+  LAYERS.forEach(function(S){
+    var mine = ORDER.filter(function(m){ return MODE_LAYER[m] === S.n; });
+    if(!mine.length) return;
+    list.appendChild(el("div","sklayer", "Stage " + S.n + " &middot; " + S.title));
+    mine.forEach(function(m){ list.appendChild(srow(m, MODE_META[m])); });
+  });
+  var rules = Object.keys(RULES).filter(function(id){ return skills[id]; });
+  list.appendChild(el("div","sklayer", "Rules to recall &middot; " + rules.length + " of " + Object.keys(RULES).length + " unlocked"));
+  rules.forEach(function(id){ list.appendChild(srow(id, skillName(id))); });
+}
+
+/* ============================================================
+   LIBRARY: formulas, glossary, reading
+   ============================================================ */
+function drawLibrary(){
+  var s = sub.library;
+  $("libNav").querySelectorAll("a").forEach(function(a){
+    if(a.dataset.s === s) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+  $("libFormulas").hidden = s !== "formulas";
+  $("libGlossary").hidden = s !== "glossary";
+  $("readingView").hidden = s !== "reading";
+  if(s === "formulas") drawFormulas();
+  if(s === "glossary") drawGlossary();
+  if(s === "reading") drawReading();
+}
+function libMatch(q, parts){ q = q.trim().toLowerCase(); return !q || parts.join(" ").toLowerCase().indexOf(q) >= 0; }
+function drawFormulas(){
+  var inp = $("fxq"), out = $("fxlist");
+  if(!inp.dataset.wired){ inp.dataset.wired = "1"; inp.oninput = drawFormulas; }
+  var q = inp.value, topics = [], by = {}, n = 0;
+  FORMULAS.forEach(function(f){
+    if(!libMatch(q, [f.name, f.topic, f.f, f.note || "", (f.vars || []).map(function(v){ return v.join(" "); }).join(" ")])) return;
+    if(!by[f.topic]){ by[f.topic] = []; topics.push(f.topic); }
+    by[f.topic].push(f); n++;
+  });
+  out.innerHTML = topics.map(function(t){
+    return '<h3 class="libh">' + t + '</h3><div class="fxgrid">' + by[t].map(function(f){ return fxCard(f, false); }).join("") + '</div>';
+  }).join("") || '<p class="sempty">No formula matches &ldquo;' + fxEsc(q) + '&rdquo;.</p>';
+  $("fxcount").textContent = n + " of " + FORMULAS.length;
+}
+function drawGlossary(){
+  var inp = $("glq"), out = $("gllist");
+  if(!inp.dataset.wired){ inp.dataset.wired = "1"; inp.oninput = drawGlossary; }
+  var q = inp.value;
+  var rows = GLOSSARY.slice().sort(function(a, b){ return a[0].toLowerCase() < b[0].toLowerCase() ? -1 : 1; })
+    .filter(function(g){ return libMatch(q, [g[0], g[1].join(" "), g[2]]); });
+  var letter = "";
+  out.innerHTML = rows.map(function(g){
+    var L = lessonById(g[3]), c = g[0][0].toUpperCase(), h = "";
+    if(c !== letter){ letter = c; h = '<div class="gletter">' + c + '</div>'; }
+    return h + '<div class="gitem"><b>' + g[0] + (g[1].length ? ' <small>' + g[1].join(", ") + '</small>' : "") + '</b><span>' + g[2] + '</span>' +
+      (L ? '<a href="#/learn/' + L.id + '">' + L.title + ' &rsaquo;</a>' : "") + '</div>';
+  }).join("") || '<p class="sempty">No term matches &ldquo;' + fxEsc(q) + '&rdquo;.</p>';
+  $("glcount").textContent = rows.length + " of " + GLOSSARY.length;
+}
+
+$("syncPill").onclick = function(){ location.hash = "#/sync"; };
 
 (async function boot(){
   await loadSaved();
   await syncLoadCfg();
-  drawModes(); drawTape(); drawTOC();
-  setView(Object.keys(skills).some(isSkill) ? "train" : "learn");
+  var hadHash = /^#\/./.test(location.hash);
+  drawModes(); drawTape();
+  route();
   drawSaveTag(); drawSyncAll();
   if(sync.token && sync.auto){
     await syncNow("open");
-    if(view === "learn" && !openId && Object.keys(skills).some(isSkill)) setView("train");
+    if(!hadHash && view === "learn" && !openId && Object.keys(skills).some(isSkill)) location.hash = "#/home";
+    else if(view === "home") drawHome();
   }
 })();
 </script>

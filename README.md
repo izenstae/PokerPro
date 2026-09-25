@@ -23,13 +23,15 @@ Runs entirely in your browser. Nothing to install. Open **Train** once a day, cl
 
 29 lessons (25 with a checkpoint, 4 labs), 23 drill generators, 25 recall cards, and a daily schedule that keeps all of it from fading.
 
-The app has five tabs:
+The app has four sections, plus sync. On a phone or iPad in portrait they sit in a bottom tab bar:
 
-- **Train**: today's reviews, time trained, day streak, and every skill's box, accuracy, pace and next review date.
-- **Learn**: the course. Read a lesson, then pass its checkpoint to put that skill on the schedule.
-- **Drill**: free practice on any mix of drills, weighted towards your weak and due skills.
-- **Reading**: the reading list.
-- **Sync**: share progress between your devices through a private GitHub Gist, with status, devices, activity, backups and help.
+- **Home**: one clear next step (reviews due, or the next lesson), your streak and time, where you are on the path, what is coming up on the schedule, and a formula of the day.
+- **Learn**: the path, stage by stage, with progress and the next lesson marked. Each lesson has a section map, formula cards with every symbol explained, definitions on key terms (hover or tap the dotted underline), a free "Try one" question before the checkpoint, and previous/next links.
+- **Practice**: today's reviews, free practice on any mix of drills, and the skill table with each skill's box, accuracy, pace and next review.
+- **Library**: every formula in the course (searchable, grouped by topic, each linked to its lesson), a glossary, and the reading list.
+- **Sync**: tap the indicator at the top right to share progress between devices.
+
+Every screen has its own address (`#/learn/alpha`, `#/library/formulas`), so the back button and bookmarks work.
 
 ## How it makes things stick
 
@@ -99,6 +101,7 @@ src/
   drills.js         the 17 generators for layers 0, 2, 3, 4, 5
   srs.js            the schedule: Leitner boxes, time goals, skill picker, practice log
   sync.js           cross-device sync: the progress merge and a tiny GitHub Gist client
+  library.js        the formula registry, the glossary, and the formula notation renderer
   lessons.js        layer 1 lesson content
   course.js         layers 0, 2, 3, 4, 5 + assembly + reading list
   app.tpl.html      UI shell, CSS, Train view, sessions, and the four lab widgets
