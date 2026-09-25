@@ -12,23 +12,32 @@ Runs entirely in your browser. Nothing to install. Open **Train** once a day, cl
 
 ## What's in it
 
-| Layer | Topic | Drills |
+A path in nine stages, from never having played to the maths strong players use. New lessons are marked ★.
+
+| Stage | Topic | Lessons |
 |---|---|---|
-| **0** | The game: rankings, best-five-of-seven, position | hand ladder, read your hand, who wins |
-| **1** | Equity and pot odds | pot odds, outs, fold equity, implied, preflop, call/fold |
-| **2** | Combinatorics of ranges | combos, blockers, what beats you |
-| **3** | Game theory: indifference, alpha, MDF, sizing | + **four solver labs** |
-| **4** | Variance and bankroll: t-stat, sample size, ruin, Kelly | 4 drills |
-| **5** | Exploitative deviation: Bayes, updating, deviating | 3 drills |
+| **0** | The game | ★ how a hand is played (blinds, actions, min-raises, pot counting), the ladder, reading your hand, the shape of a hand, ★ seats and position |
+| **1** | Odds and equity | ★ probability (C(n,k), complements), pot odds, outs, equity vs price, ★ expected value, fold equity, implied odds, preflop shapes, capstone |
+| **2** | Preflop | ★ opening ranges by seat, ★ 3-bets (break-even folds, the price of calling), ★ stack-to-pot ratio |
+| **3** | Ranges | combos, card removal, blockers, counting what beats you |
+| **4** | Game theory | indifference, alpha, MDF, sizing, ★ the AKQ game, **four solver labs** |
+| **5** | Postflop strategy | ★ equity realisation, ★ c-bets, ★ geometric sizing, ★ bluffing across streets |
+| **6** | Tournaments | ★ push or fold, ★ ICM (Malmuth–Harville) |
+| **7** | Variance and bankroll | t-stat, sample size, risk of ruin, Kelly |
+| **8** | Exploitative play | Bayes and blockers, updating reads, deviating |
 
-29 lessons (25 with a checkpoint, 4 labs), 23 drill generators, 25 recall cards, and a daily schedule that keeps all of it from fading.
+43 lessons (39 with a checkpoint, 4 labs), 37 drill generators, 39 formulas in the Library (every numeric anchor checked by a test), and a daily schedule that keeps all of it from fading. Every new lesson is built on a formula from the reading list: Chen and Ankenman's *Mathematics of Poker* (the AKQ game, multi-street bluffing, geometric sizing), Acevedo's *Modern Poker Theory* (equity realisation, SPR), and the standard tournament models (Sklansky–Chubukov, Malmuth–Harville ICM).
 
-The app has four tabs:
+The app has five sections, plus sync. On a phone or iPad in portrait they sit in a bottom tab bar:
 
-- **Train**: today's reviews, time trained, day streak, and every skill's box, accuracy, pace and next review date.
-- **Learn**: the course. Read a lesson, then pass its checkpoint to put that skill on the schedule.
-- **Drill**: free practice on any mix of drills, weighted towards your weak and due skills.
-- **Reading**: the reading list.
+- **Home**: one clear next step (reviews due, or the next lesson), your streak and time, where you are on the path, what is coming up on the schedule, and a formula of the day.
+- **Learn**: the path, stage by stage, with progress and the next lesson marked. Each lesson has a section map, formula cards with every symbol explained, definitions on key terms (hover or tap the dotted underline), a free "Try one" question before the checkpoint, and previous/next links.
+- **Practice**: today's reviews, free practice on any mix of drills, and the skill table with each skill's box, accuracy, pace and next review.
+- **Play**: a six-handed no-limit table against four styles of opponent. Every decision you make is priced and graded, with a hand-by-hand review and a session score that shows which lessons your mistakes come from.
+- **Library**: every formula in the course (searchable, grouped by topic, each linked to its lesson), a glossary, and the reading list.
+- **Sync**: tap the indicator at the top right to share progress between devices.
+
+Every screen has its own address (`#/learn/alpha`, `#/library/formulas`), so the back button and bookmarks work.
 
 ## How it makes things stick
 
@@ -46,6 +55,26 @@ Every drill is a *skill*, and so is every lesson's boxed "Commit this" rule. The
 A skill counts as **automatic** at box 6. To get there it needs clean, fast answers after gaps of 1, 3, 7, 16 and 35 days, so about two months of daily 15-minute sessions puts a skill there for good. The Train tab counts automatic skills out of 23 and shows overall progress toward the top box.
 
 Passing a checkpoint schedules that drill and its rule for review the next day. Progress saved by earlier versions carries over: any lesson you'd already passed goes on the schedule, due now.
+
+## The Play table
+
+Six-handed no-limit hold'em, 100 big blinds, you against five bots. Each bot plays one of four styles, and each style is built from this course's own maths:
+
+| Style | Preflop | Facing a bet | Betting |
+|---|---|---|---|
+| **Reg** | the standard charts | defends about MDF | bets a value share of its range and bluffs at alpha |
+| **Nit** | a seat tighter | defends about 65% of MDF | bluffs at a fifth of alpha |
+| **Station** | wide, limps | defends 1.45× MDF | bets small, almost never bluffs |
+| **Maniac** | a seat or two looser, 3-bets a lot | defends 1.1× MDF | bets big and bluffs at twice alpha |
+
+Because each bot plays a known policy (a probability of folding, calling and raising for all 1,326 hands), the coach can:
+
+- **Track every range exactly.** Every action multiplies each hand's weight by the chance it would have taken that action (Bayes' rule).
+- **Price every option.** Fold is 0. Check is R × equity × pot. Call is R × equity × (pot + call) − call. A bet or raise is P(everyone folds) × pot, plus, for each way it can be called, R × equity against the continuing range × the final pot − the bet. R is equity realisation: 1 on the river or all in, otherwise set by position.
+- **Grade the decision.** The EV you gave up, relative to the pot: Best, Good, Inaccuracy, Mistake or Blunder.
+- **Tag the concepts.** Each decision is linked to the lessons it exercises (pot odds, MDF, c-bets, opening ranges…), so the session's leaks point back at the curriculum.
+
+The pricing looks one street ahead and treats an opponent's raise as a call, so treat differences of a few tenths of a big blind as ties. Your all-time table stats are saved on this device.
 
 ## The labs
 
@@ -89,17 +118,25 @@ npm test
 index.html          the build output, this is what Pages serves
 build.js            inlines src/ into index.html. no bundler, no deps
 src/
-  engine.js         cards, 7-card evaluator, equity, layer 1 drills
+  engine.js         cards, 7-card evaluator, equity, the stage 1 drills
   range.js          range notation, combos, card removal, blockers
   cfr.js            Kuhn poker CFR + exact exploitability
   leduc.js          Leduc hold'em CFR + vectorized best response
   river.js          river subgame CFR (vanilla + Monte Carlo) with bucket abstraction
   turn.js           two-street turn solver: solve every river, back the value up
-  drills.js         the 17 generators for layers 0, 2, 3, 4, 5
+  drills.js         the original 17 generators
+  drills2.js        14 generators for the new lessons, and the 6-max opening chart
   srs.js            the schedule: Leitner boxes, time goals, skill picker, practice log
   sync.js           cross-device sync: the progress merge and a tiny GitHub Gist client
-  lessons.js        layer 1 lesson content
-  course.js         layers 0, 2, 3, 4, 5 + assembly + reading list
+  library.js        the formula registry, the glossary, and the formula notation renderer
+  holdem.js         the six-handed table: blinds, min-raises, all-ins, side pots, showdown
+  bots.js           the opponents: preflop charts and range-based postflop policies, range tracking
+  coach.js          equity against tracked ranges, the EV of every option, grades
+  play.js           a session: bots, ranges, graded decisions, leaks, history
+  lessons.js        stage 1 lesson content
+  course.js         the original lessons outside stage 1, and the reading list
+  lessons2.js       the lessons added for the zero-to-pro path
+  path.js           the order: nine stages, which lessons each holds
   app.tpl.html      UI shell, CSS, Train view, sessions, and the four lab widgets
 test/
 ```
@@ -129,7 +166,7 @@ Every branch is probed and wrapped, so a refusal degrades instead of throwing.
 
 ### Sync across devices
 
-Browser storage belongs to one browser, so a computer and an iPad each keep their own copy. To share one, open **Train → Sync across devices**, [create a GitHub token](https://github.com/settings/tokens/new?scopes=gist&description=PokerPro%20sync) with only the `gist` scope, and paste it on each device. The app finds or creates one secret gist, `pokerpro-progress.json`, and talks to the GitHub API directly. There's still no server of its own.
+Browser storage belongs to one browser, so a computer and an iPad each keep their own copy. To share one, open the **Sync** tab (or tap the sync indicator at the top right), [create a GitHub token](https://github.com/settings/tokens/new?scopes=gist&description=PokerPro%20sync) with only the `gist` scope, and paste it on each device. The app finds or creates one secret gist, `pokerpro-progress.json`, and talks to the GitHub API directly. There's still no server of its own.
 
 It syncs on load, a few seconds after you answer, and when you come back to the tab. Each sync pulls the gist, merges it with local progress, and pushes only if the gist is behind. The merge in `src/sync.js` is commutative and idempotent, so devices converge whatever order they sync in:
 
@@ -139,6 +176,8 @@ It syncs on load, a few seconds after you answer, and when you come back to the 
 - drill stats: the most recently reset copy, then the one with more answers
 
 **Clear all progress** and **Reset stats** stamp a new epoch, and a newer epoch beats an older one outright, so a wipe spreads to other devices instead of being merged back in. The token lives only in that browser's storage.
+
+The Sync tab shows everything about it: a status headline with a fix for each kind of failure, this device and the cloud side by side (lessons, scheduled skills, days, minutes, answers), every device that has synced and when, an activity log of each sync and what it sent or received, settings (account, masked token, token permissions, gist link, auto-sync on or off, device name), JSON backup and restore that merges rather than overwrites, and step-by-step setup and troubleshooting help. It also syncs every five minutes while the page is open, and when the device comes back online.
 
 ## Where to take it next
 

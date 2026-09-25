@@ -91,7 +91,7 @@ var LESSONS_1 = [
   id: "decide", mode: "allin", pass: 4, of: 5,
   title: "Equity against the price",
   sub: "The decision itself",
-  gist: "Two numbers, one comparison. This is the whole of Layer 1.",
+  gist: "Two numbers, one comparison. This is the whole of Stage 1.",
   blocks: [
     { t:"p", x:"You have a price from lesson one and an equity from lesson two. The decision is just putting them next to each other." },
     { t:"rule", x:"equity > price   ->   call\nequity < price   ->   fold", note:"There is no third option and no judgement involved. If you are ahead of the price you call, even with a hand you dislike, even when you will lose most of the time." },
@@ -240,7 +240,7 @@ var LESSONS_1 = [
   sub: "Capstone",
   gist: "Everything above, in under ten seconds, while people watch.",
   blocks: [
-    { t:"p", x:"You now know all of Layer 1. The gap between knowing it and using it is speed, and speed comes from doing it in a fixed order so you never have to decide what to think about next." },
+    { t:"p", x:"You now know all of Stage 1. The gap between knowing it and using it is speed, and speed comes from doing it in a fixed order so you never have to decide what to think about next." },
     { t:"rule", x:"1. What is the price?\n2. What is my equity?\n3. Is there money behind?\n4. Compare. Act.", note:"The order matters. The price is the cheapest number to get, and it tells you how much precision the equity actually needs." },
     { t:"p", x:"Step three is the one people skip. If the stacks are deep and you are drawing, the raw comparison in step four is not the real decision. If the stacks are shallow, it is exactly the decision and you can go faster." },
     { t:"ex", title:"The whole thing, live",
@@ -256,9 +256,9 @@ var LESSONS_1 = [
       punch:"Four seconds. And notice you never needed to know if you were ahead. You are not. It does not matter." },
     { t:"warn", x:"Round aggressively. 28.5 becomes 30, 34.97 becomes 35, and the villain's $37 bet into $61 becomes half pot. Every spot where rounding changes your answer was a spot worth almost nothing anyway. Precision is a trap that costs you tempo and tells the table you are thinking." },
     { t:"key", x:"Price, equity, stacks, act. When the two numbers are within a couple of points, stop working. The decision is a coin flip and coin flips are free." },
-    { t:"how", drill:"Capstone", ask:"Everything from Layer 1, mixed together, against the clock.",
+    { t:"how", drill:"Capstone", ask:"Everything from Stage 1, mixed together, against the clock.",
       steps:[
-        "This checkpoint draws from every Layer 1 drill at random, so your first job on each hand is to notice which question you are being asked before you reach for a formula.",
+        "This checkpoint draws from every Stage 1 drill at random, so your first job on each hand is to notice which question you are being asked before you reach for a formula.",
         "Then run the fixed order every single time: price, then equity, then is there money behind, then compare and act. The order never changes, so you never have to decide what to think about next.",
         "Round hard and move. The clock is part of the grade here: this is the drill that trains speed, not precision."
       ],

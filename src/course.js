@@ -1,5 +1,5 @@
 /* ============================================================
-   COURSE: layers 0, 2, 3, 4, 5, and the assembly
+   COURSE: the original lessons for stages 0, 3, 4, 7 and 8 (see path.js for the order), and the reading list
    ============================================================ */
 
 var LESSONS_0 = [
@@ -86,7 +86,7 @@ var LESSONS_0 = [
     { t:"p", x:"Position is the order you act in, and it is fixed for the whole hand. Acting last means you have watched everyone else before you decide. In a game of incomplete information, being last is a permanent, structural information advantage, and it is worth more than most of the card advantages you will ever hold." },
     { t:"p", x:"That is not a soft claim about comfort. The player in position sees a strictly larger information set at every decision node. Winrates by seat show it plainly: the same player, same cards, makes several big blinds per hundred more from the button than from early position. Nothing changed except who spoke last." },
     { t:"warn", x:"Beginners play too many hands from bad positions because the cards look nice. The cards are a small part of the equation. A mediocre hand acting last is often better than a good hand acting first." },
-    { t:"key", x:"Four streets, and the button acts last on all of them but the first. If you take one strategic habit from this whole layer, make it playing more hands in position and fewer out of it." },
+    { t:"key", x:"Four streets, and the button acts last on all of them but the first. If you take one strategic habit from this whole stage, make it playing more hands in position and fewer out of it." },
     { t:"how", drill:"Who wins", ask:"Showdown. Who takes it?",
       steps:[
         "Build your best five from your two cards plus the board. Then build the villain's best five from their two cards plus the same board.",
@@ -198,11 +198,11 @@ var LESSONS_2 = [
 {
   id: "counting", mode: "beat", pass: 3, of: 5,
   title: "Counting what beats you",
-  sub: "Putting layer 2 to work",
+  sub: "Putting Stage 3 to work",
   gist: "Not 'am I ahead' but 'against how many of his combos'.",
   blocks: [
-    { t:"p", x:"Now everything from this layer collapses into one repeatable procedure, and it replaces the question you have been asking your whole life." },
-    { t:"rule", x:"1. Write his range.\n2. Delete every card you can see.\n3. Sort what is left into beats me / loses to me.\n4. Divide.", note:"The output is not a feeling about whether you are good. It is a percentage, and it goes straight into the pot odds comparison from layer 1." },
+    { t:"p", x:"Now everything from this stage collapses into one repeatable procedure, and it replaces the question you have been asking your whole life." },
+    { t:"rule", x:"1. Write his range.\n2. Delete every card you can see.\n3. Sort what is left into beats me / loses to me.\n4. Divide.", note:"The output is not a feeling about whether you are good. It is a percentage, and it goes straight into the pot odds comparison from Stage 1." },
     { t:"ex", title:"Worked example",
       cards:{ hero:["Ah","Kd"], board:["As","9c","4d"] },
       facts:[["His range","QQ+, AK"]],
@@ -214,7 +214,7 @@ var LESSONS_2 = [
       ],
       bar:{ fill:6, tick:null, fillLabel:"1 of 16 combos beat you", tickLabel:"" },
       punch:"You are good or chopping 94% of the time against the range you gave him. If you were about to fold this to a big bet, you were not making a read, you were making an arithmetic error." },
-    { t:"p", x:"Notice what happened. Your own two cards removed five of his eighteen pair combos, including five sixths of the aces. The hand that beat you got rare precisely because you held the cards it needed. That is the payoff of layer 2, and it is why you cannot do this by feel." },
+    { t:"p", x:"Notice what happened. Your own two cards removed five of his eighteen pair combos, including five sixths of the aces. The hand that beat you got rare precisely because you held the cards it needed. That is the payoff of Stage 3, and it is why you cannot do this by feel." },
     { t:"key", x:"Every river decision is a counting problem with a small number of combos in it. If you find yourself agonising, you have stopped counting and started imagining." },
     { t:"how", drill:"What beats you", ask:"How many of his combos beat you right now?",
       steps:[
@@ -240,7 +240,7 @@ var LESSONS_3 = [
     { t:"rule", x:"At equilibrium, mix at the frequency that makes\nthe opponent indifferent between his options.", note:"This is why it pins your strategy without needing any read on him. You are not solving for his tendencies. You are solving for the frequency at which his tendencies stop mattering." },
     { t:"p", x:"It also explains a thing that confuses everyone: at equilibrium, your own mixed actions are all worth the same to you too. If you are bluffing 33% of the time with a hand, that hand earns the same whether you bluff it or check it. The mixing is not for your benefit. It is a constraint you accept so that his best response cannot exploit you." },
     { t:"warn", x:"Two caveats that matter and get dropped. The unexploitable guarantee is a heads up, two player result. In a multiway pot the theory is far weaker, and equilibrium play can lose to two opponents who are not colluding but happen to interact badly with you. And the guarantee is about not losing, not about winning: equilibrium beats nobody who is also at equilibrium." },
-    { t:"key", x:"Equilibrium is a floor, not a ceiling. It says you cannot be exploited. Layer 5 is about deliberately leaving it to take money from people who cannot punish you for it." },
+    { t:"key", x:"Equilibrium is a floor, not a ceiling. It says you cannot be exploited. Stage 8 is about deliberately leaving it to take money from people who cannot punish you for it." },
     { t:"how", drill:"Indifference", ask:"What fraction makes him indifferent? (your bluffs, or his calls)",
       steps:[
         "Read which frequency the question wants. Sometimes it asks how often you should bluff, sometimes how often he must call or defend.",
@@ -258,8 +258,8 @@ var LESSONS_3 = [
   blocks: [
     { t:"p", x:"Make the indifference principle concrete. You bet the river. He holds a bluff catcher, a hand that beats your bluffs and loses to your value. What has to be true for him to be indifferent between calling and folding?" },
     { t:"p", x:"Folding earns him zero. Calling earns him the pot plus your bet when you were bluffing, and costs him the call when you were not. Set those equal and solve. The bluff frequency that comes out is called alpha." },
-    { t:"rule", x:"alpha = bet / (pot + 2 x bet)", note:"The share of your betting range that should be bluffs. Not the share of your hands. The share of the hands you bet. It is the pot-odds price from layer 1: add the bet twice, once for his call and once for yours." },
-    { t:"p", x:"Look closely at that formula. It is identical to the pot odds formula from layer 1. That is not a coincidence and it is worth sitting with: the price you lay him is the frequency you must bluff at. You are not choosing two things. You are choosing one thing twice." },
+    { t:"rule", x:"alpha = bet / (pot + 2 x bet)", note:"The share of your betting range that should be bluffs. Not the share of your hands. The share of the hands you bet. It is the pot-odds price from Stage 1: add the bet twice, once for his call and once for yours." },
+    { t:"p", x:"Look closely at that formula. It is identical to the pot odds formula from Stage 1. That is not a coincidence and it is worth sitting with: the price you lay him is the frequency you must bluff at. You are not choosing two things. You are choosing one thing twice." },
     { t:"tbl", head:["You bet","alpha","Bluffs per value bet"], rows:[
       ["half pot","25%","1 bluff : 3 value"],
       ["three quarters","30%","3 bluffs : 7 value"],
@@ -278,7 +278,7 @@ var LESSONS_3 = [
     { t:"key", x:"alpha = bet / (pot + 2 x bet), the pot-odds price again. Half pot is a quarter. Pot is a third. Your bluffs are not a mood, they are a quota you set the instant you chose a size." },
     { t:"how", drill:"Alpha", ask:"What share of this betting range should be bluffs?",
       steps:[
-        "You are given the pot and your bet. Alpha is bet / (pot + 2 x bet), the exact same formula as the layer 1 pot-odds price.",
+        "You are given the pot and your bet. Alpha is bet / (pot + 2 x bet), the exact same formula as the Stage 1 pot-odds price.",
         "Put the bet on top and (pot + 2 x bet) on the bottom, divide, enter the percent.",
         "Sanity check against the anchors before you commit: half pot is 25%, pot is 33%, double pot is 40%."
       ],
@@ -302,7 +302,7 @@ var LESSONS_3 = [
       ["pot","50%","50%"],
       ["twice pot","33%","67%"]
     ], caption:"Big bets let you fold a lot. Small bets do not. The player who bets a third of the pot is asking you to defend three quarters of your range, which is why small bets are annoying rather than weak." },
-    { t:"warn", x:"MDF is a bound, not a strategy, and it is the most misapplied idea in poker. It answers exactly one question: how much do I defend so that betting any two cards is not free money for him. It does not say those calls are individually profitable. If he never bluffs, MDF is irrelevant and you should fold everything, which is exactly what layer 5 is for." },
+    { t:"warn", x:"MDF is a bound, not a strategy, and it is the most misapplied idea in poker. It answers exactly one question: how much do I defend so that betting any two cards is not free money for him. It does not say those calls are individually profitable. If he never bluffs, MDF is irrelevant and you should fold everything, which is exactly what Stage 8 is for." },
     { t:"key", x:"MDF = pot / (pot + bet). Half pot means defend two thirds. And defend does not mean call, it means do not fold." },
     { t:"how", drill:"MDF", ask:"How much of your range must continue?",
       steps:[
@@ -310,7 +310,7 @@ var LESSONS_3 = [
         "Put the pot on top and (pot + bet) on the bottom. Divide, enter the percent you must not fold.",
         "Anchors to check against: he bets a third, defend 75%; half pot, 67%; pot, 50%; double pot, 33%."
       ],
-      tip:"'Continue' means call or raise, not call specifically. And remember MDF is only a bound against a villain who could be bluffing; it is never a reason to keep calling someone who never bluffs, which is the whole of Layer 5." }
+      tip:"'Continue' means call or raise, not call specifically. And remember MDF is only a bound against a villain who could be bluffing; it is never a reason to keep calling someone who never bluffs, which is the whole of Stage 8." }
   ]
 },
 {
@@ -319,7 +319,7 @@ var LESSONS_3 = [
   sub: "Everything is coupled",
   gist: "Your size sets his price, and his price sets your quota.",
   blocks: [
-    { t:"p", x:"Here is the shift that makes layer 3 click. Stop thinking of bet size as an expression of how much you like your hand. Think of it as choosing the rules of the subgame you are about to play." },
+    { t:"p", x:"Here is the shift that makes Stage 4 click. Stop thinking of bet size as an expression of how much you like your hand. Think of it as choosing the rules of the subgame you are about to play." },
     { t:"p", x:"You pick a number. That number sets the price he is being offered. His price determines how often he must defend. How often he defends determines how many bluffs you are allowed. So the moment you say fifty dollars, you have written your own bluffing quota, his calling frequency, and the value of the whole node. You are not making a bet. You are designing a mechanism and then living inside it." },
     { t:"rule", x:"bluffs = value x alpha / (1 - alpha)", note:"Given a size and a count of value combos, this is how many bluff combos belong in the range. It is a construction rule, not a guideline." },
     { t:"ex", title:"Worked example",
@@ -348,7 +348,7 @@ var LESSONS_3 = [
   sub: "Watch an equilibrium appear",
   gist: "Build a solver. It is smaller than you think.",
   blocks: [
-    { t:"p", x:"Everything in this layer has been the output of a solver stated as a rule. This lesson is the solver itself, running in this page, on a game small enough to see all of." },
+    { t:"p", x:"Everything in this stage has been the output of a solver stated as a rule. This lesson is the solver itself, running in this page, on a game small enough to see all of." },
     { t:"p", x:"Kuhn poker: a three card deck, J, Q and K. Each player antes one chip and takes one card. The first player checks or bets one. If he bets, the second folds or calls. If he checks, the second may check it down or bet, and then the first may fold or call. That is the whole game. Twelve information sets, five terminal nodes." },
     { t:"p", x:"It is a toy, and it is also a real poker game with real bluffing, real value betting and a real Nash equilibrium that nobody had to guess. Counterfactual regret minimisation finds it by self play, and the algorithm is about forty lines." },
     { t:"rule", x:"regret(a) += reach(opponent) x [ value(a) - value(current strategy) ]\nstrategy(a) = max(regret(a), 0) / sum of positive regrets", note:"That is CFR. Track how much you wish you had played each action, weighted by how often the opponent's play makes the node happen at all, then play in proportion to positive regret." },
@@ -364,7 +364,7 @@ var LESSONS_3 = [
   sub: "Where removal meets equilibrium",
   gist: "One public card, two streets, and the whole thing gets real.",
   blocks: [
-    { t:"p", x:"Kuhn taught you that regret matching finds an equilibrium, and it did it in a game with no board, no second street and no card removal. Every idea in layer 2 was missing from it. Leduc is the smallest game that puts them back." },
+    { t:"p", x:"Kuhn taught you that regret matching finds an equilibrium, and it did it in a game with no board, no second street and no card removal. Every idea in Stage 3 was missing from it. Leduc is the smallest game that puts them back." },
     { t:"p", x:"Six cards: two jacks, two queens, two kings. One private card each, then a round of betting at size two. Then one public card, then a round at size four. Maximum two bets per round. Pair the public card and you beat any unpaired hand, otherwise the higher card wins." },
     { t:"tbl", head:["","Kuhn","Leduc","No limit hold'em"], rows:[
       ["Information sets","12","288","around 10^160"],
@@ -378,7 +378,7 @@ var LESSONS_3 = [
     { t:"p", x:"Give it a couple of thousand iterations and then read the second table, because that is where Leduc earns its place in this course. The same jack plays completely differently depending on the card in the middle. On a jack it is the effective nuts and the solver traps with it. On a king it is worthless and the solver bluffs with it at a low frequency. Nothing about your card changed. The board changed, so the meaning of your card changed." },
     { t:"p", x:"Card removal shows up here for the first time too, quietly, in the arithmetic. When you hold a king there is only one king left in the deck, so the chance the board pairs your opponent's king, or hands you a king-high board, is not what it would be if you held a jack. The solver never reasons about this. It just plays the tree, and the tree already knows." },
     { t:"warn", x:"Notice the exploitability floor. Kuhn drops under 0.001 in a second. Leduc is still around 0.01 after a few thousand iterations, because vanilla CFR walks all 120 deals through the whole tree every single iteration. This is exactly where the field went next: Monte Carlo CFR samples the tree instead of enumerating it, and abstraction buckets similar hands together. Bowling's 2015 solve of limit hold'em is this algorithm plus a decade of that engineering." },
-    { t:"key", x:"Kuhn proves the algorithm works. Leduc proves it survives a board. Everything past here is sampling and abstraction, which is engineering rather than a new idea. The next lesson is that build: a river subgame with real ranges, using the range engine from layer 2." }
+    { t:"key", x:"Kuhn proves the algorithm works. Leduc proves it survives a board. Everything past here is sampling and abstraction, which is engineering rather than a new idea. The next lesson is that build: a river subgame with real ranges, using the range engine from Stage 3." }
   ]
 },
 {
@@ -387,13 +387,13 @@ var LESSONS_3 = [
   sub: "A solver for the spot you actually face",
   gist: "Real ranges, a real board, and the same forty-line loop.",
   blocks: [
-    { t:"p", x:"Kuhn and Leduc were toy decks so the whole tree would fit on the screen. This one is not a toy. The board is five real cards, both players hold ranges written in the layer 2 notation, and the evaluator from layer 0 decides every showdown. The solver underneath is the same regret matching you already watched converge twice." },
+    { t:"p", x:"Kuhn and Leduc were toy decks so the whole tree would fit on the screen. This one is not a toy. The board is five real cards, both players hold ranges written in the Stage 3 notation, and the evaluator from Stage 0 decides every showdown. The solver underneath is the same regret matching you already watched converge twice." },
     { t:"p", x:"The river is the honest place to start with real cards, because it is the one street with no cards to come. Nothing is random any more. Each player has a range, the board is fixed, and the only questions left are how much to bet, how often to bluff, and how much to call. That is a finite game, and a finite game can be solved exactly." },
     { t:"rule", x:"OOP:  check  /  bet ½ pot  /  bet pot\n   after a check, IP:  check  /  bet ½  /  bet pot\n      facing the bet, OOP:  fold  /  call\n   after a bet, IP:  fold  /  call", note:"A deliberately small bet-size tree, no raising. What is left is sizing, bluff frequency and defence frequency, which is most of what river study actually is." },
     { t:"p", x:"Every combo pair that survives card removal is one deal, its showdown decided once against the fixed board and cached. The solver sweeps all of them each iteration, exactly as Leduc sweeps its 120. Type any two ranges and any board below and it solves the spot you type." },
     { t:"lab", kind:"river" },
     { t:"p", x:"Read the top table first. The value hands jam the pot, the pure air jams the pot, and the medium hands check. That is polarisation, and it is the single most important idea about betting: a bet says my hand is either very good or very bad, because those are the two kinds of hand that want to make the pot bigger. Nobody wrote that rule into the solver. It is regret matching discovering that betting your middling hands only gets called by better and folds out worse." },
-    { t:"p", x:"Now the bottom table, which is layer 3 and layer 2 in the same picture. Against a pot-size bet the price is alpha equals one third, so you defend about two thirds or you are exploitable to any two cards. But the solver does not defend two thirds of every hand equally. It keeps the bluff-catchers that hold a card the value bets need, and folds the ones that do not. Minimum defence frequency told you how much to call. Card removal told you which hands. Neither alone is the answer." },
+    { t:"p", x:"Now the bottom table, which is Stage 4 and Stage 3 in the same picture. Against a pot-size bet the price is alpha equals one third, so you defend about two thirds or you are exploitable to any two cards. But the solver does not defend two thirds of every hand equally. It keeps the bluff-catchers that hold a card the value bets need, and folds the ones that do not. Minimum defence frequency told you how much to call. Card removal told you which hands. Neither alone is the answer." },
     { t:"p", x:"The two switches above the numbers are the road to a production solver, and both are now live. Engine flips between Enumerate, which sweeps every deal exactly, and Monte Carlo, which samples one deal an iteration: the same equilibrium, reached by drawing hands instead of grinding through all of them, which is what lets it take ranges the enumerator refuses. Buckets is abstraction: group the combos into a handful of strength classes and the info-set count collapses, at the cost of a slightly higher exploitability floor. Toggle them and watch the info-set count and the floor move." },
     { t:"warn", x:"Enumeration still floors out around a hundredth of a chip because it sweeps every deal, and Monte Carlo trades that exactness for reach: it is noisy early and needs tens of thousands of iterations, but a range that is 47,000 combo pairs wide, where one enumerated sweep would crawl, is nothing to it. Neither is a different idea. Both are the same regret matching from Kuhn, made to scale." },
     { t:"key", x:"You have now built the thing that sells for a subscription. A real board, two real ranges, exact best-response exploitability, sampling and abstraction on a switch, and a strategy that polarises and defends by blockers without being told to. The one thing still missing is a second street: on the river nothing is coming, so there is nothing to back up. Deal the turn and that changes." }
@@ -543,8 +543,8 @@ var LESSONS_5 = [
   sub: "Bayes with blockers",
   gist: "The posterior moves before he does anything.",
   blocks: [
-    { t:"p", x:"Layer 5 is about leaving equilibrium on purpose. Before you can do that, you need a posterior over his range, and the first piece of evidence is not something he did. It is your own hand." },
-    { t:"p", x:"Combine layer 2 with Bayes and you get something sharper than either. Uniform prior over the combos in his range, condition on the cards you can see, read off the posterior." },
+    { t:"p", x:"Stage 8 is about leaving equilibrium on purpose. Before you can do that, you need a posterior over his range, and the first piece of evidence is not something he did. It is your own hand." },
+    { t:"p", x:"Combine Stage 3 with Bayes and you get something sharper than either. Uniform prior over the combos in his range, condition on the cards you can see, read off the posterior." },
     { t:"ex", title:"Worked example",
       cards:{ hero:["Ah","Ks"] },
       facts:[["His 3bet range","QQ+, AK"],["You hold","AK"]],
@@ -556,7 +556,7 @@ var LESSONS_5 = [
       ],
       bar:{ fill:57, tick:53, fillLabel:"posterior: 57% pairs", tickLabel:"prior: 53% pairs" },
       punch:"You hold AK, so he is less likely to hold AK, so he is more likely to hold the pairs that beat you. The hand that made you want to play is the hand that made playing worse. Four points, and it decides marginal spots." },
-    { t:"p", x:"This generalises into the habit that separates layer 5 from wishful thinking. Every observation is a likelihood ratio applied to a prior. Your cards are an observation. The board is an observation. His sizing is an observation. None of them are conclusions, and all of them multiply." },
+    { t:"p", x:"This generalises into the habit that separates Stage 8 from wishful thinking. Every observation is a likelihood ratio applied to a prior. Your cards are an observation. The board is an observation. His sizing is an observation. None of them are conclusions, and all of them multiply." },
     { t:"key", x:"Count the range, remove your cards, divide. Your own hand is evidence about his, and it usually points the wrong way for you." },
     { t:"how", drill:"Bayes and blockers", ask:"He 3bets. How often does he hold that pair group?",
       steps:[
@@ -573,7 +573,7 @@ var LESSONS_5 = [
   sub: "Equilibrium as your prior",
   gist: "Eight hands is not a read. It is a nudge.",
   blocks: [
-    { t:"p", x:"Now the actual Bayesian machinery, and the reason this layer comes last. You need a prior worth having before evidence is worth anything, and equilibrium is that prior. It is what a stranger does when you know nothing at all." },
+    { t:"p", x:"Now the actual Bayesian machinery, and the reason this stage comes last. You need a prior worth having before evidence is worth anything, and equilibrium is that prior. It is what a stranger does when you know nothing at all." },
     { t:"p", x:"Then he plays some hands and you observe. The question is how far to move, and it has a real answer, which is more than most players can say for their reads." },
     { t:"rule", x:"posterior mean = (prior strength x prior rate + observed) / (prior strength + observations)", note:"A Beta prior with a strength in units of hands. Population baseline sets the rate. Strength encodes how much you trust the baseline: 10 for an unknown in a soft game, 50 for a regular in a pool you know cold." },
     { t:"ex", title:"Worked example",
@@ -613,7 +613,7 @@ var LESSONS_5 = [
         "Fold. Every bluff catcher, every time, until he changes."
       ],
       bar:{ fill:15, tick:33, fillLabel:"his actual bluff rate 15%", tickLabel:"indifference at 33%" },
-      punch:"MDF says defend half your range. MDF is wrong here and knowing why is the whole layer. MDF only protects you against a bet that could be any two cards. His bet cannot be any two cards. He does not bluff. So defending is a rule for a game you are not in." },
+      punch:"MDF says defend half your range. MDF is wrong here and knowing why is the whole stage. MDF only protects you against a bet that could be any two cards. His bet cannot be any two cards. He does not bluff. So defending is a rule for a game you are not in." },
     { t:"p", x:"And the cost of deviating is exactly the exposure you take on. Fold every bluff catcher and you are now exploitable by a player who starts bluffing. Against most opponents that is a trade you make gladly, because they will not notice and they will not adjust. Against a good one, you go back to the equilibrium and you stay there." },
     { t:"warn", x:"The discipline is knowing which one you are in. Most players believe they are deviating on reads when they are actually just playing badly and calling it a read. The test is whether you can state the equilibrium frequency, state his frequency, and state your evidence for the second number. If you cannot do all three, you are not exploiting anyone. You are guessing." },
     { t:"key", x:"Equilibrium is the fallback and the measuring stick. Deviate hard when the read is real, snap back to the baseline when it is not, and always be able to say which one you are doing." },
@@ -627,30 +627,6 @@ var LESSONS_5 = [
   ]
 }
 ];
-
-/* ---------------- assembly ---------------- */
-var LAYERS = [
-  { n:0, title:"The game", sub:"Rules, rankings, shape", lessons:LESSONS_0,
-    blurb:"Assumes nothing. What beats what, how a hand unfolds, and why position is worth more than cards." },
-  { n:1, title:"Equity and pot odds", sub:"A weekend", lessons:LESSONS_1,
-    blurb:"Arithmetic. Pot odds, outs, fold equity, implied odds. The only thing worth drilling here is speed." },
-  { n:2, title:"Combinatorics of ranges", sub:"A few weeks", lessons:LESSONS_2,
-    blurb:"Where most people stall. Stop putting him on a hand and start counting combos, removal and blockers." },
-  { n:3, title:"Game theory", sub:"The real content", lessons:LESSONS_3,
-    blurb:"Indifference, alpha, MDF, sizing as mechanism design, and three working solvers you can watch converge." },
-  { n:4, title:"Variance and bankroll", sub:"Familiar ground", lessons:LESSONS_4,
-    blurb:"Kelly, risk of ruin, and the t-stat on your own winrate. This is a backtesting problem wearing a hoodie." },
-  { n:5, title:"Exploitative deviation", sub:"Where the money is", lessons:LESSONS_5,
-    blurb:"Bayesian updating with equilibrium as the prior, and the discipline to know when you are guessing." }
-];
-
-var LESSONS = [];
-LAYERS.forEach(function (L) {
-  L.lessons.forEach(function (les, i) {
-    les.layer = L.n; les.idx = i; les.of_n = L.lessons.length;
-    LESSONS.push(les);
-  });
-});
 
 var READING = [
   { g:"Start here", items:[
@@ -666,7 +642,7 @@ var READING = [
   { g:"Tools", items:[
     ["GTO Wizard", "Precomputed solutions. A lookup table, once you know what it is looking up."],
     ["PioSOLVER", "Run your own trees. Worth it once you can specify a question precisely."],
-    ["Flopzilla", "Layer 2 reps. Combos and removal until they are reflex."],
+    ["Flopzilla", "Stage 3 reps. Combos and removal until they are reflex."],
     ["PokerTracker", "Your own database. The only honest source on your own leaks."]
   ]},
   { g:"The project", items:[
