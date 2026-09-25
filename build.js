@@ -6,8 +6,8 @@ const SRC = path.join(__dirname, "src");
 const read = f => fs.readFileSync(path.join(SRC, f), "utf8");
 const strip = f => read(f).replace(/\nif \(typeof module[\s\S]*$/, "");   /* drop the node export block */
 
-const engine = ["engine.js", "range.js", "cfr.js", "leduc.js", "river.js", "turn.js", "drills.js", "srs.js", "sync.js", "library.js"].map(strip).join("\n");
-const course = ["lessons.js", "course.js"].map(read).join("\n");
+const engine = ["engine.js", "range.js", "cfr.js", "leduc.js", "river.js", "turn.js", "drills.js", "drills2.js", "srs.js", "sync.js", "library.js"].map(strip).join("\n");
+const course = ["lessons.js", "course.js", "lessons2.js", "path.js"].map(read).join("\n");
 
 let out = read("app.tpl.html");
 for (const slot of ["/*__ENGINE__*/", "/*__LESSONS__*/"]) {

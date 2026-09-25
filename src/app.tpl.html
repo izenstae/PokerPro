@@ -884,24 +884,23 @@ table.tbl{font-size:14px}
    UI
    ============================================================ */
 var MODE_META = {
-  ladder:"Hand ladder", read:"Read your hand", who:"Who wins",
-  potodds:"Pot odds", outs:"Outs to equity", bluff:"Fold equity",
-  implied:"Implied odds", pfeq:"Preflop equity", allin:"Call or fold",
+  rules:"Rules", ladder:"Hand ladder", read:"Read your hand", who:"Who wins", position:"Position",
+  prob:"Probability", potodds:"Pot odds", outs:"Outs to equity", allin:"Call or fold", ev:"Expected value",
+  bluff:"Fold equity", implied:"Implied odds", pfeq:"Preflop equity",
+  rfi:"Opening ranges", threebet:"3-bets", spr:"SPR",
   combos:"Combos", blocker:"Blockers", beat:"What beats you",
-  indiff:"Indifference", alpha:"Alpha", mdf:"MDF", ratio:"Bluff ratio",
+  indiff:"Indifference", alpha:"Alpha", mdf:"MDF", ratio:"Bluff ratio", akq:"AKQ game",
+  eqr:"Realisation", cbet:"C-bets", geo:"Geometric sizing", multi:"Two-street bluffs",
+  jam:"Push or fold", icm:"ICM",
   tstat:"t-stat", sample:"Sample size", ror:"Risk of ruin", kelly:"Kelly",
   bayes:"Bayes and blockers", update:"Updating reads", deviate:"Deviate"
 };
-var MODE_LAYER = {
-  ladder:0, read:0, who:0,
-  potodds:1, outs:1, bluff:1, implied:1, pfeq:1, allin:1,
-  combos:2, blocker:2, beat:2,
-  indiff:3, alpha:3, mdf:3, ratio:3,
-  tstat:4, sample:4, ror:4, kelly:4,
-  bayes:5, update:5, deviate:5
-};
+/* each drill belongs to the stage of the first lesson that teaches it, in path order */
+var MODE_LAYER = {};
+LESSONS.forEach(function(L){ if(MODE_META[L.mode] && !(L.mode in MODE_LAYER)) MODE_LAYER[L.mode] = L.layer; });
+Object.keys(MODE_META).forEach(function(m){ if(!(m in MODE_LAYER)) throw new Error("no lesson teaches drill " + m); });
 var ORDER = Object.keys(MODE_LAYER);
-var THRESHOLD_MODES = { potodds:1, bluff:1, alpha:1, mdf:1, ratio:1, indiff:1 };
+var THRESHOLD_MODES = { potodds:1, bluff:1, alpha:1, mdf:1, ratio:1, indiff:1, threebet:1 };
 var SUIT_GLYPH = { c:"\u2663", d:"\u2666", h:"\u2665", s:"\u2660" };
 
 var active = {};
@@ -951,12 +950,14 @@ function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.clas
 /* ---- mode chips ---- */
 function drawModes(){
   var box = $("modes"); box.innerHTML = "";
-  [0,1,2,3,4,5].forEach(function(L){
+  LAYERS.forEach(function(S){
+    var L = S.n;
     var mine = ORDER.filter(function(m){ return MODE_LAYER[m] === L; });
+    if(!mine.length) return;
     var row = el("div","modeRow");
-    var tag = el("button","layerTag","L" + L);
+    var tag = el("button","layerTag","S" + L);
     tag.type = "button";
-    tag.title = "Toggle the whole layer";
+    tag.title = "Stage " + L + ", " + S.title + ": toggle every drill in it";
     var allOn = mine.every(function(m){ return active[m]; });
     tag.setAttribute("aria-pressed", allOn ? "true" : "false");
     tag.onclick = function(){
@@ -1000,7 +1001,8 @@ function next(){
   answered = false;
   var mode, ctx = null;
   if(cp){
-    var pool = cp.mode !== "mixed" ? [cp.mode] : ORDER;
+    var stageN = lessonById(cp.id).layer;
+    var pool = cp.mode !== "mixed" ? [cp.mode] : ORDER.filter(function(m){ return MODE_LAYER[m] === stageN; });
     mode = pool[(Math.random() * pool.length) | 0];
   } else {
     ctx = sess ? sess.ctx : freeCtx;
@@ -3391,14 +3393,17 @@ function libMatch(q, parts){ q = q.trim().toLowerCase(); return !q || parts.join
 function drawFormulas(){
   var inp = $("fxq"), out = $("fxlist");
   if(!inp.dataset.wired){ inp.dataset.wired = "1"; inp.oninput = drawFormulas; }
-  var q = inp.value, topics = [], by = {}, n = 0;
-  FORMULAS.forEach(function(f){
-    if(!libMatch(q, [f.name, f.topic, f.f, f.note || "", (f.vars || []).map(function(v){ return v.join(" "); }).join(" ")])) return;
-    if(!by[f.topic]){ by[f.topic] = []; topics.push(f.topic); }
-    by[f.topic].push(f); n++;
+  var q = inp.value, n = 0;
+  /* grouped by stage, in the order the path teaches them */
+  var hits = FORMULAS.filter(function(f){
+    return lessonById(f.lesson) && libMatch(q, [f.name, f.f, f.note || "", (f.vars || []).map(function(v){ return v.join(" "); }).join(" "), lessonById(f.lesson).title]);
   });
-  out.innerHTML = topics.map(function(t){
-    return '<h3 class="libh">' + t + '</h3><div class="fxgrid">' + by[t].map(function(f){ return fxCard(f, false); }).join("") + '</div>';
+  n = hits.length;
+  out.innerHTML = LAYERS.map(function(S){
+    var mine = hits.filter(function(f){ return lessonById(f.lesson).layer === S.n; })
+      .sort(function(a, b){ return LESSONS.indexOf(lessonById(a.lesson)) - LESSONS.indexOf(lessonById(b.lesson)); });
+    if(!mine.length) return "";
+    return '<h3 class="libh">Stage ' + S.n + ' &middot; ' + S.title + '</h3><div class="fxgrid">' + mine.map(function(f){ return fxCard(f, false); }).join("") + '</div>';
   }).join("") || '<p class="sempty">No formula matches &ldquo;' + fxEsc(q) + '&rdquo;.</p>';
   $("fxcount").textContent = n + " of " + FORMULAS.length;
 }

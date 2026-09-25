@@ -12,16 +12,21 @@ Runs entirely in your browser. Nothing to install. Open **Train** once a day, cl
 
 ## What's in it
 
-| Layer | Topic | Drills |
-|---|---|---|
-| **0** | The game: rankings, best-five-of-seven, position | hand ladder, read your hand, who wins |
-| **1** | Equity and pot odds | pot odds, outs, fold equity, implied, preflop, call/fold |
-| **2** | Combinatorics of ranges | combos, blockers, what beats you |
-| **3** | Game theory: indifference, alpha, MDF, sizing | + **four solver labs** |
-| **4** | Variance and bankroll: t-stat, sample size, ruin, Kelly | 4 drills |
-| **5** | Exploitative deviation: Bayes, updating, deviating | 3 drills |
+A path in nine stages, from never having played to the maths strong players use. New lessons are marked ★.
 
-29 lessons (25 with a checkpoint, 4 labs), 23 drill generators, 25 recall cards, and a daily schedule that keeps all of it from fading.
+| Stage | Topic | Lessons |
+|---|---|---|
+| **0** | The game | ★ how a hand is played (blinds, actions, min-raises, pot counting), the ladder, reading your hand, the shape of a hand, ★ seats and position |
+| **1** | Odds and equity | ★ probability (C(n,k), complements), pot odds, outs, equity vs price, ★ expected value, fold equity, implied odds, preflop shapes, capstone |
+| **2** | Preflop | ★ opening ranges by seat, ★ 3-bets (break-even folds, the price of calling), ★ stack-to-pot ratio |
+| **3** | Ranges | combos, card removal, blockers, counting what beats you |
+| **4** | Game theory | indifference, alpha, MDF, sizing, ★ the AKQ game, **four solver labs** |
+| **5** | Postflop strategy | ★ equity realisation, ★ c-bets, ★ geometric sizing, ★ bluffing across streets |
+| **6** | Tournaments | ★ push or fold, ★ ICM (Malmuth–Harville) |
+| **7** | Variance and bankroll | t-stat, sample size, risk of ruin, Kelly |
+| **8** | Exploitative play | Bayes and blockers, updating reads, deviating |
+
+43 lessons (39 with a checkpoint, 4 labs), 37 drill generators, 39 formulas in the Library (every numeric anchor checked by a test), and a daily schedule that keeps all of it from fading. Every new lesson is built on a formula from the reading list: Chen and Ankenman's *Mathematics of Poker* (the AKQ game, multi-street bluffing, geometric sizing), Acevedo's *Modern Poker Theory* (equity realisation, SPR), and the standard tournament models (Sklansky–Chubukov, Malmuth–Harville ICM).
 
 The app has four sections, plus sync. On a phone or iPad in portrait they sit in a bottom tab bar:
 
@@ -92,18 +97,21 @@ npm test
 index.html          the build output, this is what Pages serves
 build.js            inlines src/ into index.html. no bundler, no deps
 src/
-  engine.js         cards, 7-card evaluator, equity, layer 1 drills
+  engine.js         cards, 7-card evaluator, equity, the stage 1 drills
   range.js          range notation, combos, card removal, blockers
   cfr.js            Kuhn poker CFR + exact exploitability
   leduc.js          Leduc hold'em CFR + vectorized best response
   river.js          river subgame CFR (vanilla + Monte Carlo) with bucket abstraction
   turn.js           two-street turn solver: solve every river, back the value up
-  drills.js         the 17 generators for layers 0, 2, 3, 4, 5
+  drills.js         the original 17 generators
+  drills2.js        14 generators for the new lessons, and the 6-max opening chart
   srs.js            the schedule: Leitner boxes, time goals, skill picker, practice log
   sync.js           cross-device sync: the progress merge and a tiny GitHub Gist client
   library.js        the formula registry, the glossary, and the formula notation renderer
-  lessons.js        layer 1 lesson content
-  course.js         layers 0, 2, 3, 4, 5 + assembly + reading list
+  lessons.js        stage 1 lesson content
+  course.js         the original lessons outside stage 1, and the reading list
+  lessons2.js       the lessons added for the zero-to-pro path
+  path.js           the order: nine stages, which lessons each holds
   app.tpl.html      UI shell, CSS, Train view, sessions, and the four lab widgets
 test/
 ```
