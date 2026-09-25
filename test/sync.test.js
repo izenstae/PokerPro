@@ -53,5 +53,26 @@ ok(S.syncMerge({ progress: { a: 1 } }, { stats: { n: 1 } }).stats === null, "sta
 /* key order does not matter to the change check */
 ok(S.syncCanon({ a: 1, b: [1, { y: 2, x: 1 }] }) === S.syncCanon({ b: [1, { x: 1, y: 2 }], a: 1 }), "canonical form ignores key order");
 
+/* devices: each keeps its latest sighting, and a wipe does not forget them */
+const dA = { devices: { a: { name: "Mac", seen: 10 }, b: { name: "iPad", seen: 5 } } };
+const dB = { devices: { b: { name: "iPad Pro", seen: 20 } } };
+const dm = S.syncMerge(dA, dB).devices;
+ok(dm.a.name === "Mac" && dm.b.name === "iPad Pro", "each device keeps its most recent record");
+ok(same(S.syncMerge(dB, dA).devices, dm), "device merge is commutative");
+const dw = S.syncMerge(Object.assign({ epoch: 9 }, dB), dA);
+ok(dw.epoch === 9 && dw.devices.a && dw.devices.b.seen === 20, "a wipe keeps the device list");
+dw.devices.z = 1;
+ok(!dB.devices.z, "a merged state never aliases its inputs");
+
+/* the summary and the diff behind the sync screen */
+const sum = S.syncSummary(m);
+ok(sum.lessons === 3 && sum.skills === 3 && sum.automatic === 0, "summary counts lessons and scheduled skills");
+ok(sum.days === 2 && sum.minutes === Math.round(1000 / 60) && sum.answers === 60, "summary totals the practice log");
+ok(sum.lastAnswer === 300 && sum.lastDay === "2026-09-25", "summary finds the latest answer and day");
+const df = S.syncDiff(ipad, m);
+ok(df.lessons === 2 && df.skills === 1 && df.days === 1 && df.any, "diff counts what the iPad gained");
+ok(!S.syncDiff(m, m).any, "no diff between a state and itself");
+ok(S.syncDiff(m, wiped).wiped, "diff notices a wipe");
+
 console.log("sync: " + pass + " passed, " + fail + " failed");
 if (fail) process.exit(1);

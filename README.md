@@ -23,12 +23,13 @@ Runs entirely in your browser. Nothing to install. Open **Train** once a day, cl
 
 29 lessons (25 with a checkpoint, 4 labs), 23 drill generators, 25 recall cards, and a daily schedule that keeps all of it from fading.
 
-The app has four tabs:
+The app has five tabs:
 
 - **Train**: today's reviews, time trained, day streak, and every skill's box, accuracy, pace and next review date.
 - **Learn**: the course. Read a lesson, then pass its checkpoint to put that skill on the schedule.
 - **Drill**: free practice on any mix of drills, weighted towards your weak and due skills.
 - **Reading**: the reading list.
+- **Sync**: share progress between your devices through a private GitHub Gist, with status, devices, activity, backups and help.
 
 ## How it makes things stick
 
@@ -129,7 +130,7 @@ Every branch is probed and wrapped, so a refusal degrades instead of throwing.
 
 ### Sync across devices
 
-Browser storage belongs to one browser, so a computer and an iPad each keep their own copy. To share one, open **Train → Sync across devices**, [create a GitHub token](https://github.com/settings/tokens/new?scopes=gist&description=PokerPro%20sync) with only the `gist` scope, and paste it on each device. The app finds or creates one secret gist, `pokerpro-progress.json`, and talks to the GitHub API directly. There's still no server of its own.
+Browser storage belongs to one browser, so a computer and an iPad each keep their own copy. To share one, open the **Sync** tab (or tap the sync indicator at the top right), [create a GitHub token](https://github.com/settings/tokens/new?scopes=gist&description=PokerPro%20sync) with only the `gist` scope, and paste it on each device. The app finds or creates one secret gist, `pokerpro-progress.json`, and talks to the GitHub API directly. There's still no server of its own.
 
 It syncs on load, a few seconds after you answer, and when you come back to the tab. Each sync pulls the gist, merges it with local progress, and pushes only if the gist is behind. The merge in `src/sync.js` is commutative and idempotent, so devices converge whatever order they sync in:
 
@@ -139,6 +140,8 @@ It syncs on load, a few seconds after you answer, and when you come back to the 
 - drill stats: the most recently reset copy, then the one with more answers
 
 **Clear all progress** and **Reset stats** stamp a new epoch, and a newer epoch beats an older one outright, so a wipe spreads to other devices instead of being merged back in. The token lives only in that browser's storage.
+
+The Sync tab shows everything about it: a status headline with a fix for each kind of failure, this device and the cloud side by side (lessons, scheduled skills, days, minutes, answers), every device that has synced and when, an activity log of each sync and what it sent or received, settings (account, masked token, token permissions, gist link, auto-sync on or off, device name), JSON backup and restore that merges rather than overwrites, and step-by-step setup and troubleshooting help. It also syncs every five minutes while the page is open, and when the device comes back online.
 
 ## Where to take it next
 
