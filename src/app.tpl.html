@@ -65,6 +65,8 @@ body{
 .tb-seat text{fill:var(--faint); font:600 13px var(--sans); text-anchor:middle}
 .tb-seat.on rect{fill:var(--bone); stroke:var(--bone); stroke-dasharray:none}
 .tb-seat.on text{fill:#111}
+.tb-seat.me rect{stroke:var(--gold); stroke-width:3}
+.tb-you{fill:var(--gold); font:700 10px var(--sans); letter-spacing:.14em; text-anchor:middle}
 .tb-dealer{fill:#fff; stroke:#999}
 .tb-d{fill:#111; font:700 11px var(--sans); text-anchor:middle}
 .tb-blind{fill:var(--gold); stroke:#8a6420}
@@ -1416,10 +1418,13 @@ function tableStage(t){
   ring.forEach(function(p, i){
     var a = Math.PI / 2 + i * Math.PI / 3;
     var x = cx + sx * Math.cos(a), y = cy + sy * Math.sin(a);
-    var on = !!live[p];
-    svg += '<g class="tb-seat' + (on ? " on" : "") + '">' +
+    var on = !!live[p], me = t.hero === p;
+    svg += '<g class="tb-seat' + (on ? " on" : "") + (me ? " me" : "") + '">' +
       '<rect x="' + (x - 30) + '" y="' + (y - 16) + '" width="60" height="32" rx="8"/>' +
       '<text x="' + x + '" y="' + (y + 5) + '">' + p + '</text></g>';
+    if(me) svg += i % 3 === 0      /* top and bottom seats: label to the side, the rest underneath */
+      ? '<text class="tb-you" x="' + (x + 50) + '" y="' + (y + 4) + '">YOU</text>'
+      : '<text class="tb-you" x="' + x + '" y="' + (y + 30) + '">YOU</text>';
     /* chips sit between the seat and the middle */
     var mx = cx + 0.62 * sx * Math.cos(a), my = cy + 0.58 * sy * Math.sin(a);
     if(p === "BTN") svg += '<circle class="tb-dealer" cx="' + (mx + 26) + '" cy="' + my + '" r="10"/><text class="tb-d" x="' + (mx + 26) + '" y="' + (my + 4) + '">D</text>';
