@@ -186,7 +186,7 @@ var LESSONS_2 = [
     { t:"p", x:"This flips the naive intuition about which hands make good bluffs. The best bluffing candidate is not the hand with the least equity. It is the hand that removes the most combos from his calling range while having little showdown value of its own. Blockers are why a solver bluffs with hands that look like nothing and gives up with hands that look better." },
     { t:"warn", x:"Blockers cut both ways and beginners only see one edge. Holding the ace of spades also means you cannot be called by worse flushes, and it means his range is now weighted toward the hands you did not block. Removal changes the whole conditional distribution, not just the part you were hoping for." },
     { t:"key", x:"Ask two questions before every bluff: what does my hand remove from his continuing range, and what does it leave behind. If the answer is nothing, pick a different bluff." },
-    { t:"how", drill:"Blockers", ask:"How many nut flushes can he have?",
+    { t:"how", drill:"Blockers", ask:"How many ace-high flush combos can he have?",
       steps:[
         "The board has three of one suit, so the nut flush is possible. It needs exactly one card: the ace of that suit.",
         "Look at your own two cards. Do you hold the ace of the flush suit?",
@@ -525,7 +525,7 @@ var LESSONS_4 = [
     { t:"p", x:"The reason nobody plays full Kelly is the same reason nobody runs a book at full Kelly. Full Kelly maximises log growth on the assumption your edge estimate is exact. It is not exact, you established that two lessons ago, and Kelly is brutally asymmetric about overestimation: bet twice the optimal fraction and your growth rate goes to zero, not to double." },
     { t:"p", x:"Half Kelly gives up 25% of the growth rate for roughly half the volatility and a far shorter drawdown. Quarter Kelly gives up 44% of growth and makes the ride survivable by a human being. Since your edge estimate has a standard error the size of the edge, fractional Kelly is not caution. It is the correct answer to a parameter you do not know." },
     { t:"key", x:"f* = edge / variance, then divide by two or four because you do not know your edge. That is the entire theory of bankroll management." },
-    { t:"how", drill:"Kelly", ask:"Full Kelly risks what fraction of your roll? Give 1/x, answer x.",
+    { t:"how", drill:"Kelly", ask:"How big a bankroll, in big blinds, does full Kelly call for?",
       steps:[
         "You are given the edge and the variance (variance is sd squared, already worked out for you). The Kelly fraction is f = edge / variance.",
         "The drill wants the denominator x, not the fraction. So answer x = variance / edge, that is, 1 divided by f.",
