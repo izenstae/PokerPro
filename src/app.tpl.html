@@ -54,6 +54,68 @@ body{
 .fact dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
 .fact dd{font-size:17px; font-variant-numeric:tabular-nums}
 
+.lvcover{display:flex; flex-direction:column; gap:3px; padding:12px 16px; border:1px solid var(--line); border-radius:10px; margin:-6px 0 18px; font-size:13px; color:var(--dim)}
+.lvcover b{color:var(--bone); font-size:13.5px} .lvcover a{color:var(--gold); text-decoration:none}
+.lvcbar{display:flex; gap:4px; margin-top:6px} .lvcbar i{flex:1; height:6px; border-radius:3px; background:var(--line)} .lvcbar i.on{background:var(--green)}
+.lvnl{font-size:12px; color:var(--faint)}
+.lvabout a,.pnote a.lvl{color:var(--gold)} #pFeedback .pnote a{color:var(--gold)}
+.lvtag.nl{color:var(--faint)}
+a.chip{text-decoration:none; display:inline-block}
+/* ---- links between features ---- */
+.rlinks{display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:12px; font-size:13px}
+.rlinks a{color:var(--gold); text-decoration:none} .rlinks a:hover{text-decoration:underline}
+button.pconcept.drill{cursor:pointer; font:inherit; font-size:12px; background:none; border:1px dashed var(--line); color:var(--dim); border-radius:14px; padding:2px 10px}
+button.pconcept.drill:hover{border-color:var(--gold); color:var(--bone)}
+.fxdrill{margin-top:10px}
+.rrec{display:flex; flex-direction:column; gap:4px; padding:14px 16px; border:1px solid var(--line); border-radius:10px; background:var(--felt); font-size:13.5px; color:var(--dim); margin-top:12px}
+.rrec > b{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:2px}
+.rrec span b{color:var(--bone)} .rrec span b.due{color:var(--gold)}
+.rrec .row{margin-top:8px}
+.duechip.weak{background:var(--red); color:#fff}
+.sktbl{font-size:11px; color:var(--gold); text-decoration:none; margin-left:6px; white-space:nowrap}
+a.tro,a.gt{text-decoration:none} a.tro:hover{border-color:var(--gold)} a.gt:hover b{color:var(--gold)}
+.lvsk a{color:var(--bone); text-decoration:none} .lvsk a:hover{color:var(--gold)}
+
+/* ---- game ---- */
+.gpill{display:inline-flex; align-items:center; gap:6px; margin-right:10px; padding:3px 10px 3px 4px; border-radius:20px; border:1px solid var(--line); color:var(--dim); text-decoration:none; font-size:12px; font-variant-numeric:tabular-nums; white-space:nowrap}
+.gpill:hover{border-color:var(--gold); color:var(--bone)}
+.gpill .gs{filter:grayscale(1); opacity:.7} .gpill .gs.lit{filter:none; opacity:1; color:var(--bone)}
+.gring{flex:none} .gring .bg{fill:none; stroke:var(--line); stroke-width:4} .gring .fg{fill:none; stroke:var(--gold); stroke-width:4; stroke-linecap:round; transition:stroke-dasharray .4s} .gring .fg.done{stroke:var(--green)}
+@media(max-width:560px){ .gpill .gx{display:none} .gpill{margin-right:6px} }
+.toasts{position:fixed; right:16px; bottom:16px; z-index:60; display:flex; flex-direction:column; gap:8px; align-items:flex-end; pointer-events:none}
+@media(max-width:820px){ .toasts{bottom:78px; left:16px; right:16px; align-items:stretch} }
+.toast{background:var(--raise); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:8px; padding:10px 14px; font-size:13px; color:var(--dim); box-shadow:0 6px 24px rgba(0,0,0,.35); max-width:360px; animation:tin .25s ease-out; transition:opacity .4s, transform .4s}
+.toast b{color:var(--bone)} .toast.goal{border-left-color:var(--green)} .toast.rank,.toast.trophy{background:linear-gradient(90deg, rgba(212,160,60,.14), var(--raise))}
+.toast.xp{padding:6px 12px; font-size:12px}
+.toast .ttro{color:var(--gold); margin-right:6px}
+.toast.out{opacity:0; transform:translateY(6px)}
+@keyframes tin{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+.xpchip{font-size:12px; font-weight:700; color:var(--gold); border:1px solid rgba(212,160,60,.5); border-radius:12px; padding:2px 9px; font-variant-numeric:tabular-nums; animation:tin .3s ease-out}
+.gcard{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; padding:18px 20px; border:1px solid var(--line); border-radius:12px; background:var(--felt); margin:18px 0}
+@media(max-width:860px){ .gcard{grid-template-columns:1fr} }
+.gcol{display:flex; gap:14px; align-items:center; min-width:0}
+.gcol b{display:block; font-size:24px; font-variant-numeric:tabular-nums; color:var(--bone)} .gcol b small{font-size:13px; color:var(--dim); font-weight:500}
+.gcol span{display:block; font-size:12.5px; color:var(--dim)}
+.gcol .lvbar{margin-top:7px; width:100%}
+.grank > div:last-child{flex:1}
+.gcol .gfz{font-size:11.5px; color:var(--faint); margin-top:2px}
+.ggoal{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--faint); margin-top:6px}
+.ggoal select{background:var(--ink); color:var(--bone); border:1px solid var(--line); border-radius:6px; font:12px var(--sans); padding:3px 4px; max-width:190px}
+.gflame{font-size:38px; filter:grayscale(1); opacity:.45; line-height:1} .gflame.lit{filter:none; opacity:1}
+.gbadge2{width:48px; height:48px; flex:none; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:20px; color:#1a1406; background:radial-gradient(circle at 35% 30%, #f3d48a, var(--gold) 60%, #8a6420)}
+.gtro{grid-column:1 / -1; border-top:1px solid var(--line); padding-top:12px}
+.gt{display:grid; grid-template-columns:1fr 120px 44px; gap:12px; align-items:center; padding:6px 0; font-size:13px; color:var(--dim)}
+.gt b{color:var(--bone); font-weight:600; margin-right:4px}
+.gt i,.tro i{display:block; height:6px; border-radius:3px; background:var(--line); overflow:hidden} .gt i span,.tro i span{display:block; height:100%; background:var(--gold)}
+.gt em,.tro em{font-style:normal; font-size:11.5px; color:var(--faint); text-align:right; font-variant-numeric:tabular-nums}
+@media(max-width:560px){ .gt{grid-template-columns:1fr 60px} .gt em{display:none} }
+.trogrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:10px}
+.tro{display:flex; gap:10px; padding:10px 12px; border:1px solid var(--line); border-radius:9px; background:var(--ink); font-size:12.5px; color:var(--faint)}
+.tro b{display:block; color:var(--dim); font-size:13.5px} .tro span{display:block; margin:2px 0 6px}
+.tro.got{border-color:rgba(212,160,60,.45); background:linear-gradient(135deg, rgba(212,160,60,.10), var(--ink))} .tro.got b{color:var(--bone)}
+.tro em{display:block; text-align:left; margin-top:3px} .tro.got em{color:var(--gold)}
+.troic{font-size:22px; line-height:1; color:var(--faint)} .tro.got .troic{color:var(--gold)}
+
 /* ---- level ---- */
 .lvhero{display:grid; grid-template-columns:auto 1fr; gap:6px 28px; align-items:center; padding:22px; border:1px solid var(--line); border-radius:12px; background:var(--felt); margin-bottom:18px}
 .lvrate{font-size:56px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums}
@@ -987,7 +1049,7 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
   <div class="topin">
     <a class="brand" href="#/home" aria-label="PokerPro home"><span class="suit">&spades;</span><span>Poker<b>Pro</b></span></a>
     <nav class="nav" id="nav" aria-label="Main"></nav>
-    <div class="topr"><button class="spill off" id="syncPill" type="button"><i></i>Sync off</button></div>
+    <div class="topr"><a class="gpill" id="gPill" href="#/home" aria-label="Daily goal and streak"></a><button class="spill off" id="syncPill" type="button"><i></i>Sync off</button></div>
   </div>
   <div class="readbar" id="readbar"></div>
 </header>
@@ -1100,6 +1162,7 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
 
 </main>
 <div class="gltip" id="gltip" role="tooltip" hidden></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
 /*__ENGINE__*/
@@ -1158,6 +1221,158 @@ function logDay(secs, n, ok){
   d.s += secs; d.n += n; d.ok += ok;
   if(sess) sess.secs += secs;
 }
+/* ============================================================
+   GAME: XP, the daily goal, the streak, ranks and trophies (game.js)
+   ============================================================ */
+var GAME_KEY = "poker-game-v1";
+var gstate = { goal: 60, seen: {}, spots: 0, sweeps: 0, plugged: 0, peakLevel: 0 };
+async function gameLoad(){
+  try{ var g = JSON.parse((await STORE.get(GAME_KEY)) || "null"); if(g) Object.assign(gstate, g); }catch(e){}
+  gstate.primed = Object.keys(gstate.seen).length > 0;
+}
+function gameSave(quiet){ try{ STORE.set(GAME_KEY, JSON.stringify(gstate)); }catch(e){} if(!quiet) saveSoon(); }
+function gmToday(){ var k = srsDayKey(Date.now()); return plog[k] || (plog[k] = { s:0, n:0, ok:0 }); }
+
+/* one drill answer: cramming is counted per day, and each skill pays the
+   review rate for only its first few answers a day, so missing on purpose
+   to make a skill due again does not farm XP */
+function gmAnswer(mode, wasDue, ok, fast, recall, promoted){
+  var d = gmToday();
+  d.r = d.r || {};
+  var due = wasDue && (d.r[mode] || 0) < 6;
+  if(due) d.r[mode] = (d.r[mode] || 0) + 1;
+  var x = gmAnswerXP({ due: due, ok: ok, fast: fast, recall: recall, promoted: promoted, cramToday: d.c || 0 });
+  if(!due) d.c = (d.c || 0) + 1;
+  gmGain(x, null);
+  return x;
+}
+
+/* today's goal: mark it, pay the bonus, say so */
+function gmGoalCheck(){
+  var d = gmToday();
+  if(d.g || (d.x || 0) < gstate.goal) return;
+  d.g = 1;
+  d.x += GM_XP_GOAL;
+  var st = gmStreak(plog, Date.now());
+  toast('<b>Daily goal hit</b> +' + GM_XP_GOAL + ' XP &middot; ' + st.days + (st.days === 1 ? " day" : " days") + ' streak', "goal");
+}
+
+function gmGain(x, why){
+  if(!x) return;
+  var before = gmRank(gmTotal(plog)).index;
+  var d = gmToday();
+  d.x = (d.x || 0) + x;
+  if(why) toast('<b>+' + x + ' XP</b> ' + why, "xp");
+  gmGoalCheck();
+  var R = gmRank(gmTotal(plog));
+  if(R.index > before) toast('<b>Rank up: ' + R.name + '</b>' + (R.next ? ' &middot; next: ' + R.next.name + ' at ' + R.next.xp.toLocaleString() + ' XP' : ""), "rank");
+  saveSoon();
+  drawGamePill();
+  gmCheckTrophies();
+}
+
+/* what the trophies are measured from */
+function gmSummary(){
+  var st = gmStreak(plog, Date.now());
+  var LS = lvSummary(plevel);
+  if(LS.placed && LS.level.index > (gstate.peakLevel || 0)){ gstate.peakLevel = LS.level.index; gameSave(); }
+  if(!gstate.plugged && lvSkills(plevel, lvLearned()).some(function(k){ return k.prev != null && k.prev < 60 && k.rating != null && k.rating >= 70; })){ gstate.plugged = 1; gameSave(); }
+  return {
+    lessons: LESSONS.filter(function(L){ return passable(L) && progress[L.id]; }).length,
+    stages: LAYERS.map(function(S){ var ls = S.lessons.filter(passable); return { n: S.n, title: S.title, done: ls.filter(function(L){ return progress[L.id]; }).length, of: ls.length }; }).filter(function(S){ return S.of; }),
+    boxes: ORDER.map(function(m){ return skills[m] ? skills[m].box : 0; }),
+    comeback: ORDER.filter(function(m){ return skills[m] && skills[m].lapses > 0 && skills[m].box >= 3; }).length,
+    answers: ORDER.reduce(function(a, m){ return a + (skills[m] ? skills[m].n : 0); }, 0),
+    bestStreak: st.best, hands: pcareer ? pcareer.hands : 0, best: pcareer ? pcareer.grades.Best : 0,
+    level: gstate.peakLevel || 0, plugged: gstate.plugged || 0, spots: gstate.spots || 0, sweeps: gstate.sweeps || 0
+  };
+}
+/* earned trophies stay earned, even if what earned them later slips */
+function gmAllTrophies(){
+  return gmTrophies(gmSummary()).map(function(t){ if(gstate.seen[t.id]){ t.got = true; t.cur = t.max; t.at = gstate.seen[t.id]; } return t; });
+}
+/* new trophies are toasted once. The first check on a device only records
+   what is already earned, so an existing learner is not buried in toasts. */
+function gmCheckTrophies(){
+  var fresh = [];
+  gmTrophies(gmSummary()).forEach(function(t){ if(t.got && !gstate.seen[t.id]){ gstate.seen[t.id] = Date.now(); fresh.push(t); } });
+  if(!gstate.primed){ gstate.primed = true; gameSave(); return; }
+  if(!fresh.length) return;
+  gameSave();
+  fresh.forEach(function(t){ toast('<span class="ttro">&#9733;</span><b>Trophy: ' + t.name + '</b> ' + t.about, "trophy"); });
+}
+
+function toast(html, cls){
+  var box = $("toasts"); if(!box) return;
+  var t = el("div", "toast " + (cls || ""), html);
+  box.appendChild(t);
+  while(box.children.length > 3) box.removeChild(box.firstChild);
+  var life = cls === "xp" ? 1800 : 4200;
+  setTimeout(function(){ t.classList.add("out"); }, life);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, life + 500);
+}
+
+function gmRing(frac, size){
+  var r = size / 2 - 3, c = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac)), h = size / 2;
+  return '<svg class="gring" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" aria-hidden="true">' +
+    '<circle cx="' + h + '" cy="' + h + '" r="' + r + '" class="bg"/>' +
+    '<circle cx="' + h + '" cy="' + h + '" r="' + r + '" class="fg' + (f >= 1 ? " done" : "") + '" stroke-dasharray="' + (c * f).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 ' + h + ' ' + h + ')"/></svg>';
+}
+
+function drawGamePill(){
+  var p = $("gPill"); if(!p) return;
+  var d = plog[srsDayKey(Date.now())] || {}, st = gmStreak(plog, Date.now()), x = d.x || 0;
+  p.innerHTML = gmRing(x / gstate.goal, 22) + '<span class="gx">' + Math.min(x, 9999) + '/' + gstate.goal + ' XP</span><span class="gs' + (st.todayMet ? " lit" : "") + '">&#128293;' + st.days + '</span>';
+  p.title = "Today " + x + " of " + gstate.goal + " XP. Streak " + st.days + (st.days === 1 ? " day" : " days") + (st.freezes ? ", " + st.freezes + " freeze" + (st.freezes > 1 ? "s" : "") + " banked" : "") + ".";
+}
+
+/* the Home card: today's goal, the streak, the rank, and the trophies closest to unlocking */
+function gameCard(){
+  var now = Date.now(), total = gmTotal(plog), R = gmRank(total), st = gmStreak(plog, now);
+  var d = plog[srsDayKey(now)] || {}, x = d.x || 0;
+  var T = gmAllTrophies();
+  var near = T.filter(function(t){ return !t.got && t.cur > 0; }).sort(function(a, b){ return b.cur / b.max - a.cur / a.max; }).slice(0, 3);
+  if(near.length < 3) near = near.concat(T.filter(function(t){ return !t.got && !t.cur; }).slice(0, 3 - near.length));
+  var c = el("div", "gcard");
+  c.innerHTML =
+    '<div class="gcol gday">' + gmRing(x / gstate.goal, 76) + '<div><b>' + x + '<small> / ' + gstate.goal + ' XP</small></b><span>' + (d.g ? "Goal hit today" : (gstate.goal - x) + " XP to today&rsquo;s goal") + '</span>' +
+      '<label class="ggoal">Goal <select id="gGoal">' + GM_GOALS.map(function(g){ return '<option value="' + g.xp + '"' + (g.xp === gstate.goal ? " selected" : "") + '>' + g.name + ': ' + g.xp + ' XP, ' + g.about + '</option>'; }).join("") + '</select></label></div></div>' +
+    '<div class="gcol gstreak"><div class="gflame' + (st.todayMet ? " lit" : "") + '">&#128293;</div><div><b>' + st.days + '<small>' + (st.days === 1 ? " day" : " days") + '</small></b><span>' + (st.todayMet ? "Streak safe today" : st.days ? "Hit today&rsquo;s goal to keep it" : "Hit your goal to start one") + '</span>' +
+      '<span class="gfz">' + (st.freezes ? "&#10052; " + st.freezes + " freeze" + (st.freezes > 1 ? "s" : "") + " banked" : "A freeze every " + GM_FREEZE_EVERY + " goal days") + ' &middot; best ' + st.best + '</span></div></div>' +
+    '<div class="gcol grank"><div class="gbadge2">' + (R.index + 1) + '</div><div><b>' + R.name + '</b><span>' + total.toLocaleString() + ' XP' + (R.next ? ' &middot; ' + R.need.toLocaleString() + ' to ' + R.next.name : "") + '</span>' +
+      '<div class="lvbar"><span style="width:' + (100 * R.toNext).toFixed(0) + '%"></span></div></div></div>' +
+    '<div class="gtro"><div class="ph"><h3>Next trophies</h3><a href="#/level">All ' + T.filter(function(t){ return t.got; }).length + ' / ' + T.length + ' &rsaquo;</a></div>' +
+      near.map(function(t){ return '<a class="gt" href="' + trophyHref(t.id) + '"><span><b>' + t.name + '</b> ' + t.about + '</span><i><span style="width:' + (100 * t.cur / t.max).toFixed(0) + '%"></span></i><em>' + t.cur + '/' + t.max + '</em></a>'; }).join("") + '</div>';
+  var sel = c.querySelector("#gGoal");
+  sel.onchange = function(){ gstate.goal = +sel.value; gstate.goalAt = Date.now(); gameSave(); gmGoalCheck(); saveSoon(); drawGamePill(); drawHome(); };
+  return c;
+}
+
+/* where each trophy is earned */
+function trophyHref(id){
+  if(/^(lesson|stage)/.test(id)) return "#/learn";
+  if(/^(hands|best|lv)/.test(id)) return "#/play";
+  if(/^(plug|spots)/.test(id)) return "#/level";
+  return "#/practice/review";
+}
+/* every trophy, and how XP works: shown on the Level page */
+function trophyPanel(){
+  var T = gmAllTrophies().sort(function(a, b){ return (b.got ? 1 : 0) - (a.got ? 1 : 0) || b.cur / b.max - a.cur / a.max; });
+  return '<div class="panel" style="margin-top:18px"><div class="ph"><h3>Trophies</h3><span>' + T.filter(function(t){ return t.got; }).length + ' of ' + T.length + '</span></div>' +
+    '<div class="trogrid">' + T.map(function(t){
+      return '<a class="tro' + (t.got ? " got" : "") + '" href="' + trophyHref(t.id) + '"><div class="troic">' + (t.got ? "&#9733;" : "&#9734;") + '</div><div><b>' + t.name + '</b><span>' + t.about + '</span>' +
+        (t.got ? '<em>' + (t.at ? "earned " + new Date(t.at).toLocaleDateString(undefined, { month:"short", day:"numeric" }) : "earned") + '</em>' : '<i><span style="width:' + (100 * t.cur / t.max).toFixed(0) + '%"></span></i><em>' + t.cur + ' / ' + t.max + '</em>') + '</div></a>';
+    }).join("") + '</div>' +
+    '<details class="howsrs" style="margin-top:14px"><summary>How XP works</summary><ol>' +
+      '<li><b>Reviews pay most.</b> A skill answered on its due day: 10 XP right and inside the clock goal, 6 if right but slow, 3 for an honest miss. Spaced retrieval is what makes a skill permanent, so it is what earns.</li>' +
+      '<li><b>Extra practice pays less.</b> A skill that is not due: 4, 2 or 1 XP, and only 1 XP after the day&rsquo;s first ' + GM_CRAM_FREE + '. Cramming feels productive but fades fast.</li>' +
+      '<li><b>Progress pays a bonus.</b> +15 XP per box when a skill moves up, +' + GM_XP_LESSON + ' for a lesson checkpoint, +' + GM_XP_SWEEP + ' for a review session of 10+ answers at 90% or better.</li>' +
+      '<li><b>The table counts.</b> +3 XP for a Best decision, +2 for Good, and +' + GM_XP_SPOT + ' for each table mistake you review on this page.</li>' +
+      '<li><b>Daily goal and streak.</b> Hit your goal for +' + GM_XP_GOAL + ' XP and a streak day. Every ' + GM_FREEZE_EVERY + ' goal days bank a streak freeze (up to ' + GM_FREEZE_MAX + '), spent automatically on a missed day.</li>' +
+      '<li><b>Rank and level.</b> Your rank (' + GM_RANKS.map(function(r){ return r.name; }).join(", ") + ') grows with XP: it rewards practising well and often. Your level above measures how well you actually play. Rank is the effort; level is the result.</li>' +
+    '</ol></details></div>';
+}
+
 function ruleCard(id){
   return { kind:"recall", target:20, options:["Had it","Missed it"], answer:"Had it", math:[], bar:null,
     question:"Recall the rule from \u201c" + RULES[id].lesson.title + "\u201d. Say it out loud, then reveal it." };
@@ -1365,12 +1580,14 @@ function submit(raw){
   }
 
   var sk = skillOf(q.mode);
+  var wasDue = Date.now() >= sk.due;
   if(sess){
     if(!(q.mode in sess.from)) sess.from[q.mode] = sk.box;
     sess.n++; if(ok) sess.ok++;
   }
   q.res = srsRecord(sk, ok, secs, q.target, Date.now());
   logDay(Math.min(secs, q.target * 3 + 20), 1, ok ? 1 : 0);
+  q.xp = gmAnswer(q.mode, wasDue, ok, secs <= q.goal, q.kind === "recall", q.res.ev === "up" ? q.res.box : 0);
   doneAt = Date.now();
   if(!ok && !cp) srsQueueRetry(sess ? sess.ctx : freeCtx, q.mode);
 
@@ -1497,6 +1714,7 @@ function drawReveal(ok, said, secs){
   if(!rc) v.appendChild(el("span","said","Answer <b>" + fmtAns() + "</b> &nbsp;&middot;&nbsp; you said " + fmtSaid(said)));
   var fast = secs <= q.goal;
   v.appendChild(el("span","pace " + (fast ? "fast" : "slow"), secs.toFixed(1) + "s " + (fast ? "in time" : "over " + q.goal + "s")));
+  if(q.xp) v.appendChild(el("span","xpchip", "+" + q.xp + " XP"));
   r.appendChild(v);
   r.appendChild(srsLine());
 
@@ -1505,6 +1723,14 @@ function drawReveal(ok, said, secs){
   var m = el("div","math");
   q.math.forEach(function(line){ m.appendChild(el("p", null, line)); });
   r.appendChild(m);
+  var LL = RULES[q.mode] ? RULES[q.mode].lesson : LESSON_OF[q.mode];
+  if(LL){
+    var tk = lvSkills(plevel, lvLearned()).filter(function(k){ return k.drill === q.mode && k.recent; })[0];
+    r.appendChild(el("div", "rlinks", '<a href="#/learn/' + LL.id + '">Lesson: ' + LL.title + ' &rsaquo;</a>' +
+      (FORMULAS.some(function(f){ return f.lesson === LL.id; }) ? '<a href="#/library/formulas" data-fx="' + LL.id + '">Formulas &rsaquo;</a>' : "") +
+      (tk ? '<a href="#/level">At the table: ' + tk.name.toLowerCase() + ' ' + Math.round(tk.rating) + ' &rsaquo;</a>' : "")));
+  }
+  glossify(r, LL ? LL.id : null);
 
   var last = (cp && cp.marks.length >= cp.of) || (sess && sessOver());
   var go = el("button","act", last ? "See the result" : "Next hand"); go.type = "button";
@@ -1654,7 +1880,7 @@ async function loadSaved(){
 /* everything that syncs, and putting it back */
 function snapshot(){
   return { progress: progress, stats: stats, openLayer: openLayer, skills: skills, plog: plog,
-           epoch: epoch, statsEpoch: statsEpoch, devices: devices };
+           epoch: epoch, statsEpoch: statsEpoch, devices: devices, table: tableSnapshot() };
 }
 function applyState(st){
   if(st.progress) progress = st.progress;
@@ -1667,6 +1893,7 @@ function applyState(st){
   epoch = +st.epoch || 0;
   statsEpoch = +st.statsEpoch || 0;
   if(st.devices) devices = st.devices;
+  if(st.table) adoptTable(st.table);
 }
 
 var saveTimer = 0;
@@ -1694,6 +1921,12 @@ window.addEventListener("pagehide", function(){
 
 async function wipeSaved(){
   progress = {}; skills = {}; plog = {}; freeCtx = { last:null, retry:[] };
+  /* all progress means all of it: the table, the level log and the trophies too */
+  pcareer = null; plevel = null;
+  gstate = { goal: gstate.goal, goalAt: gstate.goalAt || 0, seen: {}, spots: 0, sweeps: 0, plugged: 0, peakLevel: 0, primed: true };
+  tablePending = null;
+  try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:null, level:null })); }catch(e){}
+  gameSave(true);
   stats = { n:0, correct:0, clean:0, time:0, streak:0, best:0, mode:{} };
   ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
   epoch = statsEpoch = Date.now();
@@ -1702,7 +1935,7 @@ async function wipeSaved(){
     try{ if(sync.token) await STORE.set(SAVE_KEY, JSON.stringify(snapshot())); else await STORE.del(SAVE_KEY); }catch(e){}
   }
   syncSoon();
-  drawTOC(); drawTape(); drawSaveTag(); drawTrain();
+  drawTOC(); drawTape(); drawSaveTag(); drawTrain(); drawGamePill();
 }
 
 function drawSaveTag(){
@@ -2287,6 +2520,7 @@ function endSession(){
   });
   saveSoon();
 
+  if(S.kind === "due" && S.n >= 10 && S.ok / S.n >= 0.9){ gstate.sweeps = (gstate.sweeps || 0) + 1; gameSave(); gmGain(GM_XP_SWEEP, "Clean sweep"); }
   var d = $("cpdone"); d.innerHTML = "";
   var left = srsDueList(Object.keys(skills).filter(isSkill), skills, Date.now()).length;
   d.appendChild(el("h3", "pass", S.n ? (left ? "Session ended" : "Done for today") : "Nothing answered"));
@@ -2975,6 +3209,7 @@ function endCp(){
   var hits = cp.marks.filter(Boolean).length;
   var passed = hits >= cp.need;
   if(passed){
+    if(!progress[cp.id]){ progress[cp.id] = 1; gmGain(GM_XP_LESSON, "Lesson passed"); }
     progress[cp.id] = 1;
     [L.mode, "rule:" + L.id].forEach(function(id){ if(isSkill(id)) srsGraduate(skillOf(id), Date.now()); });
     saveSoon();
@@ -3185,14 +3420,15 @@ function drawHome(){
   }
   hero.appendChild(row);
   box.appendChild(hero);
+  box.appendChild(gameCard());
 
   /* the numbers */
   var tot = 0; Object.keys(plog).forEach(function(k){ tot += plog[k].s; });
   var tk = plog[srsDayKey(now)];
   var auto = ORDER.filter(function(m){ return skills[m] && skills[m].box >= 6; }).length;
-  var streak = srsDayStreak(plog, now);
+  var streak = gmStreak(plog, now).days;
   box.appendChild(el("div", "tstats h5", [
-    [streak + (streak === 1 ? " day" : " days"), "streak"],
+    [gmTotal(plog).toLocaleString(), "XP"],
     [fmtDur(tk ? tk.s : 0), "today"],
     [fmtDur(tot), "all time"],
     [passed + "/" + total, "lessons passed"],
@@ -3275,8 +3511,10 @@ function drawTrain(){ if(view === "home") drawHome(); if(view === "practice") dr
    THE PATH: every stage, in order, with where you are on it
    ============================================================ */
 function drawTOC(){ if(view === "learn" && !openId) drawPath(); if(view === "home") drawHome(); }
+var pathWeak = {};
 function drawPath(){
   var box = $("learnView"); box.innerHTML = "";
+  pathWeak = {}; lvWeak(plevel, lvLearned()).forEach(function(k){ pathWeak[k.id] = 1; });
   var nx = nextUp();
   var total = LESSONS.filter(passable).length;
   var passed = LESSONS.filter(function(L){ return passable(L) && progress[L.id]; }).length;
@@ -3301,7 +3539,7 @@ function drawPath(){
     hb.type = "button";
     hb.setAttribute("aria-expanded", open ? "true" : "false");
     hb.innerHTML = '<span class="snum">' + (dn === ct ? "✓" : S.n) + '</span>' +
-      '<span class="smain"><b>' + S.title + '</b><span>' + S.blurb + '</span></span>' +
+      '<span class="smain"><b>' + S.title + (function(){ var w = S.lessons.filter(function(L){ return pathWeak[L.id]; }).length; return w ? ' <em class="duechip weak">' + w + ' weak at the table</em>' : ""; })() + '</b><span>' + S.blurb + '</span></span>' +
       '<span class="sside"><span class="sprog"><i style="width:' + (100 * dn / ct).toFixed(0) + '%"></i></span><small>' + dn + '/' + ct + (S.sub ? ' &middot; ' + S.sub : "") + '</small></span>' +
       '<span class="lcar">' + (open ? "−" : "+") + '</span>';
     hb.onclick = function(){ openLayer = open ? -1 : S.n; drawPath(); saveSoon(); };
@@ -3313,7 +3551,7 @@ function drawPath(){
         var a = el("a", "lrow2 " + st);
         a.href = "#/learn/" + L.id;
         a.innerHTML = '<span class="lic">' + (st === "done" ? "✓" : st === "lab" ? "◇" : S.n + "." + (i + 1)) + '</span>' +
-          '<span class="lmain"><b>' + L.title + (lessonDue(L) ? ' <em class="duechip">review due</em>' : "") + '</b><span>' + L.gist + '</span></span>' +
+          '<span class="lmain"><b>' + L.title + (lessonDue(L) ? ' <em class="duechip">review due</em>' : "") + (pathWeak[L.id] ? ' <em class="duechip weak">weak at the table</em>' : "") + '</b><span>' + L.gist + '</span></span>' +
           '<span class="lmeta">' + lessonMinutes(L) + ' min<br><small>' + (st === "done" ? "passed" : st === "lab" ? "lab" : st === "next" ? "next up" : "checkpoint") + '</small></span>';
         ul.appendChild(a);
       });
@@ -3399,7 +3637,15 @@ function openLesson(id){
     cpBox.innerHTML = '<b>' + (progress[id] ? "Passed. Run the checkpoint again any time." : "Ready? Pass the checkpoint to add this skill to your reviews.") + '</b>' +
       '<span>' + L.of + ' questions, ' + L.pass + ' right to pass. Timed, but only accuracy counts here.</span>';
     cpBox.appendChild(btnEl(progress[id] ? "Retake checkpoint" : "Start checkpoint", "go", function(){ startCp(id); }));
+    if(!progress[id]) cpBox.appendChild(el("span", "xpchip", "+" + GM_XP_LESSON + " XP"));
     f.appendChild(cpBox);
+    var rec = skillRecord(L);
+    var rb = el("div", "rrec", '<b>Your record</b>' + (rec.length ? rec.map(function(x){ return '<span>' + x + '</span>'; }).join("") : '<span>Nothing yet: pass the checkpoint to put this skill on your review schedule.</span>'));
+    var rr = el("div", "row");
+    if(MODE_META[L.mode]) rr.appendChild(btnEl("Drill " + MODE_META[L.mode], "ghost", function(){ drillTableWeak([L.mode]); }));
+    if(LV_SKILLS[L.id]) rr.appendChild(btnEl("Use it at the table", "ghost", function(){ location.hash = "#/play"; }));
+    if(rr.children.length) rb.appendChild(rr);
+    f.appendChild(rb);
   } else {
     f.appendChild(el("div", "rcp", "<b>No checkpoint on this one.</b><span>Play with the lab until the numbers stop surprising you.</span>"));
   }
@@ -3427,7 +3673,8 @@ function fxCard(f, compact){
     '<div class="fxm">' + fxHTML(f.f) + '</div>' +
     (f.vars && f.vars.length ? '<dl class="fxv">' + f.vars.map(function(v){ return '<div><dt>' + fxHTML(v[0]) + '</dt><dd>' + v[1] + '</dd></div>'; }).join("") + '</dl>' : "") +
     (f.anchors && f.anchors.length ? '<div class="fxa">' + f.anchors.map(function(a){ return '<span>' + a[0] + ' <b>' + a[1] + '</b></span>'; }).join("") + '</div>' : "") +
-    (f.note && !compact ? '<p class="fxnote">' + f.note + '</p>' : f.note ? '<p class="fxnote">' + f.note + '</p>' : "") + '</div>';
+    (f.note && !compact ? '<p class="fxnote">' + f.note + '</p>' : f.note ? '<p class="fxnote">' + f.note + '</p>' : "") +
+    (function(){ var L = lessonById(f.lesson); return L && MODE_META[L.mode] ? '<button type="button" class="pconcept drill fxdrill" data-drill="' + L.mode + '">Drill ' + MODE_META[L.mode] + '</button>' : ""; })() + '</div>';
 }
 
 /* reading progress, as a thin bar under the header */
@@ -3443,7 +3690,7 @@ window.addEventListener("scroll", readProgress, { passive:true });
 
 /* ---- terms defined in place ---- */
 function glossify(root, lessonId){
-  var used = {}, sel = ".prose, .warn, .keybox span, .rule small, .steps li, .punch, .howsteps li, .cap";
+  var used = {}, sel = ".prose, .warn, .keybox span, .rule small, .steps li, .punch, .howsteps li, .cap, .math p, .plines li";
   root.querySelectorAll(sel).forEach(function(node){
     var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
     var texts = [], t;
@@ -3581,7 +3828,9 @@ function drawToday(){
   var now = Date.now();
   var ids = Object.keys(skills).filter(isSkill);
   var due = srsDueList(ids, skills, now);
-  box.appendChild(el("div","kick", new Date(now).toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" })));
+  var gd = plog[srsDayKey(now)] || {}, gst = gmStreak(plog, now);
+  box.appendChild(el("div","kick", new Date(now).toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" }) +
+    ' &middot; ' + (gd.x || 0) + ' / ' + gstate.goal + ' XP' + (gd.g ? ' &#10003;' : '') + ' &middot; &#128293; ' + gst.days));
   var row = el("div","row");
   if(!ids.length){
     box.appendChild(el("h3", null, "Nothing on the schedule yet"));
@@ -3619,7 +3868,7 @@ function drawToday(){
 
   /* what the table says you get wrong, one tap from drilling it */
   var tb = $("fromTable");
-  var tw = lvWeak(plevel).slice(0, 4);
+  var tw = lvWeak(plevel, lvLearned()).slice(0, 4);
   tb.hidden = !tw.length;
   tb.innerHTML = "";
   if(tw.length){
@@ -3654,7 +3903,8 @@ function drawSkills(){
       return r;
     }
     var rc = srsRecent(s, 20), goalX = srsGoal(1, s.box);
-    r.innerHTML = '<span class="nm">' + name + '</span><span class="boxes">' + bx + '</span>' +
+    var tk = lvSkills(plevel, lvLearned()).filter(function(k){ return k.drill === id && k.recent; })[0];
+    r.innerHTML = '<span class="nm">' + name + (tk ? ' <a class="sktbl" href="#/level" title="' + tk.name + ' at the Play table">table ' + Math.round(tk.rating) + '</a>' : "") + '</span><span class="boxes">' + bx + '</span>' +
       '<span class="lv">' + srsLevel(s) + '</span>' +
       '<span class="nb" title="accuracy, last ' + rc.n + '">' + (rc.n ? Math.round(100 * rc.acc) + "%" : "&ndash;") + '</span>' +
       '<span class="nb" title="median time as a multiple of this box&rsquo;s goal; under 1 is inside it">' + (rc.n && rc.pace ? (rc.pace / goalX).toFixed(1) + "&times;" : "&ndash;") + '</span>' +
@@ -3688,6 +3938,13 @@ function drawLibrary(){
   if(s === "reading") drawReading();
 }
 function libMatch(q, parts){ q = q.trim().toLowerCase(); return !q || parts.join(" ").toLowerCase().indexOf(q) >= 0; }
+/* "Formulas" links open the library filtered to that lesson */
+document.addEventListener("click", function(e){
+  var a = e.target.closest && e.target.closest("a[data-fx]");
+  if(!a) return;
+  var L = lessonById(a.dataset.fx);
+  if(L && $("fxq")) $("fxq").value = L.title;
+});
 function drawFormulas(){
   var inp = $("fxq"), out = $("fxlist");
   if(!inp.dataset.wired){ inp.dataset.wired = "1"; inp.oninput = drawFormulas; }
@@ -3736,7 +3993,25 @@ async function playLoad(){
     if(s){ if(s.set) Object.assign(pset, s.set); pcareer = s.career || null; plevel = s.level || null; }
   }catch(e){}
 }
-function playSave(){ try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer, level:plevel })); }catch(e){} }
+function playSave(){ try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer, level:plevel })); }catch(e){} saveSoon(); }
+
+/* the table, the level log and the game state travel with the rest of the
+   progress (backup and sync). A state that arrives before the local copies
+   are loaded waits, then merges in. */
+var tableLoaded = false, tablePending = null;
+function tableSnapshot(){
+  var g = {}; Object.keys(gstate).forEach(function(k){ if(k !== "primed") g[k] = gstate[k]; });
+  return { career: pcareer, level: plevel, game: g };
+}
+function adoptTable(t){
+  if(!tableLoaded){ tablePending = syncTableMerge(tablePending, t); return; }
+  var m = syncTableMerge(tableSnapshot(), t);
+  pcareer = m.career || null; plevel = m.level || null;
+  lvMigrate();
+  if(m.game){ var primed = gstate.primed; Object.assign(gstate, m.game); gstate.primed = primed; }
+  try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer, level:plevel })); }catch(e){}
+  gameSave(true);
+}
 
 function pCard(c, cls){
   if(c == null) return '<span class="pc back' + (cls ? " " + cls : "") + '"></span>';
@@ -3747,6 +4022,25 @@ function pBB(x){ return (Math.round(x * 100) / 100) + ""; }
 function pSigned(x){ return (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(Math.round(x * 100) / 100) + " bb"; }
 function pPct(x){ return Math.round(100 * x) + "%"; }
 function lessonLink(id){ var L = lessonById(id); return L ? '<a class="pconcept" href="#/learn/' + id + '">' + L.title + ' &rsaquo;</a>' : ""; }
+/* a concept from the coach: its lesson, and the drill that trains it */
+function conceptLinks(id){
+  var L = lessonById(id); if(!L) return "";
+  return lessonLink(id) + (MODE_META[L.mode] ? '<button type="button" class="pconcept drill" data-drill="' + L.mode + '">Drill ' + MODE_META[L.mode] + '</button>' : "");
+}
+/* what you know about a lesson's skill, from every part of the app */
+function skillRecord(L){
+  var parts = [], s = skills[L.mode];
+  if(MODE_META[L.mode]){
+    if(s && s.box > 0) parts.push('Drill: <b>' + srsLevel(s) + '</b>' + (Date.now() >= s.due ? ', <b class="due">review due</b>' : ', next review in ' + fmtIn(s.due - Date.now())));
+    else if(s && s.n) parts.push('Drill: practised ' + s.n + (s.n === 1 ? ' time' : ' times') + ', not yet on your schedule');
+  }
+  var tk = LV_SKILLS[L.id] ? lvSkills(plevel, lvLearned()).filter(function(k){ return k.id === L.id; })[0] : null;
+  if(tk && tk.recent){
+    var weak = lvWeak(plevel, lvLearned()).some(function(k){ return k.id === L.id; });
+    parts.push('At the table: <b>' + Math.round(tk.rating) + '</b> over ' + tk.n + ' decisions' + (weak ? ' <em class="duechip weak">weak spot</em>' : ""));
+  } else if(LV_SKILLS[L.id]) parts.push('At the table: no decisions yet in ' + LV_SKILLS[L.id].name.toLowerCase());
+  return parts;
+}
 
 function drawPlay(){
   if(!pg){ pg = playNew(pset.lineup); }
@@ -3827,7 +4121,7 @@ function playLoop(){
 function onHandOver(){
   pcareer = playCareerAdd(pcareer, pg.session, pg);
   if(pg.history[0]){
-    plevel = lvAddHand(plevel, pg.history[0], Date.now());
+    plevel = lvAddHand(plevel, pg.history[0], Date.now(), lvLearned());
     levelFlag(pg.history[0]);
   }
   playSave();
@@ -3838,6 +4132,9 @@ function heroAct(a){
   if(!playHeroTurn(pg)) return;
   var d = playHeroAct(pg, a);
   pFeedback = d;
+  var tx = gmTableXP(d.G.grade);
+  d.xp = tx;
+  if(tx) gmGain(tx, null);
   if(pg.t.hand.over) onHandOver();
   drawFelt(); drawActBar(); drawPlaySide();
   playLoop();
@@ -3964,10 +4261,13 @@ function drawPlaySide(){
     var best = A.options.filter(function(o){ return o.key === A.best; })[0];
     var mine = A.options.filter(function(o){ return o.key === G.chosen; })[0] || best;
     fb.innerHTML = '<div class="ph"><h3>Last decision</h3><span>' + ["Preflop","Flop","Turn","River"][A.street] + ' &middot; ' + A.pos + '</span></div>' +
-      '<div class="pgrade"><span class="gbadge ' + GRADE_CLS[G.grade] + '">' + G.grade + '</span><span>' + (G.loss < 0.05 ? "No EV given up" : "EV given up <b>" + pBB(G.loss) + " bb</b>") + '</span></div>' +
+      '<div class="pgrade"><span class="gbadge ' + GRADE_CLS[G.grade] + '">' + G.grade + '</span><span>' + (G.loss < 0.05 ? "No EV given up" : "EV given up <b>" + pBB(G.loss) + " bb</b>") + '</span>' + (pFeedback && pFeedback.xp ? '<span class="xpchip">+' + pFeedback.xp + ' XP</span>' : "") + '</div>' +
       '<div class="pyou">You: <b>' + mine.label + '</b>' + (G.chosen !== A.best ? ' &middot; ' + (G.grade === "Best" ? "within a whisker of " : "Best: ") + '<b>' + best.label + '</b>' : "") + '</div>' +
       '<ul class="plines">' + G.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
-      '<div class="pconcepts">' + G.concepts.map(lessonLink).join("") + '</div>';
+      '<div class="pconcepts">' + G.concepts.map(conceptLinks).join("") + '</div>' +
+      (function(){ var LN = lvLearned(), nl = G.concepts.filter(function(c){ return LV_SKILLS[c] && !LN[c]; });
+        return nl.length ? '<p class="pnote">Not counted in your level: you have not learned ' + nl.map(function(c){ return '<a href="#/learn/' + c + '">' + lessonById(c).title + '</a>'; }).join(" or ") + ' yet. Play on freely; it starts counting once you pass the lesson.</p>' : ""; })();
+    glossify(fb, null);
   } else {
     fb.innerHTML = '<div class="ph"><h3>Coach</h3></div><p class="pnote">After each of your decisions the coach grades it here: what every option was worth against what your opponents actually hold, and which lesson it comes from.</p>';
   }
@@ -4050,10 +4350,11 @@ function drawPlayReview(){
         return '<div class="popp"><b>' + o.name + '</b> <span class="pmuted">' + o.pos + (pset.labels ? " &middot; " + BOT_STYLES[o.style].name : "") + ' &middot; range ' + o.rangePct.toFixed(1) + '% of hands</span>' + bar +
           '<div class="ptop">' + (o.rangePct > 90 ? "Any two cards: they had not acted yet." : "Most likely: " + o.top.map(function(t2){ return t2[0] + ' ' + pPct(t2[1]); }).join(", ")) + '</div></div>';
       }).join("") + '</div>' +
-      '<div class="pconcepts">' + G.concepts.map(lessonLink).join("") + '</div></div>';
+      '<div class="pconcepts">' + G.concepts.map(conceptLinks).join("") + '</div></div>';
   });
   html += '<p class="pnote">How this is priced: your opponents&rsquo; ranges are tracked exactly, by Bayes&rsquo; rule, from the strategies they play; their fold rates come from those same strategies. Each option looks one street ahead, with equity realisation standing in for the streets after that, and a raise by an opponent counted as a call. Treat small differences as ties.</p>';
   box.innerHTML = html;
+  glossify(box, null);
   $("pCloseRev").onclick = function(e){ e.preventDefault(); pReview = null; drawPlayReview(); drawPlaySide(); };
 }
 
@@ -4061,6 +4362,22 @@ function drawPlayReview(){
    LEVEL: your skill as measured at the table, not in the course
    ============================================================ */
 var lvOpen = {}, lvAll = false;
+
+/* the table skills you have learned: passed the lesson that teaches them */
+function lvLearned(){
+  var m = {};
+  Object.keys(LV_SKILLS).forEach(function(id){ if(progress[id]) m[id] = 1; });
+  return m;
+}
+/* decisions logged before skills were tracked: judge them by what is learned now */
+function lvMigrate(){
+  if(!plevel) return;
+  var L = lvLearned();
+  (plevel.d || []).forEach(function(x){ if(!x.k) x.k = lvKnown(x.c, L); });
+  (plevel.m || []).forEach(function(x){ if(!x.k) x.k = lvKnown(x.c, L); });
+}
+/* the lessons a decision leaned on that you had not learned when you played it */
+function lvUnlearned(x){ return x.c.filter(function(c){ return LV_SKILLS[c] && (x.k || []).indexOf(c) < 0; }); }
 
 /* a table mistake puts the drill that trains it back on today's reviews */
 function levelFlag(hand){
@@ -4076,8 +4393,15 @@ function levelFlag(hand){
   if(hit){ saveSoon(); drawTrainTab(); }
 }
 
+/* one Drill action everywhere: any [data-drill] starts a focused session on that drill */
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest("[data-drill]");
+  if(!b || !MODE_META[b.dataset.drill]) return;
+  e.preventDefault();
+  drillTableWeak([b.dataset.drill]);
+});
 function drillTableWeak(only){
-  var ms = only || lvWeak(plevel).map(function(k){ return k.drill; });
+  var ms = only || lvWeak(plevel, lvLearned()).map(function(k){ return k.drill; });
   ms = ms.filter(function(m, i){ return MODE_META[m] && ms.indexOf(m) === i; });
   if(!ms.length) return;
   startSession("table", ms);
@@ -4089,15 +4413,25 @@ function lvSign(x){ return (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(Math.ro
 function drawLevel(){
   var box = $("levelView");
   var S = lvSummary(plevel);
-  var html = '<div class="vhead"><div><h1>Your level</h1><p>How well you actually play, measured from every decision you make at the Play table: not how far through the course you are. The rating is the quality of your last ' + LV_WINDOW + ' decisions, so it moves when you improve and when you slip.</p></div></div>';
+  var html = '<div class="vhead"><div><h1>Your level</h1><p>How well you actually play, measured from every decision you make at the Play table: not how far through the course you are. The rating is the quality of your last ' + LV_WINDOW + ' rated decisions, so it moves when you improve and when you slip. Only skills you have learned count: a decision that leans on a lesson you had not passed yet is shown, but never held against you.</p></div></div>';
+  var LN = lvLearned(), nLearned = Object.keys(LN).length, nSkills = Object.keys(LV_SKILLS).length;
+  var unl = Object.keys(LV_SKILLS).filter(function(id){ return !LN[id]; });
+  var nextL = unl.map(lessonById).filter(Boolean).sort(function(a, b){ return LESSONS.indexOf(a) - LESSONS.indexOf(b); })[0];
+  var cover = '<div class="lvcover"><b>Rated on ' + nLearned + ' of ' + nSkills + ' table skills</b>' +
+    (unl.length ? '<span>Not counted until you learn them: ' + unl.map(function(id){ return '<a href="#/learn/' + id + '">' + LV_SKILLS[id].name + '</a>'; }).join(", ") + '.</span>' : '<span>Every table skill is learned, so every decision counts.</span>') +
+    (S.unrated ? '<span>' + S.unrated + ' of your ' + S.played + ' decisions so far leaned on skills you had not learned, and are not rated.</span>' : "") +
+    '<div class="lvcbar">' + Object.keys(LV_SKILLS).map(function(id){ return '<i class="' + (LN[id] ? "on" : "") + '" title="' + LV_SKILLS[id].name + (LN[id] ? ": learned" : ": not learned yet") + '"></i>'; }).join("") + '</div></div>';
 
   if(!S.placed){
-    html += '<div class="lvhero"><div class="lvrate">' + S.n + '<small>of ' + LV_PLACEMENT + ' decisions</small></div><div>' +
-      '<div class="lvname">Placement</div><p class="lvabout">Play ' + S.left + ' more ' + (S.left === 1 ? "decision" : "decisions") + ' at the table to get your first level. Every fold, call, bet and raise you make is graded against what your opponents really hold.</p>' +
-      '<div class="lvbar"><span style="width:' + (100 * S.n / LV_PLACEMENT).toFixed(0) + '%"></span></div></div></div>';
+    html += '<div class="lvhero"><div class="lvrate">' + S.n + '<small>of ' + LV_PLACEMENT + ' rated</small></div><div>' +
+      '<div class="lvname">Placement</div><p class="lvabout">' + (nLearned
+        ? 'Play ' + S.left + ' more ' + (S.left === 1 ? "decision" : "decisions") + ' in skills you have learned to get your first level. Every fold, call, bet and raise you make is graded against what your opponents really hold.'
+        : 'You have not learned a table skill yet, so nothing you do at the table counts against you. Pass ' + (nextL ? '<a href="#/learn/' + nextL.id + '">' + nextL.title + '</a>' : "a lesson") + ' and decisions in that skill start to count. Until then, play freely: the coach still grades every decision.') + '</p>' +
+      '<div class="lvbar"><span style="width:' + (100 * S.n / LV_PLACEMENT).toFixed(0) + '%"></span></div></div></div>' + cover;
     box.innerHTML = html;
-    var r0 = el("div", "row"); r0.appendChild(btnEl("Play hands", "go", function(){ location.hash = "#/play"; }));
+    var r0 = el("div", "row"); r0.appendChild(btnEl(nLearned ? "Play hands" : "Learn: " + (nextL ? nextL.title : "the path"), "go", function(){ location.hash = nLearned ? "#/play" : nextL ? "#/learn/" + nextL.id : "#/learn"; }));
     box.appendChild(r0);
+    box.insertAdjacentHTML("beforeend", trophyPanel());
     return;
   }
 
@@ -4107,12 +4441,12 @@ function drawLevel(){
     '<p class="lvabout">' + Lv.about + '</p>' +
     '<div class="lvbar"><span style="width:' + (100 * Lv.toNext).toFixed(0) + '%"></span></div>' +
     '<div class="lvcap">' + (Lv.next ? (Lv.next.min - Math.round(S.rating)) + (Lv.next.min - Math.round(S.rating) === 1 ? ' point' : ' points') + ' to ' + Lv.next.name : 'Top of the ladder') +
-      ' &middot; ' + S.n + ' decisions logged &middot; EV given up ' + S.lostPer.toFixed(2) + ' bb per decision' +
-      (S.first != null ? ' &middot; you started at ' + Math.round(S.first) : "") + '</div></div></div>';
+       ' &middot; ' + S.n + ' rated decisions &middot; EV given up ' + S.lostPer.toFixed(2) + ' bb per decision' +
+      (S.first != null ? ' &middot; you started at ' + Math.round(S.first) : "") + '</div></div></div>' + cover;
 
   /* the rating over time, and the skills behind it */
   html += '<div class="lvgrid"><div class="panel"><div class="ph"><h3>Rating over time</h3><span>last ' + LV_WINDOW + ' decisions at each point</span></div><div class="lvchart" id="lvChart"></div></div>';
-  var weak = lvWeak(plevel);
+  var weak = lvWeak(plevel, lvLearned());
   html += '<div class="panel' + (weak.length ? " lvweak" : "") + '"><div class="ph"><h3>Weak spots</h3><span>review these</span></div>' +
     (weak.length ? '<p class="pnote">Skills you play below your own level, or keep making real mistakes in. Drilling one trains the maths behind it; mistakes at the table also put that drill back on <a href="#/practice/review">today&rsquo;s reviews</a>.</p><div class="clist">' +
       weak.slice(0, 5).map(function(k){ return '<div><span>' + k.name + ' <small>' + k.mistakes + ' mistakes in last ' + k.recent + '</small></span><b>' + Math.round(k.rating) + '</b></div>'; }).join("") + '</div><div class="row" id="lvWeakRow" style="margin-top:12px"></div>'
@@ -4121,9 +4455,10 @@ function drawLevel(){
 
   html += '<div class="panel" style="margin-bottom:18px"><div class="ph"><h3>Skills at the table</h3><span>last ' + 25 + ' decisions each</span></div>' +
     '<div class="lvsk head"><span>Skill</span><span>Rating</span><span class="nb">Trend</span><span class="nb">bb lost</span><span></span></div>' +
-    (function(){ var wk = {}; weak.forEach(function(k){ wk[k.id] = 1; }); return lvSkills(plevel).map(function(k){ k.weak = !!wk[k.id]; return k; }); })().sort(function(a, b){ return (b.recent ? 1 : 0) - (a.recent ? 1 : 0) || (b.weak ? 1 : 0) - (a.weak ? 1 : 0) || (a.rating || 0) - (b.rating || 0); }).map(function(k){
-      if(!k.recent) return '<div class="lvsk off"><span>' + k.name + '<small>no decisions yet</small></span><span></span><span class="nb">&ndash;</span><span class="nb">&ndash;</span><span><button type="button" class="chip" data-drill="' + k.drill + '">Drill</button></span></div>';
-      return '<div class="lvsk"><span>' + k.name + (k.weak ? ' <em class="lvtag">weak spot</em>' : "") + '<small>' + k.n + ' decisions &middot; ' + MODE_META[k.drill] + '</small></span>' +
+    (function(){ var wk = {}; weak.forEach(function(k){ wk[k.id] = 1; }); return lvSkills(plevel, lvLearned()).map(function(k){ k.weak = !!wk[k.id]; return k; }); })().sort(function(a, b){ return (b.learned ? 1 : 0) - (a.learned ? 1 : 0) || (b.recent ? 1 : 0) - (a.recent ? 1 : 0) || (b.weak ? 1 : 0) - (a.weak ? 1 : 0) || (a.rating || 0) - (b.rating || 0); }).map(function(k){
+      if(!k.learned) return '<div class="lvsk off"><span><a href="#/learn/' + k.id + '">' + k.name + '</a><small>not learned yet' + (k.played ? ' &middot; ' + k.played + ' decisions played, not rated' : "") + '</small></span><span class="lvnl">Doesn&rsquo;t count until you pass the lesson</span><span class="nb">&ndash;</span><span class="nb">&ndash;</span><span><a class="chip" href="#/learn/' + k.id + '">Learn</a></span></div>';
+      if(!k.recent) return '<div class="lvsk off"><span><a href="#/learn/' + k.id + '">' + k.name + '</a><small>learned &middot; no rated decisions yet</small></span><span></span><span class="nb">&ndash;</span><span class="nb">&ndash;</span><span><button type="button" class="chip" data-drill="' + k.drill + '">Drill</button></span></div>';
+      return '<div class="lvsk"><span><a href="#/learn/' + k.id + '">' + k.name + '</a>' + (k.weak ? ' <em class="lvtag">weak spot</em>' : "") + '<small>' + k.n + ' decisions &middot; ' + MODE_META[k.drill] + '</small></span>' +
         '<span><div class="sbar" title="rating ' + Math.round(k.rating) + '; the line is your overall ' + Math.round(S.rating) + '"><span class="' + (k.weak ? (k.rating < 60 ? "lo" : "mid") : lvColor(k.rating)) + '" style="width:' + k.rating.toFixed(0) + '%"></span><i style="left:' + S.rating.toFixed(0) + '%"></i></div></span>' +
         '<span class="nb ' + (k.delta == null || Math.abs(k.delta) < 1 ? "" : k.delta > 0 ? "up" : "down") + '" title="change against the 25 decisions before">' + (k.delta == null ? "new" : lvSign(k.delta)) + '</span>' +
         '<span class="nb" title="EV given up per decision">' + k.lostPer.toFixed(2) + '</span>' +
@@ -4136,21 +4471,22 @@ function drawLevel(){
   html += '<div class="panel"><div class="ph"><h3>Spots to review</h3><span>' + M.length + ' mistakes and blunders</span></div>' +
     (M.length ? '<p class="pnote">Your most recent mistakes and blunders at the table. Read what was better and why, drill the skill, then mark it reviewed.</p>' + M.slice(0, lvAll ? M.length : 8).map(function(m){
       var sk = m.c.map(function(c){ return LV_SKILLS[c]; }).filter(Boolean);
+      var nl = lvUnlearned(m);
       return '<details class="lvm"' + (lvOpen[m.id] ? " open" : "") + ' data-id="' + m.id + '"><summary><span class="gbadge sm ' + GRADE_CLS[m.grade] + '">' + m.grade + '</span>' +
         '<b>' + m.street.charAt(0).toUpperCase() + m.street.slice(1) + '</b><span class="phc">' + pCard(m.cards[0], "sm") + pCard(m.cards[1], "sm") + '</span>' +
         (m.board.length ? '<span class="phc">' + m.board.map(function(c){ return pCard(c, "sm"); }).join("") + '</span>' : "") +
-        '<span>' + (sk[0] ? sk[0].name : "") + '</span><span class="pmuted">' + m.pos + ' &middot; &minus;' + m.loss.toFixed(2) + ' bb &middot; ' + fmtAgo(m.t) + '</span></summary>' +
-        '<p class="lvdid">Pot ' + pBB(m.pot) + (m.toCall ? ', ' + pBB(m.toCall) + ' to call' : "") + '. You: <b class="bad">' + m.did + '</b> (' + pSigned(m.didEV) + '). Best: <b class="good">' + m.best + '</b> (' + pSigned(m.bestEV) + ').</p>' +
+        '<span>' + (sk[0] ? sk[0].name : "") + '</span>' + (nl.length ? '<em class="lvtag nl">not rated</em>' : "") + '<span class="pmuted">' + m.pos + ' &middot; &minus;' + m.loss.toFixed(2) + ' bb &middot; ' + fmtAgo(m.t) + '</span></summary>' +
+        (nl.length ? '<p class="pnote">Not counted in your rating: you had not learned ' + nl.map(function(c){ return '<a href="#/learn/' + c + '">' + lessonById(c).title + '</a>'; }).join(" or ") + ' yet when you played it. Learn it first, then this spot will make sense.</p>' : "") + '<p class="lvdid">Pot ' + pBB(m.pot) + (m.toCall ? ', ' + pBB(m.toCall) + ' to call' : "") + '. You: <b class="bad">' + m.did + '</b> (' + pSigned(m.didEV) + '). Best: <b class="good">' + m.best + '</b> (' + pSigned(m.bestEV) + ').</p>' +
         '<ul class="plines">' + m.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
         '<div class="pconcepts">' + m.c.map(lessonLink).join("") + '</div>' +
         '<div class="row">' + sk.map(function(k){ return '<button type="button" class="act ghost" data-drill="' + k.drill + '">Drill ' + MODE_META[k.drill] + '</button>'; }).join("") +
           '<button type="button" class="act ghost" data-done="' + m.id + '">Mark reviewed</button></div></details>';
     }).join("") + (M.length > 8 ? '<div class="row"><button type="button" class="act ghost" id="lvMore">' + (lvAll ? "Show fewer" : "Show all " + M.length) + '</button></div>' : "") : '<p class="pnote">No mistakes or blunders logged. When you make one at the table it lands here, with what was better and the drill that trains it.</p>') + '</div>';
 
-  box.innerHTML = html;
+  box.innerHTML = html + trophyPanel();
+  glossify(box, null);
   if($("lvWeakRow")) $("lvWeakRow").appendChild(btnEl("Drill weak spots", "go", function(){ drillTableWeak(); }));
-  box.querySelectorAll("[data-drill]").forEach(function(b){ b.onclick = function(){ drillTableWeak([b.dataset.drill]); }; });
-  box.querySelectorAll("[data-done]").forEach(function(b){ b.onclick = function(){ plevel = lvDismiss(plevel, b.dataset.done); playSave(); drawLevel(); }; });
+  box.querySelectorAll("[data-done]").forEach(function(b){ b.onclick = function(){ plevel = lvDismiss(plevel, b.dataset.done); playSave(); gstate.spots = (gstate.spots || 0) + 1; gameSave(); gmGain(GM_XP_SPOT, "Spot reviewed"); drawLevel(); }; });
   if($("lvMore")) $("lvMore").onclick = function(){ lvAll = !lvAll; drawLevel(); };
   box.querySelectorAll("details.lvm").forEach(function(d){ d.ontoggle = function(){ lvOpen[d.dataset.id] = d.open; }; });
   drawLevelChart();
@@ -4217,6 +4553,12 @@ $("syncPill").onclick = function(){ location.hash = "#/sync"; };
   await loadSaved();
   await syncLoadCfg();
   await playLoad();
+  await gameLoad();
+  tableLoaded = true;
+  lvMigrate();
+  if(tablePending){ var tp = tablePending; tablePending = null; adoptTable(tp); }
+  gmCheckTrophies();
+  drawGamePill();
   var hadHash = /^#\/./.test(location.hash);
   drawModes(); drawTape();
   route();

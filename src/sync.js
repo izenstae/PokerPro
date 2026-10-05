@@ -17,7 +17,7 @@ var SYNC_FILE = "pokerpro-progress.json";
 var SYNC_API = "https://api.github.com";
 
 function syncEmpty() {
-  return { v: 1, epoch: 0, statsEpoch: 0, progress: {}, stats: null, skills: {}, plog: {}, devices: {} };
+  return { v: 1, epoch: 0, statsEpoch: 0, progress: {}, stats: null, skills: {}, plog: {}, devices: {}, table: null };
 }
 
 function syncNorm(st) {
@@ -30,6 +30,7 @@ function syncNorm(st) {
   e.skills = st.skills || {};
   e.plog = st.plog || {};
   e.devices = st.devices || {};
+  e.table = st.table && typeof st.table === "object" ? st.table : null;
   return e;
 }
 
@@ -74,7 +75,18 @@ function syncMerge(a, b) {
       n: Math.max(x.n || 0, y.n || 0),
       ok: Math.max(x.ok || 0, y.ok || 0)
     };
+    /* the game fields: XP, goal met, crammed answers, per-skill review counts */
+    if (x.x || y.x) out.plog[k].x = Math.max(x.x || 0, y.x || 0);
+    if (x.g || y.g) out.plog[k].g = 1;
+    if (x.c || y.c) out.plog[k].c = Math.max(x.c || 0, y.c || 0);
+    if (x.r || y.r) {
+      var r = {}, xr = x.r || {}, yr = y.r || {};
+      Object.keys(xr).concat(Object.keys(yr)).forEach(function (m) { r[m] = Math.max(xr[m] || 0, yr[m] || 0); });
+      out.plog[k].r = r;
+    }
   });
+
+  out.table = syncTableMerge(a.table, b.table);
 
   var sa = a.stats, sb = b.stats;
   if (a.statsEpoch !== b.statsEpoch) {
@@ -84,6 +96,35 @@ function syncMerge(a, b) {
     out.statsEpoch = a.statsEpoch;
     out.stats = !sa ? sb : !sb ? sa : (sb.n || 0) > (sa.n || 0) ? sb : sa;
   }
+  return out;
+}
+
+/* the Play table, the level log and the game state: each device plays its
+   own hands, so take the fuller career and level log, keep every trophy
+   either device has earned (at its earliest date), and the larger counters */
+function syncTableMerge(a, b) {
+  if (!a || !b) return a || b || null;
+  var out = {};
+  var ca = a.career, cb = b.career;
+  out.career = !ca ? cb || null : !cb ? ca : (cb.decisions || 0) > (ca.decisions || 0) ? cb : ca;
+  var la = a.level, lb = b.level;
+  out.level = !la ? lb || null : !lb ? la : ((lb.d || []).length > (la.d || []).length ? lb : la);
+  var ga = a.game || {}, gb = b.game || {};
+  if (a.game || b.game) {
+    var seen = {}, sa = ga.seen || {}, sb = gb.seen || {};
+    Object.keys(sa).concat(Object.keys(sb)).forEach(function (k) {
+      seen[k] = Math.min(sa[k] || Infinity, sb[k] || Infinity);
+    });
+    out.game = {
+      goal: (gb.goalAt || 0) > (ga.goalAt || 0) ? gb.goal : (ga.goal || gb.goal),
+      goalAt: Math.max(ga.goalAt || 0, gb.goalAt || 0),
+      seen: seen,
+      spots: Math.max(ga.spots || 0, gb.spots || 0),
+      sweeps: Math.max(ga.sweeps || 0, gb.sweeps || 0),
+      plugged: Math.max(ga.plugged || 0, gb.plugged || 0),
+      peakLevel: Math.max(ga.peakLevel || 0, gb.peakLevel || 0)
+    };
+  } else out.game = null;
   return out;
 }
 
@@ -198,5 +239,5 @@ function syncWrite(token, id, st, keepalive) {
 
 if (typeof module !== "undefined") module.exports = {
   SYNC_FILE: SYNC_FILE, syncEmpty: syncEmpty, syncNorm: syncNorm, syncMerge: syncMerge, syncCanon: syncCanon,
-  syncSummary: syncSummary, syncDiff: syncDiff
+  syncSummary: syncSummary, syncDiff: syncDiff, syncTableMerge: syncTableMerge
 };

@@ -55,6 +55,29 @@ const ser = lvSeries(L, 30);
 ok(ser.length >= 2 && ser.length <= 32 && ser.every(p => p.r >= 0 && p.r <= 100), "series has bounded points: " + ser.length);
 ok(Math.abs(ser[ser.length - 1].r - s2.rating) < 1e-9, "series ends at the current rating");
 
+/* only skills you have learned count */
+let U = lvNew();
+for (let i = 0; i < 40; i++) U = lvAddHand(U, hand(i, [["Blunder", "mdf"]]), 100 + i, { rfi: 1 });   /* mdf not learned */
+let su = lvSummary(U);
+ok(su.n === 0 && su.played === 40 && su.unrated === 40 && !su.placed && su.rating === null, "blunders in an unlearned skill do not count");
+for (let i = 40; i < 70; i++) U = lvAddHand(U, hand(i, [["Best", "rfi"]]), 100 + i, { rfi: 1 });
+su = lvSummary(U);
+ok(su.placed && su.n === 30 && su.rating > 90, "the rating is built only from learned skills: " + su.rating.toFixed(1));
+const ukM = lvSkills(U, { rfi: 1 }).find(k => k.id === "mdf"), ukR = lvSkills(U, { rfi: 1 }).find(k => k.id === "rfi");
+ok(!ukM.learned && ukM.rating === null && ukM.played === 40 && ukM.unrated === 40, "an unlearned skill shows what was played, unrated");
+ok(ukR.learned && ukR.n === 30, "a learned skill is rated");
+ok(lvWeak(U, { rfi: 1 }).every(k => k.id !== "mdf"), "an unlearned skill is never a weak spot");
+ok(lvSeries(U).every(p => p.r > 80), "the chart ignores unrated decisions");
+/* learning a skill later does not reach back */
+for (let i = 70; i < 80; i++) U = lvAddHand(U, hand(i, [["Mistake", "mdf"]]), 100 + i, { rfi: 1, mdf: 1 });
+const after = lvSkills(U, { rfi: 1, mdf: 1 }).find(k => k.id === "mdf");
+ok(after.learned && after.n === 10 && after.played === 50, "after learning, only new decisions count: " + after.n);
+/* a decision testing two skills counts only if both were learned */
+let V = lvNew();
+V = lvAddHand(V, { no: 1, pos: "BB", cards: [0, 1], decisions: [{ A: { street: 0, board: [], pot: 3, toCall: 2, eq: 0.4, best: "call", options: [{ key: "call", label: "Call", ev: 1 }] }, G: { quality: 0, loss: 3, grade: "Blunder", concepts: ["threebet", "eqr"], chosen: "call", lines: [] } }] }, 1, { threebet: 1 });
+ok(!lvCounts(V.d[0]) && V.m[0].k.join() === "threebet", "a decision leaning on an unlearned skill is not rated");
+ok(lvCounts({ c: ["rfi"] }), "decisions from before the rule still count");
+
 /* a real session at the table feeds it */
 let seed = 4321; const rng = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
 const g = playNew("mixed", rng);
