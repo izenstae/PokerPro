@@ -54,6 +54,21 @@ body{
 .fact dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
 .fact dd{font-size:17px; font-variant-numeric:tabular-nums}
 
+/* ---- links between features ---- */
+.rlinks{display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:12px; font-size:13px}
+.rlinks a{color:var(--gold); text-decoration:none} .rlinks a:hover{text-decoration:underline}
+button.pconcept.drill{cursor:pointer; font:inherit; font-size:12px; background:none; border:1px dashed var(--line); color:var(--dim); border-radius:14px; padding:2px 10px}
+button.pconcept.drill:hover{border-color:var(--gold); color:var(--bone)}
+.fxdrill{margin-top:10px}
+.rrec{display:flex; flex-direction:column; gap:4px; padding:14px 16px; border:1px solid var(--line); border-radius:10px; background:var(--felt); font-size:13.5px; color:var(--dim); margin-top:12px}
+.rrec > b{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:2px}
+.rrec span b{color:var(--bone)} .rrec span b.due{color:var(--gold)}
+.rrec .row{margin-top:8px}
+.duechip.weak{background:var(--red); color:#fff}
+.sktbl{font-size:11px; color:var(--gold); text-decoration:none; margin-left:6px; white-space:nowrap}
+a.tro,a.gt{text-decoration:none} a.tro:hover{border-color:var(--gold)} a.gt:hover b{color:var(--gold)}
+.lvsk a{color:var(--bone); text-decoration:none} .lvsk a:hover{color:var(--gold)}
+
 /* ---- game ---- */
 .gpill{display:inline-flex; align-items:center; gap:6px; margin-right:10px; padding:3px 10px 3px 4px; border-radius:20px; border:1px solid var(--line); color:var(--dim); text-decoration:none; font-size:12px; font-variant-numeric:tabular-nums; white-space:nowrap}
 .gpill:hover{border-color:var(--gold); color:var(--bone)}
@@ -1208,7 +1223,7 @@ async function gameLoad(){
   try{ var g = JSON.parse((await STORE.get(GAME_KEY)) || "null"); if(g) Object.assign(gstate, g); }catch(e){}
   gstate.primed = Object.keys(gstate.seen).length > 0;
 }
-function gameSave(){ try{ STORE.set(GAME_KEY, JSON.stringify(gstate)); }catch(e){} }
+function gameSave(quiet){ try{ STORE.set(GAME_KEY, JSON.stringify(gstate)); }catch(e){} if(!quiet) saveSoon(); }
 function gmToday(){ var k = srsDayKey(Date.now()); return plog[k] || (plog[k] = { s:0, n:0, ok:0 }); }
 
 /* one drill answer: cramming is counted per day, and each skill pays the
@@ -1320,19 +1335,26 @@ function gameCard(){
     '<div class="gcol grank"><div class="gbadge2">' + (R.index + 1) + '</div><div><b>' + R.name + '</b><span>' + total.toLocaleString() + ' XP' + (R.next ? ' &middot; ' + R.need.toLocaleString() + ' to ' + R.next.name : "") + '</span>' +
       '<div class="lvbar"><span style="width:' + (100 * R.toNext).toFixed(0) + '%"></span></div></div></div>' +
     '<div class="gtro"><div class="ph"><h3>Next trophies</h3><a href="#/level">All ' + T.filter(function(t){ return t.got; }).length + ' / ' + T.length + ' &rsaquo;</a></div>' +
-      near.map(function(t){ return '<div class="gt"><span><b>' + t.name + '</b> ' + t.about + '</span><i><span style="width:' + (100 * t.cur / t.max).toFixed(0) + '%"></span></i><em>' + t.cur + '/' + t.max + '</em></div>'; }).join("") + '</div>';
+      near.map(function(t){ return '<a class="gt" href="' + trophyHref(t.id) + '"><span><b>' + t.name + '</b> ' + t.about + '</span><i><span style="width:' + (100 * t.cur / t.max).toFixed(0) + '%"></span></i><em>' + t.cur + '/' + t.max + '</em></a>'; }).join("") + '</div>';
   var sel = c.querySelector("#gGoal");
-  sel.onchange = function(){ gstate.goal = +sel.value; gameSave(); gmGoalCheck(); saveSoon(); drawGamePill(); drawHome(); };
+  sel.onchange = function(){ gstate.goal = +sel.value; gstate.goalAt = Date.now(); gameSave(); gmGoalCheck(); saveSoon(); drawGamePill(); drawHome(); };
   return c;
 }
 
+/* where each trophy is earned */
+function trophyHref(id){
+  if(/^(lesson|stage)/.test(id)) return "#/learn";
+  if(/^(hands|best|lv)/.test(id)) return "#/play";
+  if(/^(plug|spots)/.test(id)) return "#/level";
+  return "#/practice/review";
+}
 /* every trophy, and how XP works: shown on the Level page */
 function trophyPanel(){
   var T = gmAllTrophies().sort(function(a, b){ return (b.got ? 1 : 0) - (a.got ? 1 : 0) || b.cur / b.max - a.cur / a.max; });
   return '<div class="panel" style="margin-top:18px"><div class="ph"><h3>Trophies</h3><span>' + T.filter(function(t){ return t.got; }).length + ' of ' + T.length + '</span></div>' +
     '<div class="trogrid">' + T.map(function(t){
-      return '<div class="tro' + (t.got ? " got" : "") + '"><div class="troic">' + (t.got ? "&#9733;" : "&#9734;") + '</div><div><b>' + t.name + '</b><span>' + t.about + '</span>' +
-        (t.got ? '<em>' + (t.at ? "earned " + new Date(t.at).toLocaleDateString(undefined, { month:"short", day:"numeric" }) : "earned") + '</em>' : '<i><span style="width:' + (100 * t.cur / t.max).toFixed(0) + '%"></span></i><em>' + t.cur + ' / ' + t.max + '</em>') + '</div></div>';
+      return '<a class="tro' + (t.got ? " got" : "") + '" href="' + trophyHref(t.id) + '"><div class="troic">' + (t.got ? "&#9733;" : "&#9734;") + '</div><div><b>' + t.name + '</b><span>' + t.about + '</span>' +
+        (t.got ? '<em>' + (t.at ? "earned " + new Date(t.at).toLocaleDateString(undefined, { month:"short", day:"numeric" }) : "earned") + '</em>' : '<i><span style="width:' + (100 * t.cur / t.max).toFixed(0) + '%"></span></i><em>' + t.cur + ' / ' + t.max + '</em>') + '</div></a>';
     }).join("") + '</div>' +
     '<details class="howsrs" style="margin-top:14px"><summary>How XP works</summary><ol>' +
       '<li><b>Reviews pay most.</b> A skill answered on its due day: 10 XP right and inside the clock goal, 6 if right but slow, 3 for an honest miss. Spaced retrieval is what makes a skill permanent, so it is what earns.</li>' +
@@ -1694,6 +1716,14 @@ function drawReveal(ok, said, secs){
   var m = el("div","math");
   q.math.forEach(function(line){ m.appendChild(el("p", null, line)); });
   r.appendChild(m);
+  var LL = RULES[q.mode] ? RULES[q.mode].lesson : LESSON_OF[q.mode];
+  if(LL){
+    var tk = lvSkills(plevel).filter(function(k){ return k.drill === q.mode && k.recent; })[0];
+    r.appendChild(el("div", "rlinks", '<a href="#/learn/' + LL.id + '">Lesson: ' + LL.title + ' &rsaquo;</a>' +
+      (FORMULAS.some(function(f){ return f.lesson === LL.id; }) ? '<a href="#/library/formulas" data-fx="' + LL.id + '">Formulas &rsaquo;</a>' : "") +
+      (tk ? '<a href="#/level">At the table: ' + tk.name.toLowerCase() + ' ' + Math.round(tk.rating) + ' &rsaquo;</a>' : "")));
+  }
+  glossify(r, LL ? LL.id : null);
 
   var last = (cp && cp.marks.length >= cp.of) || (sess && sessOver());
   var go = el("button","act", last ? "See the result" : "Next hand"); go.type = "button";
@@ -1843,7 +1873,7 @@ async function loadSaved(){
 /* everything that syncs, and putting it back */
 function snapshot(){
   return { progress: progress, stats: stats, openLayer: openLayer, skills: skills, plog: plog,
-           epoch: epoch, statsEpoch: statsEpoch, devices: devices };
+           epoch: epoch, statsEpoch: statsEpoch, devices: devices, table: tableSnapshot() };
 }
 function applyState(st){
   if(st.progress) progress = st.progress;
@@ -1856,6 +1886,7 @@ function applyState(st){
   epoch = +st.epoch || 0;
   statsEpoch = +st.statsEpoch || 0;
   if(st.devices) devices = st.devices;
+  if(st.table) adoptTable(st.table);
 }
 
 var saveTimer = 0;
@@ -1883,6 +1914,12 @@ window.addEventListener("pagehide", function(){
 
 async function wipeSaved(){
   progress = {}; skills = {}; plog = {}; freeCtx = { last:null, retry:[] };
+  /* all progress means all of it: the table, the level log and the trophies too */
+  pcareer = null; plevel = null;
+  gstate = { goal: gstate.goal, goalAt: gstate.goalAt || 0, seen: {}, spots: 0, sweeps: 0, plugged: 0, peakLevel: 0, primed: true };
+  tablePending = null;
+  try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:null, level:null })); }catch(e){}
+  gameSave(true);
   stats = { n:0, correct:0, clean:0, time:0, streak:0, best:0, mode:{} };
   ORDER.forEach(function(m){ stats.mode[m] = { n:0, correct:0 }; });
   epoch = statsEpoch = Date.now();
@@ -1891,7 +1928,7 @@ async function wipeSaved(){
     try{ if(sync.token) await STORE.set(SAVE_KEY, JSON.stringify(snapshot())); else await STORE.del(SAVE_KEY); }catch(e){}
   }
   syncSoon();
-  drawTOC(); drawTape(); drawSaveTag(); drawTrain();
+  drawTOC(); drawTape(); drawSaveTag(); drawTrain(); drawGamePill();
 }
 
 function drawSaveTag(){
@@ -3467,8 +3504,10 @@ function drawTrain(){ if(view === "home") drawHome(); if(view === "practice") dr
    THE PATH: every stage, in order, with where you are on it
    ============================================================ */
 function drawTOC(){ if(view === "learn" && !openId) drawPath(); if(view === "home") drawHome(); }
+var pathWeak = {};
 function drawPath(){
   var box = $("learnView"); box.innerHTML = "";
+  pathWeak = {}; lvWeak(plevel).forEach(function(k){ pathWeak[k.id] = 1; });
   var nx = nextUp();
   var total = LESSONS.filter(passable).length;
   var passed = LESSONS.filter(function(L){ return passable(L) && progress[L.id]; }).length;
@@ -3493,7 +3532,7 @@ function drawPath(){
     hb.type = "button";
     hb.setAttribute("aria-expanded", open ? "true" : "false");
     hb.innerHTML = '<span class="snum">' + (dn === ct ? "✓" : S.n) + '</span>' +
-      '<span class="smain"><b>' + S.title + '</b><span>' + S.blurb + '</span></span>' +
+      '<span class="smain"><b>' + S.title + (function(){ var w = S.lessons.filter(function(L){ return pathWeak[L.id]; }).length; return w ? ' <em class="duechip weak">' + w + ' weak at the table</em>' : ""; })() + '</b><span>' + S.blurb + '</span></span>' +
       '<span class="sside"><span class="sprog"><i style="width:' + (100 * dn / ct).toFixed(0) + '%"></i></span><small>' + dn + '/' + ct + (S.sub ? ' &middot; ' + S.sub : "") + '</small></span>' +
       '<span class="lcar">' + (open ? "−" : "+") + '</span>';
     hb.onclick = function(){ openLayer = open ? -1 : S.n; drawPath(); saveSoon(); };
@@ -3505,7 +3544,7 @@ function drawPath(){
         var a = el("a", "lrow2 " + st);
         a.href = "#/learn/" + L.id;
         a.innerHTML = '<span class="lic">' + (st === "done" ? "✓" : st === "lab" ? "◇" : S.n + "." + (i + 1)) + '</span>' +
-          '<span class="lmain"><b>' + L.title + (lessonDue(L) ? ' <em class="duechip">review due</em>' : "") + '</b><span>' + L.gist + '</span></span>' +
+          '<span class="lmain"><b>' + L.title + (lessonDue(L) ? ' <em class="duechip">review due</em>' : "") + (pathWeak[L.id] ? ' <em class="duechip weak">weak at the table</em>' : "") + '</b><span>' + L.gist + '</span></span>' +
           '<span class="lmeta">' + lessonMinutes(L) + ' min<br><small>' + (st === "done" ? "passed" : st === "lab" ? "lab" : st === "next" ? "next up" : "checkpoint") + '</small></span>';
         ul.appendChild(a);
       });
@@ -3591,7 +3630,15 @@ function openLesson(id){
     cpBox.innerHTML = '<b>' + (progress[id] ? "Passed. Run the checkpoint again any time." : "Ready? Pass the checkpoint to add this skill to your reviews.") + '</b>' +
       '<span>' + L.of + ' questions, ' + L.pass + ' right to pass. Timed, but only accuracy counts here.</span>';
     cpBox.appendChild(btnEl(progress[id] ? "Retake checkpoint" : "Start checkpoint", "go", function(){ startCp(id); }));
+    if(!progress[id]) cpBox.appendChild(el("span", "xpchip", "+" + GM_XP_LESSON + " XP"));
     f.appendChild(cpBox);
+    var rec = skillRecord(L);
+    var rb = el("div", "rrec", '<b>Your record</b>' + (rec.length ? rec.map(function(x){ return '<span>' + x + '</span>'; }).join("") : '<span>Nothing yet: pass the checkpoint to put this skill on your review schedule.</span>'));
+    var rr = el("div", "row");
+    if(MODE_META[L.mode]) rr.appendChild(btnEl("Drill " + MODE_META[L.mode], "ghost", function(){ drillTableWeak([L.mode]); }));
+    if(LV_SKILLS[L.id]) rr.appendChild(btnEl("Use it at the table", "ghost", function(){ location.hash = "#/play"; }));
+    if(rr.children.length) rb.appendChild(rr);
+    f.appendChild(rb);
   } else {
     f.appendChild(el("div", "rcp", "<b>No checkpoint on this one.</b><span>Play with the lab until the numbers stop surprising you.</span>"));
   }
@@ -3619,7 +3666,8 @@ function fxCard(f, compact){
     '<div class="fxm">' + fxHTML(f.f) + '</div>' +
     (f.vars && f.vars.length ? '<dl class="fxv">' + f.vars.map(function(v){ return '<div><dt>' + fxHTML(v[0]) + '</dt><dd>' + v[1] + '</dd></div>'; }).join("") + '</dl>' : "") +
     (f.anchors && f.anchors.length ? '<div class="fxa">' + f.anchors.map(function(a){ return '<span>' + a[0] + ' <b>' + a[1] + '</b></span>'; }).join("") + '</div>' : "") +
-    (f.note && !compact ? '<p class="fxnote">' + f.note + '</p>' : f.note ? '<p class="fxnote">' + f.note + '</p>' : "") + '</div>';
+    (f.note && !compact ? '<p class="fxnote">' + f.note + '</p>' : f.note ? '<p class="fxnote">' + f.note + '</p>' : "") +
+    (function(){ var L = lessonById(f.lesson); return L && MODE_META[L.mode] ? '<button type="button" class="pconcept drill fxdrill" data-drill="' + L.mode + '">Drill ' + MODE_META[L.mode] + '</button>' : ""; })() + '</div>';
 }
 
 /* reading progress, as a thin bar under the header */
@@ -3635,7 +3683,7 @@ window.addEventListener("scroll", readProgress, { passive:true });
 
 /* ---- terms defined in place ---- */
 function glossify(root, lessonId){
-  var used = {}, sel = ".prose, .warn, .keybox span, .rule small, .steps li, .punch, .howsteps li, .cap";
+  var used = {}, sel = ".prose, .warn, .keybox span, .rule small, .steps li, .punch, .howsteps li, .cap, .math p, .plines li";
   root.querySelectorAll(sel).forEach(function(node){
     var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, null);
     var texts = [], t;
@@ -3773,7 +3821,9 @@ function drawToday(){
   var now = Date.now();
   var ids = Object.keys(skills).filter(isSkill);
   var due = srsDueList(ids, skills, now);
-  box.appendChild(el("div","kick", new Date(now).toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" })));
+  var gd = plog[srsDayKey(now)] || {}, gst = gmStreak(plog, now);
+  box.appendChild(el("div","kick", new Date(now).toLocaleDateString(undefined, { weekday:"long", month:"short", day:"numeric" }) +
+    ' &middot; ' + (gd.x || 0) + ' / ' + gstate.goal + ' XP' + (gd.g ? ' &#10003;' : '') + ' &middot; &#128293; ' + gst.days));
   var row = el("div","row");
   if(!ids.length){
     box.appendChild(el("h3", null, "Nothing on the schedule yet"));
@@ -3846,7 +3896,8 @@ function drawSkills(){
       return r;
     }
     var rc = srsRecent(s, 20), goalX = srsGoal(1, s.box);
-    r.innerHTML = '<span class="nm">' + name + '</span><span class="boxes">' + bx + '</span>' +
+    var tk = lvSkills(plevel).filter(function(k){ return k.drill === id && k.recent; })[0];
+    r.innerHTML = '<span class="nm">' + name + (tk ? ' <a class="sktbl" href="#/level" title="' + tk.name + ' at the Play table">table ' + Math.round(tk.rating) + '</a>' : "") + '</span><span class="boxes">' + bx + '</span>' +
       '<span class="lv">' + srsLevel(s) + '</span>' +
       '<span class="nb" title="accuracy, last ' + rc.n + '">' + (rc.n ? Math.round(100 * rc.acc) + "%" : "&ndash;") + '</span>' +
       '<span class="nb" title="median time as a multiple of this box&rsquo;s goal; under 1 is inside it">' + (rc.n && rc.pace ? (rc.pace / goalX).toFixed(1) + "&times;" : "&ndash;") + '</span>' +
@@ -3880,6 +3931,13 @@ function drawLibrary(){
   if(s === "reading") drawReading();
 }
 function libMatch(q, parts){ q = q.trim().toLowerCase(); return !q || parts.join(" ").toLowerCase().indexOf(q) >= 0; }
+/* "Formulas" links open the library filtered to that lesson */
+document.addEventListener("click", function(e){
+  var a = e.target.closest && e.target.closest("a[data-fx]");
+  if(!a) return;
+  var L = lessonById(a.dataset.fx);
+  if(L && $("fxq")) $("fxq").value = L.title;
+});
 function drawFormulas(){
   var inp = $("fxq"), out = $("fxlist");
   if(!inp.dataset.wired){ inp.dataset.wired = "1"; inp.oninput = drawFormulas; }
@@ -3928,7 +3986,24 @@ async function playLoad(){
     if(s){ if(s.set) Object.assign(pset, s.set); pcareer = s.career || null; plevel = s.level || null; }
   }catch(e){}
 }
-function playSave(){ try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer, level:plevel })); }catch(e){} }
+function playSave(){ try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer, level:plevel })); }catch(e){} saveSoon(); }
+
+/* the table, the level log and the game state travel with the rest of the
+   progress (backup and sync). A state that arrives before the local copies
+   are loaded waits, then merges in. */
+var tableLoaded = false, tablePending = null;
+function tableSnapshot(){
+  var g = {}; Object.keys(gstate).forEach(function(k){ if(k !== "primed") g[k] = gstate[k]; });
+  return { career: pcareer, level: plevel, game: g };
+}
+function adoptTable(t){
+  if(!tableLoaded){ tablePending = syncTableMerge(tablePending, t); return; }
+  var m = syncTableMerge(tableSnapshot(), t);
+  pcareer = m.career || null; plevel = m.level || null;
+  if(m.game){ var primed = gstate.primed; Object.assign(gstate, m.game); gstate.primed = primed; }
+  try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer, level:plevel })); }catch(e){}
+  gameSave(true);
+}
 
 function pCard(c, cls){
   if(c == null) return '<span class="pc back' + (cls ? " " + cls : "") + '"></span>';
@@ -3939,6 +4014,25 @@ function pBB(x){ return (Math.round(x * 100) / 100) + ""; }
 function pSigned(x){ return (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(Math.round(x * 100) / 100) + " bb"; }
 function pPct(x){ return Math.round(100 * x) + "%"; }
 function lessonLink(id){ var L = lessonById(id); return L ? '<a class="pconcept" href="#/learn/' + id + '">' + L.title + ' &rsaquo;</a>' : ""; }
+/* a concept from the coach: its lesson, and the drill that trains it */
+function conceptLinks(id){
+  var L = lessonById(id); if(!L) return "";
+  return lessonLink(id) + (MODE_META[L.mode] ? '<button type="button" class="pconcept drill" data-drill="' + L.mode + '">Drill ' + MODE_META[L.mode] + '</button>' : "");
+}
+/* what you know about a lesson's skill, from every part of the app */
+function skillRecord(L){
+  var parts = [], s = skills[L.mode];
+  if(MODE_META[L.mode]){
+    if(s && s.box > 0) parts.push('Drill: <b>' + srsLevel(s) + '</b>' + (Date.now() >= s.due ? ', <b class="due">review due</b>' : ', next review in ' + fmtIn(s.due - Date.now())));
+    else if(s && s.n) parts.push('Drill: practised ' + s.n + (s.n === 1 ? ' time' : ' times') + ', not yet on your schedule');
+  }
+  var tk = LV_SKILLS[L.id] ? lvSkills(plevel).filter(function(k){ return k.id === L.id; })[0] : null;
+  if(tk && tk.recent){
+    var weak = lvWeak(plevel).some(function(k){ return k.id === L.id; });
+    parts.push('At the table: <b>' + Math.round(tk.rating) + '</b> over ' + tk.n + ' decisions' + (weak ? ' <em class="duechip weak">weak spot</em>' : ""));
+  } else if(LV_SKILLS[L.id]) parts.push('At the table: no decisions yet in ' + LV_SKILLS[L.id].name.toLowerCase());
+  return parts;
+}
 
 function drawPlay(){
   if(!pg){ pg = playNew(pset.lineup); }
@@ -4031,7 +4125,8 @@ function heroAct(a){
   var d = playHeroAct(pg, a);
   pFeedback = d;
   var tx = gmTableXP(d.G.grade);
-  if(tx) gmGain(tx, d.G.grade + " decision");
+  d.xp = tx;
+  if(tx) gmGain(tx, null);
   if(pg.t.hand.over) onHandOver();
   drawFelt(); drawActBar(); drawPlaySide();
   playLoop();
@@ -4158,10 +4253,11 @@ function drawPlaySide(){
     var best = A.options.filter(function(o){ return o.key === A.best; })[0];
     var mine = A.options.filter(function(o){ return o.key === G.chosen; })[0] || best;
     fb.innerHTML = '<div class="ph"><h3>Last decision</h3><span>' + ["Preflop","Flop","Turn","River"][A.street] + ' &middot; ' + A.pos + '</span></div>' +
-      '<div class="pgrade"><span class="gbadge ' + GRADE_CLS[G.grade] + '">' + G.grade + '</span><span>' + (G.loss < 0.05 ? "No EV given up" : "EV given up <b>" + pBB(G.loss) + " bb</b>") + '</span></div>' +
+      '<div class="pgrade"><span class="gbadge ' + GRADE_CLS[G.grade] + '">' + G.grade + '</span><span>' + (G.loss < 0.05 ? "No EV given up" : "EV given up <b>" + pBB(G.loss) + " bb</b>") + '</span>' + (pFeedback && pFeedback.xp ? '<span class="xpchip">+' + pFeedback.xp + ' XP</span>' : "") + '</div>' +
       '<div class="pyou">You: <b>' + mine.label + '</b>' + (G.chosen !== A.best ? ' &middot; ' + (G.grade === "Best" ? "within a whisker of " : "Best: ") + '<b>' + best.label + '</b>' : "") + '</div>' +
       '<ul class="plines">' + G.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
-      '<div class="pconcepts">' + G.concepts.map(lessonLink).join("") + '</div>';
+      '<div class="pconcepts">' + G.concepts.map(conceptLinks).join("") + '</div>';
+    glossify(fb, null);
   } else {
     fb.innerHTML = '<div class="ph"><h3>Coach</h3></div><p class="pnote">After each of your decisions the coach grades it here: what every option was worth against what your opponents actually hold, and which lesson it comes from.</p>';
   }
@@ -4244,10 +4340,11 @@ function drawPlayReview(){
         return '<div class="popp"><b>' + o.name + '</b> <span class="pmuted">' + o.pos + (pset.labels ? " &middot; " + BOT_STYLES[o.style].name : "") + ' &middot; range ' + o.rangePct.toFixed(1) + '% of hands</span>' + bar +
           '<div class="ptop">' + (o.rangePct > 90 ? "Any two cards: they had not acted yet." : "Most likely: " + o.top.map(function(t2){ return t2[0] + ' ' + pPct(t2[1]); }).join(", ")) + '</div></div>';
       }).join("") + '</div>' +
-      '<div class="pconcepts">' + G.concepts.map(lessonLink).join("") + '</div></div>';
+      '<div class="pconcepts">' + G.concepts.map(conceptLinks).join("") + '</div></div>';
   });
   html += '<p class="pnote">How this is priced: your opponents&rsquo; ranges are tracked exactly, by Bayes&rsquo; rule, from the strategies they play; their fold rates come from those same strategies. Each option looks one street ahead, with equity realisation standing in for the streets after that, and a raise by an opponent counted as a call. Treat small differences as ties.</p>';
   box.innerHTML = html;
+  glossify(box, null);
   $("pCloseRev").onclick = function(e){ e.preventDefault(); pReview = null; drawPlayReview(); drawPlaySide(); };
 }
 
@@ -4270,6 +4367,13 @@ function levelFlag(hand){
   if(hit){ saveSoon(); drawTrainTab(); }
 }
 
+/* one Drill action everywhere: any [data-drill] starts a focused session on that drill */
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest("[data-drill]");
+  if(!b || !MODE_META[b.dataset.drill]) return;
+  e.preventDefault();
+  drillTableWeak([b.dataset.drill]);
+});
 function drillTableWeak(only){
   var ms = only || lvWeak(plevel).map(function(k){ return k.drill; });
   ms = ms.filter(function(m, i){ return MODE_META[m] && ms.indexOf(m) === i; });
@@ -4318,7 +4422,7 @@ function drawLevel(){
     '<div class="lvsk head"><span>Skill</span><span>Rating</span><span class="nb">Trend</span><span class="nb">bb lost</span><span></span></div>' +
     (function(){ var wk = {}; weak.forEach(function(k){ wk[k.id] = 1; }); return lvSkills(plevel).map(function(k){ k.weak = !!wk[k.id]; return k; }); })().sort(function(a, b){ return (b.recent ? 1 : 0) - (a.recent ? 1 : 0) || (b.weak ? 1 : 0) - (a.weak ? 1 : 0) || (a.rating || 0) - (b.rating || 0); }).map(function(k){
       if(!k.recent) return '<div class="lvsk off"><span>' + k.name + '<small>no decisions yet</small></span><span></span><span class="nb">&ndash;</span><span class="nb">&ndash;</span><span><button type="button" class="chip" data-drill="' + k.drill + '">Drill</button></span></div>';
-      return '<div class="lvsk"><span>' + k.name + (k.weak ? ' <em class="lvtag">weak spot</em>' : "") + '<small>' + k.n + ' decisions &middot; ' + MODE_META[k.drill] + '</small></span>' +
+      return '<div class="lvsk"><span><a href="#/learn/' + k.id + '">' + k.name + '</a>' + (k.weak ? ' <em class="lvtag">weak spot</em>' : "") + '<small>' + k.n + ' decisions &middot; ' + MODE_META[k.drill] + '</small></span>' +
         '<span><div class="sbar" title="rating ' + Math.round(k.rating) + '; the line is your overall ' + Math.round(S.rating) + '"><span class="' + (k.weak ? (k.rating < 60 ? "lo" : "mid") : lvColor(k.rating)) + '" style="width:' + k.rating.toFixed(0) + '%"></span><i style="left:' + S.rating.toFixed(0) + '%"></i></div></span>' +
         '<span class="nb ' + (k.delta == null || Math.abs(k.delta) < 1 ? "" : k.delta > 0 ? "up" : "down") + '" title="change against the 25 decisions before">' + (k.delta == null ? "new" : lvSign(k.delta)) + '</span>' +
         '<span class="nb" title="EV given up per decision">' + k.lostPer.toFixed(2) + '</span>' +
@@ -4343,8 +4447,8 @@ function drawLevel(){
     }).join("") + (M.length > 8 ? '<div class="row"><button type="button" class="act ghost" id="lvMore">' + (lvAll ? "Show fewer" : "Show all " + M.length) + '</button></div>' : "") : '<p class="pnote">No mistakes or blunders logged. When you make one at the table it lands here, with what was better and the drill that trains it.</p>') + '</div>';
 
   box.innerHTML = html + trophyPanel();
+  glossify(box, null);
   if($("lvWeakRow")) $("lvWeakRow").appendChild(btnEl("Drill weak spots", "go", function(){ drillTableWeak(); }));
-  box.querySelectorAll("[data-drill]").forEach(function(b){ b.onclick = function(){ drillTableWeak([b.dataset.drill]); }; });
   box.querySelectorAll("[data-done]").forEach(function(b){ b.onclick = function(){ plevel = lvDismiss(plevel, b.dataset.done); playSave(); gstate.spots = (gstate.spots || 0) + 1; gameSave(); gmGain(GM_XP_SPOT, "Spot reviewed"); drawLevel(); }; });
   if($("lvMore")) $("lvMore").onclick = function(){ lvAll = !lvAll; drawLevel(); };
   box.querySelectorAll("details.lvm").forEach(function(d){ d.ontoggle = function(){ lvOpen[d.dataset.id] = d.open; }; });
@@ -4413,6 +4517,8 @@ $("syncPill").onclick = function(){ location.hash = "#/sync"; };
   await syncLoadCfg();
   await playLoad();
   await gameLoad();
+  tableLoaded = true;
+  if(tablePending){ var tp = tablePending; tablePending = null; adoptTable(tp); }
   gmCheckTrophies();
   drawGamePill();
   var hadHash = /^#\/./.test(location.hash);

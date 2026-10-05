@@ -30,6 +30,15 @@ ok(m.stats.n === 80, "stats come from the device with more answers");
 const gm = S.syncMerge({ plog: { d: { s: 1, n: 1, ok: 1, x: 40, c: 3, r: { odds: 2 } } } }, { plog: { d: { s: 1, n: 1, ok: 1, x: 70, g: 1, r: { odds: 1, outs: 4 } } } }).plog.d;
 ok(gm.x === 70 && gm.g === 1 && gm.c === 3 && gm.r.odds === 2 && gm.r.outs === 4, "XP, goal days and review counts merge by the larger figure");
 ok(!("x" in m.plog["2026-09-24"]), "days without XP stay as they were");
+/* the table, level log and game state */
+const ta = { career: { decisions: 40, hands: 20 }, level: { d: [1, 2, 3], m: [] }, game: { goal: 60, goalAt: 5, seen: { lesson1: 100, streak3: 300 }, spots: 2, sweeps: 1, peakLevel: 3 } };
+const tb = { career: { decisions: 90, hands: 50 }, level: { d: [1], m: [] }, game: { goal: 120, goalAt: 9, seen: { streak3: 200, ans100: 400 }, spots: 5, sweeps: 0, peakLevel: 2 } };
+const tm = S.syncTableMerge(ta, tb);
+ok(tm.career.decisions === 90 && tm.level.d.length === 3, "the fuller career and the longer level log win");
+ok(tm.game.seen.lesson1 === 100 && tm.game.seen.streak3 === 200 && tm.game.seen.ans100 === 400, "trophies are the union, at their earliest date");
+ok(tm.game.spots === 5 && tm.game.sweeps === 1 && tm.game.peakLevel === 3 && tm.game.goal === 120, "counters take the larger, the goal the latest choice");
+ok(S.syncTableMerge(null, tb) === tb && S.syncTableMerge(ta, null) === ta, "one side missing keeps the other");
+ok(same(S.syncMerge({ table: ta }, { table: tb }).table, tm), "syncMerge carries the table");
 ok(!("openLayer" in m), "view state does not sync");
 
 ok(same(S.syncMerge(ipad, laptop), m), "the merge is commutative");
