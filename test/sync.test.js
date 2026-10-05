@@ -39,6 +39,8 @@ ok(tm.game.seen.lesson1 === 100 && tm.game.seen.streak3 === 200 && tm.game.seen.
 ok(tm.game.spots === 5 && tm.game.sweeps === 1 && tm.game.peakLevel === 3 && tm.game.goal === 120, "counters take the larger, the goal the latest choice");
 ok(S.syncTableMerge(null, tb) === tb && S.syncTableMerge(ta, null) === ta, "one side missing keeps the other");
 ok(same(S.syncMerge({ table: ta }, { table: tb }).table, tm), "syncMerge carries the table");
+const cm = S.syncTableMerge({ game: { calib: { s: [10, 9], g: [4, 1] }, paint: { UTG: 0.8 } } }, { game: { calib: { s: [6, 6] }, paint: { UTG: 0.95, CO: 0.7 } } }).game;
+ok(cm.calib.s[0] === 10 && cm.calib.g[0] === 4 && cm.paint.UTG === 0.95 && cm.paint.CO === 0.7, "confidence counts and best painted ranges merge");
 ok(!("openLayer" in m), "view state does not sync");
 
 ok(same(S.syncMerge(ipad, laptop), m), "the merge is commutative");

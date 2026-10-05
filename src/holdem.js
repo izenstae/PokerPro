@@ -1,7 +1,8 @@
 /* ============================================================
    HOLDEM: a six-handed no-limit hold'em table
    Blinds 0.5/1, every stack topped up to 100 big blinds at the start
-   of each hand (a cash game), amounts in big blinds. Handles the
+   of each hand (a cash game), or to a shorter stack for tournament-style
+   practice, amounts in big blinds. Handles the
    minimum-raise rule, all-ins, side pots and split pots. Pure state:
    the Play screen and the tests drive it the same way.
    ============================================================ */
@@ -13,10 +14,11 @@ function hRound(x) { return Math.round(x * 100) / 100; }
 function hPos(t, i) { return H_POS[(i - t.button + 6) % 6]; }
 
 /* seats: [{ name, bot: profile key or null }] */
-function hNewTable(seats) {
+function hNewTable(seats, stack) {
   return {
+    stackStart: stack || H_STACK,
     players: seats.map(function (s, i) {
-      return { i: i, name: s.name, bot: s.bot || null, stack: H_STACK, cards: [], folded: false, allIn: false, bet: 0, put: 0, acted: false };
+      return { i: i, name: s.name, bot: s.bot || null, stack: stack || H_STACK, cards: [], folded: false, allIn: false, bet: 0, put: 0, acted: false };
     }),
     button: 5, handNo: 0, hand: null
   };
@@ -35,7 +37,7 @@ function hStart(t, rng, deck) {
   t.button = (t.button + 1) % 6;
   t.handNo++;
   t.players.forEach(function (p) {
-    p.stack = H_STACK; p.cards = []; p.folded = false; p.allIn = false; p.bet = 0; p.put = 0; p.acted = false;
+    p.stack = t.stackStart || H_STACK; p.cards = []; p.folded = false; p.allIn = false; p.bet = 0; p.put = 0; p.acted = false;
   });
   var h = t.hand = {
     no: t.handNo, deck: deck ? deck.slice() : hShuffle(rng), board: [], street: 0,

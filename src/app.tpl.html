@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PokerPro &middot; Learn poker like a trader</title>
+<meta name="theme-color" content="#141A24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
 :root{
   --ink:#141A24; --felt:#1C2431; --raise:#222C3B; --line:#2E3849;
@@ -61,6 +67,47 @@ body{
 .lvabout a,.pnote a.lvl{color:var(--gold)} #pFeedback .pnote a{color:var(--gold)}
 .lvtag.nl{color:var(--faint)}
 a.chip{text-decoration:none; display:inline-block}
+.confq{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:4px 0}
+.confq > span{font-size:14px; color:var(--dim); margin-right:6px}
+.confq kbd{font:11px var(--mono); color:var(--faint); margin-left:6px}
+.calrow{display:flex; flex-direction:column; gap:8px; margin-top:6px}
+.calrow > div{display:grid; grid-template-columns:110px 1fr 48px 90px; gap:12px; align-items:center; font-size:13px; color:var(--dim)}
+.calrow i{display:block; height:8px; border-radius:4px; background:var(--line); overflow:hidden} .calrow i span{display:block; height:100%; background:var(--red)}
+.calrow i span.mid{background:var(--gold)} .calrow i span.hi{background:var(--green)}
+.calrow b{color:var(--bone); text-align:right; font-variant-numeric:tabular-nums} .calrow small{color:var(--faint)}
+@media(max-width:560px){ .calrow > div{grid-template-columns:90px 1fr 44px} .calrow small{display:none} }
+.placebox{display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:14px 16px; border:1px dashed var(--line); border-radius:10px; margin-bottom:16px; font-size:13.5px; color:var(--dim)}
+.placebox b{color:var(--bone)} .placebox span{flex:1 1 320px}
+/* ---- range grids ---- */
+.rgrid{display:grid; grid-template-columns:repeat(13, 1fr); gap:2px; max-width:520px; user-select:none; -webkit-user-select:none; touch-action:none}
+.rgrid i{font-style:normal; aspect-ratio:1; display:grid; place-items:center; font-size:10px; font-weight:600; color:var(--faint); background:var(--ink); border:1px solid var(--line); border-radius:3px; font-variant-numeric:tabular-nums}
+.rgrid.paint i{cursor:pointer} .rgrid.paint i:hover{border-color:var(--gold)}
+.rgrid i.in{background:var(--green); border-color:var(--green); color:#062012}
+.rgrid i.miss{background:transparent; border:2px solid var(--gold); color:var(--gold)}
+.rgrid i.extra{background:rgba(209,75,65,.85); border-color:var(--red); color:#fff}
+.rgrid i.mark{outline:2px solid var(--bone); outline-offset:1px; z-index:1}
+.rgrid i.heat{background:rgba(212,160,60,var(--a)); border-color:transparent}
+.rgrid.sm{max-width:220px; gap:1px} .rgrid.sm i{border-radius:2px; font-size:0}
+@media(max-width:560px){ .rgrid i{font-size:8px} }
+.rgwrap{margin-top:14px} .rgcap{font-size:13px; color:var(--dim); margin-bottom:8px} .rgcap a{color:var(--gold); text-decoration:none}
+.pgrid{margin-top:8px} .pgrid summary{font-size:11px} .pgrid .rgrid{margin-top:8px}
+.rphead{display:flex; flex-wrap:wrap; gap:12px 24px; justify-content:space-between; align-items:flex-end; margin-bottom:14px}
+.rphead h3{margin:0 0 4px} .rphead .pnote{max-width:560px; margin:0}
+.rpseats{display:flex; gap:6px; flex-wrap:wrap} .rpseats .chip.on{border-color:var(--gold); color:var(--bone)} .rpseats small{color:var(--gold)}
+.rprow{margin-top:14px; align-items:center} .rprow .pmuted{font-size:12.5px}
+.rpres{padding:12px 14px; border:1px solid var(--line); border-left:3px solid var(--red); border-radius:8px; margin-bottom:12px; font-size:13.5px; color:var(--dim)} .rpres.ok{border-left-color:var(--green)}
+.rpres b{display:block; color:var(--bone); font-size:18px; margin-bottom:2px}
+.rpkey{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--dim); margin-top:8px} .rpkey i{display:inline-block; width:11px; height:11px; border-radius:2px; margin-right:5px; vertical-align:-1px}
+.rpkey i.in{background:var(--green)} .rpkey i.miss{border:2px solid var(--gold)} .rpkey i.extra{background:var(--red)}
+/* ---- replay ---- */
+.rpspot{border:1px solid var(--line); border-radius:12px; background:var(--felt); padding:16px; margin-bottom:16px}
+.rpsh{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:12px} .rpb{display:flex; gap:3px; margin-left:10px}
+.ppos2{font-weight:700; font-size:13px; letter-spacing:.06em; color:var(--gold); margin-right:4px}
+.rpopps{display:flex; flex-direction:column; gap:4px; font-size:13px; margin-bottom:14px}
+a.act{text-decoration:none; display:inline-flex; align-items:center; justify-content:center}
+@media(max-width:1240px){ .gpill .gx{display:none} .navi{padding:8px 10px} }
+@media(max-width:980px) and (min-width:761px){ .navi span{display:none} .navi{padding:8px 9px} }
+b.due{color:var(--gold)}
 /* ---- links between features ---- */
 .rlinks{display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:12px; font-size:13px}
 .rlinks a{color:var(--gold); text-decoration:none} .rlinks a:hover{text-decoration:underline}
@@ -1065,7 +1112,7 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
   <section id="practiceView" hidden>
     <div class="vhead"><div><h1>Practice</h1><p>Reviews keep what you have learned from fading. Free practice drills anything, weighted toward your weak and due skills.</p></div></div>
     <nav class="subnav" id="pracNav" aria-label="Practice">
-      <a href="#/practice/review" data-s="review">Today</a><a href="#/practice/drill" data-s="drill">Free practice</a><a href="#/practice/skills" data-s="skills">Skills</a>
+      <a href="#/practice/review" data-s="review">Today</a><a href="#/practice/drill" data-s="drill">Free practice</a><a href="#/practice/skills" data-s="skills">Skills</a><a href="#/practice/ranges" data-s="ranges">Ranges</a>
     </nav>
     <div id="pracReview" hidden>
       <div class="today" id="today"></div>
@@ -1083,7 +1130,9 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
       </ol>
     </details>
     </div>
+    <div id="pracRanges" hidden></div>
     <div id="pracSkills" hidden>
+      <div class="panel" id="calib" style="margin-bottom:18px"></div>
       <div class="mbar" id="mbar"></div>
       <p class="mbarcap" id="mbarcap"></p>
       <div id="skills"></div>
@@ -1284,7 +1333,9 @@ function gmSummary(){
     comeback: ORDER.filter(function(m){ return skills[m] && skills[m].lapses > 0 && skills[m].box >= 3; }).length,
     answers: ORDER.reduce(function(a, m){ return a + (skills[m] ? skills[m].n : 0); }, 0),
     bestStreak: st.best, hands: pcareer ? pcareer.hands : 0, best: pcareer ? pcareer.grades.Best : 0,
-    level: gstate.peakLevel || 0, plugged: gstate.plugged || 0, spots: gstate.spots || 0, sweeps: gstate.sweeps || 0
+    level: gstate.peakLevel || 0, plugged: gstate.plugged || 0, spots: gstate.spots || 0, sweeps: gstate.sweeps || 0,
+    mastered: lvSpotsMastered(plevel), painted: Object.keys(gstate.paint || {}).filter(function(k){ return gstate.paint[k] >= 0.9; }).length,
+    calibrated: gmCalibrated() ? 1 : 0
   };
 }
 /* earned trophies stay earned, even if what earned them later slips */
@@ -1350,6 +1401,8 @@ function gameCard(){
 
 /* where each trophy is earned */
 function trophyHref(id){
+  if(id === "painter") return "#/practice/ranges";
+  if(id === "fixed5") return "#/level";
   if(/^(lesson|stage)/.test(id)) return "#/learn";
   if(/^(hands|best|lv)/.test(id)) return "#/play";
   if(/^(plug|spots)/.test(id)) return "#/level";
@@ -1440,7 +1493,9 @@ function next(){
   if(doneAt){ logDay(Math.min(60, (now - doneAt) / 1000), 0, 0); doneAt = 0; }
   answered = false;
   var mode, ctx = null;
-  if(cp){
+  if(cp && cp.seq){
+    mode = cp.seq[Math.min(cp.marks.length, cp.seq.length - 1)];
+  } else if(cp){
     var stageN = lessonById(cp.id).layer;
     var pool = cp.mode !== "mixed" ? [cp.mode] : ORDER.filter(function(m){ return MODE_LAYER[m] === stageN; });
     mode = pool[(Math.random() * pool.length) | 0];
@@ -1591,13 +1646,42 @@ function submit(raw){
   doneAt = Date.now();
   if(!ok && !cp) srsQueueRetry(sess ? sess.ctx : freeCtx, q.mode);
 
-  drawReveal(ok, said, secs);
+  if(q.kind !== "recall" && gstate.conf !== false){
+    q.confPending = { ok: ok, said: said, secs: secs };
+    askConfidence();
+  } else drawReveal(ok, said, secs);
   drawTape();
   saveSoon();
   if(cp){ cp.marks.push(ok); drawCp(); }
   if(sess) drawSess();
   drawTrainTab();
 }
+
+/* how sure were you? asked after you commit and before you see the answer.
+   Over time it shows whether your confidence matches your accuracy. */
+var CONF = [["g", "Guessing"], ["f", "Fairly sure"], ["s", "Sure"]];
+function askConfidence(){
+  var r = $("reveal"); r.innerHTML = ""; r.hidden = false;
+  var box = el("div", "confq", '<span>Locked in. How sure were you?</span>');
+  CONF.forEach(function(c, i){
+    var b = el("button", "act ghost", c[1] + ' <kbd>' + (i + 1) + '</kbd>'); b.type = "button";
+    b.onclick = function(){ pickConfidence(c[0]); };
+    box.appendChild(b);
+  });
+  r.appendChild(box);
+  $("hint").textContent = "1 guessing, 2 fairly sure, 3 sure. You can turn this off on the Skills page.";
+  box.querySelector("button").focus();
+}
+function pickConfidence(k){
+  var P = q.confPending; if(!P) return;
+  q.confPending = null; q.conf = k;
+  var C = gstate.calib || (gstate.calib = { g: [0, 0], f: [0, 0], s: [0, 0] });
+  C[k][0]++; if(P.ok) C[k][1]++;
+  gameSave();
+  drawReveal(P.ok, P.said, P.secs);
+  gmCheckTrophies();
+}
+function gmCalibrated(){ var c = gstate.calib && gstate.calib.s; return !!(c && c[0] >= 50 && c[1] / c[0] >= 0.9); }
 
 /* what the answer did to the schedule, in one line */
 function srsLine(){
@@ -1716,6 +1800,8 @@ function drawReveal(ok, said, secs){
   v.appendChild(el("span","pace " + (fast ? "fast" : "slow"), secs.toFixed(1) + "s " + (fast ? "in time" : "over " + q.goal + "s")));
   if(q.xp) v.appendChild(el("span","xpchip", "+" + q.xp + " XP"));
   r.appendChild(v);
+  if(q.conf === "s" && !ok) r.appendChild(el("div", "srsline miss", "<b>Sure, and wrong.</b> These are the errors that cost most at a table, because nothing makes you stop and check. Read the working below slowly."));
+  else if(q.conf === "g" && ok) r.appendChild(el("div", "srsline", "<b>A guess that landed.</b> It counts, but it is not knowledge yet: read why it is right."));
   r.appendChild(srsLine());
 
   if(q.bar) r.appendChild(gauge(q.bar, !!THRESHOLD_MODES[q.mode]));
@@ -1729,6 +1815,9 @@ function drawReveal(ok, said, secs){
     r.appendChild(el("div", "rlinks", '<a href="#/learn/' + LL.id + '">Lesson: ' + LL.title + ' &rsaquo;</a>' +
       (FORMULAS.some(function(f){ return f.lesson === LL.id; }) ? '<a href="#/library/formulas" data-fx="' + LL.id + '">Formulas &rsaquo;</a>' : "") +
       (tk ? '<a href="#/level">At the table: ' + tk.name.toLowerCase() + ' ' + Math.round(tk.rating) + ' &rsaquo;</a>' : "")));
+  }
+  if(q.grid){
+    r.appendChild(el("div", "rgwrap", '<div class="rgcap">The ' + q.grid.pos + ' chart: <b>' + q.grid.hand + '</b> is outlined. <a href="#/practice/ranges">Paint it yourself &rsaquo;</a></div>' + chartGrid(q.grid.pos, q.grid.hand)));
   }
   glossify(r, LL ? LL.id : null);
 
@@ -1765,6 +1854,12 @@ document.addEventListener("keydown", function(e){
     if(!q.shown && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); showRule(); return; }
     if(q.shown && (e.key === "1" || e.key === "2")){ submit(q.options[+e.key - 1]); return; }
     if(e.key === "Enter") e.preventDefault();
+    return;
+  }
+  if(answered && q && q.confPending){
+    var ci = ["1", "2", "3"].indexOf(e.key);
+    if(ci >= 0){ e.preventDefault(); pickConfidence(CONF[ci][0]); }
+    else if(e.key === "Enter") e.preventDefault();
     return;
   }
   if(e.key === "Enter"){
@@ -3180,6 +3275,55 @@ function startCp(id){
   window.scrollTo(0,0);
 }
 
+/* ---- the placement test: stage by stage, until a stage is not yet known ---- */
+function placeStageQs(S){
+  var ls = S.lessons.filter(function(L){ return passable(L) && MODE_META[L.mode]; });
+  var per = ls.length >= 5 ? 1 : 2, seq = [];
+  ls.forEach(function(L){ for(var k = 0; k < per; k++) seq.push(L.mode); });
+  for(var i = seq.length - 1; i > 0; i--){ var j = (Math.random() * (i + 1)) | 0, t = seq[i]; seq[i] = seq[j]; seq[j] = t; }
+  return seq.slice(0, 10);
+}
+function startPlacement(stageN){
+  var S = LAYERS.filter(function(x){ return x.n === stageN; })[0];
+  while(S && !placeStageQs(S).length) S = LAYERS.filter(function(x){ return x.n === S.n + 1; })[0];
+  if(!S){ setView("learn"); return; }
+  var seq = placeStageQs(S);
+  cp = { placement: true, stage: S.n, id: S.lessons.filter(passable)[0].id, mode: "mixed", seq: seq, of: seq.length, need: Math.ceil(0.8 * seq.length), marks: [],
+         placed: (cp && cp.placement ? cp.placed : 0) };
+  openId = null;
+  ORDER.forEach(function(m){ active[m] = 1; });
+  $("modes").hidden = true; $("cpbar").hidden = false;
+  drawCp(); setView("drill"); next(); window.scrollTo(0, 0);
+}
+function endPlacement(){
+  var P = cp, S = LAYERS.filter(function(x){ return x.n === P.stage; })[0];
+  var hits = P.marks.filter(Boolean).length, passed = hits >= P.need, now = Date.now(), newly = 0;
+  if(passed){
+    S.lessons.filter(passable).forEach(function(L){
+      if(progress[L.id]) return;
+      progress[L.id] = 1; newly++;
+      [L.mode, "rule:" + L.id].forEach(function(id){ if(isSkill(id)) srsGraduate(skillOf(id), now); });
+    });
+    P.placed += newly;
+    if(newly) gmGain(GM_XP_PLACE * newly, null);
+    saveSoon();
+  }
+  var nextS = LAYERS.filter(function(x){ return x.n === P.stage + 1; })[0];
+  var d = $("cpdone"); d.innerHTML = "";
+  d.appendChild(el("h3", passed ? "pass" : "fail", passed ? "Stage " + S.n + ", " + S.title + ": you know it" : "Stage " + S.n + ", " + S.title + ": this is where you start"));
+  d.appendChild(el("p", null, hits + " of " + P.of + " right, " + P.need + " needed. " + (passed
+    ? (newly ? newly + (newly === 1 ? " lesson is" : " lessons are") + " marked passed and on your review schedule, so they stay fresh. " : "") + (nextS ? "Keep going to place into the next stage, or stop here." : "That was the last stage: the whole path is placed.")
+    : "Placed so far: " + P.placed + (P.placed === 1 ? " lesson" : " lessons") + ". The path picks up at the first lesson you have not passed. Questions you missed show what to read first.")));
+  var row = el("div", "row");
+  if(passed && nextS) row.appendChild(btnEl("Next: Stage " + nextS.n + ", " + nextS.title, "go", function(){ startPlacement(nextS.n); }));
+  row.appendChild(btnEl(passed && nextS ? "Stop here" : "Go to the path", passed && nextS ? "ghost" : "go", function(){
+    cp = null; ORDER.forEach(function(m){ active[m] = 1; }); $("modes").hidden = false; $("cpbar").hidden = true; drawModes();
+    var nx = nextUp(); if(nx) goLesson(nx.id); else setView("learn"); drawTOC();
+  }));
+  d.appendChild(row);
+  $("drillView").hidden = true; d.hidden = false; drawTOC(); window.scrollTo(0, 0);
+}
+
 function drawCp(){
   var L = lessonById(cp.id);
   var hits = cp.marks.filter(Boolean).length;
@@ -3189,8 +3333,8 @@ function drawCp(){
     pips += '<i class="pip' + c + '"></i>';
   }
   $("cpbar").innerHTML =
-    '<span class="lab">Checkpoint</span>' +
-    '<span class="grow">' + L.title + ' &nbsp;&middot;&nbsp; ' + hits + ' of ' + cp.of + ' right, need ' + cp.need + '</span>' +
+    '<span class="lab">' + (cp.placement ? "Placement" : "Checkpoint") + '</span>' +
+    '<span class="grow">' + (cp.placement ? "Stage " + cp.stage + ", " + LAYERS.filter(function(x){ return x.n === cp.stage; })[0].title : L.title) + ' &nbsp;&middot;&nbsp; ' + hits + ' of ' + cp.of + ' right, need ' + cp.need + '</span>' +
     '<span class="pips">' + pips + '</span>';
   var q2 = document.createElement("button");
   q2.className = "chip"; q2.type = "button"; q2.textContent = "Quit";
@@ -3205,6 +3349,7 @@ function quitCp(){
 }
 
 function endCp(){
+  if(cp.placement) return endPlacement();
   var L = lessonById(cp.id);
   var hits = cp.marks.filter(Boolean).length;
   var passed = hits >= cp.need;
@@ -3254,7 +3399,7 @@ function leaveSession(){ if(sess){ sess = null; $("modes").hidden = false; $("cp
 var sub = { practice:"review", library:"formulas" };
 var curHash = "";
 var VIEWS = ["home", "learn", "practice", "play", "level", "library", "sync"];
-var SUBS = { practice:["review", "drill", "skills"], library:["formulas", "glossary", "reading"] };
+var SUBS = { practice:["review", "drill", "skills", "ranges"], library:["formulas", "glossary", "reading"] };
 
 var ICON = {
   home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>',
@@ -3281,6 +3426,11 @@ function drawNav(){
 }
 /* the due-review count, on the Practice tab */
 function drawTrainTab(){
+  var lb = $("nav_level");
+  if(lb && typeof plevel !== "undefined"){
+    var nd = replayDue().length, li = lb.querySelector(".nbadge");
+    li.hidden = !nd; li.textContent = nd; li.title = nd + (nd === 1 ? " spot" : " spots") + " to replay";
+  }
   var b = $("nav_practice");
   if(!b) return;
   var n = srsDueList(Object.keys(skills).filter(isSkill), skills, Date.now()).length;
@@ -3413,6 +3563,7 @@ function drawHome(){
     hero.innerHTML = '<div class="kick">Continue &middot; Stage ' + S.n + ', ' + S.title + '</div><h2>' + nx.title + '</h2>' +
       '<p>' + nx.gist + ' <span class="hmeta">' + lessonMinutes(nx) + ' min read, then a ' + nx.of + '-question checkpoint.</span></p>';
     row.appendChild(btnEl(passed ? "Open the lesson" : "Start the first lesson", "go", function(){ goLesson(nx.id); }));
+    if(!passed) row.appendChild(btnEl("Already play? Take the placement test", "ghost", function(){ startPlacement(0); }));
     if(ids.length) row.appendChild(btnEl("Practise weakest", "ghost", function(){ startSession("extra"); }));
   } else {
     hero.innerHTML = '<div class="kick">The whole path</div><h2>Every lesson passed</h2><p>Keep the reviews up so none of it fades, and put it to work in practice.</p>';
@@ -3522,6 +3673,11 @@ function drawPath(){
   head.innerHTML = '<div><h1>The path</h1><p>From the rules of the game to the maths the best players use. Each lesson ends with a short checkpoint; pass it and the skill joins your review schedule.</p></div>' +
     '<div class="pathprog"><b>' + passed + '<span>/' + total + '</span></b><small>lessons passed</small><div class="pbar"><span style="width:' + (100 * passed / total).toFixed(1) + '%"></span></div></div>';
   box.appendChild(head);
+  if(passed < total - 3){
+    var pl = el("div", "placebox", '<b>Already play?</b><span>Take the placement test: a few questions per stage, untimed in effect, and every stage you know is marked passed and put on your review schedule. Stop whenever you like.</span>');
+    pl.appendChild(btnEl("Take the placement test", "ghost", function(){ var first = LAYERS.filter(function(S){ return S.lessons.some(function(L){ return passable(L) && !progress[L.id]; }); })[0]; startPlacement(first ? first.n : 0); }));
+    box.appendChild(pl);
+  }
   if(nx){
     var cont = el("div", "pathnext");
     cont.innerHTML = '<span>Next up</span><b>' + nx.title + '</b><em>Stage ' + nx.layer + ' &middot; ' + lessonMinutes(nx) + ' min</em>';
@@ -3816,6 +3972,8 @@ function drawPractice(){
   });
   $("pracReview").hidden = s !== "review";
   $("pracSkills").hidden = s !== "skills";
+  $("pracRanges").hidden = s !== "ranges";
+  if(s === "ranges") drawRanges();
   $("drillView").hidden = s !== "drill";
   if(s === "review") drawToday();
   if(s === "skills") drawSkills();
@@ -3869,20 +4027,43 @@ function drawToday(){
   /* what the table says you get wrong, one tap from drilling it */
   var tb = $("fromTable");
   var tw = lvWeak(plevel, lvLearned()).slice(0, 4);
-  tb.hidden = !tw.length;
+  var rd = replayDue();
+  tb.hidden = !tw.length && !rd.length;
   tb.innerHTML = "";
+  if(rd.length){
+    tb.insertAdjacentHTML("beforeend", '<div class="ph"><h3>Your mistakes, due to replay</h3><a href="#/level">Your level &rsaquo;</a></div><p class="pnote">' + rd.length + (rd.length === 1 ? " spot" : " spots") + ' from the table where you went wrong. Play each again before you see the answer: right four times, spaced out, and it is mastered.</p>');
+    var r1 = el("div", "row"); r1.style.margin = "10px 0 16px";
+    r1.appendChild(btnEl("Replay " + rd.length + (rd.length === 1 ? " spot" : " spots"), "go", function(){ startReplay(rd.map(function(m){ return m.id; })); }));
+    tb.appendChild(r1);
+  }
   if(tw.length){
-    tb.innerHTML = '<div class="ph"><h3>From the table</h3><a href="#/level">Your level &rsaquo;</a></div>' +
+    tb.insertAdjacentHTML("beforeend", '<div class="ph"><h3>From the table</h3><a href="#/level">Your level &rsaquo;</a></div>' +
       '<p class="pnote">Skills you are playing below your level at the Play table. Each one is trained by a drill; mistakes at the table also put that drill back on today&rsquo;s reviews.</p>' +
-      '<div class="clist">' + tw.map(function(k){ return '<div><span>' + k.name + ' <small>drill: ' + MODE_META[k.drill] + '</small></span><b>' + Math.round(k.rating) + '</b></div>'; }).join("") + '</div>';
+      '<div class="clist">' + tw.map(function(k){ return '<div><span>' + k.name + ' <small>drill: ' + MODE_META[k.drill] + '</small></span><b>' + Math.round(k.rating) + '</b></div>'; }).join("") + '</div>');
     var r2 = el("div", "row"); r2.style.marginTop = "12px";
     r2.appendChild(btnEl("Drill these", "go", function(){ drillTableWeak(); }));
     tb.appendChild(r2);
   }
 }
 
+function drawCalib(){
+  var box = $("calib"); if(!box) return;
+  var C = gstate.calib || { g: [0, 0], f: [0, 0], s: [0, 0] }, tot = C.g[0] + C.f[0] + C.s[0];
+  var pct = function(x){ return x[0] ? Math.round(100 * x[1] / x[0]) + "%" : "&ndash;"; };
+  var msg = "";
+  if(C.s[0] >= 10){
+    var sr = C.s[1] / C.s[0];
+    msg = sr >= 0.9 ? "When you say sure, you are right. That is the habit that holds up at a table." : sr >= 0.75 ? "You are a little overconfident: when you feel sure, slow down and check one number." : "Your &ldquo;sure&rdquo; is often wrong. Treat that feeling as a cue to check, not to act.";
+    if(C.g[0] >= 10 && C.g[1] / C.g[0] >= 0.7) msg += " Your guesses are right most of the time: you know more than you think.";
+  } else msg = "Rate how sure you are after each answer. After a few dozen, this shows whether your confidence can be trusted.";
+  box.innerHTML = '<div class="ph"><h3>How well you know what you know</h3><label class="pchk"><input type="checkbox" id="confOn"' + (gstate.conf !== false ? " checked" : "") + '> Ask how sure I am</label></div>' +
+    '<div class="calrow">' + CONF.map(function(c){ var x = C[c[0]], f = x[0] ? x[1] / x[0] : 0; return '<div><span>' + c[1] + '</span><i><span style="width:' + (100 * f).toFixed(0) + '%" class="' + (f >= 0.9 ? "hi" : f >= 0.7 ? "mid" : "lo") + '"></span></i><b>' + pct(x) + '</b><small>' + x[0] + ' answers</small></div>'; }).join("") + '</div>' +
+    '<p class="pnote">' + msg + (tot ? "" : "") + '</p>';
+  $("confOn").onchange = function(){ gstate.conf = this.checked; gameSave(); };
+}
 function drawSkills(){
   if(!$("skills")) return;
+  drawCalib();
   var now = Date.now();
   var pts = ORDER.reduce(function(a, m){ return a + (skills[m] ? skills[m].box : 0); }, 0);
   var pct = 100 * pts / (ORDER.length * SRS_TOP);
@@ -3982,7 +4163,7 @@ function drawGlossary(){
    ============================================================ */
 var PLAY_KEY = "poker-sim-v1";
 var pg = null;
-var pset = { lineup:"mixed", coach:"numbers", labels:true, speed:500, auto:false };
+var pset = { lineup:"mixed", coach:"numbers", labels:true, speed:500, auto:false, stack:100, spot:"any" };
 var pcareer = null, plevel = null, pTimer = 0, pReview = null, pFeedback = null;
 var GRADE_CLS = { Best:"g-best", Good:"g-good", Inaccuracy:"g-inacc", Mistake:"g-mist", Blunder:"g-blun" };
 var CAT_ORDER = ["straight flush","four of a kind","full house","flush","straight","three of a kind","two pair","one pair","draw","high card"];
@@ -4043,7 +4224,7 @@ function skillRecord(L){
 }
 
 function drawPlay(){
-  if(!pg){ pg = playNew(pset.lineup); }
+  if(!pg){ pg = playNew(pset.lineup, null, +pset.stack || 100); }
   drawPlayTop();
   if(!pg.t.hand){ playNextHand(); return; }
   drawFelt(); drawActBar(); drawPlaySide(); drawPlayReview();
@@ -4059,6 +4240,8 @@ function drawPlayTop(){
     '<div class="pctl">' +
       '<label>Table<select data-k="lineup">' + Object.keys(PLAY_LINEUPS).map(function(k){ return '<option value="' + k + '">' + PLAY_LINEUPS[k].name + '</option>'; }).join("") + '</select></label>' +
       '<label>Coach<select data-k="coach"><option value="off">After I act</option><option value="numbers">Numbers before I act</option><option value="full">Everything (training wheels)</option></select></label>' +
+      '<label>Stacks<select data-k="stack"><option value="100">100 bb (cash)</option><option value="40">40 bb</option><option value="20">20 bb</option><option value="12">12 bb (push or fold)</option></select></label>' +
+      '<label>Deal<select data-k="spot"><option value="any">Every hand</option><option value="weak">My weakest skill</option>' + Object.keys(PLAY_SPOTS).filter(function(k){ return k !== "any"; }).map(function(k){ return '<option value="' + k + '">' + PLAY_SPOTS[k].name + '</option>'; }).join("") + '</select></label>' +
       '<label>Speed<select data-k="speed"><option value="900">Slow</option><option value="500">Normal</option><option value="150">Fast</option><option value="0">Instant</option></select></label>' +
       '<label class="pchk"><input type="checkbox" id="pLabels"> Show opponent styles</label>' +
       '<label class="pchk"><input type="checkbox" id="pAuto"> Deal the next hand automatically</label>' +
@@ -4069,15 +4252,16 @@ function drawPlayTop(){
       '<li><b>Every decision is priced.</b> Fold is zero; check and call use your equity against their ranges, realised by position; bets and raises use exactly how often each opponent would fold. See <a href="#/learn/ev">Expected value</a> and <a href="#/learn/eqr">Equity realisation</a>.</li>' +
       '<li><b>Grades</b> measure the EV you gave up against the size of the pot: <span class="gbadge sm g-best">Best</span> within 3% (or 0.05 bb), <span class="gbadge sm g-good">Good</span> within 10%, <span class="gbadge sm g-inacc">Inaccuracy</span> 22%, <span class="gbadge sm g-mist">Mistake</span> 45%, then <span class="gbadge sm g-blun">Blunder</span>.</li>' +
       '<li><b>Scores.</b> The decision score is a running average of your grades out of 100. Winnings swing with the cards over any short session; EV lost is the part you control. Leaks show which lessons your lost EV comes from.</li>' +
-      '<li><b>Limits.</b> The pricing looks one street ahead, with realisation standing in for later streets, and treats an opponent&rsquo;s raise as a call. Treat differences of a few tenths of a big blind as ties.</li>' +
+      '<li><b>Limits.</b> The pricing looks one street ahead, with realisation standing in for later streets. An opponent&rsquo;s re-raise is priced from the hands they would re-raise with, and you answer it with the better of folding or calling; it does not model a raise war beyond that. Treat differences of a few tenths of a big blind as ties.</li>' +
     '</ol></details>';
   box.querySelectorAll("select").forEach(function(s){
     s.value = pset[s.dataset.k] + "";
     s.onchange = function(){
       var k = s.dataset.k;
-      pset[k] = k === "speed" ? +s.value : s.value;
+      pset[k] = k === "speed" || k === "stack" ? +s.value : s.value;
       playSave();
-      if(k === "lineup"){ clearTimeout(pTimer); pg = playNew(pset.lineup); pReview = null; pFeedback = null; playNextHand(); }
+      if(k === "lineup" || k === "stack"){ clearTimeout(pTimer); pg = playNew(pset.lineup, null, +pset.stack || 100); pReview = null; pFeedback = null; playNextHand(); }
+      else if(k === "spot"){ clearTimeout(pTimer); pReview = null; playNextHand(); }
       else { drawFelt(); drawActBar(); }
     };
   });
@@ -4087,9 +4271,15 @@ function drawPlayTop(){
   $("pAuto").onchange = function(){ pset.auto = this.checked; playSave(); if(pset.auto && pg.t.hand && pg.t.hand.over) playLoop(); };
 }
 
+var pSpotNote = "";
 function playNextHand(){
   clearTimeout(pTimer);
-  playDeal(pg);
+  var kind = playSpotKind(), spot = PLAY_SPOTS[kind] || PLAY_SPOTS.any;
+  /* the shove-or-fold spot needs a short stack: switch the table to it */
+  if(spot.stack && pg.stack > 20){ pset.stack = spot.stack; playSave(); pg = playNew(pset.lineup, null, spot.stack); drawPlayTop(); }
+  var found = playDealSpot(pg, kind);
+  pSpotNote = kind === "any" ? "" : found ? "Spot trainer: " + spot.name.toLowerCase() + (pset.spot === "weak" ? " (your weakest skill)" : "") + ". Hands on the way were skipped, not graded."
+    : "No " + spot.name.toLowerCase() + " spot came up in 400 hands, so this is a normal hand.";
   pReview = null;
   drawFelt(); drawActBar(); drawPlaySide(); drawPlayReview();
   playLoop();
@@ -4182,6 +4372,7 @@ function drawFelt(){
 function drawActBar(){
   var box = $("actbar"), hint = $("pHint"), t = pg.t, h = t.hand;
   if(!h) return;
+  if(pSpotNote && !h.over && playHeroTurn(pg) && !hint.textContent) hint.innerHTML = '<p class="pnote">' + pSpotNote + '</p>';
   if(h.over){
     var net = h.result.net[pg.hero];
     var ds = pg.history[0] ? pg.history[0].decisions : [];
@@ -4291,7 +4482,7 @@ function drawPlaySide(){
       var L = lessonById(l.id);
       return '<div><span>' + (L ? '<a href="#/learn/' + l.id + '">' + L.title + '</a>' : l.id) + ' <small>' + l.n + ' decisions</small></span><b>' + l.lost.toFixed(1) + ' bb</b></div>';
     }).join("") + '</div>' : "");
-  $("pNewSess").onclick = function(e){ e.preventDefault(); clearTimeout(pTimer); pg = playNew(pset.lineup); pFeedback = null; pReview = null; playNextHand(); };
+  $("pNewSess").onclick = function(e){ e.preventDefault(); clearTimeout(pTimer); pg = playNew(pset.lineup, null, +pset.stack || 100); pFeedback = null; pReview = null; playNextHand(); };
 
   var hist = $("pHistory");
   hist.innerHTML = '<div class="ph"><h3>Hands</h3><span>tap to review</span></div>' + (pg.history.length ? '<div class="phist">' + pg.history.slice(0, 12).map(function(x){
@@ -4348,14 +4539,162 @@ function drawPlayReview(){
         var bar = mk ? '<div class="pmk">' + CAT_ORDER.filter(function(c){ return mk[c] > 0.005; }).map(function(c){ return '<span style="flex:' + mk[c] + '" class="mk-' + c.replace(/ /g, "") + '" title="' + c + ' ' + pPct(mk[c]) + '"></span>'; }).join("") + '</div>' +
           '<div class="pmkl">' + CAT_ORDER.filter(function(c){ return mk[c] > 0.02; }).map(function(c){ return '<span><i class="mk-' + c.replace(/ /g, "") + '"></i>' + c + ' ' + pPct(mk[c]) + '</span>'; }).join("") + '</div>' : "";
         return '<div class="popp"><b>' + o.name + '</b> <span class="pmuted">' + o.pos + (pset.labels ? " &middot; " + BOT_STYLES[o.style].name : "") + ' &middot; range ' + o.rangePct.toFixed(1) + '% of hands</span>' + bar +
-          '<div class="ptop">' + (o.rangePct > 90 ? "Any two cards: they had not acted yet." : "Most likely: " + o.top.map(function(t2){ return t2[0] + ' ' + pPct(t2[1]); }).join(", ")) + '</div></div>';
+          '<div class="ptop">' + (o.rangePct > 90 ? "Any two cards: they had not acted yet." : "Most likely: " + o.top.map(function(t2){ return t2[0] + ' ' + pPct(t2[1]); }).join(", ")) + '</div>' +
+          (o.grid && o.rangePct <= 90 ? '<details class="pgrid"><summary>Their range on the grid</summary>' + heatGrid(o.grid) + '</details>' : "") + '</div>';
       }).join("") + '</div>' +
       '<div class="pconcepts">' + G.concepts.map(conceptLinks).join("") + '</div></div>';
   });
-  html += '<p class="pnote">How this is priced: your opponents&rsquo; ranges are tracked exactly, by Bayes&rsquo; rule, from the strategies they play; their fold rates come from those same strategies. Each option looks one street ahead, with equity realisation standing in for the streets after that, and a raise by an opponent counted as a call. Treat small differences as ties.</p>';
+  html += '<p class="pnote">How this is priced: your opponents&rsquo; ranges are tracked exactly, by Bayes&rsquo; rule, from the strategies they play; their fold rates come from those same strategies. Each option looks one street ahead, with equity realisation standing in for the streets after that. When an opponent would re-raise, those hands are priced on their own and you answer with the better of folding or calling. Treat small differences as ties.</p>';
   box.innerHTML = html;
   glossify(box, null);
   $("pCloseRev").onclick = function(e){ e.preventDefault(); pReview = null; drawPlayReview(); drawPlaySide(); };
+}
+
+/* ============================================================
+   RANGE GRIDS: the 169 starting hands as a 13 x 13 grid
+   Pairs on the diagonal, suited above it, offsuit below.
+   ============================================================ */
+var GRID_R = "AKQJT98765432";
+function gridClass(r, c){
+  if(r === c) return GRID_R[r] + GRID_R[r];
+  return r < c ? GRID_R[r] + GRID_R[c] + "s" : GRID_R[c] + GRID_R[r] + "o";
+}
+/* cell(cls) returns { c: css class, s: inline style, t: title } */
+function gridHTML(cell, opts){
+  opts = opts || {};
+  var h = '<div class="rgrid' + (opts.small ? " sm" : "") + (opts.paint ? " paint" : "") + '"' + (opts.id ? ' id="' + opts.id + '"' : "") + '>';
+  for(var r = 0; r < 13; r++) for(var c = 0; c < 13; c++){
+    var k = gridClass(r, c), x = cell(k) || {};
+    h += '<i data-h="' + k + '" class="' + (x.c || "") + '"' + (x.s ? ' style="' + x.s + '"' : "") + ' title="' + k + (x.t ? ": " + x.t : "") + '">' + (opts.small ? "" : k.slice(0, 2)) + '</i>';
+  }
+  return h + '</div>';
+}
+/* an opening chart, with one hand picked out */
+function chartGrid(pos, mark, small){
+  var set = rangeClasses(RFI[pos]);
+  return gridHTML(function(k){ return { c: (set[k] ? "in" : "") + (k === mark ? " mark" : "") }; }, { small: small });
+}
+/* a tracked range as a heat map: how much of each class is still in it */
+function heatGrid(weights){
+  return gridHTML(function(k){ var w = weights[k] || 0; return w > 0.01 ? { c: "heat", s: "--a:" + w.toFixed(2), t: Math.round(100 * w) + "%" } : {}; }, { small: true });
+}
+
+/* ---- Practice > Ranges: paint a seat's opening range from memory ---- */
+var rpState = { seat: "UTG", cells: {}, checked: null };
+function drawRanges(){
+  var box = $("pracRanges"); if(!box) return;
+  var seats = ["UTG", "HJ", "CO", "BTN", "SB"];
+  var best = gstate.paint || {};
+  var S = rpState, set = rangeClasses(RFI[S.seat]);
+  var html = '<div class="rphead"><div><h3>Paint the opening range</h3><p class="pnote">Folded to you in this seat: which hands do you raise? Click or drag across the grid to paint, then check it against the course chart (the same one the Play table&rsquo;s Regs use). Pairs run down the diagonal, suited hands above it, offsuit below.</p></div>' +
+    '<div class="rpseats">' + seats.map(function(p){ return '<button type="button" class="chip' + (p === S.seat ? " on" : "") + '" data-seat="' + p + '">' + p + (best[p] != null ? ' <small>' + Math.round(100 * best[p]) + '%</small>' : "") + '</button>'; }).join("") + '</div></div>';
+  if(!S.checked){
+    html += gridHTML(function(k){ return { c: S.cells[k] ? "in" : "" }; }, { paint: true, id: "rpGrid" }) +
+      '<div class="row rprow"><button type="button" class="act go" id="rpCheck">Check it</button><button type="button" class="act ghost" id="rpClear">Clear</button>' +
+      '<span class="pmuted" id="rpCount">' + rpCombos(S.cells) + ' combos painted, ' + (100 * rpCombos(S.cells) / 1326).toFixed(1) + '% of hands</span></div>';
+  } else {
+    var C = S.checked;
+    html += '<div class="rpres ' + (C.score >= 0.8 ? "ok" : "") + '"><b>' + Math.round(100 * C.score) + '% match</b><span>' + C.both + ' combos right, ' + C.missed + ' missed, ' + C.extra + ' extra. The ' + S.seat + ' chart opens ' + pctFmt(rangePct(RFI[S.seat]), 0) + ' of hands.' + (C.xp ? ' <span class="xpchip">+' + C.xp + ' XP</span>' : "") + '</span></div>' +
+      gridHTML(function(k){ var a = !!S.cells[k], b = !!set[k]; return { c: a && b ? "in" : b ? "miss" : a ? "extra" : "" }; }) +
+      '<div class="rpkey"><span><i class="in"></i>right</span><span><i class="miss"></i>missed (should open)</span><span><i class="extra"></i>extra (should fold)</span></div>' +
+      '<div class="row rprow"><button type="button" class="act go" id="rpAgain">Try again</button><button type="button" class="act ghost" id="rpNext">Next seat</button><a class="act ghost" href="#/learn/rfi">Lesson: Opening ranges</a><button type="button" class="act ghost" data-drill="rfi">Drill opening ranges</button></div>';
+  }
+  box.innerHTML = html;
+  box.querySelectorAll("[data-seat]").forEach(function(b){ b.onclick = function(){ rpState = { seat: b.dataset.seat, cells: {}, checked: null }; drawRanges(); }; });
+  if(!S.checked){
+    var g = $("rpGrid"), painting = null;
+    var paintAt = function(e){
+      var t = document.elementFromPoint(e.clientX, e.clientY);
+      if(!t || !t.dataset || !t.dataset.h || !g.contains(t)) return;
+      if(painting === null) painting = !S.cells[t.dataset.h];
+      if(painting) S.cells[t.dataset.h] = 1; else delete S.cells[t.dataset.h];
+      t.classList.toggle("in", !!painting);
+      $("rpCount").textContent = rpCombos(S.cells) + " combos painted, " + (100 * rpCombos(S.cells) / 1326).toFixed(1) + "% of hands";
+    };
+    g.addEventListener("pointerdown", function(e){ e.preventDefault(); painting = null; g.setPointerCapture(e.pointerId); paintAt(e); });
+    g.addEventListener("pointermove", function(e){ if(painting !== null) paintAt(e); });
+    g.addEventListener("pointerup", function(){ painting = null; });
+    $("rpClear").onclick = function(){ S.cells = {}; drawRanges(); };
+    $("rpCheck").onclick = function(){
+      var both = 0, missed = 0, extra = 0;
+      HAND_CLASSES.forEach(function(k){ var n = classCombos(k), a = !!S.cells[k], b = !!set[k]; if(a && b) both += n; else if(b) missed += n; else if(a) extra += n; });
+      var score = both / Math.max(1, both + missed + extra);
+      S.checked = { both: both, missed: missed, extra: extra, score: score, xp: 0 };
+      gstate.paint = gstate.paint || {};
+      if(gstate.paint[S.seat] == null || score > gstate.paint[S.seat]) gstate.paint[S.seat] = Math.round(1000 * score) / 1000;
+      var d = gmToday(); d.rp = d.rp || {};
+      if(score >= 0.8 && !d.rp[S.seat]){ d.rp[S.seat] = 1; S.checked.xp = GM_XP_RANGE; gmGain(GM_XP_RANGE, null); }
+      gameSave();
+      drawRanges();
+    };
+  } else {
+    $("rpAgain").onclick = function(){ rpState = { seat: S.seat, cells: {}, checked: null }; drawRanges(); };
+    $("rpNext").onclick = function(){ rpState = { seat: seats[(seats.indexOf(S.seat) + 1) % seats.length], cells: {}, checked: null }; drawRanges(); };
+  }
+}
+function rpCombos(cells){ return Object.keys(cells).reduce(function(a, k){ return a + classCombos(k); }, 0); }
+
+/* ============================================================
+   REPLAY: play your own mistakes again, on a schedule
+   ============================================================ */
+var lvReplay = null;     /* { ids: [...], i, picked } while replaying */
+function startReplay(ids){
+  if(!ids || !ids.length) return;
+  lvReplay = { ids: ids, i: 0, picked: null, right: 0 };
+  if(view !== "level") location.hash = "#/level"; else drawLevel();
+  window.scrollTo(0, 0);
+}
+function replayDue(){ return lvSpotsDue(plevel, Date.now()); }
+
+function drawReplay(box){
+  var R = lvReplay, m = (plevel.m || []).filter(function(x){ return x.id === R.ids[R.i]; })[0];
+  if(!m){ R.i++; if(R.i >= R.ids.length){ lvReplay = null; drawLevel(); } else drawReplay(box); return; }
+  var streets = ["Preflop", "Flop", "Turn", "River"];
+  var html = '<div class="vhead"><div><h1>Replay your mistakes</h1><p>Spot ' + (R.i + 1) + ' of ' + R.ids.length + '. The same cards, board and opponents as when you got it wrong. Decide before you look: recalling the answer yourself is what makes it stick.</p></div></div>' +
+    '<div class="rpspot"><div class="rpsh"><span class="ppos2">' + m.pos + '</span>' + pCard(m.cards[0]) + pCard(m.cards[1]) +
+      '<span class="rpb">' + (m.board.length ? m.board.map(function(c){ return pCard(c, "sm"); }).join("") : '<span class="pmuted">' + streets[m.street_i || 0] + '</span>') + '</span></div>' +
+    '<div class="facts"><div class="fact"><dt>Street</dt><dd>' + streets[m.street_i || 0] + '</dd></div><div class="fact"><dt>Pot</dt><dd>' + pBB(m.pot) + ' bb</dd></div>' +
+      '<div class="fact"><dt>To call</dt><dd>' + (m.toCall ? pBB(m.toCall) + ' bb' : "nothing") + '</dd></div>' + (m.spr != null ? '<div class="fact"><dt>SPR</dt><dd>' + m.spr.toFixed(1) + '</dd></div>' : "") +
+      '<div class="fact"><dt>Position</dt><dd>' + (m.ip ? "in position" : "out of position") + '</dd></div></div>' +
+    '<div class="rpopps">' + (m.opps || []).map(function(o){ return '<div><b>' + o.name + '</b> <span class="pmuted">' + o.pos + ' &middot; ' + (BOT_STYLES[o.style] ? BOT_STYLES[o.style].name : o.style) + ' &middot; range ' + o.pct + '% of hands' + (o.pct < 90 && o.top && o.top.length ? ' &middot; most likely ' + o.top.map(function(t){ return t[0]; }).join(", ") : "") + '</span></div>'; }).join("") + '</div>';
+  if(!R.picked){
+    html += '<div class="ask">What do you do?</div><div class="row">' + m.opts.map(function(o){ return '<button type="button" class="act" data-pick="' + o.k + '">' + o.l + '</button>'; }).join("") + '</div>';
+  } else {
+    var ok = R.ok, mx = Math.max.apply(null, m.opts.map(function(o){ return Math.abs(o.ev); }).concat([0.5]));
+    var best = m.opts.reduce(function(a, x){ return x.ev > a.ev ? x : a; }, m.opts[0]);
+    html += '<div class="verdict"><span class="badge ' + (ok ? "ok" : "no") + '">' + (ok ? "Fixed" : "Not yet") + '</span><span class="said">Best <b>' + best.l + '</b> &middot; you chose ' + m.opts.filter(function(o){ return o.k === R.picked; })[0].l + '</span>' + (R.xp ? '<span class="xpchip">+' + R.xp + ' XP</span>' : "") + '</div>' +
+      '<div class="srsline ' + (ok ? "up" : "miss") + '">' + (m.sr.done ? "<b>Mastered.</b> Four right answers, spaced out: this one is yours now." : ok ? "<b>Right.</b> It comes back in " + LV_SPOT_DAYS[m.sr.box] + " days; " + (LV_SPOT_DAYS.length - m.sr.box) + " more spaced right answers master it." : "<b>Back tomorrow.</b> Read why below; the spot returns while it is fresh.") + '</div>' +
+      '<table class="pevt"><tbody>' + m.opts.map(function(o){ var w = 50 * Math.abs(o.ev) / mx, neg = o.ev < 0;
+        return '<tr class="' + (o.k === best.k ? "best " : "") + (o.k === R.picked ? "mine" : "") + '"><td>' + o.l + (o.k === R.picked ? ' <em>you</em>' : "") + (o.k === best.k ? ' <em class="b">best</em>' : "") + '</td><td class="num">' + pSigned(o.ev) + '</td><td class="barc"><span class="evbar' + (neg ? " neg" : "") + '" style="width:' + w.toFixed(1) + '%;' + (neg ? "right:50%" : "left:50%") + '"></span><i></i></td></tr>'; }).join("") + '</tbody></table>' +
+      '<ul class="plines">' + m.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
+      '<div class="pconcepts">' + m.c.map(conceptLinks).join("") + '</div>' +
+      '<div class="row" style="margin-top:14px"><button type="button" class="act go" id="rpNextSpot">' + (R.i + 1 < R.ids.length ? "Next spot" : "Done") + '</button></div>';
+  }
+  html += '<p class="pnote"><a href="#" id="rpExit">Leave the replay</a></p>';
+  box.innerHTML = html;
+  glossify(box, null);
+  box.querySelectorAll("[data-pick]").forEach(function(b){ b.onclick = function(){
+    R.picked = b.dataset.pick;
+    R.ok = lvSpotAnswer(m, R.picked, Date.now());
+    if(R.ok) R.right++;
+    R.xp = R.ok ? 10 : 3;
+    gstate.spots = (gstate.spots || 0) + 1; gameSave(true);
+    playSave(); gmGain(R.xp, null);
+    if(m.sr.done) toast('<b>Spot mastered</b> ' + (m.c[0] && LV_SKILLS[m.c[0]] ? LV_SKILLS[m.c[0]].name : ""), "goal");
+    drawTrainTab(); drawReplay(box);
+  }; });
+  if($("rpNextSpot")) $("rpNextSpot").onclick = function(){ R.i++; R.picked = null; if(R.i >= R.ids.length){ var n = R.ids.length, r = R.right; lvReplay = null; toast('<b>Replay done</b> ' + r + ' of ' + n + ' right', "goal"); drawLevel(); } else drawReplay(box); window.scrollTo(0, 0); };
+  $("rpExit").onclick = function(e){ e.preventDefault(); lvReplay = null; drawLevel(); };
+}
+
+/* ---- the spot trainer: which spot to deal ---- */
+function playSpotKind(){
+  var k = pset.spot || "any";
+  if(k !== "weak") return k;
+  var LN = lvLearned(), w = lvWeak(plevel, LN)[0];
+  if(w) return PLAY_SPOT_OF[w.id] || "any";
+  var rated = lvSkills(plevel, LN).filter(function(s){ return s.learned && s.recent; }).sort(function(a, b){ return a.rating - b.rating; })[0];
+  return rated ? PLAY_SPOT_OF[rated.id] || "any" : "any";
 }
 
 /* ============================================================
@@ -4412,6 +4751,7 @@ function lvSign(x){ return (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(Math.ro
 
 function drawLevel(){
   var box = $("levelView");
+  if(lvReplay && plevel){ drawReplay(box); return; }
   var S = lvSummary(plevel);
   var html = '<div class="vhead"><div><h1>Your level</h1><p>How well you actually play, measured from every decision you make at the Play table: not how far through the course you are. The rating is the quality of your last ' + LV_WINDOW + ' rated decisions, so it moves when you improve and when you slip. Only skills you have learned count: a decision that leans on a lesson you had not passed yet is shown, but never held against you.</p></div></div>';
   var LN = lvLearned(), nLearned = Object.keys(LN).length, nSkills = Object.keys(LV_SKILLS).length;
@@ -4428,12 +4768,8 @@ function drawLevel(){
         ? 'Play ' + S.left + ' more ' + (S.left === 1 ? "decision" : "decisions") + ' in skills you have learned to get your first level. Every fold, call, bet and raise you make is graded against what your opponents really hold.'
         : 'You have not learned a table skill yet, so nothing you do at the table counts against you. Pass ' + (nextL ? '<a href="#/learn/' + nextL.id + '">' + nextL.title + '</a>' : "a lesson") + ' and decisions in that skill start to count. Until then, play freely: the coach still grades every decision.') + '</p>' +
       '<div class="lvbar"><span style="width:' + (100 * S.n / LV_PLACEMENT).toFixed(0) + '%"></span></div></div></div>' + cover;
-    box.innerHTML = html;
-    var r0 = el("div", "row"); r0.appendChild(btnEl(nLearned ? "Play hands" : "Learn: " + (nextL ? nextL.title : "the path"), "go", function(){ location.hash = nLearned ? "#/play" : nextL ? "#/learn/" + nextL.id : "#/learn"; }));
-    box.appendChild(r0);
-    box.insertAdjacentHTML("beforeend", trophyPanel());
-    return;
-  }
+    html += '<div class="row" id="lvPlaceRow" style="margin-bottom:18px"></div>';
+  } else {
 
   var Lv = S.level;
   html += '<div class="lvhero"><div class="lvrate ' + lvColor(S.rating) + '">' + Math.round(S.rating) + '<small>rating</small></div><div>' +
@@ -4466,10 +4802,14 @@ function drawLevel(){
     }).join("") +
     '<p class="pnote" style="margin-top:10px">Bars are each skill&rsquo;s rating; the light line is your overall rating. Trend compares the last 25 decisions in a skill with the 25 before them.</p></div>';
 
-  /* the mistakes themselves */
+  }   /* placed */
+
+  /* the mistakes themselves: shown from your first mistake, rated or not */
   var M = (plevel && plevel.m) || [];
-  html += '<div class="panel"><div class="ph"><h3>Spots to review</h3><span>' + M.length + ' mistakes and blunders</span></div>' +
-    (M.length ? '<p class="pnote">Your most recent mistakes and blunders at the table. Read what was better and why, drill the skill, then mark it reviewed.</p>' + M.slice(0, lvAll ? M.length : 8).map(function(m){
+  var dueSp = replayDue();
+  html += '<div class="panel"><div class="ph"><h3>Spots to review</h3><span>' + M.length + ' mistakes and blunders' + (dueSp.length ? ' &middot; <b class="due">' + dueSp.length + ' due to replay</b>' : "") + '</span></div>' +
+    (M.length ? '<p class="pnote">Your own mistakes and blunders at the table. Each comes back the next day to <b>replay</b>: the same spot, and you decide again before seeing the answer. Right four times, spaced out over about a month, and it is mastered.' + (lvSpotsMastered(plevel) ? ' Mastered so far: ' + lvSpotsMastered(plevel) + '.' : "") + '</p>' +
+      (dueSp.length ? '<div class="row" style="margin-bottom:12px"><button type="button" class="act go" id="lvReplayDue">Replay ' + dueSp.length + ' due ' + (dueSp.length === 1 ? "spot" : "spots") + '</button></div>' : "") + M.slice(0, lvAll ? M.length : 8).map(function(m){
       var sk = m.c.map(function(c){ return LV_SKILLS[c]; }).filter(Boolean);
       var nl = lvUnlearned(m);
       return '<details class="lvm"' + (lvOpen[m.id] ? " open" : "") + ' data-id="' + m.id + '"><summary><span class="gbadge sm ' + GRADE_CLS[m.grade] + '">' + m.grade + '</span>' +
@@ -4480,13 +4820,16 @@ function drawLevel(){
         '<ul class="plines">' + m.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
         '<div class="pconcepts">' + m.c.map(lessonLink).join("") + '</div>' +
         '<div class="row">' + sk.map(function(k){ return '<button type="button" class="act ghost" data-drill="' + k.drill + '">Drill ' + MODE_META[k.drill] + '</button>'; }).join("") +
-          '<button type="button" class="act ghost" data-done="' + m.id + '">Mark reviewed</button></div></details>';
+          (lvReplayable(m) ? (m.sr.done ? '<span class="pmuted">Mastered</span>' : '<button type="button" class="act ghost" data-replay="' + m.id + '">Replay now</button>') + '<span class="pmuted">' + (m.sr.done ? "" : m.sr.n ? m.sr.ok + " of " + m.sr.n + " replays right &middot; " : "") + (m.sr.done ? "" : Date.now() >= m.sr.due ? "due" : "next replay in " + fmtIn(m.sr.due - Date.now())) + '</span>' : '<button type="button" class="act ghost" data-done="' + m.id + '">Mark reviewed</button>') + '</div></details>';
     }).join("") + (M.length > 8 ? '<div class="row"><button type="button" class="act ghost" id="lvMore">' + (lvAll ? "Show fewer" : "Show all " + M.length) + '</button></div>' : "") : '<p class="pnote">No mistakes or blunders logged. When you make one at the table it lands here, with what was better and the drill that trains it.</p>') + '</div>';
 
   box.innerHTML = html + trophyPanel();
   glossify(box, null);
+  if($("lvPlaceRow")) $("lvPlaceRow").appendChild(btnEl(nLearned ? "Play hands" : "Learn: " + (nextL ? nextL.title : "the path"), "go", function(){ location.hash = nLearned ? "#/play" : nextL ? "#/learn/" + nextL.id : "#/learn"; }));
   if($("lvWeakRow")) $("lvWeakRow").appendChild(btnEl("Drill weak spots", "go", function(){ drillTableWeak(); }));
   box.querySelectorAll("[data-done]").forEach(function(b){ b.onclick = function(){ plevel = lvDismiss(plevel, b.dataset.done); playSave(); gstate.spots = (gstate.spots || 0) + 1; gameSave(); gmGain(GM_XP_SPOT, "Spot reviewed"); drawLevel(); }; });
+  if($("lvReplayDue")) $("lvReplayDue").onclick = function(){ startReplay(replayDue().map(function(m){ return m.id; })); };
+  box.querySelectorAll("[data-replay]").forEach(function(b){ b.onclick = function(){ startReplay([b.dataset.replay]); }; });
   if($("lvMore")) $("lvMore").onclick = function(){ lvAll = !lvAll; drawLevel(); };
   box.querySelectorAll("details.lvm").forEach(function(d){ d.ontoggle = function(){ lvOpen[d.dataset.id] = d.open; }; });
   drawLevelChart();
@@ -4548,6 +4891,11 @@ document.addEventListener("keydown", function(e){
 });
 
 $("syncPill").onclick = function(){ location.hash = "#/sync"; };
+
+/* offline and installable: only when served over http(s), as on GitHub Pages */
+if("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+}
 
 (async function boot(){
   await loadSaved();

@@ -2,7 +2,7 @@
 
 Poker, for people who already know the math.
 
-A single-file browser course that goes from *"what beats what"* to Bayesian exploitation, structured the way you'd learn a trading discipline rather than a card game. The goal isn't to have read it. The goal is that the maths turns into reflex. A built-in spaced-repetition schedule decides what you practise each day and only calls a skill learned once you're right *and* fast, on separate days, weeks apart. No dependencies, no build step at runtime, and no network calls unless you turn on sync. One HTML file, about 280kb.
+A single-file browser course that goes from *"what beats what"* to Bayesian exploitation, structured the way you'd learn a trading discipline rather than a card game. The goal isn't to have read it. The goal is that the maths turns into reflex. A built-in spaced-repetition schedule decides what you practise each day and only calls a skill learned once you're right *and* fast, on separate days, weeks apart. No dependencies, no build step at runtime, and no network calls unless you turn on sync. One HTML file, about 670kb, that installs as an app and works offline after the first visit.
 
 ### ▶ **[Open the trainer → izenstae.github.io/PokerPro](https://izenstae.github.io/PokerPro/)**
 
@@ -28,14 +28,17 @@ A path in nine stages, from never having played to the maths strong players use.
 
 43 lessons (39 with a checkpoint, 4 labs), 37 drill generators, 39 formulas in the Library (every numeric anchor checked by a test), and a daily schedule that keeps all of it from fading. Every new lesson is built on a formula from the reading list: Chen and Ankenman's *Mathematics of Poker* (the AKQ game, multi-street bluffing, geometric sizing), Acevedo's *Modern Poker Theory* (equity realisation, SPR), and the standard tournament models (Sklansky–Chubukov, Malmuth–Harville ICM).
 
-The app has five sections, plus sync. On a phone or iPad in portrait they sit in a bottom tab bar:
+The app has six sections, plus sync. On a phone or iPad in portrait they sit in a bottom tab bar:
 
 - **Home**: one clear next step (reviews due, or the next lesson), your streak and time, where you are on the path, what is coming up on the schedule, and a formula of the day.
 - **Learn**: the path, stage by stage, with progress and the next lesson marked. Each lesson has a section map, formula cards with every symbol explained, definitions on key terms (hover or tap the dotted underline), a free "Try one" question before the checkpoint, and previous/next links.
-- **Practice**: today's reviews, free practice on any mix of drills, and the skill table with each skill's box, accuracy, pace and next review.
-- **Play**: a six-handed no-limit table against four styles of opponent. Every decision you make is priced and graded, with a hand-by-hand review and a session score that shows which lessons your mistakes come from.
+- **Practice**: today's reviews, free practice on any mix of drills, the skill table with each skill's box, accuracy, pace and next review, and **Ranges**, where you paint a seat's opening range on a 13×13 grid from memory and are scored against the chart. After each answer you say how sure you were; the Skills page shows whether your confidence matches your accuracy.
+- **Play**: a six-handed no-limit table against four styles of opponent. Every decision you make is priced and graded (re-raises included), with a hand-by-hand review, each opponent's tracked range as a heat map, and a session score that shows which lessons your mistakes come from. Stacks from 100 bb down to 12 bb for push-or-fold, and a **spot trainer** that deals straight into the situation you want to practise, or your weakest skill.
+- **Level**: how well you actually play, rated from your recent decisions at the table, only in skills you have learned. Your own mistakes come back on a schedule to **replay**: the same spot, decided again before you see the answer, until you get it right four times spaced over a month.
 - **Library**: every formula in the course (searchable, grouped by topic, each linked to its lesson), a glossary, and the reading list.
 - **Sync**: tap the indicator at the top right to share progress between devices.
+
+XP, a daily goal, a streak with freezes, ranks and trophies reward what builds skill: reviews on their due day pay most, cramming pays least. New players start at lesson one; anyone who already plays can take the **placement test**, which passes every stage they already know.
 
 Every screen has its own address (`#/learn/alpha`, `#/library/formulas`), so the back button and bookmarks work.
 

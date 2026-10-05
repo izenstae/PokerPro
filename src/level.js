@@ -13,7 +13,8 @@
    ============================================================ */
 
 var LV_KEEP = 1500;          /* decisions kept in the log */
-var LV_MISTAKES = 30;        /* spots kept for review */
+var LV_MISTAKES = 60;        /* spots kept for review */
+var LV_SPOT_DAYS = [1, 3, 7, 16];   /* replay intervals: right four times, spaced out, and the spot is mastered */
 var LV_WINDOW = 100;         /* decisions behind the overall rating */
 var LV_SKILL_WINDOW = 25;    /* decisions behind a skill's rating */
 var LV_PLACEMENT = 20;       /* decisions before you get a level */
@@ -41,7 +42,8 @@ var LV_SKILLS = {
   cbet:     { name: "C-bets",                  drill: "cbet" },
   fold:     { name: "Bluffing with fold equity", drill: "bluff" },
   spr:      { name: "Stack-to-pot commitment", drill: "spr" },
-  decide:   { name: "Betting vs checking",     drill: "allin" }
+  decide:   { name: "Betting vs checking",     drill: "allin" },
+  jam:      { name: "Short-stack shove or fold", drill: "jam" }
 };
 
 function lvNew() { return { d: [], m: [] }; }
@@ -96,12 +98,21 @@ function lvAddHand(Lg, hand, now, learned) {
         cards: hand.cards.slice(), board: A.board.slice(), street: streets[A.street] || "",
         pot: A.pot, toCall: A.toCall, eq: A.eq, grade: G.grade, loss: G.loss,
         did: did ? did.label : "", didEV: did ? did.ev : 0, best: best ? best.label : "", bestEV: best ? best.ev : 0,
-        lines: G.lines.slice(), c: G.concepts.slice(), k: k.slice()
+        lines: G.lines.slice(), c: G.concepts.slice(), k: k.slice(),
+        /* everything needed to play the spot again: the options, what each was worth, who was in it */
+        opts: A.options.map(function (o) { return { k: o.key, l: o.label, ev: Math.round(100 * o.ev) / 100 }; }),
+        bestKey: A.best, chosen: G.chosen, street_i: A.street, ip: A.ip, spr: A.spr,
+        opps: (A.opps || []).map(function (o) { return { name: o.name, style: o.style, pos: o.pos, pct: Math.round(10 * o.rangePct) / 10, top: (o.top || []).slice(0, 4) }; }),
+        sr: { box: 0, due: now + LV_SPOT_DAYS[0] * 864e5 - 4 * 36e5, n: 0, ok: 0 }
       });
     }
   });
   if (Lg.d.length > LV_KEEP) Lg.d.splice(0, Lg.d.length - LV_KEEP);
-  if (Lg.m.length > LV_MISTAKES) Lg.m.length = LV_MISTAKES;
+  /* over the cap, mastered spots go first, then the oldest */
+  if (Lg.m.length > LV_MISTAKES) {
+    Lg.m = Lg.m.filter(function (x) { if (x.sr && x.sr.done) { Lg.mastered = (Lg.mastered || 0) + 1; return false; } return true; });
+    if (Lg.m.length > LV_MISTAKES) Lg.m.length = LV_MISTAKES;
+  }
   return Lg;
 }
 
@@ -161,8 +172,35 @@ function lvWeak(Lg, learned) {
   }).sort(function (a, b) { return b.lostPer * b.recent - a.lostPer * a.recent; });
 }
 
+/* ---- replaying your mistakes, on a schedule ---- */
+function lvReplayable(m) { return !!(m && m.opts && m.opts.length > 1 && m.sr); }
+function lvSpotsDue(Lg, now) {
+  return ((Lg && Lg.m) || []).filter(function (m) { return lvReplayable(m) && !m.sr.done && now >= m.sr.due; });
+}
+/* a choice is right if it gives up no more than a Good decision would: 10% of the pot */
+function lvSpotGood(m, key) {
+  var o = m.opts.filter(function (x) { return x.k === key; })[0];
+  var best = m.opts.reduce(function (a, x) { return x.ev > a.ev ? x : a; }, m.opts[0]);
+  if (!o) return false;
+  return best.ev - o.ev <= Math.max(0.05, 0.1 * Math.max(2, m.pot + m.toCall));
+}
+/* record a replay: right moves the spot up the schedule, four in a row masters it; wrong starts it over */
+function lvSpotAnswer(m, key, now) {
+  var ok = lvSpotGood(m, key);
+  m.sr.n++; if (ok) m.sr.ok++;
+  m.sr.last = now;
+  if (ok) {
+    m.sr.box++;
+    if (m.sr.box >= LV_SPOT_DAYS.length) m.sr.done = now;
+    else m.sr.due = now + LV_SPOT_DAYS[m.sr.box] * 864e5 - 4 * 36e5;
+  } else { m.sr.box = 0; m.sr.due = now + LV_SPOT_DAYS[0] * 864e5 - 4 * 36e5; }
+  return ok;
+}
+function lvSpotsMastered(Lg) { return ((Lg && Lg.m) || []).filter(function (m) { return m.sr && m.sr.done; }).length + ((Lg && Lg.mastered) || 0); }
+
 /* drop a reviewed spot */
 function lvDismiss(Lg, id) {
+  Lg.m.forEach(function (x) { if (x.id === id && x.sr && x.sr.done) Lg.mastered = (Lg.mastered || 0) + 1; });
   Lg.m = Lg.m.filter(function (x) { return x.id !== id; });
   return Lg;
 }
@@ -170,5 +208,6 @@ function lvDismiss(Lg, id) {
 if (typeof module !== "undefined") module.exports = {
   LV_LEVELS: LV_LEVELS, LV_SKILLS: LV_SKILLS, LV_PLACEMENT: LV_PLACEMENT, LV_WINDOW: LV_WINDOW,
   lvNew: lvNew, lvRate: lvRate, lvLevel: lvLevel, lvAddHand: lvAddHand, lvSummary: lvSummary,
-  lvSeries: lvSeries, lvSkills: lvSkills, lvWeak: lvWeak, lvDismiss: lvDismiss, lvCounts: lvCounts, lvKnown: lvKnown
+  lvSeries: lvSeries, lvSkills: lvSkills, lvWeak: lvWeak, lvDismiss: lvDismiss, lvCounts: lvCounts, lvKnown: lvKnown,
+  LV_SPOT_DAYS: LV_SPOT_DAYS, lvReplayable: lvReplayable, lvSpotsDue: lvSpotsDue, lvSpotGood: lvSpotGood, lvSpotAnswer: lvSpotAnswer, lvSpotsMastered: lvSpotsMastered
 };

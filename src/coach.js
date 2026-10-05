@@ -12,9 +12,10 @@
                    + P(two or more continue) × [same, against all of them]
    R is equity realisation (1 on the river or all in; otherwise
    by position), the lesson from Stage 5. It looks one street ahead:
-   a raise by an opponent is treated as a call, and later streets
-   enter only through R. The grade is the EV you gave up, measured
-   against the size of the pot.
+   when an opponent would re-raise, that part of their range is priced
+   apart, and you answer it with the better of folding or calling
+   against exactly those hands. Later streets enter only through R.
+   The grade is the EV you gave up, measured against the size of the pot.
    ============================================================ */
 
 var COACH_TRIALS = 900;
@@ -143,10 +144,16 @@ function coachBet(g, A, to, rng) {
     c.hand.toAct = q.i;
     var ctx = botCtx(c, q.i);
     var P = botPolicy(g.styles[q.i], ctx, g.ranges[q.i]);
-    var w = g.ranges[q.i], cont = new Float64Array(w.length), m = 0, mc = 0;
-    for (var i = 0; i < w.length; i++) if (w[i]) { m += w[i]; cont[i] = w[i] * (P.call[i] + P.raise[i]); mc += cont[i]; }
+    var w = g.ranges[q.i], cont = new Float64Array(w.length), callW = new Float64Array(w.length), raiseW = new Float64Array(w.length), m = 0, mc = 0, mr = 0;
+    for (var i = 0; i < w.length; i++) if (w[i]) {
+      m += w[i]; callW[i] = w[i] * P.call[i]; raiseW[i] = w[i] * P.raise[i];
+      cont[i] = callW[i] + raiseW[i]; mc += cont[i]; mr += raiseW[i];
+    }
     var callAmt = Math.min(ctx.toCall, q.stack);
-    return { seat: q.i, name: q.name, style: g.styles[q.i], pFold: m ? 1 - mc / m : 1, cont: cont, callAmt: callAmt };
+    /* their re-raise: to P.raiseTo, capped by what they have */
+    var reTo = Math.min(P.raiseTo || 0, q.bet + q.stack);
+    return { seat: q.i, name: q.name, style: g.styles[q.i], pFold: m ? 1 - mc / m : 1, cont: cont, callW: callW, raiseW: raiseW,
+             pRaise: mc ? mr / mc : 0, reTo: reTo, oppBet: q.bet, oppStack: q.stack, callAmt: callAmt };
   });
   var pAll = resp.reduce(function (a, r) { return a * r.pFold; }, 1);
   var ev = pAll * (A.pot - 0) + 0, parts = [{ what: "everyone folds", p: pAll, value: A.pot }];
@@ -156,10 +163,24 @@ function coachBet(g, A, to, rng) {
   resp.forEach(function (r, k) {
     var pOnly = (1 - r.pFold) * resp.reduce(function (a, o, j) { return j === k ? a : a * o.pFold; }, 1);
     if (pOnly < 1e-4) return;
-    var eq = equityVs(hero.cards, h.board, base.concat([r.cont]), 600, rng);
+    var heroLeft = hero.stack - add, toNow = c.players[g.hero].bet;
+    var canRe = r.pRaise > 0.02 && !heroAllIn && r.reTo > toNow + 0.001;
+    var eq = equityVs(hero.cards, h.board, base.concat([canRe ? r.callW : r.cont]), 600, rng);
     var R = coachR(h.street, A.ip, heroAllIn || r.callAmt >= t.players[r.seat].stack - 0.001);
     var final = potAfter + r.callAmt;
     var v = R * eq * final - add;
+    if (canRe) {
+      /* they re-raise: you fold (losing what you put in) or call the rest, whichever is better */
+      var extra = Math.min(r.reTo - toNow, heroLeft);
+      var eqR = equityVs(hero.cards, h.board, base.concat([r.raiseW]), 500, rng);
+      var allInR = extra >= heroLeft - 0.001 || r.reTo >= r.oppBet + r.oppStack - 0.001;
+      var finalR = potAfter + (r.reTo - r.oppBet) + extra;
+      var vCall = coachR(h.street, A.ip, allInR) * eqR * finalR - add - extra;
+      var vRe = Math.max(-add, vCall);
+      v = (1 - r.pRaise) * v + r.pRaise * vRe;
+      r.reraise = { p: r.pRaise, to: hRound(r.reTo), eq: eqR, call: vCall >= -add };
+      parts.push({ what: r.name + " re-raises", p: pOnly * r.pRaise, eq: eqR, value: vRe });
+    }
     ev += pOnly * v;
     parts.push({ what: r.name + " continues", p: pOnly, eq: eq, value: v });
     r.eqCalled = eq;
@@ -177,7 +198,7 @@ function coachBet(g, A, to, rng) {
     var eq0 = equityVs(hero.cards, h.board, base, 600, rng);
     ev = eq0 * (potAfter) - add; parts = [{ what: "showdown", p: 1, eq: eq0, value: ev }];
   }
-  return { ev: ev, add: add, pAllFold: resp.length ? pAll : 0, responders: resp.map(function (r) { return { seat: r.seat, name: r.name, style: r.style, pFold: r.pFold, eqCalled: r.eqCalled }; }), parts: parts };
+  return { ev: ev, add: add, pAllFold: resp.length ? pAll : 0, responders: resp.map(function (r) { return { seat: r.seat, name: r.name, style: r.style, pFold: r.pFold, eqCalled: r.eqCalled, reraise: r.reraise || null }; }), parts: parts };
 }
 
 /* everything the coach knows at the hero's decision */
@@ -193,7 +214,7 @@ function coachAnalyze(g, rng) {
     opps: opps.map(function (q) {
       var w = g.ranges[q.i];
       return { seat: q.i, name: q.name, style: g.styles[q.i], pos: hPos(t, q.i), rangePct: 100 * rangeMass(w) / 1326,
-        makeup: rangeMakeup(w, h.board), top: rangeTop(w, 6) };
+        makeup: rangeMakeup(w, h.board), top: rangeTop(w, 6), grid: rangeClassWeights(w) };
     })
   };
   A.eq = equityVs(hero.cards, h.board, opps.map(function (q) { return g.ranges[q.i]; }), COACH_TRIALS, rng);
@@ -252,6 +273,8 @@ function coachConcepts(A, opt) {
   var c = [];
   var best = A.options.filter(function (o) { return o.key === A.best; })[0] || opt;
   if (A.street === 0) {
+    /* 20 bb or less behind: the push-or-fold lesson is the one in play */
+    if (A.stack <= 20) c.push("jam");
     c.push(A.raises === 0 ? "rfi" : "threebet");
     if (A.toCall > 0 && (opt.type === "call" || best.type === "call")) c.push("eqr");
   } else {
@@ -285,7 +308,8 @@ function coachExplain(A, opt, res) {
   if (br && br.responders.length) {
     L.push(best.label + ": " + br.responders.map(function (r) { return r.name + " folds " + pc(r.pFold); }).join(", ") +
       (br.pAllFold < 0.999 && br.responders.length > 1 ? "; everyone folds " + pc(br.pAllFold) : "") +
-      (br.responders[0].eqCalled != null ? "; when called you have " + pc(br.responders[0].eqCalled) : "") + ".");
+      (br.responders[0].eqCalled != null ? "; when called you have " + pc(br.responders[0].eqCalled) : "") + "." +
+      (br.responders.filter(function (r) { return r.reraise; }).map(function (r) { return " " + r.name + " re-raises to " + r.reraise.to + " " + pc(r.reraise.p) + " of the time they continue; you have " + pc(r.reraise.eq) + " against those hands, so you " + (r.reraise.call ? "call" : "fold") + " that."; }).join("")));
   }
   if (opt.key === A.best || res.loss < 0.05) L.push("You chose the highest-EV option (" + bb(opt.ev) + ").");
   else L.push("Best was " + best.label + " at " + bb(best.ev) + "; your " + opt.label.toLowerCase() + " was worth " + bb(opt.ev) + ". You gave up " + res.loss.toFixed(2) + " bb.");

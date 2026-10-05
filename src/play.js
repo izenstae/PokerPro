@@ -11,14 +11,14 @@ var PLAY_LINEUPS = {
   tough:  { name: "Tough table", about: "Four Regs and a Maniac. Mistakes cost more and edges are thin.", styles: ["reg", "reg", "maniac", "reg", "reg"] }
 };
 
-function playNew(lineup, rng) {
+function playNew(lineup, rng, stack) {
   rng = rng || Math.random;
   var L = PLAY_LINEUPS[lineup] || PLAY_LINEUPS.mixed;
   var names = BOT_NAMES.slice().sort(function () { return rng() - 0.5; });
   var styles = [null].concat(L.styles);
   var seats = styles.map(function (s, i) { return i === 0 ? { name: "You" } : { name: names[i - 1], bot: s }; });
   return {
-    lineup: lineup, t: hNewTable(seats), hero: 0, styles: styles, ranges: [], hud: seats.map(function () { return { hands: 0, vpip: 0, pfr: 0, agg: 0, calls: 0 }; }),
+    lineup: lineup, stack: stack || H_STACK, t: hNewTable(seats, stack), hero: 0, styles: styles, ranges: [], hud: seats.map(function () { return { hands: 0, vpip: 0, pfr: 0, agg: 0, calls: 0 }; }),
     decisions: [], pending: null, history: [], session: playStatsNew(), rng: rng, boardSeen: 0
   };
 }
@@ -102,6 +102,7 @@ function playEnd(g) {
   var h = g.t.hand, S = g.session;
   if (h.recorded) return;
   h.recorded = true;
+  if (g.ff) return;                      /* a hand skipped while dealing toward a spot does not count */
   S.hands++; S.net += h.result.net[g.hero];
   g.history.unshift({
     no: h.no, pos: hPos(g.t, g.hero), cards: g.t.players[g.hero].cards.slice(), board: h.board.slice(),
@@ -110,6 +111,75 @@ function playEnd(g) {
     names: g.t.players.map(function (p) { return p.name; }), styles: g.styles.slice(), button: g.t.button
   });
   if (g.history.length > 40) g.history.pop();
+}
+
+/* ---- the spot trainer: deal until you are in a chosen kind of decision ----
+   Hands are played out instantly, you included (you play the Reg's
+   strategy), until it is your turn in a matching spot. Nothing played
+   on the way is graded or recorded. */
+var PLAY_SPOTS = {
+  any:      { name: "Any hand" },
+  rfi:      { name: "Opening: folded to you", concept: "rfi" },
+  facing:   { name: "Facing a raise preflop", concept: "threebet" },
+  cbet:     { name: "C-bet or check (you raised preflop)", concept: "cbet" },
+  facebet:  { name: "Facing a bet on the flop or turn", concept: "price" },
+  river:    { name: "Facing a bet on the river", concept: "mdf" },
+  betcheck: { name: "Bet or check after the flop", concept: "decide" },
+  lowspr:   { name: "Low SPR: committed pots", concept: "spr" },
+  shove:    { name: "Short stack: shove or fold", concept: "jam", stack: 12 }
+};
+/* which spot trains each table skill */
+var PLAY_SPOT_OF = { rfi: "rfi", threebet: "facing", eqr: "facing", price: "facebet", mdf: "river", sizing: "betcheck", cbet: "cbet", fold: "betcheck", spr: "lowspr", decide: "betcheck", jam: "shove" };
+
+function playSpotMatch(g, kind) {
+  var t = g.t, h = t.hand, L = hLegal(t), me = t.players[g.hero];
+  if (kind === "any") return true;
+  if (kind === "rfi") return h.street === 0 && h.raises === 0 && L.toCall > 0;
+  if (kind === "facing") return h.street === 0 && h.raises >= 1 && L.toCall > 0;
+  if (kind === "cbet") return h.street === 1 && L.toCall === 0 && h.aggressor === g.hero && h.streetAggressor < 0;
+  if (kind === "facebet") return (h.street === 1 || h.street === 2) && L.toCall > 0;
+  if (kind === "river") return h.street === 3 && L.toCall > 0;
+  if (kind === "betcheck") return h.street > 0 && L.toCall === 0 && L.canRaise;
+  if (kind === "lowspr") {
+    if (h.street === 0) return false;
+    var opp = t.players.filter(function (q) { return q.i !== g.hero && !q.folded; });
+    var eff = Math.min.apply(null, [me.stack].concat(opp.map(function (q) { return q.stack; })));
+    return eff / Math.max(1, L.pot) < 3 && L.canRaise;
+  }
+  if (kind === "shove") return h.street === 0 && h.raises === 0 && L.toCall > 0 && me.stack <= 20;
+  return true;
+}
+
+/* your own moves while dealing toward a spot: the Reg's strategy, ungraded */
+function playAutoHero(g) {
+  var t = g.t, me = t.players[g.hero];
+  var ctx = botCtx(t, g.hero);
+  var P = botPolicy("reg", ctx, rangeNew(t.hand.board));
+  var a = botChoose(P, comboIndex(me.cards[0], me.cards[1]), g.rng);
+  var entry = hAct(t, a);
+  playHud(g, g.hero, entry);
+  playAfter(g);
+  if (t.hand.over) playEnd(g);
+}
+
+/* deal hands until you face the chosen spot; false if none came up */
+function playDealSpot(g, kind, tries) {
+  if (!kind || kind === "any") { playDeal(g); return true; }
+  tries = tries || 400;
+  for (var n = 0; n < tries; n++) {
+    g.ff = true;
+    playDeal(g);
+    var guard = 0;
+    while (!g.t.hand.over && guard++ < 200) {
+      if (playHeroTurn(g)) {
+        if (playSpotMatch(g, kind)) { g.ff = false; return true; }
+        playAutoHero(g);
+      } else playBotStep(g);
+    }
+  }
+  g.ff = false;
+  playDeal(g);
+  return false;
 }
 
 /* the whole-career numbers, kept apart from one session */
@@ -133,6 +203,6 @@ function playLeaks(S, min) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  PLAY_LINEUPS: PLAY_LINEUPS, playNew: playNew, playDeal: playDeal, playBotStep: playBotStep, playHeroAct: playHeroAct,
+  PLAY_LINEUPS: PLAY_LINEUPS, PLAY_SPOTS: PLAY_SPOTS, PLAY_SPOT_OF: PLAY_SPOT_OF, playDealSpot: playDealSpot, playSpotMatch: playSpotMatch, playNew: playNew, playDeal: playDeal, playBotStep: playBotStep, playHeroAct: playHeroAct,
   playAnalyze: playAnalyze, playHeroTurn: playHeroTurn, playToAct: playToAct, playLeaks: playLeaks, playCareerAdd: playCareerAdd
 };

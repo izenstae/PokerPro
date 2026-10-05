@@ -52,6 +52,8 @@ var GM_XP_LESSON = 100;         /* first pass of a lesson checkpoint */
 var GM_XP_SPOT = 15;            /* reviewing a table mistake */
 var GM_XP_GOAL = 25;            /* hitting the daily goal */
 var GM_XP_SWEEP = 30;           /* a review session of 10+ answers at 90%+ */
+var GM_XP_RANGE = 15;           /* a range painted at 80% or better (once per seat per day) */
+var GM_XP_PLACE = 5;            /* each lesson passed by the placement test */
 
 function gmTotal(plog) {
   return Object.keys(plog || {}).reduce(function (a, k) { return a + (plog[k].x || 0); }, 0);
@@ -133,6 +135,9 @@ function gmTrophies(s) {
   add("lvExpert", "Expert", "Reach Expert level at the table.", (s.level || 0) >= 6 ? 1 : 0, 1);
   add("plug", "Leak plugged", "Take a table weak spot from below 60 to 70 or better.", s.plugged || 0, 1);
   add("spots10", "Student of the game", "Review 10 of your table mistakes.", s.spots || 0, 10);
+  add("fixed5", "Fixed it", "Master 5 of your own mistakes: replay each one right four times, spaced out.", s.mastered || 0, 5);
+  add("painter", "Range painter", "Paint every seat's opening range at 90% or better.", s.painted || 0, 5);
+  add("calibrated", "Know what you know", "Over 50+ rated answers, be right at least 90% of the times you say you are sure.", s.calibrated || 0, 1);
   return T;
 }
 
