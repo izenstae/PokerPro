@@ -44,16 +44,27 @@ ok(sk.find(k => k.id === "rfi").rating > sk.find(k => k.id === "mdf").rating, "p
 ok(Object.keys(LV_SKILLS).every(id => GENS[LV_SKILLS[id].drill]), "every table skill maps to a real drill");
 
 /* mistakes kept for review, capped, dismissable */
-ok(W.m.length === 30 && W.m.every(m => m.grade === "Mistake" && m.best === "Fold" && m.did === "Call 5"), "mistakes kept with what you did and what was best");
+ok(W.m.length === 40 && W.m.every(m => m.grade === "Mistake" && m.best === "Fold" && m.did === "Call 5"), "mistakes kept with what you did and what was best");
 const id0 = W.m[0].id;
 W = lvDismiss(W, id0);
-ok(W.m.length === 29 && !W.m.some(m => m.id === id0), "a reviewed spot is dismissed");
+ok(W.m.length === 39 && !W.m.some(m => m.id === id0), "a reviewed spot is dismissed");
 ok(new Set(W.m.map(m => m.id)).size === W.m.length, "spot ids are unique");
 
 /* series: points in range and ending on the current rating */
 const ser = lvSeries(L, 30);
 ok(ser.length >= 2 && ser.length <= 32 && ser.every(p => p.r >= 0 && p.r <= 100), "series has bounded points: " + ser.length);
 ok(Math.abs(ser[ser.length - 1].r - s2.rating) < 1e-9, "series ends at the current rating");
+
+/* replaying mistakes on a schedule */
+const sp = W.m[0];
+ok(lvReplayable(sp) && sp.opts.length === 2 && sp.bestKey === "fold", "a mistake keeps its options for replay");
+ok(lvSpotsDue(W, sp.t).length === 0 && lvSpotsDue(W, sp.t + 2 * 864e5).length === W.m.length, "spots are first due the next day");
+ok(lvSpotGood(sp, "fold") && !lvSpotGood(sp, "call"), "the best option is right, the costly one is wrong");
+let tt = sp.t + 864e5;
+ok(!lvSpotAnswer(sp, "call", tt) && sp.sr.box === 0 && sp.sr.due > tt, "a wrong replay starts the spot over");
+for (let i = 0; i < LV_SPOT_DAYS.length; i++) { tt = sp.sr.due + 1; ok(lvSpotAnswer(sp, "fold", tt), "replay " + (i + 1) + " right"); }
+ok(sp.sr.done && lvSpotsMastered(W) === 1 && lvSpotsDue(W, tt + 1e10).indexOf(sp) < 0, "four spaced right answers master a spot");
+ok(lvSpotGood({ opts: [{ k: "a", ev: 2 }, { k: "b", ev: 1.9 }], pot: 10, toCall: 0 }, "b"), "a choice within 10% of the pot counts as right");
 
 /* only skills you have learned count */
 let U = lvNew();

@@ -324,6 +324,7 @@ function genRFI() {
     mode: "rfi", target: 8, kind: "choice", options: ["RAISE", "FOLD"], answer: open ? "RAISE" : "FOLD",
     table: { live: SEATS6.slice(SEATS6.indexOf(pos)), hero: pos, street: "preflop, folded to you" },
     lines: [["Seat", pos], ["Your hand", hand + " (" + (hand.length === 2 ? "pair" : hand[2] === "s" ? "suited" : "offsuit") + ")"]],
+    grid: { pos: pos, hand: hand },
     question: "Open-raise or fold?",
     bar: { fill: pct, tick: null, fillLabel: pos + " opens " + pctFmt(pct, 0) + " of hands", tickLabel: "" },
     math: [

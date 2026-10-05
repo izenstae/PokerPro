@@ -108,6 +108,39 @@ ok(conserved, "chips conserved every hand");
 ok(rangesOk, "tracked ranges never collapse to nothing");
 ok(g.session.hands === 150 && g.session.decisions === decisions, "session counts hands and decisions: " + decisions + " decisions");
 ok(tMax < 2500, "slowest analysis " + tMax + " ms");
+
+/* the spot trainer deals straight into the chosen kind of decision */
+seed = 77;
+for (const kind of ["rfi", "facing", "cbet", "facebet", "river", "betcheck"]) {
+  const g2 = playNew("mixed", rng);
+  const found = playDealSpot(g2, kind, 600);
+  ok(found && playHeroTurn(g2) && playSpotMatch(g2, kind), "spot trainer finds a " + kind + " spot");
+  ok(g2.session.hands === 0 && g2.history.length === 0, kind + ": hands skipped on the way are not recorded");
+  const A2 = playAnalyze(g2);
+  ok(A2.options.every(o => isFinite(o.ev)), kind + ": the coach prices the spot");
+}
+/* short stacks: the table starts every hand at the chosen stack, and the push-or-fold lesson is tagged */
+const gs = playNew("mixed", rng, 12);
+ok(playDealSpot(gs, "shove", 200) && gs.t.players.every(p => p.stack + p.put === 12), "short-stack table deals 12 bb stacks");
+const As = playAnalyze(gs), dS = playHeroAct(gs, { type: "fold" });
+ok(dS.G.concepts.indexOf("jam") >= 0, "a short-stack decision is tagged push or fold: " + dS.G.concepts.join(","));
+ok(As.options.some(o => o.type === "raise" && o.to >= 11.5), "all in is one of the priced options");
+/* re-raises are priced: a bet into a range that raises a lot is never priced above the same bet treating raises as calls by much */
+let reSeen = false;
+seed = 5;
+const g3 = playNew("tough", rng);
+for (let n = 0; n < 60 && !reSeen; n++) {
+  playDeal(g3); let guard = 0;
+  while (!g3.t.hand.over && guard++ < 200) {
+    if (playHeroTurn(g3)) {
+      const A3 = playAnalyze(g3);
+      if (A3.options.some(o => o.bet && o.bet.responders.some(r => r.reraise))) reSeen = true;
+      const o = A3.options.find(x => x.key === A3.best);
+      playHeroAct(g3, o.type === "raise" ? { type: "raise", to: o.to } : { type: o.type });
+    } else playBotStep(g3);
+  }
+}
+ok(reSeen, "the coach prices opponents' re-raises");
 const grades = g.session.grades;
 ok(grades.Best > grades.Blunder, "following the coach mostly grades Best: " + JSON.stringify(grades));
 console.log("  session: " + g.session.hands + " hands, net " + g.session.net.toFixed(1) + " bb, EV lost " + g.session.lost.toFixed(1) + " bb, leaks " + JSON.stringify(playLeaks(g.session, 3).slice(0, 3).map(l => l.id + ":" + l.lost.toFixed(1))));

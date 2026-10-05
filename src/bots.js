@@ -346,6 +346,16 @@ function rangeMakeup(w, board) {
   return cats;
 }
 /* the most likely hand classes in a range */
+/* average weight of each of the 169 starting-hand classes in a range, 0..1 */
+function rangeClassWeights(w) {
+  var sum = {}, cnt = {};
+  for (var i = 0; i < w.length; i++) { var c = COMBO_CLASS[i]; cnt[c] = (cnt[c] || 0) + 1; sum[c] = (sum[c] || 0) + w[i]; }
+  var mx = 0, out = {};
+  Object.keys(cnt).forEach(function (c) { out[c] = sum[c] / cnt[c]; if (out[c] > mx) mx = out[c]; });
+  if (mx > 0) Object.keys(out).forEach(function (c) { out[c] = Math.round(100 * out[c] / mx) / 100; });
+  return out;
+}
+
 function rangeTop(w, k) {
   var by = {}, total = 0;
   for (var i = 0; i < w.length; i++) if (w[i]) { by[COMBO_CLASS[i]] = (by[COMBO_CLASS[i]] || 0) + w[i]; total += w[i]; }

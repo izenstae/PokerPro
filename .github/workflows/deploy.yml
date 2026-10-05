@@ -40,6 +40,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html _site/index.html
+          cp site/* _site/
           touch _site/.nojekyll
 
       - name: Configure Pages

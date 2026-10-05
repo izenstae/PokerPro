@@ -99,6 +99,20 @@ function syncMerge(a, b) {
   return out;
 }
 
+/* counters kept as {key: [n, ok]}: take the pair with more answers */
+function syncPairsMax(a, b) {
+  if (!a || !b) return a || b || undefined;
+  var out = {};
+  Object.keys(a).concat(Object.keys(b)).forEach(function (k) { var x = a[k] || [0, 0], y = b[k] || [0, 0]; out[k] = y[0] > x[0] ? y : x; });
+  return out;
+}
+function syncMaxMap(a, b) {
+  if (!a || !b) return a || b || undefined;
+  var out = {};
+  Object.keys(a).concat(Object.keys(b)).forEach(function (k) { out[k] = Math.max(a[k] || 0, b[k] || 0); });
+  return out;
+}
+
 /* the Play table, the level log and the game state: each device plays its
    own hands, so take the fuller career and level log, keep every trophy
    either device has earned (at its earliest date), and the larger counters */
@@ -122,7 +136,10 @@ function syncTableMerge(a, b) {
       spots: Math.max(ga.spots || 0, gb.spots || 0),
       sweeps: Math.max(ga.sweeps || 0, gb.sweeps || 0),
       plugged: Math.max(ga.plugged || 0, gb.plugged || 0),
-      peakLevel: Math.max(ga.peakLevel || 0, gb.peakLevel || 0)
+      peakLevel: Math.max(ga.peakLevel || 0, gb.peakLevel || 0),
+      conf: (gb.goalAt || 0) > (ga.goalAt || 0) ? gb.conf : (ga.conf !== undefined ? ga.conf : gb.conf),
+      calib: syncPairsMax(ga.calib, gb.calib),
+      paint: syncMaxMap(ga.paint, gb.paint)
     };
   } else out.game = null;
   return out;
