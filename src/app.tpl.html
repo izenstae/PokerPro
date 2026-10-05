@@ -54,6 +54,13 @@ body{
 .fact dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
 .fact dd{font-size:17px; font-variant-numeric:tabular-nums}
 
+.lvcover{display:flex; flex-direction:column; gap:3px; padding:12px 16px; border:1px solid var(--line); border-radius:10px; margin:-6px 0 18px; font-size:13px; color:var(--dim)}
+.lvcover b{color:var(--bone); font-size:13.5px} .lvcover a{color:var(--gold); text-decoration:none}
+.lvcbar{display:flex; gap:4px; margin-top:6px} .lvcbar i{flex:1; height:6px; border-radius:3px; background:var(--line)} .lvcbar i.on{background:var(--green)}
+.lvnl{font-size:12px; color:var(--faint)}
+.lvabout a,.pnote a.lvl{color:var(--gold)} #pFeedback .pnote a{color:var(--gold)}
+.lvtag.nl{color:var(--faint)}
+a.chip{text-decoration:none; display:inline-block}
 /* ---- links between features ---- */
 .rlinks{display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:12px; font-size:13px}
 .rlinks a{color:var(--gold); text-decoration:none} .rlinks a:hover{text-decoration:underline}
@@ -1269,7 +1276,7 @@ function gmSummary(){
   var st = gmStreak(plog, Date.now());
   var LS = lvSummary(plevel);
   if(LS.placed && LS.level.index > (gstate.peakLevel || 0)){ gstate.peakLevel = LS.level.index; gameSave(); }
-  if(!gstate.plugged && lvSkills(plevel).some(function(k){ return k.prev != null && k.prev < 60 && k.rating != null && k.rating >= 70; })){ gstate.plugged = 1; gameSave(); }
+  if(!gstate.plugged && lvSkills(plevel, lvLearned()).some(function(k){ return k.prev != null && k.prev < 60 && k.rating != null && k.rating >= 70; })){ gstate.plugged = 1; gameSave(); }
   return {
     lessons: LESSONS.filter(function(L){ return passable(L) && progress[L.id]; }).length,
     stages: LAYERS.map(function(S){ var ls = S.lessons.filter(passable); return { n: S.n, title: S.title, done: ls.filter(function(L){ return progress[L.id]; }).length, of: ls.length }; }).filter(function(S){ return S.of; }),
@@ -1718,7 +1725,7 @@ function drawReveal(ok, said, secs){
   r.appendChild(m);
   var LL = RULES[q.mode] ? RULES[q.mode].lesson : LESSON_OF[q.mode];
   if(LL){
-    var tk = lvSkills(plevel).filter(function(k){ return k.drill === q.mode && k.recent; })[0];
+    var tk = lvSkills(plevel, lvLearned()).filter(function(k){ return k.drill === q.mode && k.recent; })[0];
     r.appendChild(el("div", "rlinks", '<a href="#/learn/' + LL.id + '">Lesson: ' + LL.title + ' &rsaquo;</a>' +
       (FORMULAS.some(function(f){ return f.lesson === LL.id; }) ? '<a href="#/library/formulas" data-fx="' + LL.id + '">Formulas &rsaquo;</a>' : "") +
       (tk ? '<a href="#/level">At the table: ' + tk.name.toLowerCase() + ' ' + Math.round(tk.rating) + ' &rsaquo;</a>' : "")));
@@ -3507,7 +3514,7 @@ function drawTOC(){ if(view === "learn" && !openId) drawPath(); if(view === "hom
 var pathWeak = {};
 function drawPath(){
   var box = $("learnView"); box.innerHTML = "";
-  pathWeak = {}; lvWeak(plevel).forEach(function(k){ pathWeak[k.id] = 1; });
+  pathWeak = {}; lvWeak(plevel, lvLearned()).forEach(function(k){ pathWeak[k.id] = 1; });
   var nx = nextUp();
   var total = LESSONS.filter(passable).length;
   var passed = LESSONS.filter(function(L){ return passable(L) && progress[L.id]; }).length;
@@ -3861,7 +3868,7 @@ function drawToday(){
 
   /* what the table says you get wrong, one tap from drilling it */
   var tb = $("fromTable");
-  var tw = lvWeak(plevel).slice(0, 4);
+  var tw = lvWeak(plevel, lvLearned()).slice(0, 4);
   tb.hidden = !tw.length;
   tb.innerHTML = "";
   if(tw.length){
@@ -3896,7 +3903,7 @@ function drawSkills(){
       return r;
     }
     var rc = srsRecent(s, 20), goalX = srsGoal(1, s.box);
-    var tk = lvSkills(plevel).filter(function(k){ return k.drill === id && k.recent; })[0];
+    var tk = lvSkills(plevel, lvLearned()).filter(function(k){ return k.drill === id && k.recent; })[0];
     r.innerHTML = '<span class="nm">' + name + (tk ? ' <a class="sktbl" href="#/level" title="' + tk.name + ' at the Play table">table ' + Math.round(tk.rating) + '</a>' : "") + '</span><span class="boxes">' + bx + '</span>' +
       '<span class="lv">' + srsLevel(s) + '</span>' +
       '<span class="nb" title="accuracy, last ' + rc.n + '">' + (rc.n ? Math.round(100 * rc.acc) + "%" : "&ndash;") + '</span>' +
@@ -4000,6 +4007,7 @@ function adoptTable(t){
   if(!tableLoaded){ tablePending = syncTableMerge(tablePending, t); return; }
   var m = syncTableMerge(tableSnapshot(), t);
   pcareer = m.career || null; plevel = m.level || null;
+  lvMigrate();
   if(m.game){ var primed = gstate.primed; Object.assign(gstate, m.game); gstate.primed = primed; }
   try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer, level:plevel })); }catch(e){}
   gameSave(true);
@@ -4026,9 +4034,9 @@ function skillRecord(L){
     if(s && s.box > 0) parts.push('Drill: <b>' + srsLevel(s) + '</b>' + (Date.now() >= s.due ? ', <b class="due">review due</b>' : ', next review in ' + fmtIn(s.due - Date.now())));
     else if(s && s.n) parts.push('Drill: practised ' + s.n + (s.n === 1 ? ' time' : ' times') + ', not yet on your schedule');
   }
-  var tk = LV_SKILLS[L.id] ? lvSkills(plevel).filter(function(k){ return k.id === L.id; })[0] : null;
+  var tk = LV_SKILLS[L.id] ? lvSkills(plevel, lvLearned()).filter(function(k){ return k.id === L.id; })[0] : null;
   if(tk && tk.recent){
-    var weak = lvWeak(plevel).some(function(k){ return k.id === L.id; });
+    var weak = lvWeak(plevel, lvLearned()).some(function(k){ return k.id === L.id; });
     parts.push('At the table: <b>' + Math.round(tk.rating) + '</b> over ' + tk.n + ' decisions' + (weak ? ' <em class="duechip weak">weak spot</em>' : ""));
   } else if(LV_SKILLS[L.id]) parts.push('At the table: no decisions yet in ' + LV_SKILLS[L.id].name.toLowerCase());
   return parts;
@@ -4113,7 +4121,7 @@ function playLoop(){
 function onHandOver(){
   pcareer = playCareerAdd(pcareer, pg.session, pg);
   if(pg.history[0]){
-    plevel = lvAddHand(plevel, pg.history[0], Date.now());
+    plevel = lvAddHand(plevel, pg.history[0], Date.now(), lvLearned());
     levelFlag(pg.history[0]);
   }
   playSave();
@@ -4256,7 +4264,9 @@ function drawPlaySide(){
       '<div class="pgrade"><span class="gbadge ' + GRADE_CLS[G.grade] + '">' + G.grade + '</span><span>' + (G.loss < 0.05 ? "No EV given up" : "EV given up <b>" + pBB(G.loss) + " bb</b>") + '</span>' + (pFeedback && pFeedback.xp ? '<span class="xpchip">+' + pFeedback.xp + ' XP</span>' : "") + '</div>' +
       '<div class="pyou">You: <b>' + mine.label + '</b>' + (G.chosen !== A.best ? ' &middot; ' + (G.grade === "Best" ? "within a whisker of " : "Best: ") + '<b>' + best.label + '</b>' : "") + '</div>' +
       '<ul class="plines">' + G.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
-      '<div class="pconcepts">' + G.concepts.map(conceptLinks).join("") + '</div>';
+      '<div class="pconcepts">' + G.concepts.map(conceptLinks).join("") + '</div>' +
+      (function(){ var LN = lvLearned(), nl = G.concepts.filter(function(c){ return LV_SKILLS[c] && !LN[c]; });
+        return nl.length ? '<p class="pnote">Not counted in your level: you have not learned ' + nl.map(function(c){ return '<a href="#/learn/' + c + '">' + lessonById(c).title + '</a>'; }).join(" or ") + ' yet. Play on freely; it starts counting once you pass the lesson.</p>' : ""; })();
     glossify(fb, null);
   } else {
     fb.innerHTML = '<div class="ph"><h3>Coach</h3></div><p class="pnote">After each of your decisions the coach grades it here: what every option was worth against what your opponents actually hold, and which lesson it comes from.</p>';
@@ -4353,6 +4363,22 @@ function drawPlayReview(){
    ============================================================ */
 var lvOpen = {}, lvAll = false;
 
+/* the table skills you have learned: passed the lesson that teaches them */
+function lvLearned(){
+  var m = {};
+  Object.keys(LV_SKILLS).forEach(function(id){ if(progress[id]) m[id] = 1; });
+  return m;
+}
+/* decisions logged before skills were tracked: judge them by what is learned now */
+function lvMigrate(){
+  if(!plevel) return;
+  var L = lvLearned();
+  (plevel.d || []).forEach(function(x){ if(!x.k) x.k = lvKnown(x.c, L); });
+  (plevel.m || []).forEach(function(x){ if(!x.k) x.k = lvKnown(x.c, L); });
+}
+/* the lessons a decision leaned on that you had not learned when you played it */
+function lvUnlearned(x){ return x.c.filter(function(c){ return LV_SKILLS[c] && (x.k || []).indexOf(c) < 0; }); }
+
 /* a table mistake puts the drill that trains it back on today's reviews */
 function levelFlag(hand){
   var now = Date.now(), hit = false;
@@ -4375,7 +4401,7 @@ document.addEventListener("click", function(e){
   drillTableWeak([b.dataset.drill]);
 });
 function drillTableWeak(only){
-  var ms = only || lvWeak(plevel).map(function(k){ return k.drill; });
+  var ms = only || lvWeak(plevel, lvLearned()).map(function(k){ return k.drill; });
   ms = ms.filter(function(m, i){ return MODE_META[m] && ms.indexOf(m) === i; });
   if(!ms.length) return;
   startSession("table", ms);
@@ -4387,14 +4413,23 @@ function lvSign(x){ return (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(Math.ro
 function drawLevel(){
   var box = $("levelView");
   var S = lvSummary(plevel);
-  var html = '<div class="vhead"><div><h1>Your level</h1><p>How well you actually play, measured from every decision you make at the Play table: not how far through the course you are. The rating is the quality of your last ' + LV_WINDOW + ' decisions, so it moves when you improve and when you slip.</p></div></div>';
+  var html = '<div class="vhead"><div><h1>Your level</h1><p>How well you actually play, measured from every decision you make at the Play table: not how far through the course you are. The rating is the quality of your last ' + LV_WINDOW + ' rated decisions, so it moves when you improve and when you slip. Only skills you have learned count: a decision that leans on a lesson you had not passed yet is shown, but never held against you.</p></div></div>';
+  var LN = lvLearned(), nLearned = Object.keys(LN).length, nSkills = Object.keys(LV_SKILLS).length;
+  var unl = Object.keys(LV_SKILLS).filter(function(id){ return !LN[id]; });
+  var nextL = unl.map(lessonById).filter(Boolean).sort(function(a, b){ return LESSONS.indexOf(a) - LESSONS.indexOf(b); })[0];
+  var cover = '<div class="lvcover"><b>Rated on ' + nLearned + ' of ' + nSkills + ' table skills</b>' +
+    (unl.length ? '<span>Not counted until you learn them: ' + unl.map(function(id){ return '<a href="#/learn/' + id + '">' + LV_SKILLS[id].name + '</a>'; }).join(", ") + '.</span>' : '<span>Every table skill is learned, so every decision counts.</span>') +
+    (S.unrated ? '<span>' + S.unrated + ' of your ' + S.played + ' decisions so far leaned on skills you had not learned, and are not rated.</span>' : "") +
+    '<div class="lvcbar">' + Object.keys(LV_SKILLS).map(function(id){ return '<i class="' + (LN[id] ? "on" : "") + '" title="' + LV_SKILLS[id].name + (LN[id] ? ": learned" : ": not learned yet") + '"></i>'; }).join("") + '</div></div>';
 
   if(!S.placed){
-    html += '<div class="lvhero"><div class="lvrate">' + S.n + '<small>of ' + LV_PLACEMENT + ' decisions</small></div><div>' +
-      '<div class="lvname">Placement</div><p class="lvabout">Play ' + S.left + ' more ' + (S.left === 1 ? "decision" : "decisions") + ' at the table to get your first level. Every fold, call, bet and raise you make is graded against what your opponents really hold.</p>' +
-      '<div class="lvbar"><span style="width:' + (100 * S.n / LV_PLACEMENT).toFixed(0) + '%"></span></div></div></div>';
+    html += '<div class="lvhero"><div class="lvrate">' + S.n + '<small>of ' + LV_PLACEMENT + ' rated</small></div><div>' +
+      '<div class="lvname">Placement</div><p class="lvabout">' + (nLearned
+        ? 'Play ' + S.left + ' more ' + (S.left === 1 ? "decision" : "decisions") + ' in skills you have learned to get your first level. Every fold, call, bet and raise you make is graded against what your opponents really hold.'
+        : 'You have not learned a table skill yet, so nothing you do at the table counts against you. Pass ' + (nextL ? '<a href="#/learn/' + nextL.id + '">' + nextL.title + '</a>' : "a lesson") + ' and decisions in that skill start to count. Until then, play freely: the coach still grades every decision.') + '</p>' +
+      '<div class="lvbar"><span style="width:' + (100 * S.n / LV_PLACEMENT).toFixed(0) + '%"></span></div></div></div>' + cover;
     box.innerHTML = html;
-    var r0 = el("div", "row"); r0.appendChild(btnEl("Play hands", "go", function(){ location.hash = "#/play"; }));
+    var r0 = el("div", "row"); r0.appendChild(btnEl(nLearned ? "Play hands" : "Learn: " + (nextL ? nextL.title : "the path"), "go", function(){ location.hash = nLearned ? "#/play" : nextL ? "#/learn/" + nextL.id : "#/learn"; }));
     box.appendChild(r0);
     box.insertAdjacentHTML("beforeend", trophyPanel());
     return;
@@ -4406,12 +4441,12 @@ function drawLevel(){
     '<p class="lvabout">' + Lv.about + '</p>' +
     '<div class="lvbar"><span style="width:' + (100 * Lv.toNext).toFixed(0) + '%"></span></div>' +
     '<div class="lvcap">' + (Lv.next ? (Lv.next.min - Math.round(S.rating)) + (Lv.next.min - Math.round(S.rating) === 1 ? ' point' : ' points') + ' to ' + Lv.next.name : 'Top of the ladder') +
-      ' &middot; ' + S.n + ' decisions logged &middot; EV given up ' + S.lostPer.toFixed(2) + ' bb per decision' +
-      (S.first != null ? ' &middot; you started at ' + Math.round(S.first) : "") + '</div></div></div>';
+       ' &middot; ' + S.n + ' rated decisions &middot; EV given up ' + S.lostPer.toFixed(2) + ' bb per decision' +
+      (S.first != null ? ' &middot; you started at ' + Math.round(S.first) : "") + '</div></div></div>' + cover;
 
   /* the rating over time, and the skills behind it */
   html += '<div class="lvgrid"><div class="panel"><div class="ph"><h3>Rating over time</h3><span>last ' + LV_WINDOW + ' decisions at each point</span></div><div class="lvchart" id="lvChart"></div></div>';
-  var weak = lvWeak(plevel);
+  var weak = lvWeak(plevel, lvLearned());
   html += '<div class="panel' + (weak.length ? " lvweak" : "") + '"><div class="ph"><h3>Weak spots</h3><span>review these</span></div>' +
     (weak.length ? '<p class="pnote">Skills you play below your own level, or keep making real mistakes in. Drilling one trains the maths behind it; mistakes at the table also put that drill back on <a href="#/practice/review">today&rsquo;s reviews</a>.</p><div class="clist">' +
       weak.slice(0, 5).map(function(k){ return '<div><span>' + k.name + ' <small>' + k.mistakes + ' mistakes in last ' + k.recent + '</small></span><b>' + Math.round(k.rating) + '</b></div>'; }).join("") + '</div><div class="row" id="lvWeakRow" style="margin-top:12px"></div>'
@@ -4420,8 +4455,9 @@ function drawLevel(){
 
   html += '<div class="panel" style="margin-bottom:18px"><div class="ph"><h3>Skills at the table</h3><span>last ' + 25 + ' decisions each</span></div>' +
     '<div class="lvsk head"><span>Skill</span><span>Rating</span><span class="nb">Trend</span><span class="nb">bb lost</span><span></span></div>' +
-    (function(){ var wk = {}; weak.forEach(function(k){ wk[k.id] = 1; }); return lvSkills(plevel).map(function(k){ k.weak = !!wk[k.id]; return k; }); })().sort(function(a, b){ return (b.recent ? 1 : 0) - (a.recent ? 1 : 0) || (b.weak ? 1 : 0) - (a.weak ? 1 : 0) || (a.rating || 0) - (b.rating || 0); }).map(function(k){
-      if(!k.recent) return '<div class="lvsk off"><span>' + k.name + '<small>no decisions yet</small></span><span></span><span class="nb">&ndash;</span><span class="nb">&ndash;</span><span><button type="button" class="chip" data-drill="' + k.drill + '">Drill</button></span></div>';
+    (function(){ var wk = {}; weak.forEach(function(k){ wk[k.id] = 1; }); return lvSkills(plevel, lvLearned()).map(function(k){ k.weak = !!wk[k.id]; return k; }); })().sort(function(a, b){ return (b.learned ? 1 : 0) - (a.learned ? 1 : 0) || (b.recent ? 1 : 0) - (a.recent ? 1 : 0) || (b.weak ? 1 : 0) - (a.weak ? 1 : 0) || (a.rating || 0) - (b.rating || 0); }).map(function(k){
+      if(!k.learned) return '<div class="lvsk off"><span><a href="#/learn/' + k.id + '">' + k.name + '</a><small>not learned yet' + (k.played ? ' &middot; ' + k.played + ' decisions played, not rated' : "") + '</small></span><span class="lvnl">Doesn&rsquo;t count until you pass the lesson</span><span class="nb">&ndash;</span><span class="nb">&ndash;</span><span><a class="chip" href="#/learn/' + k.id + '">Learn</a></span></div>';
+      if(!k.recent) return '<div class="lvsk off"><span><a href="#/learn/' + k.id + '">' + k.name + '</a><small>learned &middot; no rated decisions yet</small></span><span></span><span class="nb">&ndash;</span><span class="nb">&ndash;</span><span><button type="button" class="chip" data-drill="' + k.drill + '">Drill</button></span></div>';
       return '<div class="lvsk"><span><a href="#/learn/' + k.id + '">' + k.name + '</a>' + (k.weak ? ' <em class="lvtag">weak spot</em>' : "") + '<small>' + k.n + ' decisions &middot; ' + MODE_META[k.drill] + '</small></span>' +
         '<span><div class="sbar" title="rating ' + Math.round(k.rating) + '; the line is your overall ' + Math.round(S.rating) + '"><span class="' + (k.weak ? (k.rating < 60 ? "lo" : "mid") : lvColor(k.rating)) + '" style="width:' + k.rating.toFixed(0) + '%"></span><i style="left:' + S.rating.toFixed(0) + '%"></i></div></span>' +
         '<span class="nb ' + (k.delta == null || Math.abs(k.delta) < 1 ? "" : k.delta > 0 ? "up" : "down") + '" title="change against the 25 decisions before">' + (k.delta == null ? "new" : lvSign(k.delta)) + '</span>' +
@@ -4435,11 +4471,12 @@ function drawLevel(){
   html += '<div class="panel"><div class="ph"><h3>Spots to review</h3><span>' + M.length + ' mistakes and blunders</span></div>' +
     (M.length ? '<p class="pnote">Your most recent mistakes and blunders at the table. Read what was better and why, drill the skill, then mark it reviewed.</p>' + M.slice(0, lvAll ? M.length : 8).map(function(m){
       var sk = m.c.map(function(c){ return LV_SKILLS[c]; }).filter(Boolean);
+      var nl = lvUnlearned(m);
       return '<details class="lvm"' + (lvOpen[m.id] ? " open" : "") + ' data-id="' + m.id + '"><summary><span class="gbadge sm ' + GRADE_CLS[m.grade] + '">' + m.grade + '</span>' +
         '<b>' + m.street.charAt(0).toUpperCase() + m.street.slice(1) + '</b><span class="phc">' + pCard(m.cards[0], "sm") + pCard(m.cards[1], "sm") + '</span>' +
         (m.board.length ? '<span class="phc">' + m.board.map(function(c){ return pCard(c, "sm"); }).join("") + '</span>' : "") +
-        '<span>' + (sk[0] ? sk[0].name : "") + '</span><span class="pmuted">' + m.pos + ' &middot; &minus;' + m.loss.toFixed(2) + ' bb &middot; ' + fmtAgo(m.t) + '</span></summary>' +
-        '<p class="lvdid">Pot ' + pBB(m.pot) + (m.toCall ? ', ' + pBB(m.toCall) + ' to call' : "") + '. You: <b class="bad">' + m.did + '</b> (' + pSigned(m.didEV) + '). Best: <b class="good">' + m.best + '</b> (' + pSigned(m.bestEV) + ').</p>' +
+        '<span>' + (sk[0] ? sk[0].name : "") + '</span>' + (nl.length ? '<em class="lvtag nl">not rated</em>' : "") + '<span class="pmuted">' + m.pos + ' &middot; &minus;' + m.loss.toFixed(2) + ' bb &middot; ' + fmtAgo(m.t) + '</span></summary>' +
+        (nl.length ? '<p class="pnote">Not counted in your rating: you had not learned ' + nl.map(function(c){ return '<a href="#/learn/' + c + '">' + lessonById(c).title + '</a>'; }).join(" or ") + ' yet when you played it. Learn it first, then this spot will make sense.</p>' : "") + '<p class="lvdid">Pot ' + pBB(m.pot) + (m.toCall ? ', ' + pBB(m.toCall) + ' to call' : "") + '. You: <b class="bad">' + m.did + '</b> (' + pSigned(m.didEV) + '). Best: <b class="good">' + m.best + '</b> (' + pSigned(m.bestEV) + ').</p>' +
         '<ul class="plines">' + m.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
         '<div class="pconcepts">' + m.c.map(lessonLink).join("") + '</div>' +
         '<div class="row">' + sk.map(function(k){ return '<button type="button" class="act ghost" data-drill="' + k.drill + '">Drill ' + MODE_META[k.drill] + '</button>'; }).join("") +
@@ -4518,6 +4555,7 @@ $("syncPill").onclick = function(){ location.hash = "#/sync"; };
   await playLoad();
   await gameLoad();
   tableLoaded = true;
+  lvMigrate();
   if(tablePending){ var tp = tablePending; tablePending = null; adoptTable(tp); }
   gmCheckTrophies();
   drawGamePill();
