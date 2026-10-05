@@ -54,6 +54,24 @@ body{
 .fact dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
 .fact dd{font-size:17px; font-variant-numeric:tabular-nums}
 
+/* ---- table picture ---- */
+.tablepic{margin-bottom:14px; max-width:420px}
+.tablepic svg{display:block; width:100%; height:auto}
+.tb-felt{fill:#1F4A36; stroke:#2C6B4D; stroke-width:3}
+.tb-arrow{fill:none; stroke:rgba(233,229,219,.45); stroke-width:2}
+.tb-head{fill:rgba(233,229,219,.5)}
+.tb-note{fill:rgba(233,229,219,.6); font:10px var(--sans); letter-spacing:.1em; text-anchor:middle; text-transform:uppercase}
+.tb-seat rect{fill:var(--raise); stroke:var(--line); stroke-dasharray:3 3}
+.tb-seat text{fill:var(--faint); font:600 13px var(--sans); text-anchor:middle}
+.tb-seat.on rect{fill:var(--bone); stroke:var(--bone); stroke-dasharray:none}
+.tb-seat.on text{fill:#111}
+.tb-dealer{fill:#fff; stroke:#999}
+.tb-d{fill:#111; font:700 11px var(--sans); text-anchor:middle}
+.tb-blind{fill:var(--gold); stroke:#8a6420}
+.tablekey{font-size:12px; color:var(--dim); margin-top:4px}
+.tablekey .k-d{display:inline-block; width:16px; height:16px; line-height:16px; border-radius:50%; background:#fff; color:#111; font-weight:700; font-size:10px; text-align:center}
+.tablekey .k-b{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gold); vertical-align:middle}
+
 /* ---- cards ---- */
 .seats{display:flex; flex-wrap:wrap; gap:22px; align-items:flex-end; margin-bottom:18px}
 .seat dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:6px}
@@ -3181,13 +3199,16 @@ function genRules() {
     var shown = who.slice().sort(function () { return Math.random() - 0.5; });
     return {
       mode: "rules", target: 8, kind: "choice", options: shown, answer: first,
-      lines: [["Players in the hand", shown.join(", ")], ["Street", street]],
+      table: { live: who.slice(), street: street },
+      lines: [["Street", street]],
       question: "Who acts first " + street + "?",
       bar: null,
       math: [
-        "Preflop the action starts left of the big blind: UTG, HJ, CO, BTN, SB, BB.",
-        "On every later street it starts left of the button: SB, BB, UTG, HJ, CO, BTN.",
-        "Of " + who.join(", ") + ", " + first + " acts first " + street + "."
+        "Action always moves clockwise, to the left. The dealer button marks where each round ends.",
+        street === "preflop"
+          ? "Preflop the blinds are already in, so the first seat clockwise from the big blind starts: UTG, HJ, CO, BTN, SB, BB."
+          : "After the flop it starts with the first seat clockwise from the button, so the button acts last: SB, BB, UTG, HJ, CO, BTN.",
+        "Skipping folded seats, the order here is " + who.join(", ") + ", so " + first + " acts first " + street + "."
       ]
     };
   }
@@ -3229,11 +3250,12 @@ function genPosition() {
     var last = who.slice().sort(function (a, b) { return POST6.indexOf(b) - POST6.indexOf(a); })[0];
     return {
       mode: "position", target: 7, kind: "choice", options: who, answer: last,
-      lines: [["Players who saw the flop", who.join(", ")]],
+      table: { live: who.slice(), street: "on the flop" },
+      lines: [],
       question: "Who is in position, acting last after the flop?",
       bar: null,
       math: [
-        "After the flop the order is SB, BB, UTG, HJ, CO, BTN. The button always acts last.",
+        "After the flop action starts clockwise from the button, so the order is SB, BB, UTG, HJ, CO, BTN, and the button always acts last.",
         last + " acts after everyone else here, so " + last + " is in position.",
         "Acting last means seeing everyone else's decision before making yours. That information is worth more than a lot of card strength."
       ]
@@ -6918,6 +6940,7 @@ function next(){
   /* stage: cards and/or facts */
   var stage = $("stage"); stage.innerHTML = "";
   if(q.cards) stage.appendChild(cardStage(q.cards));
+  if(q.table) stage.appendChild(tableStage(q.table));
   if(q.lines && q.lines.length){
     var facts = el("dl","facts");
     q.lines.forEach(function(p){
@@ -7121,6 +7144,38 @@ function cardStage(c){
     seats.appendChild(seat(b.length === 3 ? "Flop" : b.length === 4 ? "Flop and turn" : "Board", b, 5 - b.length));
   }
   return seats;
+}
+
+/* a 6-max table seen from above: seats clockwise SB, BB, UTG, HJ, CO, BTN,
+   the dealer button and blinds drawn in, folded seats greyed out */
+function tableStage(t){
+  var W = 380, H = 236, cx = W / 2, cy = 118, rx = 112, ry = 66, sx = 152, sy = 92;
+  var ring = ["BTN","SB","BB","UTG","HJ","CO"];          /* clockwise from the bottom */
+  var live = {}; (t.live || []).forEach(function(p){ live[p] = 1; });
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Table: ' +
+    (t.live || []).join(", ") + ' still in the hand, the button is on BTN">';
+  svg += '<ellipse class="tb-felt" cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '"/>';
+  /* an arc over the middle: action moves clockwise */
+  svg += '<defs><marker id="tbhead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="tb-head" d="M0 0 L10 5 L0 10 z"/></marker></defs>';
+  svg += '<path class="tb-arrow" d="M ' + (cx - 58) + ' ' + (cy + 2) + ' A 62 34 0 0 1 ' + (cx + 58) + ' ' + (cy + 2) + '" marker-end="url(#tbhead)"/>';
+  svg += '<text class="tb-note" x="' + cx + '" y="' + (cy + 20) + '">action moves clockwise</text>';
+  ring.forEach(function(p, i){
+    var a = Math.PI / 2 + i * Math.PI / 3;
+    var x = cx + sx * Math.cos(a), y = cy + sy * Math.sin(a);
+    var on = !!live[p];
+    svg += '<g class="tb-seat' + (on ? " on" : "") + '">' +
+      '<rect x="' + (x - 30) + '" y="' + (y - 16) + '" width="60" height="32" rx="8"/>' +
+      '<text x="' + x + '" y="' + (y + 5) + '">' + p + '</text></g>';
+    /* chips sit between the seat and the middle */
+    var mx = cx + 0.62 * sx * Math.cos(a), my = cy + 0.58 * sy * Math.sin(a);
+    if(p === "BTN") svg += '<circle class="tb-dealer" cx="' + (mx + 26) + '" cy="' + my + '" r="10"/><text class="tb-d" x="' + (mx + 26) + '" y="' + (my + 4) + '">D</text>';
+    if(p === "SB" || p === "BB") svg += '<circle class="tb-blind" cx="' + mx + '" cy="' + my + '" r="6"/>' +
+      (p === "BB" ? '<circle class="tb-blind" cx="' + (mx + 4) + '" cy="' + (my - 4) + '" r="6"/>' : "");
+  });
+  svg += '</svg>';
+  var d = el("div","tablepic", svg);
+  d.appendChild(el("div","tablekey", '<span class="k-d">D</span> dealer button &nbsp;&middot;&nbsp; <span class="k-b"></span> blinds &nbsp;&middot;&nbsp; grey seats have folded &nbsp;&middot;&nbsp; ' + (t.street || "")));
+  return d;
 }
 
 function drawReveal(ok, said, secs){
@@ -9137,6 +9192,7 @@ function miniQ(box, mode){
   box.innerHTML = '<h3 class="sech">Try one</h3><p class="trysub">Retrieval beats rereading. Answer before you look: this one is free, untimed, and not scored.</p>';
   var card = el("div", "tryq");
   if(qq.cards) card.appendChild(cardStage(qq.cards));
+  if(qq.table) card.appendChild(tableStage(qq.table));
   if(qq.lines && qq.lines.length){
     var facts = el("dl","facts");
     qq.lines.forEach(function(p){ facts.appendChild(el("div","fact", "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>")); });

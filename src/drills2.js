@@ -92,13 +92,16 @@ function genRules() {
     var shown = who.slice().sort(function () { return Math.random() - 0.5; });
     return {
       mode: "rules", target: 8, kind: "choice", options: shown, answer: first,
-      lines: [["Players in the hand", shown.join(", ")], ["Street", street]],
+      table: { live: who.slice(), street: street },
+      lines: [["Street", street]],
       question: "Who acts first " + street + "?",
       bar: null,
       math: [
-        "Preflop the action starts left of the big blind: UTG, HJ, CO, BTN, SB, BB.",
-        "On every later street it starts left of the button: SB, BB, UTG, HJ, CO, BTN.",
-        "Of " + who.join(", ") + ", " + first + " acts first " + street + "."
+        "Action always moves clockwise, to the left. The dealer button marks where each round ends.",
+        street === "preflop"
+          ? "Preflop the blinds are already in, so the first seat clockwise from the big blind starts: UTG, HJ, CO, BTN, SB, BB."
+          : "After the flop it starts with the first seat clockwise from the button, so the button acts last: SB, BB, UTG, HJ, CO, BTN.",
+        "Skipping folded seats, the order here is " + who.join(", ") + ", so " + first + " acts first " + street + "."
       ]
     };
   }
@@ -140,11 +143,12 @@ function genPosition() {
     var last = who.slice().sort(function (a, b) { return POST6.indexOf(b) - POST6.indexOf(a); })[0];
     return {
       mode: "position", target: 7, kind: "choice", options: who, answer: last,
-      lines: [["Players who saw the flop", who.join(", ")]],
+      table: { live: who.slice(), street: "on the flop" },
+      lines: [],
       question: "Who is in position, acting last after the flop?",
       bar: null,
       math: [
-        "After the flop the order is SB, BB, UTG, HJ, CO, BTN. The button always acts last.",
+        "After the flop action starts clockwise from the button, so the order is SB, BB, UTG, HJ, CO, BTN, and the button always acts last.",
         last + " acts after everyone else here, so " + last + " is in position.",
         "Acting last means seeing everyone else's decision before making yours. That information is worth more than a lot of card strength."
       ]
