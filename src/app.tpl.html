@@ -54,6 +54,54 @@ body{
 .fact dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
 .fact dd{font-size:17px; font-variant-numeric:tabular-nums}
 
+/* ---- level ---- */
+.lvhero{display:grid; grid-template-columns:auto 1fr; gap:6px 28px; align-items:center; padding:22px; border:1px solid var(--line); border-radius:12px; background:var(--felt); margin-bottom:18px}
+.lvrate{font-size:56px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums}
+.lvrate small{display:block; font-size:11px; font-weight:500; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-top:6px}
+.lvname{font-size:24px; font-weight:600}
+.lvname .up,.hlevel .up{color:var(--green); font-size:14px; margin-left:8px} .lvname .down,.hlevel .down{color:var(--red); font-size:14px; margin-left:8px}
+.lvabout{color:var(--dim); font-size:14px; margin:4px 0 10px}
+.lvbar{height:8px; border-radius:4px; background:var(--line); overflow:hidden} .lvbar span{display:block; height:100%; background:var(--gold); border-radius:4px}
+.lvcap{font-size:12px; color:var(--dim); margin-top:6px}
+@media(max-width:620px){ .lvhero{grid-template-columns:1fr} .lvrate{font-size:44px} }
+.lvgrid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px}
+@media(max-width:860px){ .lvgrid{grid-template-columns:1fr} }
+.lvchart{position:relative}
+.lvchart svg{display:block; width:100%; height:auto; overflow:visible}
+.lvchart .grid line{stroke:var(--line); stroke-width:1}
+.lvchart .grid text{fill:var(--faint); font:10px var(--sans)}
+.lvchart .ln{fill:none; stroke:var(--gold); stroke-width:2; stroke-linejoin:round; stroke-linecap:round}
+.lvchart .dot{fill:var(--gold); stroke:var(--felt); stroke-width:2}
+.lvchart .hx{stroke:var(--dim); stroke-width:1; stroke-dasharray:3 3}
+.lvtip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line); border-radius:6px; padding:6px 9px; font-size:12px; white-space:nowrap; transform:translate(-50%, -110%)}
+.lvtip b{font-variant-numeric:tabular-nums}
+.lvsk{display:grid; grid-template-columns:minmax(120px, 1.3fr) 2fr 54px 54px auto; align-items:center; gap:8px 12px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px}
+.lvsk.head{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); padding-top:0}
+.lvsk .nb{text-align:right; font-variant-numeric:tabular-nums; color:var(--dim)}
+.lvsk .nb.up{color:var(--green)} .lvsk .nb.down{color:var(--red)}
+.lvsk small{display:block; color:var(--faint); font-size:11.5px}
+.lvsk .sbar{position:relative; height:10px; border-radius:3px; background:var(--line)}
+.lvsk .sbar span{position:absolute; left:0; top:0; bottom:0; border-radius:3px; background:var(--green)}
+.lvsk .sbar span.mid{background:var(--gold)} .lvsk .sbar span.lo{background:var(--red)}
+.lvsk .sbar i{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--bone); opacity:.6}
+.lvsk .sbar em{position:absolute; right:-2px; top:-2px; transform:translateX(100%); font-style:normal; font-size:12px; font-variant-numeric:tabular-nums; padding-left:6px}
+.lvsk.off{color:var(--faint)}
+.lvtag{font-style:normal; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gold); margin-left:4px}
+.lvsk button{font-size:12px; padding:5px 10px}
+@media(max-width:620px){ .lvsk{grid-template-columns:1fr 1.4fr auto} .lvsk .nb{display:none} }
+.lvweak{border-color:rgba(209,75,65,.5)}
+.lvm{border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px; background:var(--felt)}
+details.lvm summary{display:flex; flex-wrap:wrap; align-items:center; gap:8px; cursor:pointer; list-style:none; font-size:13.5px; letter-spacing:0; text-transform:none; color:var(--bone)}
+details.lvm summary:before{content:none}
+#levelView .pnote a,#fromTable .pnote a{color:var(--gold)}
+details.lvm summary .pmuted{margin-left:auto}
+.lvm .lvdid{margin:10px 0 6px; font-size:13.5px}
+.lvm .lvdid b{font-weight:600} .lvm .lvdid .bad{color:var(--red)} .lvm .lvdid .good{color:var(--green)}
+.lvm .row{margin-top:10px}
+.plevel{display:flex; justify-content:space-between; gap:8px; align-items:center; padding:8px 10px; margin:-4px 0 12px; border-radius:8px; background:var(--raise); color:var(--bone); text-decoration:none; font-size:13px}
+.plevel span{color:var(--gold); font-size:12px} .plevel:hover{outline:1px solid var(--gold)}
+.hlevel{font-size:15px; margin:0 0 10px}
+
 /* ---- table picture ---- */
 .tablepic{margin-bottom:14px; max-width:420px}
 .tablepic svg{display:block; width:100%; height:auto}
@@ -960,6 +1008,7 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
     <div id="pracReview" hidden>
       <div class="today" id="today"></div>
       <div class="panel" id="weak" hidden></div>
+      <div class="panel" id="fromTable" hidden></div>
       <details class="howsrs">
       <summary>How the schedule makes it stick</summary>
       <ol>
@@ -1044,6 +1093,8 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
     </div>
     <div class="panel" id="pReview" hidden></div>
   </section>
+
+  <section id="levelView" hidden></section>
 
   <section id="syncView" class="syncv" hidden></section>
 
@@ -2191,15 +2242,16 @@ function syncWire(){
 
 
 /* a session: the due list first, interleaved, with light filler from the rest */
-function startSession(kind){
+function startSession(kind, only){
   var now = Date.now();
   var drills = ORDER.filter(function(m){ return skills[m]; });
-  var pool = kind === "due"
+  var pool = only && only.length ? only.slice()
+    : kind === "due"
     ? drills.concat(srsDueList(Object.keys(RULES), skills, now))
     : drills;
   if(!pool.length) return;
   sess = { kind:kind, pool:pool, ctx:{ last:null, retry:[], idle: kind === "due" ? 0.15 : 0.6 },
-           n:0, ok:0, secs:0, cap: kind === "due" ? 60 : 20, from:{} };
+           n:0, ok:0, secs:0, cap: kind === "due" ? 60 : kind === "table" ? 15 : 20, from:{} };
   if(cp) cp = null;
   openId = null;
   $("modes").hidden = true;
@@ -2216,7 +2268,7 @@ function sessOver(){ return sess.n >= sess.cap || (sess.kind === "due" && !sessD
 function drawSess(){
   var left = sess.kind === "due" ? sessDue().length + " due left" : (sess.cap - sess.n) + " to go";
   $("cpbar").innerHTML =
-    '<span class="lab">' + (sess.kind === "due" ? "Today" : "Weak spots") + '</span>' +
+    '<span class="lab">' + (sess.kind === "due" ? "Today" : sess.kind === "table" ? "Table weak spots" : "Weak spots") + '</span>' +
     '<span class="grow">' + left + ' &nbsp;&middot;&nbsp; ' + sess.n + ' answered' +
     (sess.n ? ', ' + Math.round(100 * sess.ok / sess.n) + '% right' : '') + '</span>';
   var b = el("button","chip","End"); b.type = "button";
@@ -2966,7 +3018,7 @@ function leaveSession(){ if(sess){ sess = null; $("modes").hidden = false; $("cp
    ============================================================ */
 var sub = { practice:"review", library:"formulas" };
 var curHash = "";
-var VIEWS = ["home", "learn", "practice", "play", "library", "sync"];
+var VIEWS = ["home", "learn", "practice", "play", "level", "library", "sync"];
 var SUBS = { practice:["review", "drill", "skills"], library:["formulas", "glossary", "reading"] };
 
 var ICON = {
@@ -2974,6 +3026,7 @@ var ICON = {
   learn:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8 17.2c5-1 3-6.4 8-9.8"/><path d="M4 6h4M6 4v4"/></svg>',
   practice:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" /></svg>',
   play:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3M6 6l2.1 2.1M15.9 15.9 18 18M18 6l-2.1 2.1M8.1 15.9 6 18"/></svg>',
+  level:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 19.5h17"/><path d="M5 15.5l4.5-4.5 3.5 3 6-7"/><path d="M15 7h4v4"/></svg>',
   library:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4 9.5 4 12 5.5v14C9.5 18 6.5 18 4 19.5z"/><path d="M20 5.5C17.5 4 14.5 4 12 5.5v14c2.5-1.5 5.5-1.5 8 0z"/></svg>'
 };
 
@@ -2981,7 +3034,7 @@ function drawNav(){
   var n = $("nav");
   if(!n.dataset.built){
     n.dataset.built = "1";
-    n.innerHTML = [["home","Home"],["learn","Learn"],["practice","Practice"],["play","Play"],["library","Library"]].map(function(x){
+    n.innerHTML = [["home","Home"],["learn","Learn"],["practice","Practice"],["play","Play"],["level","Level"],["library","Library"]].map(function(x){
       return '<a class="navi" id="nav_' + x[0] + '" href="#/' + x[0] + '">' + ICON[x[0]] + '<span>' + x[1] + '</span><i class="nbadge" hidden></i></a>';
     }).join("");
   }
@@ -3053,6 +3106,7 @@ function setView(v){
   $("libraryView").hidden = v !== "library";
   $("syncView").hidden = v !== "sync";
   $("playView").hidden = v !== "play";
+  $("levelView").hidden = v !== "level";
   $("cpdone").hidden = true;
   document.body.dataset.view = v;
   if(v !== "learn" || !openId) $("readbar").style.width = "0";
@@ -3062,6 +3116,7 @@ function setView(v){
   if(v === "library") drawLibrary();
   if(v === "sync") drawSyncView();
   if(v === "play") drawPlay();
+  if(v === "level") drawLevel();
   drawNav();
   syncHash();
 }
@@ -3198,7 +3253,11 @@ function drawHome(){
   var pt = el("div", "panel hplay");
   var C = pcareer;
   var lk = C ? playLeaks(C, 5)[0] : null;
-  pt.innerHTML = '<div class="ph"><h3>At the table</h3><a href="#/play">Play &rsaquo;</a></div>' + (C && C.decisions
+  var LS = lvSummary(plevel);
+  pt.innerHTML = '<div class="ph"><h3>At the table</h3><a href="#/level">Your level &rsaquo;</a></div>' +
+    (LS.placed ? '<p class="hlevel"><b>' + LS.level.name + '</b> &middot; rating ' + Math.round(LS.rating) + (LS.delta != null && Math.abs(LS.delta) >= 1 ? ' <span class="' + (LS.delta > 0 ? "up" : "down") + '">' + (LS.delta > 0 ? "&#9650; " : "&#9660; ") + Math.abs(Math.round(LS.delta)) + '</span>' : "") + '</p>'
+      : LS.n ? '<p class="pnote">Level placement: ' + LS.left + ' more decisions at the table.</p>' : "") +
+    (C && C.decisions
     ? '<div class="pscore"><div><b class="' + (C.quality >= 0.8 ? "hi" : C.quality >= 0.55 ? "mid" : "lo") + '">' + Math.round(100 * C.quality) + '</b><span>decision score</span></div><div><b>' + C.hands + '</b><span>hands</span></div><div><b>' + C.decisions + '</b><span>decisions</span></div><div><b>' + (C.lost / C.hands).toFixed(2) + '</b><span>EV lost / hand</span></div></div>' +
       (lk ? '<p class="pnote">Biggest leak so far: <a href="#/learn/' + lk.id + '">' + ((lessonById(lk.id) || {}).title || lk.id) + '</a>, ' + lk.lost.toFixed(1) + ' bb given up over ' + lk.n + ' decisions.</p>' : "")
     : '<p class="pnote">Put the lessons to work at a six-handed table. Every decision is priced against what your opponents really hold and graded, with links back to the lesson behind it.</p>');
@@ -3557,6 +3616,20 @@ function drawToday(){
   wb.innerHTML = weak.length ? '<div class="ph"><h3>Weakest right now</h3><span>recent accuracy</span></div><div class="clist">' +
     weak.map(function(id){ var r = srsRecent(skills[id], 20); return '<div><span>' + skillName(id) + '</span><b>' + Math.round(100 * r.acc) + '%</b></div>'; }).join("") + '</div>' : "";
   wb.hidden = !weak.length;
+
+  /* what the table says you get wrong, one tap from drilling it */
+  var tb = $("fromTable");
+  var tw = lvWeak(plevel).slice(0, 4);
+  tb.hidden = !tw.length;
+  tb.innerHTML = "";
+  if(tw.length){
+    tb.innerHTML = '<div class="ph"><h3>From the table</h3><a href="#/level">Your level &rsaquo;</a></div>' +
+      '<p class="pnote">Skills you are playing below your level at the Play table. Each one is trained by a drill; mistakes at the table also put that drill back on today&rsquo;s reviews.</p>' +
+      '<div class="clist">' + tw.map(function(k){ return '<div><span>' + k.name + ' <small>drill: ' + MODE_META[k.drill] + '</small></span><b>' + Math.round(k.rating) + '</b></div>'; }).join("") + '</div>';
+    var r2 = el("div", "row"); r2.style.marginTop = "12px";
+    r2.appendChild(btnEl("Drill these", "go", function(){ drillTableWeak(); }));
+    tb.appendChild(r2);
+  }
 }
 
 function drawSkills(){
@@ -3653,17 +3726,17 @@ function drawGlossary(){
 var PLAY_KEY = "poker-sim-v1";
 var pg = null;
 var pset = { lineup:"mixed", coach:"numbers", labels:true, speed:500, auto:false };
-var pcareer = null, pTimer = 0, pReview = null, pFeedback = null;
+var pcareer = null, plevel = null, pTimer = 0, pReview = null, pFeedback = null;
 var GRADE_CLS = { Best:"g-best", Good:"g-good", Inaccuracy:"g-inacc", Mistake:"g-mist", Blunder:"g-blun" };
 var CAT_ORDER = ["straight flush","four of a kind","full house","flush","straight","three of a kind","two pair","one pair","draw","high card"];
 
 async function playLoad(){
   try{
     var s = JSON.parse((await STORE.get(PLAY_KEY)) || "null");
-    if(s){ if(s.set) Object.assign(pset, s.set); pcareer = s.career || null; }
+    if(s){ if(s.set) Object.assign(pset, s.set); pcareer = s.career || null; plevel = s.level || null; }
   }catch(e){}
 }
-function playSave(){ try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer })); }catch(e){} }
+function playSave(){ try{ STORE.set(PLAY_KEY, JSON.stringify({ set:pset, career:pcareer, level:plevel })); }catch(e){} }
 
 function pCard(c, cls){
   if(c == null) return '<span class="pc back' + (cls ? " " + cls : "") + '"></span>';
@@ -3753,6 +3826,10 @@ function playLoop(){
 
 function onHandOver(){
   pcareer = playCareerAdd(pcareer, pg.session, pg);
+  if(pg.history[0]){
+    plevel = lvAddHand(plevel, pg.history[0], Date.now());
+    levelFlag(pg.history[0]);
+  }
   playSave();
   drawPlaySide();
 }
@@ -3900,7 +3977,9 @@ function drawPlaySide(){
   var cscore = C && C.decisions ? Math.round(100 * C.quality) : null;
   var gsum = S.decisions || 1;
   var leaks = playLeaks(S.decisions >= 12 ? S : (C || S), 3).slice(0, 3);
+  var LSp = lvSummary(plevel);
   $("pSession").innerHTML = '<div class="ph"><h3>Session</h3><a href="#" id="pNewSess">New session</a></div>' +
+    '<a class="plevel" href="#/level">' + (LSp.placed ? '<b>' + LSp.level.name + '</b> &middot; rating ' + Math.round(LSp.rating) : 'Level placement: ' + LSp.left + ' decisions to go') + ' <span>Your level &rsaquo;</span></a>' +
     '<div class="pscore"><div><b class="' + (score == null ? "" : score >= 80 ? "hi" : score >= 55 ? "mid" : "lo") + '">' + (score == null ? "&ndash;" : score) + '</b><span>decision score</span></div>' +
       '<div><b>' + S.hands + '</b><span>hands</span></div><div><b class="' + (S.net >= 0 ? "hi" : "lo") + '">' + pSigned(S.net).replace(" bb","") + '</b><span>bb won</span></div>' +
       '<div><b>' + (S.hands ? (S.lost / S.hands).toFixed(2) : "&ndash;") + '</b><span>EV lost / hand</span></div></div>' +
@@ -3976,6 +4055,145 @@ function drawPlayReview(){
   html += '<p class="pnote">How this is priced: your opponents&rsquo; ranges are tracked exactly, by Bayes&rsquo; rule, from the strategies they play; their fold rates come from those same strategies. Each option looks one street ahead, with equity realisation standing in for the streets after that, and a raise by an opponent counted as a call. Treat small differences as ties.</p>';
   box.innerHTML = html;
   $("pCloseRev").onclick = function(e){ e.preventDefault(); pReview = null; drawPlayReview(); drawPlaySide(); };
+}
+
+/* ============================================================
+   LEVEL: your skill as measured at the table, not in the course
+   ============================================================ */
+var lvOpen = {}, lvAll = false;
+
+/* a table mistake puts the drill that trains it back on today's reviews */
+function levelFlag(hand){
+  var now = Date.now(), hit = false;
+  (hand.decisions || []).forEach(function(d){
+    if(d.G.grade !== "Mistake" && d.G.grade !== "Blunder") return;
+    d.G.concepts.forEach(function(c){
+      var m = LV_SKILLS[c] && LV_SKILLS[c].drill, s = m && skills[m];
+      if(!s) return;              /* not on the schedule yet: the Level page still offers the drill */
+      if(s.due > now){ s.due = now; s.run = 0; hit = true; }
+    });
+  });
+  if(hit){ saveSoon(); drawTrainTab(); }
+}
+
+function drillTableWeak(only){
+  var ms = only || lvWeak(plevel).map(function(k){ return k.drill; });
+  ms = ms.filter(function(m, i){ return MODE_META[m] && ms.indexOf(m) === i; });
+  if(!ms.length) return;
+  startSession("table", ms);
+}
+
+function lvColor(r){ return r >= 75 ? "" : r >= 55 ? "mid" : "lo"; }
+function lvSign(x){ return (x > 0 ? "+" : x < 0 ? "−" : "") + Math.abs(Math.round(x)); }
+
+function drawLevel(){
+  var box = $("levelView");
+  var S = lvSummary(plevel);
+  var html = '<div class="vhead"><div><h1>Your level</h1><p>How well you actually play, measured from every decision you make at the Play table: not how far through the course you are. The rating is the quality of your last ' + LV_WINDOW + ' decisions, so it moves when you improve and when you slip.</p></div></div>';
+
+  if(!S.placed){
+    html += '<div class="lvhero"><div class="lvrate">' + S.n + '<small>of ' + LV_PLACEMENT + ' decisions</small></div><div>' +
+      '<div class="lvname">Placement</div><p class="lvabout">Play ' + S.left + ' more ' + (S.left === 1 ? "decision" : "decisions") + ' at the table to get your first level. Every fold, call, bet and raise you make is graded against what your opponents really hold.</p>' +
+      '<div class="lvbar"><span style="width:' + (100 * S.n / LV_PLACEMENT).toFixed(0) + '%"></span></div></div></div>';
+    box.innerHTML = html;
+    var r0 = el("div", "row"); r0.appendChild(btnEl("Play hands", "go", function(){ location.hash = "#/play"; }));
+    box.appendChild(r0);
+    return;
+  }
+
+  var Lv = S.level;
+  html += '<div class="lvhero"><div class="lvrate ' + lvColor(S.rating) + '">' + Math.round(S.rating) + '<small>rating</small></div><div>' +
+    '<div class="lvname">' + Lv.name + (S.delta != null && Math.abs(S.delta) >= 1 ? '<span class="' + (S.delta > 0 ? "up" : "down") + '">' + (S.delta > 0 ? "&#9650; " : "&#9660; ") + Math.abs(Math.round(S.delta)) + ' vs the ' + LV_WINDOW + ' decisions before</span>' : "") + '</div>' +
+    '<p class="lvabout">' + Lv.about + '</p>' +
+    '<div class="lvbar"><span style="width:' + (100 * Lv.toNext).toFixed(0) + '%"></span></div>' +
+    '<div class="lvcap">' + (Lv.next ? (Lv.next.min - Math.round(S.rating)) + (Lv.next.min - Math.round(S.rating) === 1 ? ' point' : ' points') + ' to ' + Lv.next.name : 'Top of the ladder') +
+      ' &middot; ' + S.n + ' decisions logged &middot; EV given up ' + S.lostPer.toFixed(2) + ' bb per decision' +
+      (S.first != null ? ' &middot; you started at ' + Math.round(S.first) : "") + '</div></div></div>';
+
+  /* the rating over time, and the skills behind it */
+  html += '<div class="lvgrid"><div class="panel"><div class="ph"><h3>Rating over time</h3><span>last ' + LV_WINDOW + ' decisions at each point</span></div><div class="lvchart" id="lvChart"></div></div>';
+  var weak = lvWeak(plevel);
+  html += '<div class="panel' + (weak.length ? " lvweak" : "") + '"><div class="ph"><h3>Weak spots</h3><span>review these</span></div>' +
+    (weak.length ? '<p class="pnote">Skills you play below your own level, or keep making real mistakes in. Drilling one trains the maths behind it; mistakes at the table also put that drill back on <a href="#/practice/review">today&rsquo;s reviews</a>.</p><div class="clist">' +
+      weak.slice(0, 5).map(function(k){ return '<div><span>' + k.name + ' <small>' + k.mistakes + ' mistakes in last ' + k.recent + '</small></span><b>' + Math.round(k.rating) + '</b></div>'; }).join("") + '</div><div class="row" id="lvWeakRow" style="margin-top:12px"></div>'
+      : '<p class="pnote">Nothing stands out. Every table skill with enough decisions is within reach of your level. Keep playing: weak spots show up after five or more decisions in a skill.</p>') +
+    '</div></div>';
+
+  html += '<div class="panel" style="margin-bottom:18px"><div class="ph"><h3>Skills at the table</h3><span>last ' + 25 + ' decisions each</span></div>' +
+    '<div class="lvsk head"><span>Skill</span><span>Rating</span><span class="nb">Trend</span><span class="nb">bb lost</span><span></span></div>' +
+    (function(){ var wk = {}; weak.forEach(function(k){ wk[k.id] = 1; }); return lvSkills(plevel).map(function(k){ k.weak = !!wk[k.id]; return k; }); })().sort(function(a, b){ return (b.recent ? 1 : 0) - (a.recent ? 1 : 0) || (b.weak ? 1 : 0) - (a.weak ? 1 : 0) || (a.rating || 0) - (b.rating || 0); }).map(function(k){
+      if(!k.recent) return '<div class="lvsk off"><span>' + k.name + '<small>no decisions yet</small></span><span></span><span class="nb">&ndash;</span><span class="nb">&ndash;</span><span><button type="button" class="chip" data-drill="' + k.drill + '">Drill</button></span></div>';
+      return '<div class="lvsk"><span>' + k.name + (k.weak ? ' <em class="lvtag">weak spot</em>' : "") + '<small>' + k.n + ' decisions &middot; ' + MODE_META[k.drill] + '</small></span>' +
+        '<span><div class="sbar" title="rating ' + Math.round(k.rating) + '; the line is your overall ' + Math.round(S.rating) + '"><span class="' + (k.weak ? (k.rating < 60 ? "lo" : "mid") : lvColor(k.rating)) + '" style="width:' + k.rating.toFixed(0) + '%"></span><i style="left:' + S.rating.toFixed(0) + '%"></i></div></span>' +
+        '<span class="nb ' + (k.delta == null || Math.abs(k.delta) < 1 ? "" : k.delta > 0 ? "up" : "down") + '" title="change against the 25 decisions before">' + (k.delta == null ? "new" : lvSign(k.delta)) + '</span>' +
+        '<span class="nb" title="EV given up per decision">' + k.lostPer.toFixed(2) + '</span>' +
+        '<span><button type="button" class="chip" data-drill="' + k.drill + '">Drill</button></span></div>';
+    }).join("") +
+    '<p class="pnote" style="margin-top:10px">Bars are each skill&rsquo;s rating; the light line is your overall rating. Trend compares the last 25 decisions in a skill with the 25 before them.</p></div>';
+
+  /* the mistakes themselves */
+  var M = (plevel && plevel.m) || [];
+  html += '<div class="panel"><div class="ph"><h3>Spots to review</h3><span>' + M.length + ' mistakes and blunders</span></div>' +
+    (M.length ? '<p class="pnote">Your most recent mistakes and blunders at the table. Read what was better and why, drill the skill, then mark it reviewed.</p>' + M.slice(0, lvAll ? M.length : 8).map(function(m){
+      var sk = m.c.map(function(c){ return LV_SKILLS[c]; }).filter(Boolean);
+      return '<details class="lvm"' + (lvOpen[m.id] ? " open" : "") + ' data-id="' + m.id + '"><summary><span class="gbadge sm ' + GRADE_CLS[m.grade] + '">' + m.grade + '</span>' +
+        '<b>' + m.street.charAt(0).toUpperCase() + m.street.slice(1) + '</b><span class="phc">' + pCard(m.cards[0], "sm") + pCard(m.cards[1], "sm") + '</span>' +
+        (m.board.length ? '<span class="phc">' + m.board.map(function(c){ return pCard(c, "sm"); }).join("") + '</span>' : "") +
+        '<span>' + (sk[0] ? sk[0].name : "") + '</span><span class="pmuted">' + m.pos + ' &middot; &minus;' + m.loss.toFixed(2) + ' bb &middot; ' + fmtAgo(m.t) + '</span></summary>' +
+        '<p class="lvdid">Pot ' + pBB(m.pot) + (m.toCall ? ', ' + pBB(m.toCall) + ' to call' : "") + '. You: <b class="bad">' + m.did + '</b> (' + pSigned(m.didEV) + '). Best: <b class="good">' + m.best + '</b> (' + pSigned(m.bestEV) + ').</p>' +
+        '<ul class="plines">' + m.lines.map(function(l){ return '<li>' + l + '</li>'; }).join("") + '</ul>' +
+        '<div class="pconcepts">' + m.c.map(lessonLink).join("") + '</div>' +
+        '<div class="row">' + sk.map(function(k){ return '<button type="button" class="act ghost" data-drill="' + k.drill + '">Drill ' + MODE_META[k.drill] + '</button>'; }).join("") +
+          '<button type="button" class="act ghost" data-done="' + m.id + '">Mark reviewed</button></div></details>';
+    }).join("") + (M.length > 8 ? '<div class="row"><button type="button" class="act ghost" id="lvMore">' + (lvAll ? "Show fewer" : "Show all " + M.length) + '</button></div>' : "") : '<p class="pnote">No mistakes or blunders logged. When you make one at the table it lands here, with what was better and the drill that trains it.</p>') + '</div>';
+
+  box.innerHTML = html;
+  if($("lvWeakRow")) $("lvWeakRow").appendChild(btnEl("Drill weak spots", "go", function(){ drillTableWeak(); }));
+  box.querySelectorAll("[data-drill]").forEach(function(b){ b.onclick = function(){ drillTableWeak([b.dataset.drill]); }; });
+  box.querySelectorAll("[data-done]").forEach(function(b){ b.onclick = function(){ plevel = lvDismiss(plevel, b.dataset.done); playSave(); drawLevel(); }; });
+  if($("lvMore")) $("lvMore").onclick = function(){ lvAll = !lvAll; drawLevel(); };
+  box.querySelectorAll("details.lvm").forEach(function(d){ d.ontoggle = function(){ lvOpen[d.dataset.id] = d.open; }; });
+  drawLevelChart();
+}
+
+function fmtAgo(t){
+  var s = (Date.now() - t) / 1000;
+  return s < 90 ? "just now" : s < 5400 ? Math.round(s / 60) + " min ago" : s < 129600 ? Math.round(s / 3600) + " h ago" : Math.round(s / 86400) + " days ago";
+}
+
+/* one series, so no legend: the title names it. Level floors as recessive gridlines. */
+function drawLevelChart(){
+  var box = $("lvChart"); if(!box) return;
+  var pts = lvSeries(plevel, 40);
+  if(pts.length < 2){ box.innerHTML = '<p class="pnote">The line starts once you have a few more decisions past placement.</p>'; return; }
+  var W = 520, H = 200, l = 34, r = 10, t = 10, b = 22;
+  var lo = Math.max(0, Math.floor((Math.min.apply(null, pts.map(function(p){ return p.r; })) - 8) / 10) * 10);
+  var hi = Math.min(100, Math.ceil((Math.max.apply(null, pts.map(function(p){ return p.r; })) + 8) / 10) * 10);
+  var x = function(i){ return l + (W - l - r) * (i - pts[0].i) / Math.max(1, pts[pts.length - 1].i - pts[0].i); };
+  var y = function(v){ return t + (H - t - b) * (hi - v) / Math.max(1, hi - lo); };
+  var g = '<g class="grid">' + LV_LEVELS.filter(function(L){ return L.min > lo && L.min < hi; }).map(function(L){
+    return '<line x1="' + l + '" x2="' + (W - r) + '" y1="' + y(L.min) + '" y2="' + y(L.min) + '"/><text x="' + (W - r) + '" y="' + (y(L.min) - 4) + '" text-anchor="end">' + L.name + '</text>';
+  }).join("") +
+    '<text x="' + (l - 6) + '" y="' + (y(hi) + 4) + '" text-anchor="end">' + hi + '</text><text x="' + (l - 6) + '" y="' + (y(lo) + 4) + '" text-anchor="end">' + lo + '</text>' +
+    '<text x="' + l + '" y="' + (H - 4) + '">decision ' + pts[0].i + '</text><text x="' + (W - r) + '" y="' + (H - 4) + '" text-anchor="end">' + pts[pts.length - 1].i + '</text></g>';
+  var d = pts.map(function(p, i){ return (i ? "L" : "M") + x(p.i).toFixed(1) + " " + y(p.r).toFixed(1); }).join(" ");
+  var last = pts[pts.length - 1];
+  box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Rating over time, from ' + Math.round(pts[0].r) + ' to ' + Math.round(last.r) + '">' + g +
+    '<path class="ln" d="' + d + '"/><line class="hx" id="lvHx" y1="' + t + '" y2="' + (H - b) + '" x1="-9" x2="-9"/>' +
+    '<circle class="dot" id="lvDot" r="4.5" cx="' + x(last.i) + '" cy="' + y(last.r) + '"/>' +
+    '<rect id="lvHit" x="' + l + '" y="0" width="' + (W - l - r) + '" height="' + H + '" fill="transparent"/></svg><div class="lvtip" id="lvTip" hidden></div>';
+  var svg = box.querySelector("svg"), tip = $("lvTip");
+  function show(evt){
+    var bb = svg.getBoundingClientRect(), sx = (evt.clientX - bb.left) * W / bb.width;
+    var p = pts.reduce(function(a, q){ return Math.abs(x(q.i) - sx) < Math.abs(x(a.i) - sx) ? q : a; }, pts[0]);
+    $("lvHx").setAttribute("x1", x(p.i)); $("lvHx").setAttribute("x2", x(p.i));
+    $("lvDot").setAttribute("cx", x(p.i)); $("lvDot").setAttribute("cy", y(p.r));
+    tip.hidden = false;
+    tip.style.left = (x(p.i) * bb.width / W) + "px"; tip.style.top = (y(p.r) * bb.height / H) + "px";
+    tip.innerHTML = '<b>' + Math.round(p.r) + '</b> ' + lvLevel(p.r).name + ' &middot; decision ' + p.i + ' &middot; ' + new Date(p.t).toLocaleDateString(undefined, { month:"short", day:"numeric" });
+  }
+  function hide(){ tip.hidden = true; $("lvHx").setAttribute("x1", -9); $("lvHx").setAttribute("x2", -9); $("lvDot").setAttribute("cx", x(last.i)); $("lvDot").setAttribute("cy", y(last.r)); }
+  svg.addEventListener("pointermove", show); svg.addEventListener("pointerleave", hide);
 }
 
 /* keys at the table: F fold, C check or call, R focus the bet box, Enter/Space next hand */
