@@ -92,13 +92,16 @@ function genRules() {
     var shown = who.slice().sort(function () { return Math.random() - 0.5; });
     return {
       mode: "rules", target: 8, kind: "choice", options: shown, answer: first,
-      lines: [["Players in the hand", shown.join(", ")], ["Street", street]],
+      table: { live: who.slice(), street: street },
+      lines: [["Street", street]],
       question: "Who acts first " + street + "?",
       bar: null,
       math: [
-        "Preflop the action starts left of the big blind: UTG, HJ, CO, BTN, SB, BB.",
-        "On every later street it starts left of the button: SB, BB, UTG, HJ, CO, BTN.",
-        "Of " + who.join(", ") + ", " + first + " acts first " + street + "."
+        "Action always moves clockwise, to the left. The dealer button marks where each round ends.",
+        street === "preflop"
+          ? "Preflop the blinds are already in, so the first seat clockwise from the big blind starts: UTG, HJ, CO, BTN, SB, BB."
+          : "After the flop it starts with the first seat clockwise from the button, so the button acts last: SB, BB, UTG, HJ, CO, BTN.",
+        "Skipping folded seats, the order here is " + who.join(", ") + ", so " + first + " acts first " + street + "."
       ]
     };
   }
@@ -140,11 +143,12 @@ function genPosition() {
     var last = who.slice().sort(function (a, b) { return POST6.indexOf(b) - POST6.indexOf(a); })[0];
     return {
       mode: "position", target: 7, kind: "choice", options: who, answer: last,
-      lines: [["Players who saw the flop", who.join(", ")]],
+      table: { live: who.slice(), street: "on the flop" },
+      lines: [],
       question: "Who is in position, acting last after the flop?",
       bar: null,
       math: [
-        "After the flop the order is SB, BB, UTG, HJ, CO, BTN. The button always acts last.",
+        "After the flop action starts clockwise from the button, so the order is SB, BB, UTG, HJ, CO, BTN, and the button always acts last.",
         last + " acts after everyone else here, so " + last + " is in position.",
         "Acting last means seeing everyone else's decision before making yours. That information is worth more than a lot of card strength."
       ]
@@ -155,7 +159,8 @@ function genPosition() {
     var behind = 5 - SEATS6.indexOf(seat);
     return {
       mode: "position", target: 7, kind: "number", tol: 0.5, answer: behind,
-      lines: [["You are", seat], ["Table", "6-max, everyone folds to you"]],
+      table: { live: SEATS6.slice(SEATS6.indexOf(seat)), hero: seat, street: "preflop, folded to you" },
+      lines: [["You are", seat]],
       question: "How many players still act after you preflop?",
       bar: { fill: 100 * behind / 5, tick: null, fillLabel: behind + " players left to wake up with a hand", tickLabel: "" },
       math: [
@@ -169,7 +174,8 @@ function genPosition() {
   var pct = rangePct(RFI[pos]);
   return {
     mode: "position", target: 12, unit: "%", kind: "number", tol: 4, answer: pct,
-    lines: [["Seat", pos], ["Table", "6-max, 100 big blinds"]],
+    table: { live: SEATS6.slice(SEATS6.indexOf(pos)), hero: pos, street: "preflop, folded to you" },
+    lines: [["Seat", pos], ["Stacks", "100 big blinds"]],
     question: "Roughly what share of hands does a standard chart open from " + pos + "?",
     bar: { fill: pct, tick: null, fillLabel: pos + " opens " + pctFmt(pct, 0), tickLabel: "" },
     math: [
@@ -249,7 +255,7 @@ function genEV() {
     var final = pot + 2 * bet, ans = e / 100 * final - bet;
     return {
       mode: "ev", target: 18, unit: "$", kind: "number", tol: Math.max(3, Math.abs(ans) * 0.08), answer: ans,
-      lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Your equity", e + "%"]],
+      lines: [["Pot before the bet", money(pot)], ["He bets", money(bet)], ["Your equity", e + "%"]],
       question: "What is the EV of calling? (negative if it loses money)",
       bar: { fill: e, tick: 100 * bet / final, fillLabel: "your equity " + e + "%", tickLabel: "price " + (100 * bet / final).toFixed(1) + "%" },
       math: [
@@ -267,7 +273,7 @@ function genEV() {
     var ans2 = f / 100 * pot2 + (1 - f / 100) * called;
     return {
       mode: "ev", target: 25, unit: "$", kind: "number", tol: Math.max(3, Math.abs(ans2) * 0.1), answer: ans2,
-      lines: [["Pot", money(pot2)], ["You bet", money(bet2)], ["He folds", f + "%"], ["Your equity if called", eq + "%"]],
+      lines: [["Pot before your bet", money(pot2)], ["You bet", money(bet2)], ["He folds", f + "% of the time"], ["Your equity if called", eq + "%"]],
       question: "What is the EV of the bet?",
       bar: null,
       math: [
@@ -316,7 +322,8 @@ function genRFI() {
   var pct = rangePct(RFI[pos]);
   return {
     mode: "rfi", target: 8, kind: "choice", options: ["RAISE", "FOLD"], answer: open ? "RAISE" : "FOLD",
-    lines: [["Seat", pos], ["Action", "folded to you"], ["Your hand", hand]],
+    table: { live: SEATS6.slice(SEATS6.indexOf(pos)), hero: pos, street: "preflop, folded to you" },
+    lines: [["Seat", pos], ["Your hand", hand + " (" + (hand.length === 2 ? "pair" : hand[2] === "s" ? "suited" : "offsuit") + ")"]],
     question: "Open-raise or fold?",
     bar: { fill: pct, tick: null, fillLabel: pos + " opens " + pctFmt(pct, 0) + " of hands", tickLabel: "" },
     math: [
@@ -403,7 +410,7 @@ function genEQR() {
     var need = price / R;
     return {
       mode: "eqr", target: 18, unit: "%", kind: "number", tol: 1.5, answer: need,
-      lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Your realisation", Math.round(R * 100) + "% " + (R < 1 ? "(out of position)" : "(in position)")]],
+      lines: [["Pot before the bet", money(pot)], ["He bets", money(bet)], ["Share of your equity you actually win", Math.round(R * 100) + "% " + (R < 1 ? "(out of position)" : "(in position)")]],
       question: "What raw equity do you need to call?",
       bar: { fill: need, tick: price, fillLabel: "raw equity needed " + need.toFixed(1) + "%", tickLabel: "pot odds " + price.toFixed(1) + "%" },
       math: [
@@ -418,7 +425,7 @@ function genEQR() {
   var eff = eq * R2, call = eff >= price;
   return {
     mode: "eqr", target: 16, kind: "choice", options: ["CALL", "FOLD"], answer: call ? "CALL" : "FOLD",
-    lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Your equity", eq + "%"], ["Realisation", Math.round(R2 * 100) + "%"]],
+    lines: [["Pot before the bet", money(pot)], ["He bets", money(bet)], ["Your equity", eq + "%"], ["Share of it you actually win", Math.round(R2 * 100) + "%" + (R2 < 1 ? " (out of position)" : " (in position)")]],
     question: "Call or fold, once realisation is counted?",
     bar: { fill: eff, tick: price, fillLabel: "realised equity " + eff.toFixed(1) + "%", tickLabel: "price " + price.toFixed(1) + "%" },
     math: [
@@ -439,7 +446,7 @@ function genCbet() {
     var ok = f > need;
     return {
       mode: "cbet", target: 12, kind: "choice", options: ["BET", "CHECK"], answer: ok ? "BET" : "CHECK",
-      lines: [["Pot", money(pot)], ["Your c-bet", money(bet) + " (" + Math.round(frac * 100) + "% pot)"], ["He folds to it", f + "%"], ["Your hand", "no equity if called"]],
+      lines: [["Pot before your bet", money(pot)], ["Your c-bet", money(bet) + " (" + Math.round(frac * 100) + "% pot)"], ["He folds to it", f + "%"], ["Your hand", "no equity if called"]],
       question: "Is the c-bet bluff profitable on its own?",
       bar: { fill: f, tick: need, fillLabel: "he folds " + f + "%", tickLabel: "break-even " + need.toFixed(1) + "%" },
       math: [
@@ -452,7 +459,7 @@ function genCbet() {
   var ev = f / 100 * pot - (1 - f / 100) * bet;
   return {
     mode: "cbet", target: 16, unit: "$", kind: "number", tol: Math.max(2, Math.abs(ev) * 0.1), answer: ev,
-    lines: [["Pot", money(pot)], ["Your c-bet", money(bet)], ["He folds to it", f + "%"], ["Your hand", "no equity if called"]],
+    lines: [["Pot before your bet", money(pot)], ["Your c-bet", money(bet)], ["He folds to it", f + "%"], ["Your hand", "no equity if called"]],
     question: "What is the EV of this c-bet bluff?",
     bar: { fill: f, tick: need, fillLabel: "he folds " + f + "%", tickLabel: "break-even " + need.toFixed(1) + "%" },
     math: [
@@ -473,7 +480,7 @@ function genGeo() {
   for (var i = 0; i < n; i++) { var b = f * p; lines.push(bbFmt(b) + " into " + bbFmt(p)); p += 2 * b; }
   return {
     mode: "geo", target: 30, unit: "%", kind: "number", tol: Math.max(4, ans * 0.08), answer: ans,
-    lines: [["Pot", pot + " bb"], ["Effective stack", stack + " bb"], ["Streets left", n === 3 ? "flop, turn and river" : n === 2 ? "turn and river" : "river only"]],
+    lines: [["Pot", pot + " bb"], ["Effective stack (the smaller one)", stack + " bb"], ["Streets left", n === 3 ? "flop, turn and river" : n === 2 ? "turn and river" : "river only"]],
     question: "Betting the same fraction of the pot each street, what fraction gets the stacks in by the river?",
     bar: { fill: Math.min(100, ans / 2), tick: null, fillLabel: ans.toFixed(0) + "% of the pot each street", tickLabel: "" },
     math: [

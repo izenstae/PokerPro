@@ -54,6 +54,26 @@ body{
 .fact dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
 .fact dd{font-size:17px; font-variant-numeric:tabular-nums}
 
+/* ---- table picture ---- */
+.tablepic{margin-bottom:14px; max-width:420px}
+.tablepic svg{display:block; width:100%; height:auto}
+.tb-felt{fill:#1F4A36; stroke:#2C6B4D; stroke-width:3}
+.tb-arrow{fill:none; stroke:rgba(233,229,219,.45); stroke-width:2}
+.tb-head{fill:rgba(233,229,219,.5)}
+.tb-note{fill:rgba(233,229,219,.6); font:10px var(--sans); letter-spacing:.1em; text-anchor:middle; text-transform:uppercase}
+.tb-seat rect{fill:var(--raise); stroke:var(--line); stroke-dasharray:3 3}
+.tb-seat text{fill:var(--faint); font:600 13px var(--sans); text-anchor:middle}
+.tb-seat.on rect{fill:var(--bone); stroke:var(--bone); stroke-dasharray:none}
+.tb-seat.on text{fill:#111}
+.tb-seat.me rect{stroke:var(--gold); stroke-width:3}
+.tb-you{fill:var(--gold); font:700 10px var(--sans); letter-spacing:.14em; text-anchor:middle}
+.tb-dealer{fill:#fff; stroke:#999}
+.tb-d{fill:#111; font:700 11px var(--sans); text-anchor:middle}
+.tb-blind{fill:var(--gold); stroke:#8a6420}
+.tablekey{font-size:12px; color:var(--dim); margin-top:4px}
+.tablekey .k-d{display:inline-block; width:16px; height:16px; line-height:16px; border-radius:50%; background:#fff; color:#111; font-weight:700; font-size:10px; text-align:center}
+.tablekey .k-b{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--gold); vertical-align:middle}
+
 /* ---- cards ---- */
 .seats{display:flex; flex-wrap:wrap; gap:22px; align-items:flex-end; margin-bottom:18px}
 .seat dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:6px}
@@ -1247,13 +1267,14 @@ function genPotOdds() {
   var ans = 100 * bet / final;
   return {
     mode: "potodds", target: 8,
-    lines: [["Pot", money(pot)], ["Villain bets", money(bet)], ["To call", money(bet)]],
+    lines: [["Pot before the bet", money(pot)], ["Villain bets", money(bet)], ["You must call", money(bet)]],
     question: "What equity do you need to break even on the call?",
     kind: "number", unit: "%", answer: ans, tol: 1,
     bar: { fill: ans, tick: null, fillLabel: "break-even equity you must beat", tickLabel: "" },
     math: [
-      "call / (pot + villain bet + your call)",
-      money(bet) + " / " + money(final) + " = " + ans.toFixed(1) + "%",
+      "Break-even equity = what you put in / the pot you could win.",
+      "If you call, the pot will be " + money(pot) + " + " + money(bet) + " + " + money(bet) + " = " + money(final) + ".",
+      money(bet) + " / " + money(final) + " = " + ans.toFixed(1) + "%. Win more often than that and the call makes money.",
       "You are risking " + money(bet) + " to win " + money(pot + bet) + ", so " + (Math.round(10 * (pot + bet) / bet) / 10) + " to 1."
     ]
   };
@@ -1284,7 +1305,7 @@ function genOuts() {
   }
   return {
     mode: "outs", target: 6,
-    lines: [["Outs", String(outs)], ["Street", label]],
+    lines: [["Outs (cards that make your hand)", String(outs)], ["Cards to come", label]],
     question: "How often do you hit at least one out?",
     kind: "number", unit: "%", answer: ans, tol: 2,
     bar: { fill: ans, tick: null, fillLabel: "your equity", tickLabel: "" },
@@ -1305,14 +1326,14 @@ function genImplied() {
     if (x < 15 || x > 1200) continue;
     return {
       mode: "implied", target: 20,
-      lines: [["Pot", money(pot)], ["Villain bets", money(bet)], ["To call", money(bet)],
+      lines: [["Pot before the bet", money(pot)], ["Villain bets", money(bet)], ["You must call", money(bet)],
       ["Your outs", outs + " (river only, " + (100 * e).toFixed(1) + "%)"]],
       question: "How much extra must you win on the river to make this call break even?",
       kind: "number", unit: "$", answer: x, tol: Math.max(6, x * 0.08),
       bar: { fill: 100 * e, tick: need, fillLabel: "your equity", tickLabel: "pot odds need " + need.toFixed(1) + "%" },
       math: [
-        "Break even: e x (pot + extra) = (1 - e) x call",
-        "extra = (1 - e) x call / e - pot",
+        "Pot odds alone say fold: you need " + need.toFixed(1) + "% and have " + (100 * e).toFixed(1) + "%. The money you win later has to make up the gap.",
+        "Break even: e x (pot after his bet + extra) = (1 - e) x call, so extra = (1 - e) x call / e - pot after his bet",
         "= " + (1 - e).toFixed(3) + " x " + money(call) + " / " + e.toFixed(3) + " - " + money(post) + " = " + money(x),
         "Villain has to pay you off " + money(x) + " on average across every river you hit, so weight it by how often they actually call."
       ]
@@ -1329,12 +1350,13 @@ function genBluff() {
       var ans = 100 * bet / (pot + bet);
       return {
         mode: "bluff", target: 8,
-        lines: [["Pot", money(pot)], ["Your bluff", money(bet)], ["Equity when called", "0% (pure bluff)"]],
+        lines: [["Pot before your bet", money(pot)], ["Your bluff", money(bet)], ["If called", "you always lose (pure bluff)"]],
         question: "How often must villain fold for this to break even?",
         kind: "number", unit: "%", answer: ans, tol: 1.5,
         bar: { fill: ans, tick: null, fillLabel: "folds needed to break even", tickLabel: "" },
         math: [
-          "bet / (pot + bet) = " + money(bet) + " / " + money(pot + bet) + " = " + ans.toFixed(1) + "%",
+          "You risk " + money(bet) + " to win the " + money(pot) + " already in the pot.",
+          "Folds needed = risk / (risk + reward) = " + money(bet) + " / " + money(pot + bet) + " = " + ans.toFixed(1) + "%",
           "Risking " + money(bet) + " to win " + money(pot) + ". Bigger bets need more folds, and they always need the fold percentage of their own price."
         ]
       };
@@ -1346,7 +1368,7 @@ function genBluff() {
     if (f < 3) continue;
     return {
       mode: "bluff", target: 12,
-      lines: [["Pot", money(pot)], ["Your bet", money(bet)], ["Equity when called", (100 * e).toFixed(0) + "%"]],
+      lines: [["Pot before your bet", money(pot)], ["Your bet", money(bet)], ["Your equity if called", (100 * e).toFixed(0) + "%"]],
       question: "How often must villain fold for this semi-bluff to break even?",
       kind: "number", unit: "%", answer: f, tol: 2.5,
       bar: { fill: f, tick: null, fillLabel: "folds needed to break even", tickLabel: "" },
@@ -1389,7 +1411,7 @@ function genAllin() {
     return {
       mode: "allin", target: 15,
       cards: { hero: h, villain: v, board: board },
-      lines: [["Pot", money(pot)], ["Villain shoves", money(bet)], ["To call", money(bet)]],
+      lines: [["Pot before the shove", money(pot)], ["Villain shoves", money(bet)], ["You must call", money(bet)]],
       question: "Villain is all in with their hand face up. Call or fold?",
       kind: "choice", unit: "", options: ["CALL", "FOLD"], answer: call ? "CALL" : "FOLD", tol: 0,
       bar: { fill: eq, tick: need, fillLabel: "your equity " + eq.toFixed(1) + "%", tickLabel: "need " + need.toFixed(1) + "%" },
@@ -2797,21 +2819,32 @@ function genBlocker() {
   var suit = randInt(4), sName = ["clubs", "diamonds", "hearts", "spades"][suit];
   var ace = suit * 13 + 12;
   var hold = Math.random() < 0.5;
-  /* nut flush combos: A of suit with any other card of that suit */
-  var answer = hold ? 0 : 12;
-  var other = dealCards(1, [ace]);
+  /* a flop with exactly three of the suit, never the ace */
+  var others = [];
+  for (var r = 0; r < 12; r++) others.push(suit * 13 + r);
+  var board = [];
+  while (board.length < 3) board.push(others.splice(randInt(others.length), 1)[0]);
+  var hero = hold ? [ace, dealCards(1, [ace].concat(board))[0]] : dealCards(2, [ace].concat(board));
+  /* the ace-high flush: the ace plus any other card of the suit he could still hold */
+  var dead = board.concat(hero);
+  var partners = others.filter(function (c) { return dead.indexOf(c) < 0; }).length;
+  var answer = hold ? 0 : partners;
+  var heroSuited = hero.filter(function (c) { return Math.floor(c / 13) === suit; }).length;
   return {
-    mode: "blocker", target: 10,
-    cards: { hero: hold ? [ace, other[0]] : dealCards(2, [ace]) },
-    lines: [["Board", "three " + sName + ", flush possible"], ["Question about", "his nut flush combos"]],
-    question: "How many nut flushes can he have?",
+    mode: "blocker", target: 12,
+    cards: { hero: hero, board: board },
+    lines: [["Nut flush", "the ace of " + sName + " plus any other " + sName.slice(0, -1)]],
+    question: "How many ace-of-" + sName + " flush combos can he have?",
     kind: "number", unit: "", answer: answer, tol: 0.5,
-    bar: { fill: hold ? 0 : 100, tick: null, fillLabel: hold ? "zero. you hold the card that makes it" : "all of them. you block nothing", tickLabel: "" },
-    math: [
-      hold ? "You hold the ace of " + sName + "." : "You do not hold the ace of " + sName + ".",
-      hold ? "The nut flush needs that exact card. He has it zero percent of the time."
-           : "He can hold the ace of " + sName + " with any of the 12 other " + sName + " left, so the nut flush is fully live.",
+    bar: { fill: hold ? 0 : 100 * partners / 9, tick: null, fillLabel: hold ? "zero. you hold the card that makes it" : partners + " combos, all live", tickLabel: "" },
+    math: hold ? [
+      "You hold the ace of " + sName + ".",
+      "The nut flush needs that exact card, so he has it zero percent of the time.",
       "One card in your hand moved a whole category of his range to zero. That is a blocker, and it is why the ace of the flush suit is worth more as a bluff than a pair is."
+    ] : [
+      "He needs the ace of " + sName + " plus one more " + sName.slice(0, -1) + ".",
+      "13 " + sName + " − the ace − 3 on the board" + (heroSuited ? " − " + heroSuited + " in your hand" : "") + " = " + partners + " cards to pair with it.",
+      "So " + partners + " combos. Without the ace yourself you block " + (heroSuited ? "only the " + heroSuited + " " + sName.slice(0, -1) + (heroSuited > 1 ? "s" : "") + " you hold" : "none of them") + "; hold the ace and the number drops to zero."
     ]
   };
 }
@@ -2850,11 +2883,12 @@ function genAlpha() {
   var a = 100 * bet / (pot + 2 * bet);
   return {
     mode: "alpha", target: 8,
-    lines: [["Pot", money(pot)], ["Your bet", money(bet)]],
-    question: "Alpha: what share of this betting range should be bluffs?",
+    lines: [["Pot before your bet", money(pot)], ["Your bet", money(bet)], ["Your range", "the nuts or nothing (river)"]],
+    question: "What share of your bets should be bluffs, so his call exactly breaks even?",
     kind: "number", unit: "%", answer: a, tol: 1.5,
     bar: { fill: a, tick: null, fillLabel: "bluffs, " + a.toFixed(1) + "% of the betting range", tickLabel: "" },
     math: [
+      "His call risks " + money(bet) + " to win " + money(pot + bet) + ", so he needs to be right " + a.toFixed(1) + "% of the time. Bluff that often and he cannot gain by calling or folding.",
       "alpha = bet / (pot + 2 x bet) = " + money(bet) + " / " + money(pot + 2 * bet) + " = " + a.toFixed(1) + "%",
       "This is the same arithmetic as the pot-odds price you are laying him. You bluff at exactly the frequency that makes his call break even.",
       "Value combos are the other " + (100 - a).toFixed(1) + "%, so " + (a / (100 - a)).toFixed(2) + " bluffs for every value bet."
@@ -2867,12 +2901,13 @@ function genMDF() {
   var m = 100 * pot / (pot + bet);
   return {
     mode: "mdf", target: 8,
-    lines: [["Pot", money(pot)], ["Villain bets", money(bet)]],
-    question: "MDF: how much of your range must continue?",
+    lines: [["Pot before the bet", money(pot)], ["Villain bets", money(bet)]],
+    question: "What share of your range must call or raise so his bluffs with any two cards can't profit?",
     kind: "number", unit: "%", answer: m, tol: 1.5,
     bar: { fill: m, tick: null, fillLabel: "must defend " + m.toFixed(1) + "%", tickLabel: "" },
     math: [
-      "MDF = pot / (pot + bet) = " + money(pot) + " / " + money(pot + bet) + " = " + m.toFixed(1) + "%",
+      "His bluff risks " + money(bet) + " to win " + money(pot) + ". It profits if you fold more than " + (100 - m).toFixed(1) + "%.",
+      "Minimum defence frequency (MDF) = pot / (pot + bet) = " + money(pot) + " / " + money(pot + bet) + " = " + m.toFixed(1) + "%",
       "Fold more than " + (100 - m).toFixed(1) + "% and his any-two-cards bluff prints money whatever he holds.",
       "Its mirror is the fold frequency a pure bluff needs, " + (100 - m).toFixed(1) + "%, so MDF and that sum to 100. Alpha, the bluff quota, uses pot + 2 x bet and is a separate number."
     ]
@@ -2886,7 +2921,7 @@ function genRatio() {
   var bluffs = val * a / (1 - a);
   return {
     mode: "ratio", target: 20,
-    lines: [["Pot", money(pot)], ["Your bet", money(bet)], ["Value combos", String(val)]],
+    lines: [["Pot before your bet", money(pot)], ["Your bet", money(bet)], ["Value combos you bet", String(val)]],
     question: "How many bluff combos belong in this bet?",
     kind: "number", unit: "", answer: bluffs, tol: Math.max(1, bluffs * 0.1),
     bar: { fill: 100 * bluffs / (bluffs + val), tick: null,
@@ -2907,8 +2942,8 @@ function genIndiff() {
   var askMDF = Math.random() < 0.5;
   return {
     mode: "indiff", target: 14,
-    lines: [["Pot", money(pot)], ["Bet", money(bet)],
-            ["Villain holds", "a pure bluff catcher"]],
+    lines: [["Pot before the bet", money(pot)], ["Bet", money(bet)],
+            ["Caller holds", "a bluff catcher: beats bluffs, loses to value"]],
     question: askMDF
       ? "He is indifferent. What fraction of his bluff catchers does he call with?"
       : "You are betting. What fraction of your range is bluffs when he is indifferent?",
@@ -2992,11 +3027,12 @@ function genKelly() {
   return {
     mode: "kelly", target: 25,
     lines: [["Edge", ev + " bb/100"], ["Variance", (sd * sd).toLocaleString() + " bb^2/100"]],
-    question: "Full Kelly says a 100 hand block should risk what fraction of your roll? Give 1/x, answer x.",
+    question: "How big a bankroll, in big blinds, does full Kelly call for?",
     kind: "number", unit: "", answer: inv, tol: inv * 0.1,
-    bar: { fill: Math.min(100, 100 * 2000 / inv), tick: null, fillLabel: "risk 1/" + Math.round(inv).toLocaleString() + " of the roll", tickLabel: "" },
+    bar: { fill: Math.min(100, 100 * 2000 / inv), tick: null, fillLabel: Math.round(inv).toLocaleString() + " bb bankroll", tickLabel: "" },
     math: [
-      "Kelly fraction f = edge / variance = " + ev + " / " + (sd * sd).toLocaleString() + " = 1/" + Math.round(inv).toLocaleString(),
+      "Kelly: risk a fraction edge / variance of your roll on each 100-hand block. Bankroll = variance / edge.",
+      "= " + (sd * sd).toLocaleString() + " / " + ev + " = " + Math.round(inv).toLocaleString() + " bb (each block risks 1/" + Math.round(inv).toLocaleString() + " of it).",
       "So your bankroll should be about " + Math.round(inv).toLocaleString() + " bb, which is " + Math.round(inv / 100) + " buyins, before this edge is worth full Kelly.",
       "Nobody plays full Kelly. Half Kelly gives up a quarter of the growth for a much better ride, and most good players sit near quarter Kelly.",
       "This is the same f* you would use to size a position. Poker bankroll rules are Kelly with the numbers already divided out."
@@ -3065,7 +3101,7 @@ function genDeviate() {
   var call = actual > a;
   return {
     mode: "deviate", target: 20,
-    lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Equilibrium bluff rate here", a.toFixed(1) + "%"],
+    lines: [["Pot before the bet", money(pot)], ["He bets", money(bet)], ["Bluff rate that makes calling break even", a.toFixed(1) + "%"],
             ["Your read on him", "bluffs about " + actual.toFixed(0) + "%"]],
     question: "You hold a pure bluff catcher. Call or fold?",
     kind: "choice", options: ["CALL", "FOLD"], answer: call ? "CALL" : "FOLD",
@@ -3181,13 +3217,16 @@ function genRules() {
     var shown = who.slice().sort(function () { return Math.random() - 0.5; });
     return {
       mode: "rules", target: 8, kind: "choice", options: shown, answer: first,
-      lines: [["Players in the hand", shown.join(", ")], ["Street", street]],
+      table: { live: who.slice(), street: street },
+      lines: [["Street", street]],
       question: "Who acts first " + street + "?",
       bar: null,
       math: [
-        "Preflop the action starts left of the big blind: UTG, HJ, CO, BTN, SB, BB.",
-        "On every later street it starts left of the button: SB, BB, UTG, HJ, CO, BTN.",
-        "Of " + who.join(", ") + ", " + first + " acts first " + street + "."
+        "Action always moves clockwise, to the left. The dealer button marks where each round ends.",
+        street === "preflop"
+          ? "Preflop the blinds are already in, so the first seat clockwise from the big blind starts: UTG, HJ, CO, BTN, SB, BB."
+          : "After the flop it starts with the first seat clockwise from the button, so the button acts last: SB, BB, UTG, HJ, CO, BTN.",
+        "Skipping folded seats, the order here is " + who.join(", ") + ", so " + first + " acts first " + street + "."
       ]
     };
   }
@@ -3229,11 +3268,12 @@ function genPosition() {
     var last = who.slice().sort(function (a, b) { return POST6.indexOf(b) - POST6.indexOf(a); })[0];
     return {
       mode: "position", target: 7, kind: "choice", options: who, answer: last,
-      lines: [["Players who saw the flop", who.join(", ")]],
+      table: { live: who.slice(), street: "on the flop" },
+      lines: [],
       question: "Who is in position, acting last after the flop?",
       bar: null,
       math: [
-        "After the flop the order is SB, BB, UTG, HJ, CO, BTN. The button always acts last.",
+        "After the flop action starts clockwise from the button, so the order is SB, BB, UTG, HJ, CO, BTN, and the button always acts last.",
         last + " acts after everyone else here, so " + last + " is in position.",
         "Acting last means seeing everyone else's decision before making yours. That information is worth more than a lot of card strength."
       ]
@@ -3244,7 +3284,8 @@ function genPosition() {
     var behind = 5 - SEATS6.indexOf(seat);
     return {
       mode: "position", target: 7, kind: "number", tol: 0.5, answer: behind,
-      lines: [["You are", seat], ["Table", "6-max, everyone folds to you"]],
+      table: { live: SEATS6.slice(SEATS6.indexOf(seat)), hero: seat, street: "preflop, folded to you" },
+      lines: [["You are", seat]],
       question: "How many players still act after you preflop?",
       bar: { fill: 100 * behind / 5, tick: null, fillLabel: behind + " players left to wake up with a hand", tickLabel: "" },
       math: [
@@ -3258,7 +3299,8 @@ function genPosition() {
   var pct = rangePct(RFI[pos]);
   return {
     mode: "position", target: 12, unit: "%", kind: "number", tol: 4, answer: pct,
-    lines: [["Seat", pos], ["Table", "6-max, 100 big blinds"]],
+    table: { live: SEATS6.slice(SEATS6.indexOf(pos)), hero: pos, street: "preflop, folded to you" },
+    lines: [["Seat", pos], ["Stacks", "100 big blinds"]],
     question: "Roughly what share of hands does a standard chart open from " + pos + "?",
     bar: { fill: pct, tick: null, fillLabel: pos + " opens " + pctFmt(pct, 0), tickLabel: "" },
     math: [
@@ -3338,7 +3380,7 @@ function genEV() {
     var final = pot + 2 * bet, ans = e / 100 * final - bet;
     return {
       mode: "ev", target: 18, unit: "$", kind: "number", tol: Math.max(3, Math.abs(ans) * 0.08), answer: ans,
-      lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Your equity", e + "%"]],
+      lines: [["Pot before the bet", money(pot)], ["He bets", money(bet)], ["Your equity", e + "%"]],
       question: "What is the EV of calling? (negative if it loses money)",
       bar: { fill: e, tick: 100 * bet / final, fillLabel: "your equity " + e + "%", tickLabel: "price " + (100 * bet / final).toFixed(1) + "%" },
       math: [
@@ -3356,7 +3398,7 @@ function genEV() {
     var ans2 = f / 100 * pot2 + (1 - f / 100) * called;
     return {
       mode: "ev", target: 25, unit: "$", kind: "number", tol: Math.max(3, Math.abs(ans2) * 0.1), answer: ans2,
-      lines: [["Pot", money(pot2)], ["You bet", money(bet2)], ["He folds", f + "%"], ["Your equity if called", eq + "%"]],
+      lines: [["Pot before your bet", money(pot2)], ["You bet", money(bet2)], ["He folds", f + "% of the time"], ["Your equity if called", eq + "%"]],
       question: "What is the EV of the bet?",
       bar: null,
       math: [
@@ -3405,7 +3447,8 @@ function genRFI() {
   var pct = rangePct(RFI[pos]);
   return {
     mode: "rfi", target: 8, kind: "choice", options: ["RAISE", "FOLD"], answer: open ? "RAISE" : "FOLD",
-    lines: [["Seat", pos], ["Action", "folded to you"], ["Your hand", hand]],
+    table: { live: SEATS6.slice(SEATS6.indexOf(pos)), hero: pos, street: "preflop, folded to you" },
+    lines: [["Seat", pos], ["Your hand", hand + " (" + (hand.length === 2 ? "pair" : hand[2] === "s" ? "suited" : "offsuit") + ")"]],
     question: "Open-raise or fold?",
     bar: { fill: pct, tick: null, fillLabel: pos + " opens " + pctFmt(pct, 0) + " of hands", tickLabel: "" },
     math: [
@@ -3492,7 +3535,7 @@ function genEQR() {
     var need = price / R;
     return {
       mode: "eqr", target: 18, unit: "%", kind: "number", tol: 1.5, answer: need,
-      lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Your realisation", Math.round(R * 100) + "% " + (R < 1 ? "(out of position)" : "(in position)")]],
+      lines: [["Pot before the bet", money(pot)], ["He bets", money(bet)], ["Share of your equity you actually win", Math.round(R * 100) + "% " + (R < 1 ? "(out of position)" : "(in position)")]],
       question: "What raw equity do you need to call?",
       bar: { fill: need, tick: price, fillLabel: "raw equity needed " + need.toFixed(1) + "%", tickLabel: "pot odds " + price.toFixed(1) + "%" },
       math: [
@@ -3507,7 +3550,7 @@ function genEQR() {
   var eff = eq * R2, call = eff >= price;
   return {
     mode: "eqr", target: 16, kind: "choice", options: ["CALL", "FOLD"], answer: call ? "CALL" : "FOLD",
-    lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Your equity", eq + "%"], ["Realisation", Math.round(R2 * 100) + "%"]],
+    lines: [["Pot before the bet", money(pot)], ["He bets", money(bet)], ["Your equity", eq + "%"], ["Share of it you actually win", Math.round(R2 * 100) + "%" + (R2 < 1 ? " (out of position)" : " (in position)")]],
     question: "Call or fold, once realisation is counted?",
     bar: { fill: eff, tick: price, fillLabel: "realised equity " + eff.toFixed(1) + "%", tickLabel: "price " + price.toFixed(1) + "%" },
     math: [
@@ -3528,7 +3571,7 @@ function genCbet() {
     var ok = f > need;
     return {
       mode: "cbet", target: 12, kind: "choice", options: ["BET", "CHECK"], answer: ok ? "BET" : "CHECK",
-      lines: [["Pot", money(pot)], ["Your c-bet", money(bet) + " (" + Math.round(frac * 100) + "% pot)"], ["He folds to it", f + "%"], ["Your hand", "no equity if called"]],
+      lines: [["Pot before your bet", money(pot)], ["Your c-bet", money(bet) + " (" + Math.round(frac * 100) + "% pot)"], ["He folds to it", f + "%"], ["Your hand", "no equity if called"]],
       question: "Is the c-bet bluff profitable on its own?",
       bar: { fill: f, tick: need, fillLabel: "he folds " + f + "%", tickLabel: "break-even " + need.toFixed(1) + "%" },
       math: [
@@ -3541,7 +3584,7 @@ function genCbet() {
   var ev = f / 100 * pot - (1 - f / 100) * bet;
   return {
     mode: "cbet", target: 16, unit: "$", kind: "number", tol: Math.max(2, Math.abs(ev) * 0.1), answer: ev,
-    lines: [["Pot", money(pot)], ["Your c-bet", money(bet)], ["He folds to it", f + "%"], ["Your hand", "no equity if called"]],
+    lines: [["Pot before your bet", money(pot)], ["Your c-bet", money(bet)], ["He folds to it", f + "%"], ["Your hand", "no equity if called"]],
     question: "What is the EV of this c-bet bluff?",
     bar: { fill: f, tick: need, fillLabel: "he folds " + f + "%", tickLabel: "break-even " + need.toFixed(1) + "%" },
     math: [
@@ -3562,7 +3605,7 @@ function genGeo() {
   for (var i = 0; i < n; i++) { var b = f * p; lines.push(bbFmt(b) + " into " + bbFmt(p)); p += 2 * b; }
   return {
     mode: "geo", target: 30, unit: "%", kind: "number", tol: Math.max(4, ans * 0.08), answer: ans,
-    lines: [["Pot", pot + " bb"], ["Effective stack", stack + " bb"], ["Streets left", n === 3 ? "flop, turn and river" : n === 2 ? "turn and river" : "river only"]],
+    lines: [["Pot", pot + " bb"], ["Effective stack (the smaller one)", stack + " bb"], ["Streets left", n === 3 ? "flop, turn and river" : n === 2 ? "turn and river" : "river only"]],
     question: "Betting the same fraction of the pot each street, what fraction gets the stacks in by the river?",
     bar: { fill: Math.min(100, ans / 2), tick: null, fillLabel: ans.toFixed(0) + "% of the pot each street", tickLabel: "" },
     math: [
@@ -6918,6 +6961,7 @@ function next(){
   /* stage: cards and/or facts */
   var stage = $("stage"); stage.innerHTML = "";
   if(q.cards) stage.appendChild(cardStage(q.cards));
+  if(q.table) stage.appendChild(tableStage(q.table));
   if(q.lines && q.lines.length){
     var facts = el("dl","facts");
     q.lines.forEach(function(p){
@@ -7121,6 +7165,41 @@ function cardStage(c){
     seats.appendChild(seat(b.length === 3 ? "Flop" : b.length === 4 ? "Flop and turn" : "Board", b, 5 - b.length));
   }
   return seats;
+}
+
+/* a 6-max table seen from above: seats clockwise SB, BB, UTG, HJ, CO, BTN,
+   the dealer button and blinds drawn in, folded seats greyed out */
+function tableStage(t){
+  var W = 380, H = 236, cx = W / 2, cy = 118, rx = 112, ry = 66, sx = 152, sy = 92;
+  var ring = ["BTN","SB","BB","UTG","HJ","CO"];          /* clockwise from the bottom */
+  var live = {}; (t.live || []).forEach(function(p){ live[p] = 1; });
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Table: ' +
+    (t.live || []).join(", ") + ' still in the hand, the button is on BTN">';
+  svg += '<ellipse class="tb-felt" cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '"/>';
+  /* an arc over the middle: action moves clockwise */
+  svg += '<defs><marker id="tbhead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="tb-head" d="M0 0 L10 5 L0 10 z"/></marker></defs>';
+  svg += '<path class="tb-arrow" d="M ' + (cx - 58) + ' ' + (cy + 2) + ' A 62 34 0 0 1 ' + (cx + 58) + ' ' + (cy + 2) + '" marker-end="url(#tbhead)"/>';
+  svg += '<text class="tb-note" x="' + cx + '" y="' + (cy + 20) + '">action moves clockwise</text>';
+  ring.forEach(function(p, i){
+    var a = Math.PI / 2 + i * Math.PI / 3;
+    var x = cx + sx * Math.cos(a), y = cy + sy * Math.sin(a);
+    var on = !!live[p], me = t.hero === p;
+    svg += '<g class="tb-seat' + (on ? " on" : "") + (me ? " me" : "") + '">' +
+      '<rect x="' + (x - 30) + '" y="' + (y - 16) + '" width="60" height="32" rx="8"/>' +
+      '<text x="' + x + '" y="' + (y + 5) + '">' + p + '</text></g>';
+    if(me) svg += i % 3 === 0      /* top and bottom seats: label to the side, the rest underneath */
+      ? '<text class="tb-you" x="' + (x + 50) + '" y="' + (y + 4) + '">YOU</text>'
+      : '<text class="tb-you" x="' + x + '" y="' + (y + 30) + '">YOU</text>';
+    /* chips sit between the seat and the middle */
+    var mx = cx + 0.62 * sx * Math.cos(a), my = cy + 0.58 * sy * Math.sin(a);
+    if(p === "BTN") svg += '<circle class="tb-dealer" cx="' + (mx + 26) + '" cy="' + my + '" r="10"/><text class="tb-d" x="' + (mx + 26) + '" y="' + (my + 4) + '">D</text>';
+    if(p === "SB" || p === "BB") svg += '<circle class="tb-blind" cx="' + mx + '" cy="' + my + '" r="6"/>' +
+      (p === "BB" ? '<circle class="tb-blind" cx="' + (mx + 4) + '" cy="' + (my - 4) + '" r="6"/>' : "");
+  });
+  svg += '</svg>';
+  var d = el("div","tablepic", svg);
+  d.appendChild(el("div","tablekey", '<span class="k-d">D</span> dealer button &nbsp;&middot;&nbsp; <span class="k-b"></span> blinds &nbsp;&middot;&nbsp; grey seats have folded &nbsp;&middot;&nbsp; ' + (t.street || "")));
+  return d;
 }
 
 function drawReveal(ok, said, secs){
@@ -9137,6 +9216,7 @@ function miniQ(box, mode){
   box.innerHTML = '<h3 class="sech">Try one</h3><p class="trysub">Retrieval beats rereading. Answer before you look: this one is free, untimed, and not scored.</p>';
   var card = el("div", "tryq");
   if(qq.cards) card.appendChild(cardStage(qq.cards));
+  if(qq.table) card.appendChild(tableStage(qq.table));
   if(qq.lines && qq.lines.length){
     var facts = el("dl","facts");
     qq.lines.forEach(function(p){ facts.appendChild(el("div","fact", "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>")); });

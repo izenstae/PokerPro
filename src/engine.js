@@ -214,13 +214,14 @@ function genPotOdds() {
   var ans = 100 * bet / final;
   return {
     mode: "potodds", target: 8,
-    lines: [["Pot", money(pot)], ["Villain bets", money(bet)], ["To call", money(bet)]],
+    lines: [["Pot before the bet", money(pot)], ["Villain bets", money(bet)], ["You must call", money(bet)]],
     question: "What equity do you need to break even on the call?",
     kind: "number", unit: "%", answer: ans, tol: 1,
     bar: { fill: ans, tick: null, fillLabel: "break-even equity you must beat", tickLabel: "" },
     math: [
-      "call / (pot + villain bet + your call)",
-      money(bet) + " / " + money(final) + " = " + ans.toFixed(1) + "%",
+      "Break-even equity = what you put in / the pot you could win.",
+      "If you call, the pot will be " + money(pot) + " + " + money(bet) + " + " + money(bet) + " = " + money(final) + ".",
+      money(bet) + " / " + money(final) + " = " + ans.toFixed(1) + "%. Win more often than that and the call makes money.",
       "You are risking " + money(bet) + " to win " + money(pot + bet) + ", so " + (Math.round(10 * (pot + bet) / bet) / 10) + " to 1."
     ]
   };
@@ -251,7 +252,7 @@ function genOuts() {
   }
   return {
     mode: "outs", target: 6,
-    lines: [["Outs", String(outs)], ["Street", label]],
+    lines: [["Outs (cards that make your hand)", String(outs)], ["Cards to come", label]],
     question: "How often do you hit at least one out?",
     kind: "number", unit: "%", answer: ans, tol: 2,
     bar: { fill: ans, tick: null, fillLabel: "your equity", tickLabel: "" },
@@ -272,14 +273,14 @@ function genImplied() {
     if (x < 15 || x > 1200) continue;
     return {
       mode: "implied", target: 20,
-      lines: [["Pot", money(pot)], ["Villain bets", money(bet)], ["To call", money(bet)],
+      lines: [["Pot before the bet", money(pot)], ["Villain bets", money(bet)], ["You must call", money(bet)],
       ["Your outs", outs + " (river only, " + (100 * e).toFixed(1) + "%)"]],
       question: "How much extra must you win on the river to make this call break even?",
       kind: "number", unit: "$", answer: x, tol: Math.max(6, x * 0.08),
       bar: { fill: 100 * e, tick: need, fillLabel: "your equity", tickLabel: "pot odds need " + need.toFixed(1) + "%" },
       math: [
-        "Break even: e x (pot + extra) = (1 - e) x call",
-        "extra = (1 - e) x call / e - pot",
+        "Pot odds alone say fold: you need " + need.toFixed(1) + "% and have " + (100 * e).toFixed(1) + "%. The money you win later has to make up the gap.",
+        "Break even: e x (pot after his bet + extra) = (1 - e) x call, so extra = (1 - e) x call / e - pot after his bet",
         "= " + (1 - e).toFixed(3) + " x " + money(call) + " / " + e.toFixed(3) + " - " + money(post) + " = " + money(x),
         "Villain has to pay you off " + money(x) + " on average across every river you hit, so weight it by how often they actually call."
       ]
@@ -296,12 +297,13 @@ function genBluff() {
       var ans = 100 * bet / (pot + bet);
       return {
         mode: "bluff", target: 8,
-        lines: [["Pot", money(pot)], ["Your bluff", money(bet)], ["Equity when called", "0% (pure bluff)"]],
+        lines: [["Pot before your bet", money(pot)], ["Your bluff", money(bet)], ["If called", "you always lose (pure bluff)"]],
         question: "How often must villain fold for this to break even?",
         kind: "number", unit: "%", answer: ans, tol: 1.5,
         bar: { fill: ans, tick: null, fillLabel: "folds needed to break even", tickLabel: "" },
         math: [
-          "bet / (pot + bet) = " + money(bet) + " / " + money(pot + bet) + " = " + ans.toFixed(1) + "%",
+          "You risk " + money(bet) + " to win the " + money(pot) + " already in the pot.",
+          "Folds needed = risk / (risk + reward) = " + money(bet) + " / " + money(pot + bet) + " = " + ans.toFixed(1) + "%",
           "Risking " + money(bet) + " to win " + money(pot) + ". Bigger bets need more folds, and they always need the fold percentage of their own price."
         ]
       };
@@ -313,7 +315,7 @@ function genBluff() {
     if (f < 3) continue;
     return {
       mode: "bluff", target: 12,
-      lines: [["Pot", money(pot)], ["Your bet", money(bet)], ["Equity when called", (100 * e).toFixed(0) + "%"]],
+      lines: [["Pot before your bet", money(pot)], ["Your bet", money(bet)], ["Your equity if called", (100 * e).toFixed(0) + "%"]],
       question: "How often must villain fold for this semi-bluff to break even?",
       kind: "number", unit: "%", answer: f, tol: 2.5,
       bar: { fill: f, tick: null, fillLabel: "folds needed to break even", tickLabel: "" },
@@ -356,7 +358,7 @@ function genAllin() {
     return {
       mode: "allin", target: 15,
       cards: { hero: h, villain: v, board: board },
-      lines: [["Pot", money(pot)], ["Villain shoves", money(bet)], ["To call", money(bet)]],
+      lines: [["Pot before the shove", money(pot)], ["Villain shoves", money(bet)], ["You must call", money(bet)]],
       question: "Villain is all in with their hand face up. Call or fold?",
       kind: "choice", unit: "", options: ["CALL", "FOLD"], answer: call ? "CALL" : "FOLD", tol: 0,
       bar: { fill: eq, tick: need, fillLabel: "your equity " + eq.toFixed(1) + "%", tickLabel: "need " + need.toFixed(1) + "%" },

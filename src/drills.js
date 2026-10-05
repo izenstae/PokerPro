@@ -165,21 +165,32 @@ function genBlocker() {
   var suit = randInt(4), sName = ["clubs", "diamonds", "hearts", "spades"][suit];
   var ace = suit * 13 + 12;
   var hold = Math.random() < 0.5;
-  /* nut flush combos: A of suit with any other card of that suit */
-  var answer = hold ? 0 : 12;
-  var other = dealCards(1, [ace]);
+  /* a flop with exactly three of the suit, never the ace */
+  var others = [];
+  for (var r = 0; r < 12; r++) others.push(suit * 13 + r);
+  var board = [];
+  while (board.length < 3) board.push(others.splice(randInt(others.length), 1)[0]);
+  var hero = hold ? [ace, dealCards(1, [ace].concat(board))[0]] : dealCards(2, [ace].concat(board));
+  /* the ace-high flush: the ace plus any other card of the suit he could still hold */
+  var dead = board.concat(hero);
+  var partners = others.filter(function (c) { return dead.indexOf(c) < 0; }).length;
+  var answer = hold ? 0 : partners;
+  var heroSuited = hero.filter(function (c) { return Math.floor(c / 13) === suit; }).length;
   return {
-    mode: "blocker", target: 10,
-    cards: { hero: hold ? [ace, other[0]] : dealCards(2, [ace]) },
-    lines: [["Board", "three " + sName + ", flush possible"], ["Question about", "his nut flush combos"]],
-    question: "How many nut flushes can he have?",
+    mode: "blocker", target: 12,
+    cards: { hero: hero, board: board },
+    lines: [["Nut flush", "the ace of " + sName + " plus any other " + sName.slice(0, -1)]],
+    question: "How many ace-of-" + sName + " flush combos can he have?",
     kind: "number", unit: "", answer: answer, tol: 0.5,
-    bar: { fill: hold ? 0 : 100, tick: null, fillLabel: hold ? "zero. you hold the card that makes it" : "all of them. you block nothing", tickLabel: "" },
-    math: [
-      hold ? "You hold the ace of " + sName + "." : "You do not hold the ace of " + sName + ".",
-      hold ? "The nut flush needs that exact card. He has it zero percent of the time."
-           : "He can hold the ace of " + sName + " with any of the 12 other " + sName + " left, so the nut flush is fully live.",
+    bar: { fill: hold ? 0 : 100 * partners / 9, tick: null, fillLabel: hold ? "zero. you hold the card that makes it" : partners + " combos, all live", tickLabel: "" },
+    math: hold ? [
+      "You hold the ace of " + sName + ".",
+      "The nut flush needs that exact card, so he has it zero percent of the time.",
       "One card in your hand moved a whole category of his range to zero. That is a blocker, and it is why the ace of the flush suit is worth more as a bluff than a pair is."
+    ] : [
+      "He needs the ace of " + sName + " plus one more " + sName.slice(0, -1) + ".",
+      "13 " + sName + " − the ace − 3 on the board" + (heroSuited ? " − " + heroSuited + " in your hand" : "") + " = " + partners + " cards to pair with it.",
+      "So " + partners + " combos. Without the ace yourself you block " + (heroSuited ? "only the " + heroSuited + " " + sName.slice(0, -1) + (heroSuited > 1 ? "s" : "") + " you hold" : "none of them") + "; hold the ace and the number drops to zero."
     ]
   };
 }
@@ -218,11 +229,12 @@ function genAlpha() {
   var a = 100 * bet / (pot + 2 * bet);
   return {
     mode: "alpha", target: 8,
-    lines: [["Pot", money(pot)], ["Your bet", money(bet)]],
-    question: "Alpha: what share of this betting range should be bluffs?",
+    lines: [["Pot before your bet", money(pot)], ["Your bet", money(bet)], ["Your range", "the nuts or nothing (river)"]],
+    question: "What share of your bets should be bluffs, so his call exactly breaks even?",
     kind: "number", unit: "%", answer: a, tol: 1.5,
     bar: { fill: a, tick: null, fillLabel: "bluffs, " + a.toFixed(1) + "% of the betting range", tickLabel: "" },
     math: [
+      "His call risks " + money(bet) + " to win " + money(pot + bet) + ", so he needs to be right " + a.toFixed(1) + "% of the time. Bluff that often and he cannot gain by calling or folding.",
       "alpha = bet / (pot + 2 x bet) = " + money(bet) + " / " + money(pot + 2 * bet) + " = " + a.toFixed(1) + "%",
       "This is the same arithmetic as the pot-odds price you are laying him. You bluff at exactly the frequency that makes his call break even.",
       "Value combos are the other " + (100 - a).toFixed(1) + "%, so " + (a / (100 - a)).toFixed(2) + " bluffs for every value bet."
@@ -235,12 +247,13 @@ function genMDF() {
   var m = 100 * pot / (pot + bet);
   return {
     mode: "mdf", target: 8,
-    lines: [["Pot", money(pot)], ["Villain bets", money(bet)]],
-    question: "MDF: how much of your range must continue?",
+    lines: [["Pot before the bet", money(pot)], ["Villain bets", money(bet)]],
+    question: "What share of your range must call or raise so his bluffs with any two cards can't profit?",
     kind: "number", unit: "%", answer: m, tol: 1.5,
     bar: { fill: m, tick: null, fillLabel: "must defend " + m.toFixed(1) + "%", tickLabel: "" },
     math: [
-      "MDF = pot / (pot + bet) = " + money(pot) + " / " + money(pot + bet) + " = " + m.toFixed(1) + "%",
+      "His bluff risks " + money(bet) + " to win " + money(pot) + ". It profits if you fold more than " + (100 - m).toFixed(1) + "%.",
+      "Minimum defence frequency (MDF) = pot / (pot + bet) = " + money(pot) + " / " + money(pot + bet) + " = " + m.toFixed(1) + "%",
       "Fold more than " + (100 - m).toFixed(1) + "% and his any-two-cards bluff prints money whatever he holds.",
       "Its mirror is the fold frequency a pure bluff needs, " + (100 - m).toFixed(1) + "%, so MDF and that sum to 100. Alpha, the bluff quota, uses pot + 2 x bet and is a separate number."
     ]
@@ -254,7 +267,7 @@ function genRatio() {
   var bluffs = val * a / (1 - a);
   return {
     mode: "ratio", target: 20,
-    lines: [["Pot", money(pot)], ["Your bet", money(bet)], ["Value combos", String(val)]],
+    lines: [["Pot before your bet", money(pot)], ["Your bet", money(bet)], ["Value combos you bet", String(val)]],
     question: "How many bluff combos belong in this bet?",
     kind: "number", unit: "", answer: bluffs, tol: Math.max(1, bluffs * 0.1),
     bar: { fill: 100 * bluffs / (bluffs + val), tick: null,
@@ -275,8 +288,8 @@ function genIndiff() {
   var askMDF = Math.random() < 0.5;
   return {
     mode: "indiff", target: 14,
-    lines: [["Pot", money(pot)], ["Bet", money(bet)],
-            ["Villain holds", "a pure bluff catcher"]],
+    lines: [["Pot before the bet", money(pot)], ["Bet", money(bet)],
+            ["Caller holds", "a bluff catcher: beats bluffs, loses to value"]],
     question: askMDF
       ? "He is indifferent. What fraction of his bluff catchers does he call with?"
       : "You are betting. What fraction of your range is bluffs when he is indifferent?",
@@ -360,11 +373,12 @@ function genKelly() {
   return {
     mode: "kelly", target: 25,
     lines: [["Edge", ev + " bb/100"], ["Variance", (sd * sd).toLocaleString() + " bb^2/100"]],
-    question: "Full Kelly says a 100 hand block should risk what fraction of your roll? Give 1/x, answer x.",
+    question: "How big a bankroll, in big blinds, does full Kelly call for?",
     kind: "number", unit: "", answer: inv, tol: inv * 0.1,
-    bar: { fill: Math.min(100, 100 * 2000 / inv), tick: null, fillLabel: "risk 1/" + Math.round(inv).toLocaleString() + " of the roll", tickLabel: "" },
+    bar: { fill: Math.min(100, 100 * 2000 / inv), tick: null, fillLabel: Math.round(inv).toLocaleString() + " bb bankroll", tickLabel: "" },
     math: [
-      "Kelly fraction f = edge / variance = " + ev + " / " + (sd * sd).toLocaleString() + " = 1/" + Math.round(inv).toLocaleString(),
+      "Kelly: risk a fraction edge / variance of your roll on each 100-hand block. Bankroll = variance / edge.",
+      "= " + (sd * sd).toLocaleString() + " / " + ev + " = " + Math.round(inv).toLocaleString() + " bb (each block risks 1/" + Math.round(inv).toLocaleString() + " of it).",
       "So your bankroll should be about " + Math.round(inv).toLocaleString() + " bb, which is " + Math.round(inv / 100) + " buyins, before this edge is worth full Kelly.",
       "Nobody plays full Kelly. Half Kelly gives up a quarter of the growth for a much better ride, and most good players sit near quarter Kelly.",
       "This is the same f* you would use to size a position. Poker bankroll rules are Kelly with the numbers already divided out."
@@ -433,7 +447,7 @@ function genDeviate() {
   var call = actual > a;
   return {
     mode: "deviate", target: 20,
-    lines: [["Pot", money(pot)], ["He bets", money(bet)], ["Equilibrium bluff rate here", a.toFixed(1) + "%"],
+    lines: [["Pot before the bet", money(pot)], ["He bets", money(bet)], ["Bluff rate that makes calling break even", a.toFixed(1) + "%"],
             ["Your read on him", "bluffs about " + actual.toFixed(0) + "%"]],
     question: "You hold a pure bluff catcher. Call or fold?",
     kind: "choice", options: ["CALL", "FOLD"], answer: call ? "CALL" : "FOLD",
