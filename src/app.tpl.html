@@ -54,6 +54,46 @@ body{
 .fact dt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:3px}
 .fact dd{font-size:17px; font-variant-numeric:tabular-nums}
 
+/* ---- game ---- */
+.gpill{display:inline-flex; align-items:center; gap:6px; margin-right:10px; padding:3px 10px 3px 4px; border-radius:20px; border:1px solid var(--line); color:var(--dim); text-decoration:none; font-size:12px; font-variant-numeric:tabular-nums; white-space:nowrap}
+.gpill:hover{border-color:var(--gold); color:var(--bone)}
+.gpill .gs{filter:grayscale(1); opacity:.7} .gpill .gs.lit{filter:none; opacity:1; color:var(--bone)}
+.gring{flex:none} .gring .bg{fill:none; stroke:var(--line); stroke-width:4} .gring .fg{fill:none; stroke:var(--gold); stroke-width:4; stroke-linecap:round; transition:stroke-dasharray .4s} .gring .fg.done{stroke:var(--green)}
+@media(max-width:560px){ .gpill .gx{display:none} .gpill{margin-right:6px} }
+.toasts{position:fixed; right:16px; bottom:16px; z-index:60; display:flex; flex-direction:column; gap:8px; align-items:flex-end; pointer-events:none}
+@media(max-width:820px){ .toasts{bottom:78px; left:16px; right:16px; align-items:stretch} }
+.toast{background:var(--raise); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:8px; padding:10px 14px; font-size:13px; color:var(--dim); box-shadow:0 6px 24px rgba(0,0,0,.35); max-width:360px; animation:tin .25s ease-out; transition:opacity .4s, transform .4s}
+.toast b{color:var(--bone)} .toast.goal{border-left-color:var(--green)} .toast.rank,.toast.trophy{background:linear-gradient(90deg, rgba(212,160,60,.14), var(--raise))}
+.toast.xp{padding:6px 12px; font-size:12px}
+.toast .ttro{color:var(--gold); margin-right:6px}
+.toast.out{opacity:0; transform:translateY(6px)}
+@keyframes tin{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+.xpchip{font-size:12px; font-weight:700; color:var(--gold); border:1px solid rgba(212,160,60,.5); border-radius:12px; padding:2px 9px; font-variant-numeric:tabular-nums; animation:tin .3s ease-out}
+.gcard{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; padding:18px 20px; border:1px solid var(--line); border-radius:12px; background:var(--felt); margin:18px 0}
+@media(max-width:860px){ .gcard{grid-template-columns:1fr} }
+.gcol{display:flex; gap:14px; align-items:center; min-width:0}
+.gcol b{display:block; font-size:24px; font-variant-numeric:tabular-nums; color:var(--bone)} .gcol b small{font-size:13px; color:var(--dim); font-weight:500}
+.gcol span{display:block; font-size:12.5px; color:var(--dim)}
+.gcol .lvbar{margin-top:7px; width:100%}
+.grank > div:last-child{flex:1}
+.gcol .gfz{font-size:11.5px; color:var(--faint); margin-top:2px}
+.ggoal{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--faint); margin-top:6px}
+.ggoal select{background:var(--ink); color:var(--bone); border:1px solid var(--line); border-radius:6px; font:12px var(--sans); padding:3px 4px; max-width:190px}
+.gflame{font-size:38px; filter:grayscale(1); opacity:.45; line-height:1} .gflame.lit{filter:none; opacity:1}
+.gbadge2{width:48px; height:48px; flex:none; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:20px; color:#1a1406; background:radial-gradient(circle at 35% 30%, #f3d48a, var(--gold) 60%, #8a6420)}
+.gtro{grid-column:1 / -1; border-top:1px solid var(--line); padding-top:12px}
+.gt{display:grid; grid-template-columns:1fr 120px 44px; gap:12px; align-items:center; padding:6px 0; font-size:13px; color:var(--dim)}
+.gt b{color:var(--bone); font-weight:600; margin-right:4px}
+.gt i,.tro i{display:block; height:6px; border-radius:3px; background:var(--line); overflow:hidden} .gt i span,.tro i span{display:block; height:100%; background:var(--gold)}
+.gt em,.tro em{font-style:normal; font-size:11.5px; color:var(--faint); text-align:right; font-variant-numeric:tabular-nums}
+@media(max-width:560px){ .gt{grid-template-columns:1fr 60px} .gt em{display:none} }
+.trogrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:10px}
+.tro{display:flex; gap:10px; padding:10px 12px; border:1px solid var(--line); border-radius:9px; background:var(--ink); font-size:12.5px; color:var(--faint)}
+.tro b{display:block; color:var(--dim); font-size:13.5px} .tro span{display:block; margin:2px 0 6px}
+.tro.got{border-color:rgba(212,160,60,.45); background:linear-gradient(135deg, rgba(212,160,60,.10), var(--ink))} .tro.got b{color:var(--bone)}
+.tro em{display:block; text-align:left; margin-top:3px} .tro.got em{color:var(--gold)}
+.troic{font-size:22px; line-height:1; color:var(--faint)} .tro.got .troic{color:var(--gold)}
+
 /* ---- level ---- */
 .lvhero{display:grid; grid-template-columns:auto 1fr; gap:6px 28px; align-items:center; padding:22px; border:1px solid var(--line); border-radius:12px; background:var(--felt); margin-bottom:18px}
 .lvrate{font-size:56px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums}
@@ -987,7 +1027,7 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
   <div class="topin">
     <a class="brand" href="#/home" aria-label="PokerPro home"><span class="suit">&spades;</span><span>Poker<b>Pro</b></span></a>
     <nav class="nav" id="nav" aria-label="Main"></nav>
-    <div class="topr"><button class="spill off" id="syncPill" type="button"><i></i>Sync off</button></div>
+    <div class="topr"><a class="gpill" id="gPill" href="#/home" aria-label="Daily goal and streak"></a><button class="spill off" id="syncPill" type="button"><i></i>Sync off</button></div>
   </div>
   <div class="readbar" id="readbar"></div>
 </header>
@@ -1100,6 +1140,7 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
 
 </main>
 <div class="gltip" id="gltip" role="tooltip" hidden></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
 /*__ENGINE__*/
@@ -1158,6 +1199,151 @@ function logDay(secs, n, ok){
   d.s += secs; d.n += n; d.ok += ok;
   if(sess) sess.secs += secs;
 }
+/* ============================================================
+   GAME: XP, the daily goal, the streak, ranks and trophies (game.js)
+   ============================================================ */
+var GAME_KEY = "poker-game-v1";
+var gstate = { goal: 60, seen: {}, spots: 0, sweeps: 0, plugged: 0, peakLevel: 0 };
+async function gameLoad(){
+  try{ var g = JSON.parse((await STORE.get(GAME_KEY)) || "null"); if(g) Object.assign(gstate, g); }catch(e){}
+  gstate.primed = Object.keys(gstate.seen).length > 0;
+}
+function gameSave(){ try{ STORE.set(GAME_KEY, JSON.stringify(gstate)); }catch(e){} }
+function gmToday(){ var k = srsDayKey(Date.now()); return plog[k] || (plog[k] = { s:0, n:0, ok:0 }); }
+
+/* one drill answer: cramming is counted per day, and each skill pays the
+   review rate for only its first few answers a day, so missing on purpose
+   to make a skill due again does not farm XP */
+function gmAnswer(mode, wasDue, ok, fast, recall, promoted){
+  var d = gmToday();
+  d.r = d.r || {};
+  var due = wasDue && (d.r[mode] || 0) < 6;
+  if(due) d.r[mode] = (d.r[mode] || 0) + 1;
+  var x = gmAnswerXP({ due: due, ok: ok, fast: fast, recall: recall, promoted: promoted, cramToday: d.c || 0 });
+  if(!due) d.c = (d.c || 0) + 1;
+  gmGain(x, null);
+  return x;
+}
+
+/* today's goal: mark it, pay the bonus, say so */
+function gmGoalCheck(){
+  var d = gmToday();
+  if(d.g || (d.x || 0) < gstate.goal) return;
+  d.g = 1;
+  d.x += GM_XP_GOAL;
+  var st = gmStreak(plog, Date.now());
+  toast('<b>Daily goal hit</b> +' + GM_XP_GOAL + ' XP &middot; ' + st.days + (st.days === 1 ? " day" : " days") + ' streak', "goal");
+}
+
+function gmGain(x, why){
+  if(!x) return;
+  var before = gmRank(gmTotal(plog)).index;
+  var d = gmToday();
+  d.x = (d.x || 0) + x;
+  if(why) toast('<b>+' + x + ' XP</b> ' + why, "xp");
+  gmGoalCheck();
+  var R = gmRank(gmTotal(plog));
+  if(R.index > before) toast('<b>Rank up: ' + R.name + '</b>' + (R.next ? ' &middot; next: ' + R.next.name + ' at ' + R.next.xp.toLocaleString() + ' XP' : ""), "rank");
+  saveSoon();
+  drawGamePill();
+  gmCheckTrophies();
+}
+
+/* what the trophies are measured from */
+function gmSummary(){
+  var st = gmStreak(plog, Date.now());
+  var LS = lvSummary(plevel);
+  if(LS.placed && LS.level.index > (gstate.peakLevel || 0)){ gstate.peakLevel = LS.level.index; gameSave(); }
+  if(!gstate.plugged && lvSkills(plevel).some(function(k){ return k.prev != null && k.prev < 60 && k.rating != null && k.rating >= 70; })){ gstate.plugged = 1; gameSave(); }
+  return {
+    lessons: LESSONS.filter(function(L){ return passable(L) && progress[L.id]; }).length,
+    stages: LAYERS.map(function(S){ var ls = S.lessons.filter(passable); return { n: S.n, title: S.title, done: ls.filter(function(L){ return progress[L.id]; }).length, of: ls.length }; }).filter(function(S){ return S.of; }),
+    boxes: ORDER.map(function(m){ return skills[m] ? skills[m].box : 0; }),
+    comeback: ORDER.filter(function(m){ return skills[m] && skills[m].lapses > 0 && skills[m].box >= 3; }).length,
+    answers: ORDER.reduce(function(a, m){ return a + (skills[m] ? skills[m].n : 0); }, 0),
+    bestStreak: st.best, hands: pcareer ? pcareer.hands : 0, best: pcareer ? pcareer.grades.Best : 0,
+    level: gstate.peakLevel || 0, plugged: gstate.plugged || 0, spots: gstate.spots || 0, sweeps: gstate.sweeps || 0
+  };
+}
+/* earned trophies stay earned, even if what earned them later slips */
+function gmAllTrophies(){
+  return gmTrophies(gmSummary()).map(function(t){ if(gstate.seen[t.id]){ t.got = true; t.cur = t.max; t.at = gstate.seen[t.id]; } return t; });
+}
+/* new trophies are toasted once. The first check on a device only records
+   what is already earned, so an existing learner is not buried in toasts. */
+function gmCheckTrophies(){
+  var fresh = [];
+  gmTrophies(gmSummary()).forEach(function(t){ if(t.got && !gstate.seen[t.id]){ gstate.seen[t.id] = Date.now(); fresh.push(t); } });
+  if(!gstate.primed){ gstate.primed = true; gameSave(); return; }
+  if(!fresh.length) return;
+  gameSave();
+  fresh.forEach(function(t){ toast('<span class="ttro">&#9733;</span><b>Trophy: ' + t.name + '</b> ' + t.about, "trophy"); });
+}
+
+function toast(html, cls){
+  var box = $("toasts"); if(!box) return;
+  var t = el("div", "toast " + (cls || ""), html);
+  box.appendChild(t);
+  while(box.children.length > 3) box.removeChild(box.firstChild);
+  var life = cls === "xp" ? 1800 : 4200;
+  setTimeout(function(){ t.classList.add("out"); }, life);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, life + 500);
+}
+
+function gmRing(frac, size){
+  var r = size / 2 - 3, c = 2 * Math.PI * r, f = Math.max(0, Math.min(1, frac)), h = size / 2;
+  return '<svg class="gring" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" aria-hidden="true">' +
+    '<circle cx="' + h + '" cy="' + h + '" r="' + r + '" class="bg"/>' +
+    '<circle cx="' + h + '" cy="' + h + '" r="' + r + '" class="fg' + (f >= 1 ? " done" : "") + '" stroke-dasharray="' + (c * f).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 ' + h + ' ' + h + ')"/></svg>';
+}
+
+function drawGamePill(){
+  var p = $("gPill"); if(!p) return;
+  var d = plog[srsDayKey(Date.now())] || {}, st = gmStreak(plog, Date.now()), x = d.x || 0;
+  p.innerHTML = gmRing(x / gstate.goal, 22) + '<span class="gx">' + Math.min(x, 9999) + '/' + gstate.goal + ' XP</span><span class="gs' + (st.todayMet ? " lit" : "") + '">&#128293;' + st.days + '</span>';
+  p.title = "Today " + x + " of " + gstate.goal + " XP. Streak " + st.days + (st.days === 1 ? " day" : " days") + (st.freezes ? ", " + st.freezes + " freeze" + (st.freezes > 1 ? "s" : "") + " banked" : "") + ".";
+}
+
+/* the Home card: today's goal, the streak, the rank, and the trophies closest to unlocking */
+function gameCard(){
+  var now = Date.now(), total = gmTotal(plog), R = gmRank(total), st = gmStreak(plog, now);
+  var d = plog[srsDayKey(now)] || {}, x = d.x || 0;
+  var T = gmAllTrophies();
+  var near = T.filter(function(t){ return !t.got && t.cur > 0; }).sort(function(a, b){ return b.cur / b.max - a.cur / a.max; }).slice(0, 3);
+  if(near.length < 3) near = near.concat(T.filter(function(t){ return !t.got && !t.cur; }).slice(0, 3 - near.length));
+  var c = el("div", "gcard");
+  c.innerHTML =
+    '<div class="gcol gday">' + gmRing(x / gstate.goal, 76) + '<div><b>' + x + '<small> / ' + gstate.goal + ' XP</small></b><span>' + (d.g ? "Goal hit today" : (gstate.goal - x) + " XP to today&rsquo;s goal") + '</span>' +
+      '<label class="ggoal">Goal <select id="gGoal">' + GM_GOALS.map(function(g){ return '<option value="' + g.xp + '"' + (g.xp === gstate.goal ? " selected" : "") + '>' + g.name + ': ' + g.xp + ' XP, ' + g.about + '</option>'; }).join("") + '</select></label></div></div>' +
+    '<div class="gcol gstreak"><div class="gflame' + (st.todayMet ? " lit" : "") + '">&#128293;</div><div><b>' + st.days + '<small>' + (st.days === 1 ? " day" : " days") + '</small></b><span>' + (st.todayMet ? "Streak safe today" : st.days ? "Hit today&rsquo;s goal to keep it" : "Hit your goal to start one") + '</span>' +
+      '<span class="gfz">' + (st.freezes ? "&#10052; " + st.freezes + " freeze" + (st.freezes > 1 ? "s" : "") + " banked" : "A freeze every " + GM_FREEZE_EVERY + " goal days") + ' &middot; best ' + st.best + '</span></div></div>' +
+    '<div class="gcol grank"><div class="gbadge2">' + (R.index + 1) + '</div><div><b>' + R.name + '</b><span>' + total.toLocaleString() + ' XP' + (R.next ? ' &middot; ' + R.need.toLocaleString() + ' to ' + R.next.name : "") + '</span>' +
+      '<div class="lvbar"><span style="width:' + (100 * R.toNext).toFixed(0) + '%"></span></div></div></div>' +
+    '<div class="gtro"><div class="ph"><h3>Next trophies</h3><a href="#/level">All ' + T.filter(function(t){ return t.got; }).length + ' / ' + T.length + ' &rsaquo;</a></div>' +
+      near.map(function(t){ return '<div class="gt"><span><b>' + t.name + '</b> ' + t.about + '</span><i><span style="width:' + (100 * t.cur / t.max).toFixed(0) + '%"></span></i><em>' + t.cur + '/' + t.max + '</em></div>'; }).join("") + '</div>';
+  var sel = c.querySelector("#gGoal");
+  sel.onchange = function(){ gstate.goal = +sel.value; gameSave(); gmGoalCheck(); saveSoon(); drawGamePill(); drawHome(); };
+  return c;
+}
+
+/* every trophy, and how XP works: shown on the Level page */
+function trophyPanel(){
+  var T = gmAllTrophies().sort(function(a, b){ return (b.got ? 1 : 0) - (a.got ? 1 : 0) || b.cur / b.max - a.cur / a.max; });
+  return '<div class="panel" style="margin-top:18px"><div class="ph"><h3>Trophies</h3><span>' + T.filter(function(t){ return t.got; }).length + ' of ' + T.length + '</span></div>' +
+    '<div class="trogrid">' + T.map(function(t){
+      return '<div class="tro' + (t.got ? " got" : "") + '"><div class="troic">' + (t.got ? "&#9733;" : "&#9734;") + '</div><div><b>' + t.name + '</b><span>' + t.about + '</span>' +
+        (t.got ? '<em>' + (t.at ? "earned " + new Date(t.at).toLocaleDateString(undefined, { month:"short", day:"numeric" }) : "earned") + '</em>' : '<i><span style="width:' + (100 * t.cur / t.max).toFixed(0) + '%"></span></i><em>' + t.cur + ' / ' + t.max + '</em>') + '</div></div>';
+    }).join("") + '</div>' +
+    '<details class="howsrs" style="margin-top:14px"><summary>How XP works</summary><ol>' +
+      '<li><b>Reviews pay most.</b> A skill answered on its due day: 10 XP right and inside the clock goal, 6 if right but slow, 3 for an honest miss. Spaced retrieval is what makes a skill permanent, so it is what earns.</li>' +
+      '<li><b>Extra practice pays less.</b> A skill that is not due: 4, 2 or 1 XP, and only 1 XP after the day&rsquo;s first ' + GM_CRAM_FREE + '. Cramming feels productive but fades fast.</li>' +
+      '<li><b>Progress pays a bonus.</b> +15 XP per box when a skill moves up, +' + GM_XP_LESSON + ' for a lesson checkpoint, +' + GM_XP_SWEEP + ' for a review session of 10+ answers at 90% or better.</li>' +
+      '<li><b>The table counts.</b> +3 XP for a Best decision, +2 for Good, and +' + GM_XP_SPOT + ' for each table mistake you review on this page.</li>' +
+      '<li><b>Daily goal and streak.</b> Hit your goal for +' + GM_XP_GOAL + ' XP and a streak day. Every ' + GM_FREEZE_EVERY + ' goal days bank a streak freeze (up to ' + GM_FREEZE_MAX + '), spent automatically on a missed day.</li>' +
+      '<li><b>Rank and level.</b> Your rank (' + GM_RANKS.map(function(r){ return r.name; }).join(", ") + ') grows with XP: it rewards practising well and often. Your level above measures how well you actually play. Rank is the effort; level is the result.</li>' +
+    '</ol></details></div>';
+}
+
 function ruleCard(id){
   return { kind:"recall", target:20, options:["Had it","Missed it"], answer:"Had it", math:[], bar:null,
     question:"Recall the rule from \u201c" + RULES[id].lesson.title + "\u201d. Say it out loud, then reveal it." };
@@ -1365,12 +1551,14 @@ function submit(raw){
   }
 
   var sk = skillOf(q.mode);
+  var wasDue = Date.now() >= sk.due;
   if(sess){
     if(!(q.mode in sess.from)) sess.from[q.mode] = sk.box;
     sess.n++; if(ok) sess.ok++;
   }
   q.res = srsRecord(sk, ok, secs, q.target, Date.now());
   logDay(Math.min(secs, q.target * 3 + 20), 1, ok ? 1 : 0);
+  q.xp = gmAnswer(q.mode, wasDue, ok, secs <= q.goal, q.kind === "recall", q.res.ev === "up" ? q.res.box : 0);
   doneAt = Date.now();
   if(!ok && !cp) srsQueueRetry(sess ? sess.ctx : freeCtx, q.mode);
 
@@ -1497,6 +1685,7 @@ function drawReveal(ok, said, secs){
   if(!rc) v.appendChild(el("span","said","Answer <b>" + fmtAns() + "</b> &nbsp;&middot;&nbsp; you said " + fmtSaid(said)));
   var fast = secs <= q.goal;
   v.appendChild(el("span","pace " + (fast ? "fast" : "slow"), secs.toFixed(1) + "s " + (fast ? "in time" : "over " + q.goal + "s")));
+  if(q.xp) v.appendChild(el("span","xpchip", "+" + q.xp + " XP"));
   r.appendChild(v);
   r.appendChild(srsLine());
 
@@ -2287,6 +2476,7 @@ function endSession(){
   });
   saveSoon();
 
+  if(S.kind === "due" && S.n >= 10 && S.ok / S.n >= 0.9){ gstate.sweeps = (gstate.sweeps || 0) + 1; gameSave(); gmGain(GM_XP_SWEEP, "Clean sweep"); }
   var d = $("cpdone"); d.innerHTML = "";
   var left = srsDueList(Object.keys(skills).filter(isSkill), skills, Date.now()).length;
   d.appendChild(el("h3", "pass", S.n ? (left ? "Session ended" : "Done for today") : "Nothing answered"));
@@ -2975,6 +3165,7 @@ function endCp(){
   var hits = cp.marks.filter(Boolean).length;
   var passed = hits >= cp.need;
   if(passed){
+    if(!progress[cp.id]){ progress[cp.id] = 1; gmGain(GM_XP_LESSON, "Lesson passed"); }
     progress[cp.id] = 1;
     [L.mode, "rule:" + L.id].forEach(function(id){ if(isSkill(id)) srsGraduate(skillOf(id), Date.now()); });
     saveSoon();
@@ -3185,14 +3376,15 @@ function drawHome(){
   }
   hero.appendChild(row);
   box.appendChild(hero);
+  box.appendChild(gameCard());
 
   /* the numbers */
   var tot = 0; Object.keys(plog).forEach(function(k){ tot += plog[k].s; });
   var tk = plog[srsDayKey(now)];
   var auto = ORDER.filter(function(m){ return skills[m] && skills[m].box >= 6; }).length;
-  var streak = srsDayStreak(plog, now);
+  var streak = gmStreak(plog, now).days;
   box.appendChild(el("div", "tstats h5", [
-    [streak + (streak === 1 ? " day" : " days"), "streak"],
+    [gmTotal(plog).toLocaleString(), "XP"],
     [fmtDur(tk ? tk.s : 0), "today"],
     [fmtDur(tot), "all time"],
     [passed + "/" + total, "lessons passed"],
@@ -3838,6 +4030,8 @@ function heroAct(a){
   if(!playHeroTurn(pg)) return;
   var d = playHeroAct(pg, a);
   pFeedback = d;
+  var tx = gmTableXP(d.G.grade);
+  if(tx) gmGain(tx, d.G.grade + " decision");
   if(pg.t.hand.over) onHandOver();
   drawFelt(); drawActBar(); drawPlaySide();
   playLoop();
@@ -4098,6 +4292,7 @@ function drawLevel(){
     box.innerHTML = html;
     var r0 = el("div", "row"); r0.appendChild(btnEl("Play hands", "go", function(){ location.hash = "#/play"; }));
     box.appendChild(r0);
+    box.insertAdjacentHTML("beforeend", trophyPanel());
     return;
   }
 
@@ -4147,10 +4342,10 @@ function drawLevel(){
           '<button type="button" class="act ghost" data-done="' + m.id + '">Mark reviewed</button></div></details>';
     }).join("") + (M.length > 8 ? '<div class="row"><button type="button" class="act ghost" id="lvMore">' + (lvAll ? "Show fewer" : "Show all " + M.length) + '</button></div>' : "") : '<p class="pnote">No mistakes or blunders logged. When you make one at the table it lands here, with what was better and the drill that trains it.</p>') + '</div>';
 
-  box.innerHTML = html;
+  box.innerHTML = html + trophyPanel();
   if($("lvWeakRow")) $("lvWeakRow").appendChild(btnEl("Drill weak spots", "go", function(){ drillTableWeak(); }));
   box.querySelectorAll("[data-drill]").forEach(function(b){ b.onclick = function(){ drillTableWeak([b.dataset.drill]); }; });
-  box.querySelectorAll("[data-done]").forEach(function(b){ b.onclick = function(){ plevel = lvDismiss(plevel, b.dataset.done); playSave(); drawLevel(); }; });
+  box.querySelectorAll("[data-done]").forEach(function(b){ b.onclick = function(){ plevel = lvDismiss(plevel, b.dataset.done); playSave(); gstate.spots = (gstate.spots || 0) + 1; gameSave(); gmGain(GM_XP_SPOT, "Spot reviewed"); drawLevel(); }; });
   if($("lvMore")) $("lvMore").onclick = function(){ lvAll = !lvAll; drawLevel(); };
   box.querySelectorAll("details.lvm").forEach(function(d){ d.ontoggle = function(){ lvOpen[d.dataset.id] = d.open; }; });
   drawLevelChart();
@@ -4217,6 +4412,9 @@ $("syncPill").onclick = function(){ location.hash = "#/sync"; };
   await loadSaved();
   await syncLoadCfg();
   await playLoad();
+  await gameLoad();
+  gmCheckTrophies();
+  drawGamePill();
   var hadHash = /^#\/./.test(location.hash);
   drawModes(); drawTape();
   route();

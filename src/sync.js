@@ -74,6 +74,15 @@ function syncMerge(a, b) {
       n: Math.max(x.n || 0, y.n || 0),
       ok: Math.max(x.ok || 0, y.ok || 0)
     };
+    /* the game fields: XP, goal met, crammed answers, per-skill review counts */
+    if (x.x || y.x) out.plog[k].x = Math.max(x.x || 0, y.x || 0);
+    if (x.g || y.g) out.plog[k].g = 1;
+    if (x.c || y.c) out.plog[k].c = Math.max(x.c || 0, y.c || 0);
+    if (x.r || y.r) {
+      var r = {}, xr = x.r || {}, yr = y.r || {};
+      Object.keys(xr).concat(Object.keys(yr)).forEach(function (m) { r[m] = Math.max(xr[m] || 0, yr[m] || 0); });
+      out.plog[k].r = r;
+    }
   });
 
   var sa = a.stats, sb = b.stats;

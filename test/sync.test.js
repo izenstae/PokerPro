@@ -27,6 +27,9 @@ ok(m.skills.odds.last === 200 && m.skills.outs.last === 300, "each skill takes t
 ok(m.skills.combos && m.skills.combos.box === 1, "a skill only one device has is kept");
 ok(m.plog["2026-09-24"].s === 600 && m.plog["2026-09-25"].s === 400 && m.plog["2026-09-25"].n === 20, "each day keeps the larger figures");
 ok(m.stats.n === 80, "stats come from the device with more answers");
+const gm = S.syncMerge({ plog: { d: { s: 1, n: 1, ok: 1, x: 40, c: 3, r: { odds: 2 } } } }, { plog: { d: { s: 1, n: 1, ok: 1, x: 70, g: 1, r: { odds: 1, outs: 4 } } } }).plog.d;
+ok(gm.x === 70 && gm.g === 1 && gm.c === 3 && gm.r.odds === 2 && gm.r.outs === 4, "XP, goal days and review counts merge by the larger figure");
+ok(!("x" in m.plog["2026-09-24"]), "days without XP stay as they were");
 ok(!("openLayer" in m), "view state does not sync");
 
 ok(same(S.syncMerge(ipad, laptop), m), "the merge is commutative");
