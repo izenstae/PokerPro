@@ -131,10 +131,16 @@ var PLAY_SPOTS = {
 /* which spot trains each table skill */
 var PLAY_SPOT_OF = { rfi: "rfi", threebet: "facing", eqr: "facing", price: "facebet", mdf: "river", sizing: "betcheck", cbet: "cbet", fold: "betcheck", spr: "lowspr", decide: "betcheck", jam: "shove" };
 
+/* preflop, nobody has put chips in beyond the blinds: everyone who has acted so far folded */
+function playFoldedTo(g) {
+  var t = g.t;
+  return t.hand.street === 0 && !t.players.some(function (q) { return q.i !== g.hero && q.acted && !q.folded; });
+}
+
 function playSpotMatch(g, kind) {
   var t = g.t, h = t.hand, L = hLegal(t), me = t.players[g.hero];
   if (kind === "any") return true;
-  if (kind === "rfi") return h.street === 0 && h.raises === 0 && L.toCall > 0;
+  if (kind === "rfi") return h.street === 0 && h.raises === 0 && L.toCall > 0 && playFoldedTo(g);
   if (kind === "facing") return h.street === 0 && h.raises >= 1 && L.toCall > 0;
   if (kind === "cbet") return h.street === 1 && L.toCall === 0 && h.aggressor === g.hero && h.streetAggressor < 0;
   if (kind === "facebet") return (h.street === 1 || h.street === 2) && L.toCall > 0;
@@ -203,6 +209,6 @@ function playLeaks(S, min) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  PLAY_LINEUPS: PLAY_LINEUPS, PLAY_SPOTS: PLAY_SPOTS, PLAY_SPOT_OF: PLAY_SPOT_OF, playDealSpot: playDealSpot, playSpotMatch: playSpotMatch, playNew: playNew, playDeal: playDeal, playBotStep: playBotStep, playHeroAct: playHeroAct,
+  PLAY_LINEUPS: PLAY_LINEUPS, PLAY_SPOTS: PLAY_SPOTS, PLAY_SPOT_OF: PLAY_SPOT_OF, playDealSpot: playDealSpot, playSpotMatch: playSpotMatch, playFoldedTo: playFoldedTo, playNew: playNew, playDeal: playDeal, playBotStep: playBotStep, playHeroAct: playHeroAct,
   playAnalyze: playAnalyze, playHeroTurn: playHeroTurn, playToAct: playToAct, playLeaks: playLeaks, playCareerAdd: playCareerAdd
 };

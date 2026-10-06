@@ -39,6 +39,12 @@ let m = S.srsNew(); m.box = 4; m.due = t + 10 * D; m.run = 2;
 ev = S.srsRecord(m, false, 3, 8, t);
 ok(ev.ev === "miss" && m.box === 3 && m.due === t && m.run === 0 && m.lapses === 1, "a miss demotes one box and resets");
 ok(S.srsIsDue(m, t), "a missed skill is due immediately");
+/* ...but it cannot climb back the same day: three fast retries keep it in box 3 */
+for (let i = 0; i < 3; i++) ev = S.srsRecord(m, true, 3, 8, t + 60e3);
+ok(ev.ev === "clean" && m.box === 3 && m.run === 3, "clean retries a minute after the lapse do not re-promote");
+ok(!S.srsCanClimb(m, t + 60e3) && S.srsCanClimb(m, t + D), "the gate lifts the next local day");
+for (let i = 0; i < 3; i++) ev = S.srsRecord(m, true, 3, 8, t + D);
+ok(m.box === 4 && m.lapses === 1, "the same answers the next day promote it back to box 4");
 
 /* the top box stays the top box */
 let top = S.srsNew(); top.box = S.SRS_TOP; top.due = 0;
@@ -96,6 +102,18 @@ log[S.srsDayKey(t)] = 1; log[S.srsDayKey(t - D)] = 1; log[S.srsDayKey(t - 2 * D)
 ok(S.srsDayStreak(log, t) === 3, "three days in a row");
 ok(S.srsDayStreak(log, t + D) === 3, "today not yet trained does not break the streak");
 ok(S.srsDayStreak(log, t + 2 * D) === 0, "a missed day does");
+ok(S.srsPrevDay("2026-03-01") === "2026-02-28" && S.srsPrevDay("2024-03-01") === "2024-02-29", "the previous calendar day crosses months and leap days");
+
+/* the streak steps by local calendar days, so DST spring-forward does not skip one.
+   TZ must be set before the process touches Date, so this runs in a child. */
+const { execFileSync } = require("child_process");
+const dst = execFileSync(process.execPath, ["-e", [
+  "const S = require(process.argv[1]);",
+  "const log = { '2026-03-07': 1, '2026-03-08': 1, '2026-03-09': 1 };",       /* clocks jump 08 March 2026 in New York */
+  "const now = new Date(2026, 2, 9, 0, 30).getTime();",                        /* 00:30 local, the day after the jump */
+  "console.log(S.srsDayKey(now), S.srsDayStreak(log, now), S.srsPrevDay('2026-03-09'));"
+].join("\n"), require.resolve("../src/srs.js")], { env: Object.assign({}, process.env, { TZ: "America/New_York" }), encoding: "utf8" }).trim();
+ok(dst === "2026-03-09 3 2026-03-08", "DST spring-forward keeps a three-day streak in New York: " + dst);
 
 console.log((fail ? "FAIL " : "PASS ") + "srs: " + pass + " of " + (pass + fail) + " assertions");
 if (fail) process.exit(1);

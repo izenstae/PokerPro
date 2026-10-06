@@ -18,7 +18,7 @@ function hNewTable(seats, stack) {
   return {
     stackStart: stack || H_STACK,
     players: seats.map(function (s, i) {
-      return { i: i, name: s.name, bot: s.bot || null, stack: stack || H_STACK, cards: [], folded: false, allIn: false, bet: 0, put: 0, acted: false };
+      return { i: i, name: s.name, bot: s.bot || null, stack: stack || H_STACK, cards: [], folded: false, allIn: false, bet: 0, put: 0, acted: false, capped: false };
     }),
     button: 5, handNo: 0, hand: null
   };
@@ -37,7 +37,7 @@ function hStart(t, rng, deck) {
   t.button = (t.button + 1) % 6;
   t.handNo++;
   t.players.forEach(function (p) {
-    p.stack = t.stackStart || H_STACK; p.cards = []; p.folded = false; p.allIn = false; p.bet = 0; p.put = 0; p.acted = false;
+    p.stack = t.stackStart || H_STACK; p.cards = []; p.folded = false; p.allIn = false; p.bet = 0; p.put = 0; p.acted = false; p.capped = false;
   });
   var h = t.hand = {
     no: t.handNo, deck: deck ? deck.slice() : hShuffle(rng), board: [], street: 0,
@@ -62,13 +62,14 @@ function hPot(t) { return hRound(t.players.reduce(function (a, p) { return a + p
 function hInHand(t) { return t.players.filter(function (p) { return !p.folded; }); }
 function hToCall(t, i) { var p = t.players[i]; return hRound(Math.min(t.hand.currentBet - p.bet, p.stack)); }
 
-/* what the player to act may do */
+/* what the player to act may do. A player who already acted this street
+   and then faced an all-in short of a full raise is capped: call or fold only */
 function hLegal(t) {
   var h = t.hand, p = t.players[h.toAct];
   var toCall = hToCall(t, h.toAct);
   var maxTo = hRound(p.bet + p.stack);
   var minTo = hRound(h.currentBet + h.lastRaise);
-  var canRaise = maxTo > h.currentBet && t.players.some(function (q) { return q !== p && !q.folded && !q.allIn; });
+  var canRaise = maxTo > h.currentBet && !p.capped && t.players.some(function (q) { return q !== p && !q.folded && !q.allIn; });
   if (minTo > maxTo) minTo = maxTo;
   return { seat: h.toAct, toCall: toCall, canCheck: toCall === 0, canRaise: canRaise, minTo: minTo, maxTo: maxTo, pot: hPot(t) };
 }
@@ -93,12 +94,19 @@ function hAct(t, a) {
     p.stack = hRound(p.stack - add); p.bet = to; p.put = hRound(p.put + add);
     if (p.stack === 0) p.allIn = true;
     entry.type = h.currentBet === 0 ? "bet" : "raise"; entry.to = to; entry.amt = add;
-    if (inc >= h.lastRaise) h.lastRaise = inc;     /* an all-in short of a full raise does not reopen the minimum */
+    var full = inc >= h.lastRaise;                 /* an all-in short of a full raise does not reopen the minimum */
+    if (full) h.lastRaise = inc;
     h.currentBet = to;
     h.raises++;
     if (h.street === 0 && h.openerSeat < 0) h.openerSeat = i;
     h.aggressor = i; h.streetAggressor = i;
-    t.players.forEach(function (q) { if (q !== p) q.acted = false; });
+    /* a full raise reopens the action for everyone; a short all-in does not reopen it
+       for players who already acted this street: they still owe a call, but may not raise */
+    t.players.forEach(function (q) {
+      if (q === p) return;
+      if (full) { q.acted = false; q.capped = false; }
+      else if (q.acted && !q.folded && !q.allIn) q.capped = true;
+    });
   }
   p.acted = true;
   h.log.push(entry);
@@ -120,7 +128,7 @@ function hAdvance(t) {
 
 function hEndStreet(t) {
   var h = t.hand;
-  t.players.forEach(function (p) { p.bet = 0; p.acted = false; });
+  t.players.forEach(function (p) { p.bet = 0; p.acted = false; p.capped = false; });
   h.currentBet = 0; h.lastRaise = H_BB; h.raises = 0; h.streetAggressor = -1;
   var canAct = hInHand(t).filter(function (p) { return !p.allIn; });
   if (h.street === 3 || canAct.length <= 1) {

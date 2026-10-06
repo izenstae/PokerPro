@@ -115,10 +115,22 @@ for (const kind of ["rfi", "facing", "cbet", "facebet", "river", "betcheck"]) {
   const g2 = playNew("mixed", rng);
   const found = playDealSpot(g2, kind, 600);
   ok(found && playHeroTurn(g2) && playSpotMatch(g2, kind), "spot trainer finds a " + kind + " spot");
+  if (kind === "rfi") ok(g2.t.players.every(q => q.i === g2.hero || q.folded || !q.acted), "rfi: it really is folded to you, no limpers");
   ok(g2.session.hands === 0 && g2.history.length === 0, kind + ": hands skipped on the way are not recorded");
   const A2 = playAnalyze(g2);
   ok(A2.options.every(o => isFinite(o.ev)), kind + ": the coach prices the spot");
 }
+/* a limped pot is not an opening spot: with a limper in front the rfi spot does not match */
+const gl = playNew("mixed", rng);
+let dealt = 0; do { playDeal(gl); } while (hPos(gl.t, gl.hero) !== "BTN" && dealt++ < 6);
+ok(hPos(gl.t, gl.hero) === "BTN", "hero dealt on the button");
+hAct(gl.t, { type: "call" }); hAct(gl.t, { type: "fold" }); hAct(gl.t, { type: "fold" });   /* UTG limps, HJ and CO fold */
+ok(playHeroTurn(gl) && gl.t.hand.raises === 0 && hLegal(gl.t).toCall > 0, "button to act behind a limper");
+ok(!playFoldedTo(gl) && !playSpotMatch(gl, "rfi") && playSpotMatch(gl, "any"), "a limped pot is not 'folded to you'");
+do { playDeal(gl); } while (hPos(gl.t, gl.hero) !== "BTN");
+hAct(gl.t, { type: "fold" }); hAct(gl.t, { type: "fold" }); hAct(gl.t, { type: "fold" });
+ok(playHeroTurn(gl) && playFoldedTo(gl) && playSpotMatch(gl, "rfi"), "folded to the button is an opening spot");
+
 /* short stacks: the table starts every hand at the chosen stack, and the push-or-fold lesson is tagged */
 const gs = playNew("mixed", rng, 12);
 ok(playDealSpot(gs, "shove", 200) && gs.t.players.every(p => p.stack + p.put === 12), "short-stack table deals 12 bb stacks");

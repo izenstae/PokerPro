@@ -12,16 +12,16 @@ var LESSONS_0 = [
     { t:"p", x:"Start here, with nothing assumed. A poker hand is five cards. At the end, whoever holds the best five cards wins the money. Everything else in this course is about predicting that moment or avoiding it." },
     { t:"p", x:"There are exactly nine kinds of hand and they are ranked by one principle: how hard they are to make. You do not need to memorise a list so much as understand that the list is a rarity ordering, and then the list memorises itself." },
     { t:"tbl", head:["Hand","What it is","Roughly how often"], rows:[
-      ["Straight flush","Five in a row, all one suit","1 in 30,000"],
-      ["Four of a kind","All four of a rank","1 in 4,200"],
-      ["Full house","Three of one rank, two of another","1 in 700"],
-      ["Flush","Five of one suit","1 in 500"],
-      ["Straight","Five in a row, any suits","1 in 250"],
-      ["Three of a kind","Three of a rank","1 in 47"],
-      ["Two pair","Two of one rank, two of another","1 in 21"],
-      ["One pair","Two of a rank","1 in 2.4"],
-      ["High card","None of the above","about half the time"]
-    ], caption:"Those frequencies are for the best five of seven cards, which is what you will actually be holding. Note how fast it drops. A flush feels enormous and it is, but two pair is nine times more common than a flush and it loses to it." },
+      ["Straight flush","Five in a row, all one suit","1 in 3,200 (0.03%)"],
+      ["Four of a kind","All four of a rank","1 in 595 (0.17%)"],
+      ["Full house","Three of one rank, two of another","1 in 38 (2.6%)"],
+      ["Flush","Five of one suit","1 in 33 (3.0%)"],
+      ["Straight","Five in a row, any suits","1 in 22 (4.6%)"],
+      ["Three of a kind","Three of a rank","1 in 21 (4.8%)"],
+      ["Two pair","Two of one rank, two of another","1 in 4.3 (23.5%)"],
+      ["One pair","Two of a rank","44% of the time"],
+      ["High card","None of the above","17% of the time"]
+    ], caption:"Those frequencies are for the best five of seven cards, which is what you will actually be holding. Note how fast it drops. A flush feels enormous and it is, but two pair is about eight times more common than a flush and it loses to it." },
     { t:"p", x:"Two details that catch everyone. Ace can be high or low, so A-2-3-4-5 is a straight, the smallest one. And when two players hold the same kind of hand, the higher one wins, then the kicker, which is the highest card left over. Two players with a pair of kings go to the next card." },
     { t:"warn", x:"Suits have no ranking. Spades do not beat hearts. If two players make the same flush, they chop. The only thing a suit does is make a flush possible." },
     { t:"key", x:"Straight flush, quads, full house, flush, straight, trips, two pair, pair, nothing. Rarer wins. You have about ten of these to learn and you will never think about them again." },
@@ -177,7 +177,7 @@ var LESSONS_2 = [
       cards:{ hero:["As","7d"] },
       facts:[["Board","Ks 9s 4s 2h"],["His nut flush","needs the ace of spades"]],
       steps:[
-        "Nut flush combos normally: As with any of 12 other spades = 12.",
+        "Nut flush combos normally: As with any other spade he could hold. 13 spades − the ace − 3 on the board = 9, so 9 combos.",
         "You hold the ace of spades.",
         "His nut flush combos: 0."
       ],
@@ -190,9 +190,9 @@ var LESSONS_2 = [
       steps:[
         "The board has three of one suit, so the nut flush is possible. It needs exactly one card: the ace of that suit.",
         "Look at your own two cards. Do you hold the ace of the flush suit?",
-        "If you hold it, the answer is 0, he cannot make the nut flush at all. If you do not, he can pair that ace with any of the 12 remaining cards of the suit, so the answer is 12."
+        "If you hold it, the answer is 0, he cannot make the nut flush at all. If you do not, he can pair that ace with any card of the suit still unseen: 13, minus the ace, minus the three on the board, minus any you hold. With none in your hand that is 9."
       ],
-      tip:"This drill has only two possible answers, 0 or 12. The entire task is checking one card in your hand against the suit on the board. That single card being a blocker is why the ace of the flush suit bluffs better than a real pair." }
+      tip:"The answer is 0 when you hold the ace, otherwise a small count, 9 unless you hold a card of the suit. The entire task is checking one card in your hand against the suit on the board. That single card being a blocker is why the ace of the flush suit bluffs better than a real pair." }
   ]
 },
 {

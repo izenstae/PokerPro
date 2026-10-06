@@ -221,7 +221,7 @@ function genProb() {
       ["pocket aces", 100 * 6 / 1326, "6 combos of 1,326: 1 in 221."],
       ["any suited hand", 100 * 312 / 1326, "78 rank pairs × 4 suits = 312 of 1,326: about 1 in 4."],
       ["ace-king, any suits", 100 * 16 / 1326, "16 combos of 1,326: 1 in 83."],
-      ["two suited connectors (like 76s, no aces)", 100 * 4 * 12 / 1326, "12 connected rank pairs from 32 to KQ, 4 suits each: 48 of 1,326."]
+      ["two suited connectors (like 76s, no aces)", 100 * 4 * 11 / 1326, "11 connected rank pairs from 32 to KQ, 4 suits each: 44 of 1,326."]
     ]);
     ans = ev[1];
     lines = [["Event", "being dealt " + ev[0]]];

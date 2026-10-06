@@ -49,6 +49,12 @@ const id0 = W.m[0].id;
 W = lvDismiss(W, id0);
 ok(W.m.length === 39 && !W.m.some(m => m.id === id0), "a reviewed spot is dismissed");
 ok(new Set(W.m.map(m => m.id)).size === W.m.length, "spot ids are unique");
+/* two mistakes on the same street of one hand get their own ids, so dismissing one keeps the other */
+let X = lvAddHand(lvNew(), hand(7, [["Mistake", "price"], ["Blunder", "mdf"]]), 777);
+ok(X.m.length === 2 && X.m[0].id !== X.m[1].id, "same hand, same street: distinct spot ids");
+const keep = X.m[1].id;
+X = lvDismiss(X, X.m[0].id);
+ok(X.m.length === 1 && X.m[0].id === keep, "dismissing one of them leaves the other");
 
 /* series: points in range and ending on the current rating */
 const ser = lvSeries(L, 30);

@@ -31,9 +31,11 @@ function srsLevel(s) { return SRS_LEVELS[s ? s.box : 0]; }
 function srsIsDue(s, now) { return !s || now >= s.due; }
 
 /* One answer. Returns what happened: up, miss, slow, clean.
-   A miss drops a box and makes it due now. A slow right answer
-   does not count toward the run. Cramming a skill that is not yet
-   due builds the run but never promotes: only spacing does that. */
+   A miss drops a box and makes it due now, so it comes back this
+   session; but a skill that lapsed today cannot climb a box until the
+   next local day, so three quick retries do not undo the lapse. A slow
+   right answer does not count toward the run. Cramming a skill that is
+   not yet due builds the run but never promotes: only spacing does that. */
 function srsRecord(s, ok, secs, target, now) {
   var goal = srsGoal(target, s.box);
   s.n++; s.last = now;
@@ -42,13 +44,13 @@ function srsRecord(s, ok, secs, target, now) {
   if (s.hist.length > SRS_HIST) s.hist.shift();
   if (!ok) {
     if (s.box > 0) { s.lapses++; s.box--; }
-    s.run = 0; s.due = now;
+    s.run = 0; s.due = now; s.lapsed = now;
     return { ev: "miss", box: s.box, goal: goal };
   }
   s.ok++;
   if (secs > goal) { s.run = 0; return { ev: "slow", box: s.box, goal: goal }; }
   s.run++;
-  if (now >= s.due && s.run >= srsNeed(s.box) && s.box < SRS_TOP) {
+  if (now >= s.due && s.run >= srsNeed(s.box) && s.box < SRS_TOP && srsCanClimb(s, now)) {
     s.box++;
     s.run = 0;
     s.due = now + SRS_DAYS[s.box] * SRS_DAY - SRS_SLACK;
@@ -56,6 +58,9 @@ function srsRecord(s, ok, secs, target, now) {
   }
   return { ev: "clean", box: s.box, goal: goal, run: s.run, need: srsNeed(s.box) };
 }
+
+/* promotion is gated to the day after the last lapse */
+function srsCanClimb(s, now) { return !s.lapsed || srsDayKey(now) > srsDayKey(s.lapsed); }
 
 /* put a skill on the schedule after a passed checkpoint: first review tomorrow */
 function srsGraduate(s, now) {
@@ -121,10 +126,17 @@ function srsDayKey(t) {
   return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
 }
 
+/* the local calendar day before a key: noon-anchored, so a DST change never skips or repeats a day */
+function srsPrevDay(key) {
+  var p = key.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2], 12);
+  d.setDate(d.getDate() - 1);
+  return srsDayKey(d.getTime());
+}
+
 function srsDayStreak(log, now) {
-  var n = 0, t = now;
-  if (!log[srsDayKey(t)]) t -= SRS_DAY;               /* today not started yet does not break it */
-  while (log[srsDayKey(t)]) { n++; t -= SRS_DAY; }
+  var n = 0, k = srsDayKey(now);
+  if (!log[k]) k = srsPrevDay(k);                     /* today not started yet does not break it */
+  while (log[k]) { n++; k = srsPrevDay(k); }
   return n;
 }
 
@@ -132,5 +144,5 @@ if (typeof module !== "undefined") module.exports = {
   SRS_DAY: SRS_DAY, SRS_DAYS: SRS_DAYS, SRS_TOP: SRS_TOP, srsNew: srsNew, srsGoal: srsGoal, srsNeed: srsNeed,
   srsLevel: srsLevel, srsIsDue: srsIsDue, srsRecord: srsRecord, srsGraduate: srsGraduate, srsRecent: srsRecent,
   srsPick: srsPick, srsTickRetry: srsTickRetry, srsQueueRetry: srsQueueRetry, srsDueList: srsDueList,
-  srsDayKey: srsDayKey, srsDayStreak: srsDayStreak
+  srsDayKey: srsDayKey, srsDayStreak: srsDayStreak, srsPrevDay: srsPrevDay, srsCanClimb: srsCanClimb
 };
