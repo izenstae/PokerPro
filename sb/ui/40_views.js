@@ -32,7 +32,7 @@ function route() {
   view = parts[0]; routeParts = parts; curHash = "#/" + parts.join("/");
   if (view !== "drill") { if (sess || cp) { sess = null; cp = null; } q = null; cancelAnimationFrame(raf); }
   if (view !== "c" || parts[2] !== "apply") game = game && game.over ? null : game;
-  var main = $("main"); main.innerHTML = "";
+  var main = $("main"); main.innerHTML = ""; main.className = "wrap v-" + view;
   try {
     if (view === "home") drawHome(main);
     else if (view === "calendar") drawCalendar(main, parts[1] || "week");
@@ -52,8 +52,8 @@ function route() {
 function go(h) { location.hash = h; }
 
 /* ============================================================ TODAY ============================================================ */
-var TRACK_COLOR = { poker: "#D4A03C", chess: "#34A96F", sv: "#5B8CC4", he: "#D4A03C", es: "#D14B41", quant: "#8B7BD6" };
-function trackColor(k) { return k.indexOf("school:") === 0 ? "#8B7BD6" : TRACK_COLOR[k] || "#7E8AA0"; }
+var TRACK_COLOR = { poker: "#A8761A", chess: "#2F7A4E", sv: "#2F5C9E", he: "#C2451F", es: "#B9321C", quant: "#6A4FB6" };
+function trackColor(k) { return k.indexOf("school:") === 0 ? "#6A4FB6" : TRACK_COLOR[k] || "#8E8779"; }
 function trackName(k) { if (k === "poker") return "Poker"; if (k.indexOf("school:") === 0) { var sc = SCHOOL_COURSES.filter(function (x) { return "school:" + x.id === k; })[0]; return sc ? sc.code : k; } return COURSES[k] ? COURSES[k].name : k; }
 function blockLabel(b) { return b.school || b.label.indexOf(":") > 0 && b.label.indexOf(trackName(b.skill)) === 0 ? b.label : trackName(b.skill) + ": " + b.label; }
 function trackHref(k) { if (k === "poker") return "#/poker"; if (k.indexOf("school:") === 0) return "#/school/" + k.slice(7); return "#/c/" + k; }
@@ -81,8 +81,8 @@ function drawHome(box) {
   if (!plan.blocks.length) list.appendChild(el("div", "empty", "No blocks today. Either nothing is due and every path is finished, or the calendar has no free time today."));
   plan.blocks.forEach(function (b) {
     var a = el("a", "pblock" + (b.done ? " done" : "") + (b.deferred ? " deferred" : "")); a.href = b.href || "#/home";
-    a.innerHTML = '<div class="pbm"><b>' + b.min + '</b><i>min</i></div><div class="pbt"><b><span class="dot" style="background:' + trackColor(b.skill) + '"></span>' + esc(blockLabel(b)) + (b.school ? ' <span class="tag" style="background:rgba(139,123,214,.25);color:#C9BFF2">school</span>' : '') + '</b><span>' + esc(b.why) + '</span></div><div class="pbat">' + (b.at ? '<b>' + plFmt(b.at.f) + '</b>' + plFmt(b.at.t) : b.deferred ? "later" : "any time") + '</div>';
-    var mk = el("button", "chip", b.done ? "✓ done" : "mark done"); mk.type = "button"; mk.style.cssText = "margin-left:8px;font-size:11px"; mk.onclick = function (e) { e.preventDefault(); planMark(b); route(); };
+    a.innerHTML = '<div class="pbm"><b>' + b.min + '</b><i>min</i></div><div class="pbt"><b><span class="dot" style="background:' + trackColor(b.skill) + '"></span>' + esc(blockLabel(b)) + (b.school ? ' <span class="tag school">school</span>' : '') + '</b><span class="why">' + esc(b.why) + '</span></div><div class="pbat">' + (b.at ? '<span><b>' + plFmt(b.at.f) + '</b>–' + plFmt(b.at.t) + '</span>' : b.deferred ? "<span>later</span>" : "<span>any time</span>") + '</div>';
+    var mk = el("button", "chip", b.done ? "✓ done" : "mark done"); mk.type = "button"; mk.style.cssText = "font-size:11px"; mk.onclick = function (e) { e.preventDefault(); planMark(b); route(); };
     a.querySelector(".pbat").appendChild(mk);
     list.appendChild(a);
   });

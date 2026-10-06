@@ -13,7 +13,7 @@
 var SCHOOL_COURSES = [
   {
     id: "math340", code: "MATH 340", name: "Probability", term: "Fall 2026", school: "Lawrence University",
-    href: "school/math340/", color: "#4f46e5", glyph: "P",
+    href: "school/math340/", color: "#6A4FB6", glyph: "P",
     blurb: "Spaced-repetition flashcards, 204 generated problem types, timed quiz and exam rehearsals, a formula-sheet builder and a progress dashboard, built from each week's lecture.",
     textbook: "Blitzstein & Hwang, Introduction to Probability (2nd ed.)",
     storeKey: "math340-progress-v1",
