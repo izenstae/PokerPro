@@ -52,9 +52,13 @@ function walk(dir, out) {
   }
   return out;
 }
-const core = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./poker/", "./poker/index.html", "./poker/manifest.webmanifest", "./poker/icon.svg", "./school/math340/", "./school/math340/index.html"]
+const core = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-180.png", "./poker/", "./poker/index.html", "./poker/manifest.webmanifest", "./poker/icon.svg", "./poker/icon-180.png", "./school/math340/", "./school/math340/index.html"]
   .concat(walk("school/math340", []).filter(f => f !== "school/math340/index.html").map(f => "./" + f));
 const swTpl = read("site", "sw.tpl.js");
-const stamp = require("crypto").createHash("md5").update(hub + poker + core.join("\n")).digest("hex").slice(0, 10);
+/* the stamp covers the two built pages and every precached file's contents, so editing Math 340's own app.js or
+   a KaTeX file (served cache-first, not inlined into the hub) also replaces the cache on the next load */
+const precached = core.filter(f => !/\/$/.test(f) && !/^\.\/(index\.html|poker\/index\.html)$/.test(f))
+  .map(f => fs.readFileSync(path.join(__dirname, /^\.\/(manifest\.webmanifest|icon\.svg|icon-180\.png)$/.test(f) ? "site/" + f.slice(2) : f.slice(2))));   /* the hub's own PWA files live in site/ */
+const stamp = require("crypto").createHash("md5").update(hub + poker + core.join("\n")).update(Buffer.concat(precached)).digest("hex").slice(0, 10);
 fs.writeFileSync(path.join(__dirname, "sw.js"), swTpl.replace("/*__CACHE__*/", JSON.stringify("skillbuilder-" + stamp)).replace("/*__CORE__*/", JSON.stringify(core, null, 1)));
 console.log("built sw.js  " + core.length + " files cached offline, cache " + stamp);
