@@ -27,26 +27,44 @@ var HUB_KEY = "sb-hub-v1", SYNC_CFG_KEY = "sb-sync-v1";
 var POKER_KEYS = { course: "poker-course-v1", game: "poker-game-v1", sim: "poker-sim-v1" };
 
 /* ---- the hub state ---- */
-var HUB = hsEmptyHub();
-HUB.gstate = { goal: 60, goalAt: 0, seen: {}, conf: true, sweeps: 0, convs: 0, planStreak: 0, planLast: "" };
-HUB.plan = plDefault();
-HUB.quant = qtNew();
+var HUB = null;
 var saveState = "off", saveTimer = 0;
+/* saveHold: the saved copy could not be read, so nothing is written over it until the user acts
+   (a sync merge or a restore through syncApply, or Start fresh on the Sync page) */
+var saveHold = false;
+function gstateDefault() { return { goal: 60, goalAt: 0, seen: {}, conf: true, sweeps: 0, convs: 0, planStreak: 0, planLast: "" }; }
+/* the one place a saved hub (or nothing) becomes the live HUB with every default filled in */
+function hubHydrate(st) {
+  st = st && typeof st === "object" ? st : {};
+  HUB = Object.assign(hsEmptyHub(), st);
+  HUB.gstate = Object.assign(gstateDefault(), st.gstate || {});
+  HUB.plan = Object.assign(plDefault(), st.plan || {});
+  HUB.plan.week = Object.assign(plDefault().week, (st.plan || {}).week || {});
+  HUB.plan.priority = Object.assign(plDefault().priority, (st.plan || {}).priority || {});
+  HUB.quant = Object.assign(qtNew(), st.quant || {});
+  rebind();
+  return HUB;
+}
+hubHydrate(null);
 function hubLoad() {
+  var raw = null;
+  try { raw = STORE.get(HUB_KEY); } catch (e) { saveState = "error"; return; }
+  if (!raw) { saveState = STORE.kind === "none" ? "off" : "on"; return; }
   try {
-    var raw = STORE.get(HUB_KEY); if (!raw) { saveState = STORE.kind === "none" ? "off" : "on"; return; }
     var st = JSON.parse(raw);
-    HUB = Object.assign(hsEmptyHub(), st);
-    HUB.gstate = Object.assign({ goal: 60, goalAt: 0, seen: {}, conf: true, sweeps: 0, convs: 0, planStreak: 0, planLast: "" }, st.gstate || {});
-    HUB.plan = Object.assign(plDefault(), st.plan || {});
-    HUB.plan.week = Object.assign(plDefault().week, (st.plan || {}).week || {});
-    HUB.plan.priority = Object.assign(plDefault().priority, (st.plan || {}).priority || {});
-    HUB.quant = Object.assign(qtNew(), st.quant || {});
+    if (!st || typeof st !== "object") throw new Error("not a hub");
+    hubHydrate(st);
     saveState = "on";
-  } catch (e) { saveState = "error"; }
+  } catch (e) {
+    /* keep the unreadable blob (only the latest) next to the key and refuse to overwrite it */
+    try { STORE.set(HUB_KEY + ".corrupt", raw); } catch (e2) {}
+    saveState = "error"; saveHold = true;
+  }
 }
 function hubSnapshot() { return JSON.parse(JSON.stringify(HUB)); }
+function saveRelease() { saveHold = false; }
 function saveNow() {
+  if (saveHold) { saveState = "error"; drawSaveTag(); return; }
   try { STORE.set(HUB_KEY, JSON.stringify(HUB)); saveState = STORE.kind === "none" ? "off" : "on"; } catch (e) { saveState = "error"; }
   drawSaveTag();
 }
@@ -56,9 +74,13 @@ function saveSoon() {
 }
 window.addEventListener("pagehide", function () { if (saveTimer) { clearTimeout(saveTimer); saveTimer = 0; saveNow(); } if (typeof syncFlush === "function") syncFlush(); });
 function drawSaveTag() {
-  var t = $("savetag"); if (!t) return;
-  var msg = saveState === "error" ? "save failed" : saveState !== "on" ? "not saved in this window" : (typeof sync !== "undefined" && sync.token) ? (sync.state === "error" ? "saved here, sync failed" : "saved and synced") : "saved to this device";
-  t.innerHTML = "<i>" + msg + "</i>";
+  var msg = saveHold ? "the saved copy on this device could not be read; nothing is being saved until you sync, restore or start fresh" : saveState === "error" ? "save failed" : saveState !== "on" ? "not saved in this window" : (typeof sync !== "undefined" && sync.token) ? (sync.state === "error" ? "saved here, sync failed" : "saved and synced") : "saved to this device";
+  var t = $("savetag"); if (t) t.innerHTML = "<i>" + esc(msg) + "</i>";
+  /* the bar under the masthead shows on every screen, but only when something is wrong */
+  var bar = $("saveBar"); if (!bar) return;
+  var bad = saveHold || saveState !== "on";
+  bar.hidden = !bad;
+  if (bad) bar.innerHTML = esc(msg) + ' · <a href="#/sync">Sync, backup and install ›</a>';
 }
 
 /* ---- skills on the schedule ---- */
