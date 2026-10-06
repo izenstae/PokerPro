@@ -204,7 +204,7 @@
   function tts(text, caps) { return caps && caps.tts ? { text: text, lang: "es-ES" } : null; }
   var DRILLS = {
     essound: { name: "Sound rules", target: 6, gen: function (ctx) {
-      var row = pick(ES_SOUNDS, ctx.rnd), opts = lgShuffle([row[1]].concat(lgShuffle(ES_SOUND_RULES.filter(function (r) { return r !== row[1]; }).slice(), ctx.rnd).slice(0, 3)), ctx.rnd);
+      var row = pick(ES_SOUNDS, ctx.rnd), opts = lgOptions(row[1], ES_SOUND_RULES, 3, ctx.rnd, "es");
       return { kind: "choice", question: "How is the key consonant of <b class='tw'>" + row[0] + "</b> (" + row[2] + ") pronounced?", options: opts, answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b>: " + row[1] + "."], speakAfter: tts(row[0], ctx.caps) };
     } },
     esstress: { name: "Stress", target: 6, gen: function (ctx) {

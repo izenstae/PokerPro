@@ -114,9 +114,9 @@ var HE_DIALOGUES = [
   { id: "he_d1", title: "Hello, who are you?", setting: "A new teammate at the rink. Introduce yourself.", level: "A1",
     turns: [
       { bot: "שָׁלוֹם! קוֹרְאִים לִי נֹעָה. אֵיךְ קוֹרְאִים לְךָ?", botg: "Hi! My name is Noa. What's your name?", expect: ["קוראים לי", "השם שלי", "אני "], model: "שָׁלוֹם! קוֹרְאִים לִי אֶרִיק.", modelg: "Hi! My name is Erik.", hint: "קוראים לי ... (they call me ...)" },
-      { bot: "נָעִים מְאוֹד! מֵאֵיפֹה אַתָּה?", botg: "Nice to meet you! Where are you from?", expect: ["אני מ", "מקנדה", "מ"], model: "אֲנִי מִקָּנָדָה.", modelg: "I'm from Canada.", hint: "אני מ... (I'm from ...)" },
-      { bot: "יָפֶה! אַתָּה גָּר פֹּה עַכְשָׁו?", botg: "Nice! Do you live here now?", expect: ["^כן", "^לא", "אני גר"], model: "כֵּן, אֲנִי גָּר פֹּה עַכְשָׁו.", modelg: "Yes, I live here now.", hint: "כן / לא, אני גר ..." },
-      { bot: "אַתָּה מְשַׂחֵק הוֹקִי?", botg: "Do you play hockey?", expect: ["כן", "משחק"], model: "כֵּן, אֲנִי מְשַׂחֵק הוֹקִי.", modelg: "Yes, I play hockey.", hint: "כן, אני משחק ..." },
+      { bot: "נָעִים מְאוֹד! מֵאֵיפֹה אַתָּה?", botg: "Nice to meet you! Where are you from?", expect: ["אני מ.", "^מ\\S\\S", "מקנדה"], model: "אֲנִי מִקָּנָדָה.", modelg: "I'm from Canada.", hint: "אני מ... (I'm from ...)" },
+      { bot: "יָפֶה! אַתָּה גָּר פֹּה עַכְשָׁו?", botg: "Nice! Do you live here now?", expect: ["^כן", "^לא", "אני גר(ה)?"], model: "כֵּן, אֲנִי גָּר פֹּה עַכְשָׁו.", modelg: "Yes, I live here now.", hint: "כן / לא, אני גר ..." },
+      { bot: "אַתָּה מְשַׂחֵק הוֹקִי?", botg: "Do you play hockey?", expect: ["כן", "משחק(ת)?"], reject: ["לא"], model: "כֵּן, אֲנִי מְשַׂחֵק הוֹקִי.", modelg: "Yes, I play hockey.", hint: "כן, אני משחק ..." },
       { bot: "מְצֻיָּן! נִתְרָאֶה בָּאִמּוּן. לְהִתְרָאוֹת!", botg: "Excellent! See you at practice. Bye!", expect: ["להתראות", "ביי", "נתראה"], model: "לְהִתְרָאוֹת!", modelg: "See you!", hint: "להתראות / נתראה" }
     ] },
   { id: "he_d2", title: "At the café", setting: "Order a coffee and something to eat.", level: "A1",
@@ -135,16 +135,16 @@ var HE_DIALOGUES = [
     ] },
   { id: "he_d4", title: "At the doctor", setting: "You hurt your knee at hockey. Describe it in the past tense.", level: "A2",
     turns: [
-      { bot: "שָׁלוֹם, מָה הַבְּעָיָה?", botg: "Hello, what's the problem?", expect: ["כואב", "ברך", "פצעתי", "נפלתי"], model: "כּוֹאֶבֶת לִי הַבֶּרֶךְ.", modelg: "My knee hurts.", hint: "כואב לי ה... / פצעתי את ה..." },
+      { bot: "שָׁלוֹם, מָה הַבְּעָיָה?", botg: "Hello, what's the problem?", expect: ["כואב(ת)?", "ה?ברך", "פצעתי", "נפלתי"], model: "כּוֹאֶבֶת לִי הַבֶּרֶךְ.", modelg: "My knee hurts.", hint: "כואב לי ה... / פצעתי את ה..." },
       { bot: "מָתַי זֶה קָרָה?", botg: "When did it happen?", expect: ["אתמול", "לפני", "באימון", "במשחק", "ביום"], model: "אֶתְמוֹל, בָּאִמּוּן הוֹקִי.", modelg: "Yesterday, at hockey practice.", hint: "אתמול / לפני ... / באימון" },
       { bot: "אַתָּה יָכוֹל לָלֶכֶת?", botg: "Can you walk?", expect: ["כן", "לא", "קצת", "יכול"], model: "כֵּן, אֲבָל קָשֶׁה.", modelg: "Yes, but it's hard.", hint: "כן / לא / קצת" },
       { bot: "קַח אֶת הַתְּרוּפָה פַּעֲמַיִם בְּיוֹם וְתָנוּחַ שָׁבוּעַ. בְּסֵדֶר?", botg: "Take the medicine twice a day and rest a week. OK?", expect: ["בסדר", "תודה", "כן"], model: "בְּסֵדֶר, תּוֹדָה רַבָּה.", modelg: "OK, thanks a lot.", hint: "בסדר, תודה" }
     ] },
   { id: "he_d5", title: "Talking about the game", setting: "A friend asks about last night's game. Past tense and opinions.", level: "B1",
     turns: [
-      { bot: "אֵיךְ הָיָה הַמִּשְׂחָק אֶתְמוֹל?", botg: "How was the game yesterday?", expect: ["ניצחנו", "הפסדנו", "היה", "תיקו"], model: "נִצַּחְנוּ שָׁלוֹשׁ-שְׁתַּיִם!", modelg: "We won 3–2!", hint: "ניצחנו / הפסדנו / היה ..." },
-      { bot: "כָּל הַכָּבוֹד! הִבְקַעְתָּ שַׁעַר?", botg: "Well done! Did you score a goal?", expect: ["כן", "לא", "שער", "הבקעתי", "בישול"], model: "הִבְקַעְתִּי שַׁעַר אֶחָד וְנָתַתִּי בִּשּׁוּל.", modelg: "I scored one goal and gave an assist.", hint: "הבקעתי ... / לא, אבל ..." },
-      { bot: "מָה הָיָה הֲכִי קָשֶׁה?", botg: "What was the hardest?", expect: ["הכי קשה", "היה", "השליש", "עייפים", "מהירים"], model: "הֲכִי קָשֶׁה הָיָה הַשְּׁלִישׁ הָאַחֲרוֹן, הָיִינוּ עֲיֵפִים.", modelg: "The hardest was the last period; we were tired.", hint: "הכי קשה היה ..." },
+      { bot: "אֵיךְ הָיָה הַמִּשְׂחָק אֶתְמוֹל?", botg: "How was the game yesterday?", expect: ["ני?צחנו", "הפסדנו", "היה", "תיקו"], model: "נִצַּחְנוּ שָׁלוֹשׁ-שְׁתַּיִם!", modelg: "We won 3–2!", hint: "ניצחנו / הפסדנו / היה ..." },
+      { bot: "כָּל הַכָּבוֹד! הִבְקַעְתָּ שַׁעַר?", botg: "Well done! Did you score a goal?", expect: ["כן", "לא", "שער", "הבקעתי", "בי?שול"], model: "הִבְקַעְתִּי שַׁעַר אֶחָד וְנָתַתִּי בִּשּׁוּל.", modelg: "I scored one goal and gave an assist.", hint: "הבקעתי ... / לא, אבל ..." },
+      { bot: "מָה הָיָה הֲכִי קָשֶׁה?", botg: "What was the hardest?", expect: ["הכי קשה", "היה", "השליש", "עיי?פים", "מהירים"], model: "הֲכִי קָשֶׁה הָיָה הַשְּׁלִישׁ הָאַחֲרוֹן, הָיִינוּ עֲיֵפִים.", modelg: "The hardest was the last period; we were tired.", hint: "הכי קשה היה ..." },
       { bot: "מָתַי הַמִּשְׂחָק הַבָּא?", botg: "When's the next game?", expect: ["ביום", "בשבוע", "מחר", "הבא"], model: "בְּיוֹם שִׁשִּׁי, מִשְׂחַק חוּץ.", modelg: "On Friday, an away game.", hint: "ביום ... / בשבוע הבא" },
       { bot: "אֲנִי אָבוֹא לִרְאוֹת. בְּהַצְלָחָה!", botg: "I'll come and watch. Good luck!", expect: ["תודה", "סבבה", "יופי"], model: "סַבָּבָּה, תּוֹדָה!", modelg: "Cool, thanks!", hint: "תודה / סבבה" }
     ] }

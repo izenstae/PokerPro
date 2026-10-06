@@ -63,7 +63,7 @@
   add(vocabLesson("sv_v1", "The first thirty", "Pronouns, greetings, yes and no", "The words in every sentence: who, what, and the little ones that hold a conversation together.",
     "Frequency lists are brutal and useful: the hundred most common words of a language cover about half of everything said. Paul Nation's work on vocabulary shows the first 2,000 word families cover 80 to 90% of ordinary text, so the order you learn words in matters more than how many you know. These thirty are the top of the list. Learn them with their example sentences, not alone.",
     [{ t: "rule", x: "jag · du · han · hon · vi · ni · de\nmig · dig · honom · henne · oss · er · dem", note: "Subject forms, then object forms. 'De' and 'dem' are both pronounced 'dom' in speech." }]));
-  add(vocabLesson("sv_v2", "Thirty verbs", "Doing, having, wanting", "The verbs you will use in nine sentences out of ten. Present tense is the same for every person, so 'jag går, du går, vi går'.",
+  add(vocabLesson("sv_verbs", "Thirty verbs", "Doing, having, wanting", "The verbs you will use in nine sentences out of ten. Present tense is the same for every person, so 'jag går, du går, vi går'.",
     "Swedish verbs do not change for person: one present-tense form for everyone. That makes the first verbs cheap to learn. The forms listed are infinitive, present, past and supine; for now use the present (the -r form) and add the rest when the tense lessons come.",
     [{ t: "rule", x: "jag går · du går · han går · vi går · ni går · de går", note: "No conjugation by person, ever. The energy that English spends on 'goes' Swedish spends on word order." }]));
   add({ id: "sv_num", mode: "svnum", pass: 7, of: 10, title: "Numbers and the clock", sub: "0 to 1,000, days, and telling the time",
@@ -241,7 +241,7 @@
   /* ---------------- the path ---------------- */
   var PATH = [
     { title: "Sounds", sub: "Train the ear first", blurb: "The nine vowels, long and short, and the consonant rules that make Swedish spelling honest.", ids: ["sv_alpha", "sv_pairs", "sv_cons"] },
-    { title: "First words", sub: "The hundred that cover half of speech", blurb: "Pronouns, the core verbs, numbers, time and the first nouns, each on its own schedule.", ids: ["sv_v1", "sv_v2", "sv_num", "sv_v3", "sv_v4"] },
+    { title: "First words", sub: "The hundred that cover half of speech", blurb: "Pronouns, the core verbs, numbers, time and the first nouns, each on its own schedule.", ids: ["sv_v1", "sv_verbs", "sv_num", "sv_v3", "sv_v4"] },
     { title: "Grammar core", sub: "Gender, forms, verb second", blurb: "The machinery: en/ett, noun forms, the four verb groups, verb-second order, questions, negation, agreement, pronouns.", ids: ["sv_gender", "sv_nouns", "sv_pres", "sv_v2", "sv_qn", "sv_adj", "sv_pron"] },
     { title: "Vocabulary by theme", sub: "Toward a thousand words", blurb: "Food, daily life, the city, work, the body, feelings, nature, society, connectors, idioms.", ids: ["sv_v5", "sv_v6", "sv_v7", "sv_v8", "sv_v9", "sv_v10", "sv_v11", "sv_v12", "sv_v13", "sv_v14"] },
     { title: "Tenses and clauses", sub: "Past, future, BIFF, passive", blurb: "The two pasts, the futures and modals, subordinate word order, and the -s passive.", ids: ["sv_past", "sv_mod", "sv_biff", "sv_pass"] },
@@ -255,8 +255,8 @@
   function tts(text, caps) { return caps && caps.tts ? { text: text, lang: "sv-SE" } : null; }
   var DRILLS = {
     svletter: { name: "Letters", target: 6, gen: function (ctx) {
-      var row = pick(SV_LETTERS, ctx.rnd), others = lgShuffle(SV_LETTERS.filter(function (r) { return r !== row; }).slice(), ctx.rnd).slice(0, 3);
-      return { kind: "choice", question: "Which sound does <b class='tw'>" + row[0] + "</b> make?", options: lgShuffle([row[1]].concat(others.map(function (r) { return r[1]; })), ctx.rnd), answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b>: " + row[1]], speakAfter: tts(row[0], ctx.caps) };
+      var row = pick(SV_LETTERS, ctx.rnd);
+      return { kind: "choice", question: "Which sound does <b class='tw'>" + row[0] + "</b> make?", options: lgOptions(row[1], SV_LETTERS.map(function (r) { return r[1]; }), 3, ctx.rnd, "sv"), answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b>: " + row[1]], speakAfter: tts(row[0], ctx.caps) };
     } },
     svpair: { name: "Long or short", target: 6, gen: function (ctx) {
       var p = pick(SV_PAIRS, ctx.rnd), which = ctx.rnd() < 0.5 ? 0 : 1, word = p[which];
@@ -265,13 +265,13 @@
       return { kind: "choice", question: "Which spelling has the <b>" + (which ? "short" : "long") + "</b> vowel? (" + p[2] + ")", options: [p[0], p[1]], answer: word, target: 6, explain: expl };
     } },
     svsound: { name: "Sound rules", target: 6, gen: function (ctx) {
-      var row = pick(SV_SOUNDS, ctx.rnd), opts = lgShuffle([row[1]].concat(lgShuffle(SV_SOUND_RULES.filter(function (r) { return r !== row[1]; }).slice(), ctx.rnd).slice(0, 3)), ctx.rnd);
+      var row = pick(SV_SOUNDS, ctx.rnd), opts = lgOptions(row[1], SV_SOUND_RULES, 3, ctx.rnd, "sv");
       return { kind: "choice", question: "How is the first consonant of <b class='tw'>" + row[0] + "</b> (" + row[2] + ") pronounced?", options: opts, answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b>: " + row[1] + ". Look at the vowel after it: e, i, y, ä, ö soften k, g and sk."], speakAfter: tts(row[0], ctx.caps) };
     } },
     svnum: { name: "Numbers", target: 9, gen: function (ctx) {
       var n = ctx.rnd() < 0.4 ? (ctx.rnd() * 21) | 0 : ctx.rnd() < 0.7 ? 20 + ((ctx.rnd() * 80) | 0) : 100 + ((ctx.rnd() * 900) | 0);
       var w = lgNumberWords("sv", n);
-      return { kind: "text", question: "Write <b>" + n + "</b> in Swedish.", answer: w, accept: [w, w.replace(/ /g, "")], target: 9, explain: ["<b>" + n + "</b> = " + w], speakAfter: tts(w, ctx.caps) };
+      return { kind: "text", question: "Write <b>" + n + "</b> in Swedish.", answer: w, accept: [w, w.replace(/ /g, ""), w.replace(/^ettusen/, "tusen")], target: 9, explain: ["<b>" + n + "</b> = " + w], speakAfter: tts(w, ctx.caps) };
     } },
     svgender: { name: "En or ett", target: 5, gen: function (ctx) { return lgFormQ(SV_GENDER, "sv", ctx.rnd, ctx.caps); } },
     svnoun: { name: "Noun forms", target: 9, gen: function (ctx) { return lgFormQ(SV_NOUNS, "sv", ctx.rnd, ctx.caps); } },

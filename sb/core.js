@@ -163,7 +163,7 @@ function langLevel(c, st) {
   var gram = c.lessonList.filter(function (L) { return passable(L) && !L.vocab && L.mode !== "quiz"; });
   var gp = gram.filter(function (L) { return st.progress[c.id + ":" + L.id]; }).length;
   var A = st.applyScores || {};
-  var lv = lgLevel({ known: known, auto: auto, grammarPassed: gp, grammarTotal: gram.length, conv: A.conv, read: A.read, listen: A.listen, write: A.write, hours: (st.hours || 0) + minutesOf(st.plog, c.id) / 60, need: c.need || 700 });
+  var lv = lgLevel({ known: known, auto: auto, grammarPassed: gp, grammarTotal: gram.length, conv: A.conv, read: A.read, listen: A.listen, write: A.write, hours: (st.hours || 0) + minutesOf(st.plog, c.id) / 60, need: c.need || 700, total: ids.length });
   lv.detail = [["Words known (box 3+)", known + " of " + ids.length], ["Words automatic (box 5+)", auto], ["Grammar lessons passed", gp + " of " + gram.length], ["Conversation", A.conv == null ? "–" : Math.round(100 * A.conv) + "%"], ["Reading", A.read == null ? "–" : Math.round(100 * A.read) + "%"], ["Listening", A.listen == null ? "–" : Math.round(100 * A.listen) + "%"], ["Writing", A.write == null ? "–" : Math.round(100 * A.write) + "%"], ["Hours (study + logged)", Math.round(((st.hours || 0) + minutesOf(st.plog, c.id) / 60) * 10) / 10 + " of " + (c.need || 700)]];
   lv.count = LG_CEFR.length;
   return lv;

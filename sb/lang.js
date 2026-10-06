@@ -14,16 +14,38 @@
    Pure functions; the screen supplies speech and a keyboard.
    ============================================================ */
 
-var LG_NIQQUD = /[֑-ׇ]/g;
+var LG_NIQQUD = /[֑-ׇ]/g;                 /* U+0591–U+05C7: points, accents, and the maqaf, which lgStrip turns into a space first */
+var LG_MAQAF = /־/g;                       /* U+05BE: the Hebrew hyphen joins words, so it becomes a space, not nothing */
 var LG_FINALS = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };   /* ך ם ן ף ץ -> כ מ נ פ צ */
+var LG_LETTER = /[\p{L}\p{M}]/u;           /* a letter or a combining mark, in any script: \b fails for Hebrew and accented letters */
 
-function lgStrip(s) { return String(s || "").replace(LG_NIQQUD, ""); }
+function lgStrip(s) { return String(s || "").replace(LG_MAQAF, " ").replace(LG_NIQQUD, ""); }
 function lgNorm(s, lang) {
-  s = String(s == null ? "" : s).trim().toLowerCase();
+  s = String(s == null ? "" : s).normalize("NFC").trim().toLowerCase();
   s = s.replace(/\(.*?\)/g, "");                               /* "(to) run" -> "run" */
   if (lang === "he") { s = lgStrip(s).replace(/[ךםןףץ]/g, function (c) { return LG_FINALS[c]; }); s = s.replace(/[׳״'"]/g, ""); }
-  s = s.replace(/[.,!?;:"“”„«»…]/g, " ").replace(/\s+/g, " ").trim();
+  s = s.replace(/[.,!?¿¡;:"“”„«»…–—]/g, " ").replace(/\s+/g, " ").trim();
   return s;
+}
+/* word boundaries, Unicode-aware: a boundary is the start or end of the string, or a neighbour that is not a letter */
+function lgIsLetter(ch) { return !!ch && LG_LETTER.test(ch); }
+/* index of `needle` in `hay` with a boundary on both sides, or -1; `loose` relaxes the right side (a token that STARTS with the needle) */
+function lgFindWord(hay, needle, loose) {
+  if (!needle) return -1;
+  var i = hay.indexOf(needle);
+  while (i >= 0) {
+    if (!lgIsLetter(hay.charAt(i - 1)) && (loose || !lgIsLetter(hay.charAt(i + needle.length)))) return i;
+    i = hay.indexOf(needle, i + 1);
+  }
+  return -1;
+}
+/* de-duplicate by a key; the first of each key wins */
+function lgDistinct(list, keyOf) { var seen = {}, out = []; list.forEach(function (x) { var k = keyOf(x); if (!seen[k]) { seen[k] = 1; out.push(x); } }); return out; }
+/* multiple-choice options: the answer plus up to k distractors, all distinct by their normalised form, shuffled; fewer than k when the pool is small */
+function lgOptions(answer, pool, k, rnd, lang) {
+  var key = function (x) { return lgNorm(x, lang) || String(x).toLowerCase(); }, ak = key(answer);
+  var others = lgDistinct(lgShuffle(pool.filter(function (x) { return x != null && key(x) !== ak; }), rnd), key).slice(0, k);
+  return lgShuffle([answer].concat(others), rnd);
 }
 /* accepted answers: "a / b" or "a; b" in a gloss means either is fine */
 function lgSplit(g) { return String(g || "").split(/\s*[\/;]\s*|\s+or\s+/).map(function (x) { return x.trim(); }).filter(Boolean); }
@@ -74,11 +96,21 @@ var LG_LANG = { sv: { name: "Swedish", code: "sv-SE", rtl: false }, he: { name: 
 
 /* the word, as the learner should see it: Hebrew with points early, without later */
 function lgShow(item, box) { return item.lang === "he" && box >= 4 ? lgStrip(item.w) : item.w; }
+/* the example with the word blanked: { text, found } where `found` is the token taken out (the word itself, or an inflected
+   form that starts with it, like "går" for gå); null when the word is not in the sentence on a word boundary */
 function lgBlank(ex, w, lang) {
-  var plain = lang === "he" ? lgStrip(ex) : ex, target = lang === "he" ? lgStrip(w) : w;
-  var i = plain.toLowerCase().indexOf(target.toLowerCase());
-  if (i < 0) return null;
-  return plain.slice(0, i) + "____" + plain.slice(i + target.length);
+  var plain = lang === "he" ? lgStrip(ex) : String(ex || ""), target = (lang === "he" ? lgStrip(w) : String(w || "")).trim();
+  var low = plain.toLowerCase(), t = target.toLowerCase();
+  if (!t) return null;
+  var i = lgFindWord(low, t, false), end;
+  if (i >= 0) end = i + t.length;
+  else {
+    i = lgFindWord(low, t, true);
+    if (i < 0) return null;
+    end = i + t.length;
+    while (end < plain.length && lgIsLetter(plain.charAt(end))) end++;
+  }
+  return { text: plain.slice(0, i) + "____" + plain.slice(end), found: plain.slice(i, end) };
 }
 
 /* One question for a word, shaped by its box. caps: { tts: bool, asr: bool } says what the device can do. */
@@ -105,8 +137,9 @@ function lgWordQ(item, box, pool, caps, rnd) {
     return Object.assign(base, { kind: "text", question: "Type the " + L.name + " for <b>" + item.g + "</b>" + (item.pos ? " <small>(" + item.pos + ")</small>" : "") + ".", answer: item.w, accept: [item.w].concat(item.alt || []), target: 10, type: "produce", speak: null, speakAfter: caps.tts ? { text: item.w, lang: L.code } : null, keyboard: item.lang });
   }
   if (kind === "cloze") {
+    /* the form in the sentence is the answer; the base word (and its alternatives) are accepted too */
     var blank = lgBlank(item.ex, item.w, item.lang);
-    return Object.assign(base, { kind: "text", question: "Fill the gap: <span class='tw'>" + blank + "</span><br><small>" + item.exg + "</small>", answer: item.w, accept: [item.w].concat(item.alt || []), target: 12, type: "cloze", speak: null, speakAfter: caps.tts ? { text: item.ex, lang: L.code } : null, keyboard: item.lang });
+    return Object.assign(base, { kind: "text", question: "Fill the gap: <span class='tw'>" + blank.text + "</span><br><small>" + item.exg + "</small>", answer: blank.found, accept: [blank.found, item.w].concat(item.alt || []), target: 12, type: "cloze", speak: null, speakAfter: caps.tts ? { text: item.ex, lang: L.code } : null, keyboard: item.lang });
   }
   if (kind === "listen") {
     var useEx = item.ex && rnd() < 0.5;
@@ -134,25 +167,37 @@ function lgFormQ(table, lang, rnd, caps) {
   if (table.note) expl.push(table.note);
   if (table.rule && table.rule[ask]) expl.push(table.rule[ask]);
   var given = table.given == null ? 0 : table.given;
-  var others = table.rows.filter(function (r) { return r !== row && lgNorm(r[ask], lang) !== lgNorm(row[ask], lang); });
   var q = { kind: "text", question: table.q ? table.q.replace("{w}", "<b class='tw'>" + row[given] + "</b>").replace("{g}", row[table.gloss == null ? row.length - 1 : table.gloss]).replace("{form}", table.cols[ask]) :
     "<b class='tw'>" + row[given] + "</b> (" + row[row.length - 1] + "): give the <b>" + table.cols[ask] + "</b>.",
     answer: row[ask], accept: lgSplit(row[ask]).concat([row[ask]]), target: table.target || 10, explain: expl, lang: lang, rtl: L.rtl, keyboard: lang, speakAfter: caps.tts ? { text: lgSplit(row[ask])[0], lang: L.code } : null };
-  if (table.choice && others.length >= 3) {
-    var opts = lgShuffle([row[ask]].concat(lgShuffle(others.slice(), rnd).slice(0, 3).map(function (r) { return r[ask]; })), rnd);
-    q.kind = "choice"; q.options = opts; q.target = 7;
+  if (table.choice) {
+    /* distractors are the distinct other forms in the table; with fewer than two options the question stays typed */
+    var opts = lgOptions(row[ask], table.rows.filter(function (r) { return r !== row; }).map(function (r) { return r[ask]; }), 3, rnd, lang);
+    if (opts.length >= 2) { q.kind = "choice"; q.options = opts; q.target = 7; }
   }
   return q;
 }
 
 /* ---- the conversation grader ---- */
-/* a turn: { bot, botg, expect: [regex strings], model, modelg, hint }. A reply passes when any pattern matches. */
+/* a turn: { bot, botg, expect: [patterns], reject: [patterns], model, modelg, hint }. A reply passes when any expect pattern
+   matches and no reject pattern does. A pattern without regex metacharacters is literal: normalised like the reply and matched
+   on word boundaries ("ja" does not match "jag", "te" does not match "inte"); a multi-word literal matches a run of whole words.
+   A pattern with metacharacters is a regex, tested unanchored as written, with Hebrew points stripped and finals folded. */
+var LG_META = /[\\^$.*+?()[\]{}|]/;
+function lgPatternOk(p, s, lang) {
+  p = String(p == null ? "" : p);
+  if (LG_META.test(p)) {
+    var r = lang === "he" ? lgStrip(p).replace(/[ךםןףץ]/g, function (c) { return LG_FINALS[c]; }) : p.normalize("NFC");
+    try { return new RegExp(r, "i").test(s); } catch (e) { return false; }
+  }
+  var n = lgNorm(p, lang);
+  return !!n && lgFindWord(s, n, false) >= 0;
+}
 function lgTurnOk(turn, reply, lang) {
   var s = lgNorm(reply, lang);
   if (!s) return false;
-  return (turn.expect || []).some(function (p) {
-    try { return new RegExp(p, "i").test(s); } catch (e) { return lgNorm(p, lang) === s; }
-  });
+  if ((turn.reject || []).some(function (p) { return lgPatternOk(p, s, lang); })) return false;
+  return (turn.expect || []).some(function (p) { return lgPatternOk(p, s, lang); });
 }
 function lgDialogueScore(sc, replies, lang) {
   var ok = 0, n = sc.turns.filter(function (t) { return t.expect; }).length;
@@ -174,9 +219,13 @@ var LG_CEFR = [
   { min: 92, name: "C2", about: "Mastery. Near-native: nuance, idiom, register, anything you read or hear." }
 ];
 var LG_NEED = { sv: 700, he: 1100 };    /* FSI hours to professional working proficiency: Swedish category I, Hebrew category III */
+var LG_WORDS = 450;                      /* the vocabulary anchor when a course does not say how many words it has (the courses hold 425–514) */
+/* vocabulary: 25 points for words known, 10 more for words automatic, each on a log curve anchored at the course's word count
+   (st.total), so the term never falls when a word is promoted and all words automatic scores the full 35 */
 function lgLevelScore(st) {
-  var known = st.known || 0, auto = st.auto || 0;
-  var vocab = 30 * Math.min(1, Math.log(1 + known) / Math.log(1 + 5000)) + 5 * Math.min(1, auto / Math.max(1, known));
+  var known = st.known || 0, auto = st.auto || 0, total = st.total > 0 ? st.total : LG_WORDS;
+  var curve = function (n) { return Math.min(1, Math.log(1 + Math.max(0, n)) / Math.log(1 + total)); };
+  var vocab = 25 * curve(known) + 10 * curve(auto);
   var grammar = 25 * (st.grammarTotal ? st.grammarPassed / st.grammarTotal : 0);
   var uses = ["conv", "read", "listen", "write"].map(function (k) { return st[k]; }).filter(function (x) { return x != null; });
   var use = uses.length ? 20 * (uses.reduce(function (a, b) { return a + b; }, 0) / uses.length) * Math.min(1, uses.length / 4 + 0.5) : 0;
@@ -198,7 +247,7 @@ function lgNumberWords(lang, n) {
     if (n < 20) return ones[n];
     if (n < 100) return tens[(n / 10) | 0] + (n % 10 ? ones[n % 10] : "");
     if (n < 1000) return (n >= 200 ? ones[(n / 100) | 0] : "") + "hundra" + (n % 100 ? lgNumberWords("sv", n % 100) : "");
-    return (n >= 2000 ? ones[(n / 1000) | 0] : "ett") + "tusen" + (n % 1000 ? " " + lgNumberWords("sv", n % 1000) : "");
+    return (n >= 2000 ? ones[(n / 1000) | 0] + "tusen" : "ettusen") + (n % 1000 ? " " + lgNumberWords("sv", n % 1000) : "");   /* ett + tusen loses a t: ettusen */
   }
   /* Hebrew: the feminine forms, used for counting */
   var hOnes = ["אפס", "אחת", "שתיים", "שלוש", "ארבע", "חמש", "שש", "שבע", "שמונה", "תשע", "עשר"];
@@ -230,8 +279,8 @@ var HE_VOWELS = [
 ];
 
 if (typeof module !== "undefined") module.exports = {
-  LG_LANG: LG_LANG, LG_CEFR: LG_CEFR, LG_NEED: LG_NEED, HE_LETTERS: HE_LETTERS, HE_VOWELS: HE_VOWELS,
-  lgStrip: lgStrip, lgNorm: lgNorm, lgSplit: lgSplit, lgMatch: lgMatch, lgDistance: lgDistance, lgItem: lgItem, lgShuffle: lgShuffle, lgPickOthers: lgPickOthers,
-  lgShow: lgShow, lgBlank: lgBlank, lgWordQ: lgWordQ, lgLessonQ: lgLessonQ, lgFormQ: lgFormQ, lgTurnOk: lgTurnOk, lgDialogueScore: lgDialogueScore,
+  LG_LANG: LG_LANG, LG_CEFR: LG_CEFR, LG_NEED: LG_NEED, LG_WORDS: LG_WORDS, HE_LETTERS: HE_LETTERS, HE_VOWELS: HE_VOWELS,
+  lgStrip: lgStrip, lgNorm: lgNorm, lgIsLetter: lgIsLetter, lgFindWord: lgFindWord, lgDistinct: lgDistinct, lgOptions: lgOptions, lgSplit: lgSplit, lgMatch: lgMatch, lgDistance: lgDistance, lgItem: lgItem, lgShuffle: lgShuffle, lgPickOthers: lgPickOthers,
+  lgShow: lgShow, lgBlank: lgBlank, lgWordQ: lgWordQ, lgLessonQ: lgLessonQ, lgFormQ: lgFormQ, lgPatternOk: lgPatternOk, lgTurnOk: lgTurnOk, lgDialogueScore: lgDialogueScore,
   lgLevelScore: lgLevelScore, lgLevel: lgLevel, lgNumberWords: lgNumberWords
 };

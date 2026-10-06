@@ -41,7 +41,7 @@ var SV_VOCAB = {
     ["lite", "a little / some", "adv", "lite grann = a little bit", "Jag talar lite svenska.", "I speak a little Swedish."],
     ["mycket", "much / a lot / very", "adv", "mer, mest", "Tack så mycket!", "Thanks a lot!"]
   ],
-  sv_v2: [
+  sv_verbs: [
     ["gå", "go / walk", "verb", "går, gick, gått", "Jag går hem nu.", "I'm going home now."],
     ["komma", "come", "verb", "kommer, kom, kommit", "Kom hit!", "Come here!"],
     ["se", "see", "verb", "ser, såg, sett", "Jag ser dig.", "I see you."],
@@ -507,11 +507,11 @@ var SV_VERBS = {
     ["höra", "hör", "hörde", "hört", "2a", "hear"], ["glömma", "glömmer", "glömde", "glömt", "2a", "forget"], ["bo", "bor", "bodde", "bott", "3", "live"], ["tro", "tror", "trodde", "trott", "3", "believe"],
     ["må", "mår", "mådde", "mått", "3", "feel"], ["skriva", "skriver", "skrev", "skrivit", "4", "write"], ["dricka", "dricker", "drack", "druckit", "4", "drink"], ["komma", "kommer", "kom", "kommit", "4", "come"],
     ["gå", "går", "gick", "gått", "4", "go / walk"], ["se", "ser", "såg", "sett", "4", "see"], ["vara", "är", "var", "varit", "4", "be"], ["ha", "har", "hade", "haft", "irr", "have"],
-    ["göra", "gör", "gjorde", "gjort", "irr", "do / make"], ["säga", "säger", "sa", "sagt", "irr", "say"], ["veta", "vet", "visste", "vetat", "irr", "know"], ["få", "får", "fick", "fått", "4", "get / may"],
+    ["göra", "gör", "gjorde", "gjort", "irr", "do / make"], ["säga", "säger", "sade / sa", "sagt", "irr", "say"], ["veta", "vet", "visste", "vetat", "irr", "know"], ["få", "får", "fick", "fått", "4", "get / may"],
     ["ge", "ger", "gav", "gett", "4", "give"], ["ta", "tar", "tog", "tagit", "4", "take"], ["sova", "sover", "sov", "sovit", "4", "sleep"], ["äta", "äter", "åt", "ätit", "4", "eat"],
     ["springa", "springer", "sprang", "sprungit", "4", "run"], ["sitta", "sitter", "satt", "suttit", "4", "sit"], ["stå", "står", "stod", "stått", "4", "stand"], ["ligga", "ligger", "låg", "legat", "4", "lie"],
     ["bli", "blir", "blev", "blivit", "4", "become"], ["kunna", "kan", "kunde", "kunnat", "modal", "can"], ["vilja", "vill", "ville", "velat", "modal", "want"], ["behöva", "behöver", "behövde", "behövt", "2a", "need"],
-    ["börja", "börjar", "började", "börjat", "1", "begin"], ["förstå", "förstår", "förstod", "förstått", "4", "understand"], ["heta", "heter", "hette", "hetat", "irr", "be called"], ["lägga", "lägger", "la", "lagt", "irr", "put / lay"],
+    ["börja", "börjar", "började", "börjat", "1", "begin"], ["förstå", "förstår", "förstod", "förstått", "4", "understand"], ["heta", "heter", "hette", "hetat", "irr", "be called"], ["lägga", "lägger", "lade / la", "lagt", "irr", "put / lay"],
     ["sätta", "sätter", "satte", "satt", "irr", "put / set"], ["betala", "betalar", "betalade", "betalat", "1", "pay"], ["träffa", "träffar", "träffade", "träffat", "1", "meet"], ["leva", "lever", "levde", "levt", "2a", "live (be alive)"]
   ]
 };
@@ -598,7 +598,7 @@ var SV_DIALOGUES = [
       { bot: "Hej! Jag heter Anna. Vad heter du?", botg: "Hi! My name is Anna. What's your name?", expect: ["jag heter", "mitt namn"], model: "Hej! Jag heter Erik.", modelg: "Hi! My name is Erik.", hint: "Jag heter ... (My name is ...)" },
       { bot: "Trevligt att träffas! Var kommer du ifrån?", botg: "Nice to meet you! Where are you from?", expect: ["jag kommer från", "från"], model: "Jag kommer från Kanada.", modelg: "I'm from Canada.", hint: "Jag kommer från ... " },
       { bot: "Vad kul! Bor du här nu?", botg: "How nice! Do you live here now?", expect: ["^ja", "^nej", "jag bor"], model: "Ja, jag bor här nu.", modelg: "Yes, I live here now.", hint: "Ja / Nej, jag bor ..." },
-      { bot: "Spelar du hockey?", botg: "Do you play hockey?", expect: ["ja", "jag spelar"], model: "Ja, jag spelar hockey.", modelg: "Yes, I play hockey.", hint: "Ja, jag spelar ..." },
+      { bot: "Spelar du hockey?", botg: "Do you play hockey?", expect: ["ja", "jag spelar"], reject: ["nej", "inte"], model: "Ja, jag spelar hockey.", modelg: "Yes, I play hockey.", hint: "Ja, jag spelar ..." },
       { bot: "Perfekt! Vi ses på träningen. Hej då!", botg: "Perfect! See you at practice. Bye!", expect: ["hej då", "vi ses", "hejdå"], model: "Hej då, vi ses!", modelg: "Bye, see you!", hint: "Hej då / Vi ses" }
     ] },
   { id: "sv_d2", title: "At the café", setting: "Order a coffee and something to eat, then pay.", level: "A1",
@@ -612,13 +612,13 @@ var SV_DIALOGUES = [
     turns: [
       { bot: "Hej, kan jag hjälpa dig?", botg: "Hi, can I help you?", expect: ["var (är|ligger)", "stationen", "jag letar efter", "hur kommer jag"], model: "Ja, var ligger centralstationen?", modelg: "Yes, where is the central station?", hint: "Var ligger ...? / Hur kommer jag till ...?" },
       { bot: "Gå rakt fram och sväng till vänster vid banken. Är det långt?", botg: "Go straight ahead and turn left at the bank. Is it far? (she is testing you: say it back)", expect: ["rakt fram", "vänster", "banken"], model: "Rakt fram och till vänster vid banken.", modelg: "Straight ahead and left at the bank.", hint: "Repeat the directions: rakt fram ... vänster ..." },
-      { bot: "Precis. Det tar ungefär tio minuter. Ska du ta tåget?", botg: "Exactly. It takes about ten minutes. Are you taking the train?", expect: ["ja", "nej", "tåg", "stockholm", "jag ska"], model: "Ja, jag ska åka till Stockholm.", modelg: "Yes, I'm going to Stockholm.", hint: "Ja, jag ska åka till ..." },
+      { bot: "Precis. Det tar ungefär tio minuter. Ska du ta tåget?", botg: "Exactly. It takes about ten minutes. Are you taking the train?", expect: ["ja", "nej", "tåg(et)?", "stockholm", "jag ska"], model: "Ja, jag ska åka till Stockholm.", modelg: "Yes, I'm going to Stockholm.", hint: "Ja, jag ska åka till ..." },
       { bot: "Lycka till! Hej då.", botg: "Good luck! Bye.", expect: ["tack", "hej då"], model: "Tack så mycket! Hej då.", modelg: "Thanks a lot! Bye.", hint: "Tack ... hej då" }
     ] },
   { id: "sv_d4", title: "Booking a time at the doctor", setting: "You hurt your knee at hockey and call the health centre.", level: "A2",
     turns: [
-      { bot: "Vårdcentralen, det är Karin. Hur kan jag hjälpa dig?", botg: "The health centre, Karin speaking. How can I help you?", expect: ["boka", "tid", "ont i", "knä"], model: "Hej, jag vill boka en tid. Jag har ont i knät.", modelg: "Hi, I'd like to book an appointment. My knee hurts.", hint: "Jag vill boka en tid. Jag har ont i ..." },
-      { bot: "Jag förstår. När hände det?", botg: "I see. When did it happen?", expect: ["igår", "i går", "förra", "på (måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)", "träning", "match"], model: "Igår, på hockeyträningen.", modelg: "Yesterday, at hockey practice.", hint: "Igår / På ... träningen" },
+      { bot: "Vårdcentralen, det är Karin. Hur kan jag hjälpa dig?", botg: "The health centre, Karin speaking. How can I help you?", expect: ["boka", "tid", "ont i", "knä(t)?"], model: "Hej, jag vill boka en tid. Jag har ont i knät.", modelg: "Hi, I'd like to book an appointment. My knee hurts.", hint: "Jag vill boka en tid. Jag har ont i ..." },
+      { bot: "Jag förstår. När hände det?", botg: "I see. When did it happen?", expect: ["igår", "i går", "förra", "på (måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)", "träning(en)?", "match(en)?"], model: "Igår, på hockeyträningen.", modelg: "Yesterday, at hockey practice.", hint: "Igår / På ... träningen" },
       { bot: "Kan du komma imorgon klockan nio?", botg: "Can you come tomorrow at nine?", expect: ["ja", "det går bra", "nej", "klockan"], model: "Ja, det går bra.", modelg: "Yes, that works.", hint: "Ja, det går bra / Nej, kan jag komma klockan ...?" },
       { bot: "Bra. Vad heter du och vad har du för personnummer?", botg: "Good. What's your name and personal number?", expect: ["jag heter", "personnummer", "\\d"], model: "Jag heter Erik Berg, 010203-1234.", modelg: "My name is Erik Berg, 010203-1234.", hint: "Jag heter ... Mitt personnummer är ..." },
       { bot: "Tack, då ses vi imorgon. Krya på dig!", botg: "Thanks, see you tomorrow. Get well!", expect: ["tack", "hej då", "vi ses"], model: "Tack, hej då!", modelg: "Thanks, bye!", hint: "Tack ..." }
@@ -627,15 +627,15 @@ var SV_DIALOGUES = [
     turns: [
       { bot: "Hur gick matchen igår?", botg: "How did the game go yesterday?", expect: ["vann", "förlorade", "det gick", "oavgjort"], model: "Vi vann med 3–2!", modelg: "We won 3–2!", hint: "Vi vann / Vi förlorade / Det gick bra" },
       { bot: "Grattis! Gjorde du något mål?", botg: "Congratulations! Did you score?", expect: ["ja", "nej", "mål", "gjorde", "passning"], model: "Jag gjorde ett mål och en passning.", modelg: "I scored a goal and an assist.", hint: "Jag gjorde ... / Nej, men ..." },
-      { bot: "Vad var det svåraste?", botg: "What was the hardest part?", expect: ["svåraste", "var att", "tredje perioden", "trött", "snabba", "deras"], model: "Det svåraste var tredje perioden, vi var trötta.", modelg: "The hardest was the third period, we were tired.", hint: "Det svåraste var ..." },
-      { bot: "När är nästa match?", botg: "When's the next game?", expect: ["på (måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)", "nästa", "imorgon", "vecka"], model: "På lördag, borta mot Frölunda.", modelg: "On Saturday, away against Frölunda.", hint: "På ... / Nästa vecka" },
+      { bot: "Vad var det svåraste?", botg: "What was the hardest part?", expect: ["svåraste", "var att", "tredje perioden", "trött(a)?", "snabba", "deras"], model: "Det svåraste var tredje perioden, vi var trötta.", modelg: "The hardest was the third period, we were tired.", hint: "Det svåraste var ..." },
+      { bot: "När är nästa match?", botg: "When's the next game?", expect: ["på (måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)", "nästa", "imorgon", "veck(a|an)"], model: "På lördag, borta mot Frölunda.", modelg: "On Saturday, away against Frölunda.", hint: "På ... / Nästa vecka" },
       { bot: "Jag kommer och tittar. Lycka till!", botg: "I'll come and watch. Good luck!", expect: ["tack", "kul", "vad roligt"], model: "Tack, vad kul!", modelg: "Thanks, great!", hint: "Tack ..." }
     ] },
   { id: "sv_d6", title: "A disagreement, politely", setting: "A classmate wants to study late; you prefer mornings. Argue your case with eftersom, däremot, hålla med.", level: "B2",
     turns: [
       { bot: "Ska vi plugga ikväll klockan tio? Jag jobbar bäst sent.", botg: "Shall we study tonight at ten? I work best late.", expect: ["håller inte med", "hellre", "eftersom", "föredrar", "på morgonen", "tidigt"], model: "Jag föredrar morgonen eftersom jag har hockey på kvällarna.", modelg: "I prefer the morning because I have hockey in the evenings.", hint: "Jag föredrar ... eftersom ..." },
-      { bot: "Men på morgonen är jag helt död. Kan vi inte kompromissa?", botg: "But in the morning I'm completely dead. Can't we compromise?", expect: ["vad sägs om", "kan vi", "i stället", "klockan", "eftermiddag"], model: "Vad sägs om klockan fyra i stället?", modelg: "How about four o'clock instead?", hint: "Vad sägs om ... i stället?" },
-      { bot: "Okej, det funkar. Vilket kapitel börjar vi med?", botg: "OK, that works. Which chapter do we start with?", expect: ["kapitel", "börjar", "tycker", "det svåraste", "först"], model: "Jag tycker att vi börjar med det svåraste kapitlet först.", modelg: "I think we start with the hardest chapter first.", hint: "Jag tycker att vi ..." },
+      { bot: "Men på morgonen är jag helt död. Kan vi inte kompromissa?", botg: "But in the morning I'm completely dead. Can't we compromise?", expect: ["vad sägs om", "kan vi", "i stället", "klockan", "eftermiddag(en)?"], model: "Vad sägs om klockan fyra i stället?", modelg: "How about four o'clock instead?", hint: "Vad sägs om ... i stället?" },
+      { bot: "Okej, det funkar. Vilket kapitel börjar vi med?", botg: "OK, that works. Which chapter do we start with?", expect: ["kapit(el|let)", "börjar", "tycker", "det svåraste", "först"], model: "Jag tycker att vi börjar med det svåraste kapitlet först.", modelg: "I think we start with the hardest chapter first.", hint: "Jag tycker att vi ..." },
       { bot: "Håller med. Jag tar med kaffe. Ses!", botg: "Agreed. I'll bring coffee. See you!", expect: ["ses", "tack", "perfekt", "bra"], model: "Perfekt, vi ses!", modelg: "Perfect, see you!", hint: "Perfekt / Vi ses" }
     ] }
 ];
@@ -653,7 +653,7 @@ var SV_READINGS = [
       "I Gamla stan finns det många små gator och gamla hus. Jag drack kaffe på ett litet kafé och åt en kanelbulle. Sedan gick jag till Kungliga slottet. Det var mycket folk där.",
       "På eftermiddagen tog jag båten till Djurgården och besökte Vasamuseet. Skeppet Vasa sjönk år 1628 och hittades igen 1961. Det var fantastiskt att se. På kvällen åkte jag hem, trött men nöjd."
     ], gloss: [["kom fram", "arrived"], ["slottet", "the palace"], ["folk", "people"], ["skeppet", "the ship"], ["sjönk", "sank"], ["hittades", "was found"]],
-    qs: [{ q: "Hur åkte hon till Stockholm?", options: ["Med bil", "Med tåg", "Med buss", "Med båt"], answer: "Med tåg" }, { q: "Vad gjorde hon på eftermiddagen?", options: ["Drack kaffe", "Gick till slottet", "Besökte Vasamuseet", "Åkte hem"], answer: "Besökte Vasamuseet" }, { q: "När sjönk Vasa?", options: ["1628", "1961", "1828", "1961"], answer: "1628" }] },
+    qs: [{ q: "Hur åkte hon till Stockholm?", options: ["Med bil", "Med tåg", "Med buss", "Med båt"], answer: "Med tåg" }, { q: "Vad gjorde hon på eftermiddagen?", options: ["Drack kaffe", "Gick till slottet", "Besökte Vasamuseet", "Åkte hem"], answer: "Besökte Vasamuseet" }, { q: "När sjönk Vasa?", options: ["1628", "1961", "1828", "1721"], answer: "1628" }] },
   { id: "sv_r3", title: "Fika", level: "A2", text: [
       "Fika är mer än en kaffepaus. Det är en svensk tradition och nästan ett sätt att leva. Man dricker kaffe eller te och äter något sött, ofta en kanelbulle eller en bit kaka. Men det viktigaste är inte maten. Det viktigaste är att man tar en paus och pratar med andra.",
       "På många arbetsplatser fikar man två gånger om dagen, på förmiddagen och på eftermiddagen. Chefen och de anställda sitter vid samma bord. Många svenskar säger att de bästa idéerna kommer under fikat.",
