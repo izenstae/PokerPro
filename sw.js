@@ -1,7 +1,7 @@
 /* Skill Builder service worker: the hub, PokerPro and the Math 340 tool all work offline after one visit.
    Pages: network first (the newest version when online), falling back to the cache. Everything else: cache first.
    The cache name carries a hash of the build, so a new build replaces the old cache on the next load. */
-var CACHE = "skillbuilder-34e87e5c90";
+var CACHE = "skillbuilder-2d14767099";
 var CORE = [
  "./",
  "./index.html",

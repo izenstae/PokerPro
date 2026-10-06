@@ -9537,7 +9537,10 @@ window.MATH340 = {
  *         indicator random variables; Geometric, Negative Binomial and
  *         Poisson (B&H 4.3, 4.7 — second half of the C3 notes);
  *         the Binomial → Poisson limit, functions of two r.v.s, and the
- *         full independence definitions (complete C3 deck).
+ *         full independence definitions (complete C3 deck); the final
+ *         pass over the deck added the Bernoulli examples (a rate, a
+ *         win-loss record, a series of games) and the numbered-range
+ *         uniforms (dorm-room lottery, choosing a partner).
  * ============================================================ */
 (function () {
   const U = MATH340.util;
@@ -9620,6 +9623,11 @@ window.MATH340 = {
       back: R`An experiment that results in either a <b>success</b> or a <b>failure</b> (but not both). The indicator of success is \(\text{Bern}(p)\), where \(p = P(\text{success})\).`,
     },
     {
+      id: "c3-bern-model", tag: "Example · win–loss record",
+      front: R`A team's record is 88–66. Let \(X = 1\) if they win their next game and \(0\) if they lose. What is the distribution of \(X\), and what is \(p\)?`,
+      back: R`\(X \sim \text{Bern}(p)\): one game is one Bernoulli trial. The record does not <em>give</em> \(p\) — it <b>estimates</b> it, under the modelling assumptions that every game has the same win probability and the games are independent: $$p \approx \frac{88}{88 + 66} = \frac{88}{154} = \frac{4}{7} \approx 0.571.$$ So \(P(X = 1) = 4/7\) and \(P(X = 0) = 3/7\). The number of wins in a series of \(n\) such games is then \(\text{Bin}(n, 4/7)\).`,
+    },
+    {
       id: "c3-binom-exp", tag: "Binomial experiment",
       front: R`List the four conditions for a <em>binomial experiment</em>.`,
       back: R`1. A <b>fixed number</b> of trials, \(n\).<br>2. Each trial has exactly <b>two outcomes</b>, success or failure.<br>3. The trials are <b>independent</b>.<br>4. The success probability \(p\) is the <b>same</b> on every trial.<br>If any fails (e.g. drawing without replacement breaks 3 and 4), \(X\) is not Binomial.`,
@@ -9690,6 +9698,11 @@ window.MATH340 = {
       id: "c3-dunif-trap", tag: "Common pitfall",
       front: R`Two fair dice are rolled and \(T\) is their total. Is \(T\) Discrete Uniform on \(\{2, \dots, 12\}\)?`,
       back: R`<b>No.</b> The 36 <em>outcomes</em> are equally likely, but the 11 <em>totals</em> are not: \(P(T = 7) = 6/36\) while \(P(T = 2) = 1/36\). "Uniform" is a claim about the values of the r.v., not about the underlying outcomes. A function of a uniform r.v. is usually not uniform.`,
+    },
+    {
+      id: "c3-dunif-shifted", tag: "DUnif · counting the support",
+      front: R`Dorm rooms 301–335 are equally likely; partners numbered 2–9 are equally likely. What is \(|C|\) in each case, and what is the usual slip?`,
+      back: R`\(|C| = b - a + 1\), not \(b - a\) and not \(b\): rooms \(301, \dots, 335\) are \(35\) rooms and partners \(2, \dots, 9\) are \(8\) people. So \(P(\text{room } 317) = 1/35\) and \(P(\text{partner} \in \{5, 6, 7\}) = 3/8\). Count the favourable values the same way: the even rooms are \(302, 304, \dots, 334\), which is \(17\) of the \(35\).`,
     },
 
     {
@@ -9767,6 +9780,11 @@ window.MATH340 = {
       id: "c3-fn-collapse", tag: "Functions · pitfall",
       front: R`Why can the support of \(Y = g(X)\) be <em>smaller</em> than the support of \(X\)?`,
       back: R`Because \(g\) need not be one-to-one: distinct values of \(X\) can map to the same \(y\), and their probabilities <b>add</b>. E.g. if \(X \in \{-2,-1,0,1,2\}\) then \(Y = X^2 \in \{0,1,4\}\), with \(P(Y = 1) = P(X = -1) + P(X = 1)\). If \(g\) <em>is</em> one-to-one the probabilities just move across unchanged.`,
+    },
+    {
+      id: "c3-fn-one-to-one", tag: "One-to-one transformation",
+      front: R`If \(g\) is <em>one-to-one</em>, what are the support and PMF of \(Y = g(X)\)?`,
+      back: R`Distinct \(x\) give distinct \(y\), so nothing collapses: $$\operatorname{supp}(Y) = \{g(x) : x \in \operatorname{supp}(X)\}, \qquad P(Y = g(x)) = P(X = x).$$ The probabilities are carried across unchanged; only the labels move. E.g. \(P(X = x) = x/6\) on \(\{1, 2, 3\}\) and \(Y = 3X\): \(Y \in \{3, 6, 9\}\) with \(P(Y = 3) = 1/6\), \(P(Y = 6) = 2/6\), \(P(Y = 9) = 3/6\).`,
     },
 
     /* ---- Section 3.8: independence of random variables ---- */
@@ -10451,6 +10469,152 @@ window.MATH340 = {
       ],
     }),
 
+    /* ========== 3b. Bernoulli (Section 3.3, first half) ========== */
+    MATH340.makeGenerator({
+      id: "c3-gen-bern",
+      name: "Bernoulli distribution",
+      blurb: "One trial, two outcomes: read p off a rate, estimate it from a record, build it from an event — and spot what is not a Bernoulli trial.",
+      variants: [
+        {
+          name: "Read p off a stated rate",
+          make() {
+            // one/zero: the opening sentence (3rd person singular); oneC/zeroC: the clauses in the cases.
+            const c = U.pick([
+              { pct: U.randInt(15, 45), one: R`buys a desktop computer`, zero: R`buys a laptop`, oneC: R`they buy a desktop`, zeroC: R`they buy a laptop`, who: R`The next customer at an electronics store` },
+              { pct: U.randInt(80, 96), one: R`succeeds`, zero: R`fails`, oneC: R`the connection succeeds`, zeroC: R`the connection fails`, who: R`An attempt to connect to the university computer system` },
+              { pct: U.randInt(2, 9), one: R`is defective`, zero: R`is not defective`, oneC: R`the product is defective`, zeroC: R`the product is not defective`, who: R`The next product off a production line` },
+              { pct: U.randInt(3, 12), one: R`is on a bike`, zero: R`is on foot`, oneC: R`they are on a bike`, zeroC: R`they are on foot`, who: R`The next person travelling down a sidewalk` },
+            ]);
+            const p = c.pct / 100;
+            const askZero = Math.random() < 0.6;
+            const ans = askZero ? 1 - p : p;
+            return {
+              q: R`${c.who} ${c.one} with probability \(${c.pct}\%\), and otherwise ${c.zero}. Define $$X = \begin{cases} 1, & \text{if ${c.oneC}}, \\ 0, & \text{if ${c.zeroC}.} \end{cases}$$ Find \(P(X = ${askZero ? 0 : 1})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">One trial with exactly two outcomes, coded 1 and 0: \(X\) is a Bernoulli r.v., and \(p\) is \(P(X = 1)\) — the probability of whatever the problem has <em>labelled</em> 1, whether or not that outcome is "good".</div>
+                   <div class="sol-step">$$X \sim \text{Bern}(${U.fmt(p, 2)}), \qquad P(X = 1) = ${U.fmt(p, 2)}, \quad P(X = 0) = 1 - ${U.fmt(p, 2)} = ${U.fmt(1 - p, 2)}.$$</div>
+                   <div class="sol-step">So \(P(X = ${askZero ? 0 : 1}) = ${U.fmt(ans, 2)}\). Those two values are the entire PMF.</div>`,
+            };
+          },
+        },
+        {
+          name: "Estimate p from a record",
+          make() {
+            const c = U.pick([
+              { W: U.randInt(50, 100), L: U.randInt(40, 100), unit: "games", win: "win", lose: "lose", who: "A baseball team" },
+              { W: U.randInt(20, 60), L: U.randInt(10, 50), unit: "matches", win: "win", lose: "lose", who: "A tennis player" },
+              { W: U.randInt(30, 90), L: U.randInt(5, 40), unit: "launches", win: "succeed", lose: "fail", who: "A rocket programme" },
+            ]);
+            const T = c.W + c.L;
+            const askZero = Math.random() < 0.6;
+            const ans = askZero ? c.L / T : c.W / T;
+            return {
+              q: R`${c.who} has a record of ${c.W}–${c.L} (${c.W} ${c.win}s, ${c.L} losses, in ${T} ${c.unit}). Assume every ${c.unit.replace(/s$/, "")} has the same chance of a ${c.win} and that the ${c.unit} are independent. Let \(X = 1\) if the next one is a ${c.win} and \(X = 0\) otherwise. Using the record to estimate the parameter, find \(P(X = ${askZero ? 0 : 1})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X \sim \text{Bern}(p)\). The record does not <em>give</em> \(p\); it estimates it, and only under the two assumptions stated (constant \(p\), independent trials).</div>
+                   <div class="sol-step">$$p \approx \frac{\text{${c.win}s}}{\text{total}} = \frac{${c.W}}{${c.W} + ${c.L}} = ${U.fracTex(c.W, T)} \approx ${U.fmt(c.W / T, 4)}$$</div>
+                   <div class="sol-step">${askZero ? R`$$P(X = 0) = 1 - p = \frac{${c.L}}{${T}} = ${U.fracTex(c.L, T)} \approx ${U.fmt(ans, 4)}$$` : R`$$P(X = 1) = p = ${U.fracTex(c.W, T)} \approx ${U.fmt(ans, 4)}$$`}</div>`,
+            };
+          },
+        },
+        {
+          name: "From one trial to a series (Binomial)",
+          make: sane(() => {
+            const c = U.pick([
+              { W: U.randInt(50, 100), L: U.randInt(40, 100), unit: "games", win: "win", who: "A baseball team" },
+              { W: U.randInt(20, 60), L: U.randInt(10, 50), unit: "matches", win: "win", who: "A tennis player" },
+            ]);
+            const T = c.W + c.L, p = c.W / T;
+            const n = U.randInt(4, 12), k = U.randInt(1, n - 1);
+            const ans = binPmf(n, k, p);
+            return {
+              q: R`${c.who} has a record of ${c.W}–${c.L}. Treat each ${c.unit.replace(/s$/, "")} as an independent Bernoulli trial whose success probability is estimated from the record. They now play a series of ${n} ${c.unit}. What is the probability that they ${c.win} exactly ${k} of them?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Each ${c.unit.replace(/s$/, "")} is one \(\text{Bern}(p)\) trial with \(p \approx ${c.W}/${T} \approx ${U.fmt(p, 4)}\). A fixed number \(n = ${n}\) of independent trials with the same \(p\): the <b>number of ${c.win}s</b> is Binomial.</div>
+                   <div class="sol-step">$$X \sim \text{Bin}(${n}, ${U.fmt(p, 4)}), \qquad P(X = ${k}) = \binom{${n}}{${k}}(${U.fmt(p, 4)})^{${k}}(${U.fmt(1 - p, 4)})^{${n - k}} \approx ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">Bernoulli is the one-trial case: \(\text{Bin}(1, p) = \text{Bern}(p)\), and a sum of \(n\) i.i.d. Bernoullis is \(\text{Bin}(n, p)\).</div>`,
+            };
+          }),
+        },
+        {
+          name: "Bernoulli built from a uniform outcome",
+          make() {
+            const d = U.pick([6, 8, 10, 12, 20]);
+            const form = U.randInt(0, 2);
+            let evt, count, list;
+            if (form === 0) {
+              const m = U.randInt(Math.ceil(d / 2), d - 1);
+              evt = R`the roll is at least ${m}`; count = d - m + 1;
+              list = R`\(\{${m}, \dots, ${d}\}\), which has \(${d} - ${m} + 1 = ${count}\) values`;
+            } else if (form === 1) {
+              const m = U.randInt(2, Math.floor(d / 2));
+              evt = R`the roll is at most ${m}`; count = m;
+              list = R`\(\{1, \dots, ${m}\}\), which has \(${count}\) values`;
+            } else {
+              const q = U.pick([3, 4, 5].filter(x => x < d));
+              evt = R`the roll is a multiple of ${q}`; count = Math.floor(d / q);
+              list = R`\(\{${Array.from({ length: count }, (_, i) => (i + 1) * q).join(", ")}\}\): \(\lfloor ${d}/${q} \rfloor = ${count}\) values`;
+            }
+            const ans = count / d;
+            return {
+              q: R`A fair ${d}-sided die is rolled once. Let \(X = 1\) if ${evt}, and \(X = 0\) otherwise. Identify the distribution of \(X\) and find its parameter \(p = P(X = 1)\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X\) is the <b>indicator</b> of the event \(A = \{\text{${evt}}\}\), so \(X \sim \text{Bern}(p)\) with \(p = P(A)\). The roll itself is \(\text{DUnif}(\{1, \dots, ${d}\})\), so \(P(A)\) is a count over \(${d}\).</div>
+                   <div class="sol-step">Favourable rolls: ${list}.</div>
+                   <div class="sol-step">$$p = P(A) = \frac{${count}}{${d}} = ${U.fracTex(count, d)} \approx ${U.fmt(ans, 4)}, \qquad X \sim \text{Bern}\!\left(${U.fracTex(count, d)}\right).$$</div>`,
+            };
+          },
+        },
+        {
+          name: "Indicator of a complement, union or difference",
+          make() {
+            const v = U.venn2();
+            const form = U.randInt(0, 2);
+            const cfg = [
+              { expr: R`1 - I_A`, event: R`A^c`, ans: 1 - v.pa, calc: R`P(A^c) = 1 - ${hund(v.pct.a)} = ${U.fmt(1 - v.pa, 2)}` },
+              { expr: R`\max(I_A, I_B)`, event: R`A \cup B`, ans: v.union, calc: R`P(A \cup B) = P(A) + P(B) - P(A \cap B) = ${hund(v.pct.a)} + ${hund(v.pct.b)} - ${hund(v.pct.both)} = ${U.fmt(v.union, 2)}` },
+              { expr: R`I_A(1 - I_B)`, event: R`A \cap B^c`, ans: v.onlyA, calc: R`P(A \cap B^c) = P(A) - P(A \cap B) = ${hund(v.pct.a)} - ${hund(v.pct.both)} = ${U.fmt(v.onlyA, 2)}` },
+            ][form];
+            return {
+              q: R`Events \(A\) and \(B\) have \(P(A) = ${hund(v.pct.a)}\), \(P(B) = ${hund(v.pct.b)}\) and \(P(A \cap B) = ${hund(v.pct.both)}\). Let \(I_A, I_B\) be their indicators and define \(Y = ${cfg.expr}\). \(Y\) is a Bernoulli r.v.; find its parameter \(P(Y = 1)\).`,
+              answer: cfg.ans, kind: "prob",
+              sol: R`<div class="sol-step">Indicators only take the values 0 and 1, so work out <em>which event</em> makes \(Y = 1\). Here \(Y = ${cfg.expr}\) equals 1 exactly when \(${cfg.event}\) occurs: \(Y = I_{${cfg.event}}\).</div>
+                   <div class="sol-step">An indicator is \(\text{Bern}(p)\) with \(p\) the probability of its event: $$P(Y = 1) = ${cfg.calc}.$$</div>
+                   <div class="sol-step">The indicator identities to keep handy: \(I_{A^c} = 1 - I_A\), \(I_{A \cap B} = I_A I_B\), \(I_{A \cup B} = I_A + I_B - I_A I_B = \max(I_A, I_B)\).</div>`,
+            };
+          },
+        },
+        {
+          name: "Bernoulli trial or not?",
+          make() {
+            const BANK = [
+              [true, R`toss a coin and record H or T`, R`two outcomes`],
+              [true, R`inspect one product and record whether it is defective`, R`two outcomes: defective / not`],
+              [true, R`try to connect to the university computer system and record whether the connection succeeds`, R`two outcomes: success / failure`],
+              [true, R`roll a die and record whether it shows a six`, R`two outcomes: six / not six (the die has six faces, but you only record one yes/no)`],
+              [true, R`ask a customer whether they bought a desktop (yes or no)`, R`two outcomes`],
+              [true, R`check whether a randomly chosen student is absent on the first day`, R`two outcomes: absent / present`],
+              [false, R`roll a die and record the face showing`, R`six outcomes`],
+              [false, R`count the defective items in a lot of 20`, R`\(21\) possible counts; it is a <em>sum</em> of 20 Bernoulli trials`],
+              [false, R`toss a coin five times and record the number of heads`, R`six possible values, \(\text{Bin}(5, p)\), not a single trial`],
+              [false, R`record whether a customer buys a laptop, a desktop, or nothing`, R`three outcomes`],
+              [false, R`measure the time until the connection is established`, R`a continuous measurement`],
+              [false, R`keep tossing a coin and record how many tosses the first tail takes`, R`infinitely many values; a sequence of trials, not one`],
+            ];
+            const items = U.sample(BANK, 5);
+            const ans = items.filter(i => i[0]).length;
+            return {
+              q: R`A <b>Bernoulli trial</b> is an experiment with exactly two outcomes, success or failure. How many of these are Bernoulli trials?<ol>${items.map(i => `<li>${i[1]}</li>`).join("")}</ol>`,
+              answer: ans, kind: "count",
+              sol: R`<div class="sol-step">Ask "how many outcomes does <em>one</em> run of this record?" Exactly two means a Bernoulli trial. A count of successes over several runs, a face value, a measurement or a three-way choice is not — even if it is <em>built from</em> Bernoulli trials.</div>
+                   <div class="sol-step"><ol>${items.map(i => `<li>${i[0] ? "<b>Bernoulli</b>" : "<b>Not Bernoulli</b>"}: ${i[2]}.</li>`).join("")}</ol></div>
+                   <div class="sol-step">${ans} of the 5 are Bernoulli trials. Any yes/no question about an outcome is one: \(X = I_A \sim \text{Bern}(P(A))\).</div>`,
+            };
+          },
+        },
+      ],
+    }),
+
     /* ========== 4. Binomial ========== */
     MATH340.makeGenerator({
       id: "c3-gen-binom",
@@ -10821,6 +10985,50 @@ window.MATH340 = {
                    <div class="sol-step">Slightly less than \(${n}/${N}\): with replacement some draws are wasted on repeats.</div>`
                 : R`<div class="sol-step">Without replacement, each \(j\)th draw is still \(\text{DUnif}(\{1, \dots, ${N}\})\) by symmetry, and the events "draw \(j\) is slip ${N}" are <b>disjoint</b> — a slip can only come out once.</div>
                    <div class="sol-step">$$P(\text{slip ${N} drawn}) = \sum_{j=1}^{${n}} \frac{1}{${N}} = \frac{${n}}{${N}} \approx ${U.fmt(ans, 5)}$$ Equivalently \(\binom{${N - 1}}{${n - 1}} / \binom{${N}}{${n}} = ${n}/${N}\).</div>`,
+            };
+          },
+        },
+        {
+          name: "Numbered from a to b: count the support",
+          make() {
+            if (Math.random() < 0.5) {
+              // Choosing a partner: students numbered 2..hi, you are number 1.
+              const hi = U.randInt(8, 15);
+              const size = hi - 2 + 1;
+              const friends = U.sample(Array.from({ length: size }, (_, i) => i + 2), U.randInt(2, 3)).sort((x, y) => x - y);
+              const ans = friends.length / size;
+              return {
+                q: R`The students in your class are randomly numbered \(2\) to \(${hi}\) (you are number \(1\)). The teacher picks your partner uniformly at random from these students; let \(X\) be your partner's number. Your friends are numbers \(${friends.join(", ")}\). What is the probability that your partner is one of your friends?`,
+                answer: ans, kind: "prob",
+                sol: R`<div class="sol-step">\(X \sim \text{DUnif}(\{2, \dots, ${hi}\})\). The support starts at 2, so count it: \(|C| = ${hi} - 2 + 1 = ${size}\), not \(${hi}\).</div>
+                     <div class="sol-step">The PMF is \(P(X = x) = 1/${size}\) for \(x = 2, \dots, ${hi}\). The friends form a subset \(A\) with \(|A| = ${friends.length}\).</div>
+                     <div class="sol-step">$$P(X \in A) = \frac{|A|}{|C|} = \frac{${friends.length}}{${size}} \approx ${U.fmt(ans, 5)}$$</div>`,
+              };
+            }
+            // Dorm-room lottery: rooms f01..fNN on floor f.
+            const f = U.randInt(2, 7), last = U.randInt(24, 40);
+            const lo = f * 100 + 1, hi = f * 100 + last;
+            const size = hi - lo + 1;
+            const form = U.randInt(0, 2);
+            let evt, count, how;
+            if (form === 0) {
+              evt = R`an <b>even</b>-numbered room`; count = Math.floor(last / 2);
+              how = R`the even rooms are \(${lo + 1}, ${lo + 3}, \dots, ${lo + 1 + 2 * (count - 1)}\): \(${count}\) of them`;
+            } else if (form === 1) {
+              evt = R`an <b>odd</b>-numbered room`; count = Math.ceil(last / 2);
+              how = R`the odd rooms are \(${lo}, ${lo + 2}, \dots, ${lo + 2 * (count - 1)}\): \(${count}\) of them`;
+            } else {
+              const t = U.randInt(lo + 5, hi - 5);
+              evt = R`a room numbered <b>\(${t}\) or higher</b>`; count = hi - t + 1;
+              how = R`rooms \(${t}, \dots, ${hi}\): \(${hi} - ${t} + 1 = ${count}\) of them (count both ends)`;
+            }
+            const ans = count / size;
+            return {
+              q: R`In the dorm lottery you will be on floor ${f}, with an equal chance of getting any room from \(${lo}\) to \(${hi}\). Let \(X\) be your room number. What is the probability that you get ${evt}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X \sim \text{DUnif}(\{${lo}, \dots, ${hi}\})\), so every probability is a count over \(|C|\). Count the support from its first label: \(|C| = ${hi} - ${lo} + 1 = ${size}\) rooms.</div>
+                   <div class="sol-step">Favourable rooms: ${how}.</div>
+                   <div class="sol-step">$$P = \frac{${count}}{${size}} \approx ${U.fmt(ans, 5)}$$</div>`,
             };
           },
         },
@@ -11528,6 +11736,11 @@ window.MATH340 = {
       why: R`Including the left endpoint means subtracting \(F(a^-)\). Excluding the right endpoint means using \(F(b^-)\). Upper tails: \(1 - F(a)\).`,
     },
     {
+      when: R`one trial recorded as success/failure, win/lose, "record whether…"; a stated rate or a win–loss record`,
+      use: R`\(X \sim \text{Bern}(p)\): \(X\) is the indicator of the success event`,
+      why: R`\(P(X = 1) = p\), \(P(X = 0) = 1 - p\), and that is the whole PMF. A stated rate <em>is</em> \(p\); a record only <em>estimates</em> it (\(88\)–\(66\) gives \(p \approx 88/154\)) under the assumptions of constant \(p\) and independent trials. Several such trials turn the count into \(\text{Bin}(n, p)\).`,
+    },
+    {
       when: R`fixed number of independent trials, same success chance each time, "how many succeed"`,
       use: R`\(\text{Bin}(n, p)\): \(\binom{n}{k}p^k(1-p)^{n-k}\)`,
       why: R`Check all four conditions (fixed \(n\), two outcomes, independent, constant \(p\)). A rate such as "8 out of 16" is how \(p\) is given.`,
@@ -11551,6 +11764,11 @@ window.MATH340 = {
       when: R`"chosen at random" from a finite list, with nothing to tell the items apart`,
       use: R`Discrete Uniform: \(P(X = x) = 1/|C|\)`,
       why: R`Every probability collapses to a count: \(P(X \in A) = |A|/|C|\). But check it really is the <em>values</em> that are equally likely — the total of two dice is not uniform even though the 36 rolls are.`,
+    },
+    {
+      when: R`equally likely values numbered from \(a\) to \(b\) (rooms 301–335, partners 2–9)`,
+      use: R`\(|C| = b - a + 1\), then \(P(X \in A) = |A| / |C|\)`,
+      why: R`The support does not start at 1, so count it rather than reading off the last label: \(301, \dots, 335\) is \(35\) rooms. Count the favourable values the same way (the even rooms are \(302, \dots, 334\): \(17\) of them).`,
     },
     {
       when: R`a new r.v. is built from an old one: \(Y = g(X)\), \(X^2\), \(|X|\), \(\min(X, c)\)`,
