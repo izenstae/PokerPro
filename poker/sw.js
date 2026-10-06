@@ -1,7 +1,7 @@
 /* PokerPro service worker: the app works offline after one visit.
    Pages: network first (you always get the newest version when online),
    falling back to the cached copy. Everything else: cache first. */
-var CACHE = "pokerpro-v1";
+var CACHE = "pokerpro-v2";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", function (e) {
