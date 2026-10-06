@@ -15,7 +15,7 @@ function drawWeek(box) {
   var w = el("div", "week"); w.style.setProperty("--hour", hourPx + "px");
   w.appendChild(el("div", "hd", ""));
   var sunday = new Date(now); sunday.setDate(now.getDate() - wd);
-  for (var d = 0; d < 7; d++) { var dt = new Date(sunday); dt.setDate(sunday.getDate() + d); var B = plBudget(S, d); w.appendChild(el("div", "hd" + (d === wd ? " today" : ""), PL_DAYS_SHORT[d] + "<b>" + dt.getDate() + "</b>" + B.minutes + " min" + (B.why ? "<br><span style='color:var(--gold)'>" + esc(B.why) + "</span>" : ""))); }
+  for (var d = 0; d < 7; d++) { var dt = new Date(sunday); dt.setDate(sunday.getDate() + d); var B = plBudget(S, d); w.appendChild(el("div", "hd" + (d === wd ? " today" : ""), PL_DAYS_SHORT[d] + "<b>" + dt.getDate() + "</b>" + B.minutes + " min" + (B.why ? "<br><span style='color:var(--accent)'>" + esc(B.why) + "</span>" : ""))); }
   var hrs = el("div", "hrs"); hrs.style.height = (endH - startH) * hourPx + "px";
   for (var h = startH; h <= endH; h++) { var lab = el("i", "", plFmt(h * 60)); lab.style.top = (h - startH) * hourPx + "px"; hrs.appendChild(lab); }
   w.appendChild(hrs);
@@ -27,7 +27,7 @@ function drawWeek(box) {
     w.appendChild(col);
   }
   box.appendChild(w);
-  box.appendChild(el("div", "legend", '<span><i class="dot" style="background:rgba(91,140,196,.75)"></i>class</span><span><i class="dot" style="background:rgba(209,75,65,.75)"></i>hockey</span><span><i class="dot" style="background:rgba(52,169,111,.5)"></i>study block (today) / free window (other days)</span><span><i class="dot" style="background:rgba(139,123,214,.6)"></i>school block</span>'));
+  box.appendChild(el("div", "legend", '<span><i class="dot k-class"></i>class</span><span><i class="dot k-hockey"></i>hockey</span><span><i class="dot k-study"></i>study block (today) / free window (other days)</span><span><i class="dot k-school"></i>school block</span>'));
   var p = el("div", "panel"); p.style.marginTop = "16px";
   p.innerHTML = '<div class="ph"><h3>Today\'s blocks</h3><a href="#/home">Today ›</a></div><div class="clist">' + (plan.blocks.length ? plan.blocks.map(function (b) { return '<div><span>' + (b.at ? plFmt(b.at.f) + "–" + plFmt(b.at.t) + " · " : "") + esc(blockLabel(b)) + '<small>' + esc(b.why) + '</small></span><b>' + b.min + ' min</b></div>'; }).join("") : '<div><span>No blocks today.</span></div>') + '</div><p class="pnote">Blocks are placed in your free windows from now onward and never split. Mark them done on Today; a block also counts as done once its track has logged that many minutes.</p>';
   box.appendChild(p);
@@ -67,7 +67,7 @@ function drawMonth(box) {
     grid.appendChild(cell);
   }
   p.appendChild(grid);
-  p.appendChild(el("div", "legend", ["poker", "chess", "sv", "he", "es", "quant"].map(function (k) { return '<span><i class="dot" style="background:' + trackColor(k) + '"></i>' + trackName(k === "quant" ? "quant" : k) + '</span>'; }).join("") + '<span><i class="dot" style="background:#8B7BD6"></i>school</span><span>green border: XP goal met</span>'));
+  p.appendChild(el("div", "legend", ["poker", "chess", "sv", "he", "es", "quant"].map(function (k) { return '<span><i class="dot" style="background:' + trackColor(k) + '"></i>' + trackName(k === "quant" ? "quant" : k) + '</span>'; }).join("") + '<span><i class="dot k-school"></i>school</span><span>green border: XP goal met</span>'));
   box.appendChild(p);
   var tot = 0, n = 0; Object.keys(plog).forEach(function (k) { if (k.indexOf(y + "-" + ("0" + (m + 1)).slice(-2)) === 0) { tot += plog[k].s; n++; } });
   box.appendChild(el("p", "pnote", "This month: " + fmtDur(tot) + " over " + plural(n, "day") + " in the hub" + (P.has ? ", plus PokerPro's own log" : "") + "."));
@@ -79,7 +79,7 @@ function drawCalSettings(box) {
   PL_DAYS.forEach(function (nm, i) { var b = el("button", "chip" + (i === curD ? " on" : ""), nm.slice(0, 3) + (S.week[i] && S.week[i].length ? " · " + S.week[i].length : "")); b.type = "button"; b.onclick = function () { drawCalSettings.day = i; route(); }; tabs.appendChild(b); });
   wk.appendChild(tabs);
   var list = el("div", "busylist");
-  (S.week[curD] || []).forEach(function (b, i) { var row = el("div"); row.innerHTML = '<span><span class="dot" style="background:' + (b.k === "class" ? "rgba(91,140,196,.9)" : b.k === "hockey" ? "rgba(209,75,65,.9)" : "var(--dim)") + '"></span>' + esc(b.n) + ' <small>' + esc(PL_KINDS[b.k] || b.k) + '</small></span><span>' + esc(b.f) + '</span><span>' + esc(b.t) + '</span>'; row.appendChild(btn("remove", "ghost sm", function () { S.week[curD].splice(i, 1); S.at = Date.now(); saveSoon(); route(); })); list.appendChild(row); });
+  (S.week[curD] || []).forEach(function (b, i) { var row = el("div"); row.innerHTML = '<span><span class="dot ' + (b.k === "class" ? "k-class" : b.k === "hockey" ? "k-hockey" : "k-other") + '"></span>' + esc(b.n) + ' <small>' + esc(PL_KINDS[b.k] || b.k) + '</small></span><span>' + esc(b.f) + '</span><span>' + esc(b.t) + '</span>'; row.appendChild(btn("remove", "ghost sm", function () { S.week[curD].splice(i, 1); S.at = Date.now(); saveSoon(); route(); })); list.appendChild(row); });
   if (!(S.week[curD] || []).length) list.appendChild(el("p", "pnote", "Nothing fixed on " + PL_DAYS[curD] + " yet."));
   wk.appendChild(list);
   var form = el("div", "row"); form.style.marginTop = "12px";
@@ -111,7 +111,7 @@ function drawCalSettings(box) {
   var pr = el("div", "panel"); pr.style.marginTop = "16px"; pr.innerHTML = '<div class="ph"><h3>Priorities</h3><span>who gets the budget first</span></div><p class="pnote">School is always first and always on. For the rest: 3 = focus (first pick for new lessons), 2 = normal, 1 = light (reviews mostly), 0 = paused (nothing scheduled; reviews still wait).</p>';
   var pg = el("div", "prio");
   var tracks = [["poker", "Poker"]].concat(COURSE_ORDER.map(function (cid) { return [cid, COURSES[cid].name]; }));
-  SCHOOL_COURSES.forEach(function (sc) { pg.innerHTML += '<span>' + esc(sc.code) + ' · ' + esc(sc.name) + '</span><span class="tag" style="background:rgba(139,123,214,.25);color:#C9BFF2">school: always first</span>'; });
+  SCHOOL_COURSES.forEach(function (sc) { pg.innerHTML += '<span>' + esc(sc.code) + ' · ' + esc(sc.name) + '</span><span class="tag school">school: always first</span>'; });
   tracks.forEach(function (t) { var lab = el("span", "", esc(t[1])), sel = el("select"); [["3", "3 · focus"], ["2", "2 · normal"], ["1", "1 · light"], ["0", "0 · paused"]].forEach(function (o) { var op = el("option", "", o[1]); op.value = o[0]; if (String(S.priority[t[0]] == null ? 2 : S.priority[t[0]]) === o[0]) op.selected = true; sel.appendChild(op); }); sel.onchange = function () { S.priority[t[0]] = +sel.value; S.at = Date.now(); saveSoon(); }; pg.appendChild(lab); pg.appendChild(sel); });
   pr.appendChild(pg); box.appendChild(pr);
   var pv = el("div", "panel"); pv.style.marginTop = "16px";
@@ -281,7 +281,7 @@ function syncNow(why) {
   return sync.busy;
 }
 function syncFlush() { if (!sync.token || !sync.auto || !sync.gist || !sync.remote || !sync.dirty) return; try { var merged = hsMergeAll(syncLocal(), sync.remote); hubWriteGist(sync.token, sync.gist, merged, true); } catch (e) {} }
-function drawSyncPill() { var p = $("syncPill"); if (!p) return; p.className = "spill " + (sync.token ? sync.state : "off"); p.innerHTML = "<i></i>" + (!sync.token ? "Sync off" : sync.state === "busy" ? "Syncing" : sync.state === "error" ? "Sync error" : "Synced " + (sync.at ? fmtAgo(sync.at) : "")); }
+function drawSyncPill() { var p = $("syncPill"); if (!p) return; p.className = "spill " + (sync.token ? sync.state : "off"); p.innerHTML = "<i></i><span>" + (!sync.token ? "Sync off" : sync.state === "busy" ? "Syncing" : sync.state === "error" ? "Sync error" : "Synced " + (sync.at ? fmtAgo(sync.at) : "")) + "</span>"; p.title = !sync.token ? "Sync is off" : sync.state === "error" ? sync.msg : "Synced " + (sync.at ? fmtAgo(sync.at) : ""); }
 function drawSync(box) {
   box.innerHTML = '<div class="vhead"><div><h1>Sync, backup and install</h1><p>One private GitHub gist carries the hub, PokerPro and Math 340 progress between your Mac, iPad and iPhone. Each device merges, never overwrites, so you can work offline on any of them and they converge when they reconnect.</p></div></div>';
   var st = el("div", "sstat " + (sync.token ? sync.state : "off"));
@@ -317,11 +317,25 @@ function drawSync(box) {
 }
 $("syncPill").onclick = function () { go("#/sync"); };
 
+/* ============================================================ THEME: paper by day, lamp by night ============================================================ */
+var THEME_ICON = {
+  sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>',
+  moon: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>'
+};
+function themeNow() { var t = document.documentElement.getAttribute("data-theme"); if (t) return t; return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+function drawThemeBtn() {
+  var b = $("themeBtn"); if (!b) return; var dark = themeNow() === "dark";
+  b.innerHTML = dark ? THEME_ICON.sun : THEME_ICON.moon; b.title = dark ? "Switch to the paper theme" : "Switch to the lamp theme";
+  var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? "#161411" : "#F4EFE6";
+}
+$("themeBtn").onclick = function () { var next = themeNow() === "dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", next); try { localStorage.setItem("sb-theme", next); } catch (e) {} drawThemeBtn(); };
+if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawThemeBtn); } catch (e) {} }
+
 /* ============================================================ BOOT ============================================================ */
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
 (function boot() {
   hubLoad(); rebind(); speechInit(); syncLoadCfg();
-  gmCheckTrophies(); drawSyncPill();
+  gmCheckTrophies(); drawSyncPill(); drawThemeBtn();
   route();
   if (sync.token && sync.auto) syncNow("on open");
   setInterval(function () { if (sync.token && sync.auto && !sync.busy) syncNow("every 5 minutes"); }, 5 * 60 * 1000);
