@@ -62,11 +62,42 @@ window.MATH340 = {
 
   getUnit(id) { return this.units.find(u => u.id === id); },
 
+  /* ---- calendar arithmetic ----
+   * Everything the app says about dates is in whole local days ("today",
+   * "tomorrow", "Week 8"), so the arithmetic is done on calendar days too.
+   * Dividing a millisecond difference by 86 400 000 is off by an hour across
+   * the DST change, which is enough to put a quiz on the wrong day. */
+  parseISODate(iso) {
+    const [y, m, d] = String(iso).split("-").map(Number);
+    return new Date(y, m - 1, d);   // local midnight
+  },
+  // Whole local calendar days from `from` to `to` (Date objects; time of day ignored).
+  calendarDays(from, to) {
+    const utc = dt => Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    return Math.round((utc(to) - utc(from)) / (24 * 3600 * 1000));
+  },
+  // Days until an ISO date: 0 on the day itself, 1 the day before, -1 the day after.
+  daysUntil(iso, now) {
+    return this.calendarDays(now || new Date(), this.parseISODate(iso));
+  },
+
   currentWeek(now) {
-    const start = new Date(this.course.termStart + "T00:00:00");
-    const d = now || new Date();
-    const wk = Math.floor((d - start) / (7 * 24 * 3600 * 1000)) + 1;
+    const days = this.calendarDays(this.parseISODate(this.course.termStart), now || new Date());
+    const wk = Math.floor(days / 7) + 1;
     return Math.min(Math.max(wk, 0), 11); // 0 = before term, 11 = after
+  },
+
+  /* The next Wednesday that carries a quiz, per the syllabus schedule, as
+   * { week, topic, days } — or null once the last quiz has passed. */
+  nextQuiz(now) {
+    const start = this.parseISODate(this.course.termStart);
+    for (const row of this.schedule) {
+      if (!row.quiz) continue;
+      const wed = new Date(start.getFullYear(), start.getMonth(), start.getDate() + (row.week - 1) * 7 + 2);
+      const days = this.calendarDays(now || new Date(), wed);
+      if (days >= 0) return { week: row.week, topic: row.topic, days };
+    }
+    return null;
   },
 
   // ---- small math/random utilities shared by problem generators ----
@@ -102,6 +133,33 @@ window.MATH340 = {
     fmt(x, d = 4) {
       if (Number.isInteger(x)) return String(x);
       return String(Math.round(x * Math.pow(10, d)) / Math.pow(10, d));
+    },
+    /* Plain text into HTML: for labels that were typed, imported or synced
+     * rather than authored in the data files. */
+    escapeHtml(t) {
+      return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    },
+    /* Stored problem HTML (the mistake log keeps question + solution verbatim,
+     * and an imported or synced file could hold anything). The markup the
+     * generators produce is KaTeX-friendly HTML, so it is kept; anything that
+     * could run script is dropped: active elements, on* handlers and
+     * javascript:/data: URLs. */
+    sanitizeHtml(html) {
+      let s = String(html == null ? "" : html);
+      s = s.replace(/<(script|iframe|object|embed|style|svg|math|template)\b[\s\S]*?<\/\1\s*>/gi, "");
+      s = s.replace(/<\/?(script|iframe|object|embed|style|svg|math|template|link|meta|base|form)\b[^>]*>/gi, "");
+      s = s.replace(/<([a-zA-Z][^\s>\/]*)([^>]*)>/g, (tag, name, attrs) => {
+        let a = attrs
+          .replace(/\s+on[a-zA-Z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+          .replace(/\s+on[a-zA-Z]+(?=[\s>]|$)/gi, "");
+        a = a.replace(/\s+(href|src|xlink:href|formaction|action|srcdoc)\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+          (m, attr, q, dq, sq, bare) => {
+            const v = (dq != null ? dq : sq != null ? sq : bare).replace(/[\s\u0000-\u001f]+/g, "").toLowerCase();
+            return /^(javascript|data|vbscript):/.test(v) ? "" : m;
+          });
+        return "<" + name + a + ">";
+      });
+      return s;
     },
     // "5" / "5s" — tiny helper so generated sentences stay grammatical.
     plural(n, one, many) { return n === 1 ? one : (many != null ? many : one + "s"); },

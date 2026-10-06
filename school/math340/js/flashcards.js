@@ -3,9 +3,11 @@
  * registered in MATH340.units.
  *
  * Two session shapes:
- *   · review — due cards first, then new ones (the daily habit)
+ *   · review — the cards that are due, then new ones; nothing that the
+ *              schedule has not asked for yet (the daily habit)
  *   · cram   — everything in scope, weakest first, ignoring the
- *              schedule (the night before a quiz)
+ *              schedule (the night before a quiz). Cards that were not
+ *              due are not promoted by a cram — see Store.gradeCard.
  *
  * A card you miss is re-queued a few cards later in the same session
  * rather than being deferred to tomorrow. Relearning it once, now, is
@@ -44,7 +46,7 @@ const Flashcards = (() => {
             <div class="muted" style="text-align:right; margin-top:3px">${Math.round(s.mastery * 100)}%</div>
           </div>
           <button class="btn btn-sm btn-ghost" data-cram="${u.id}" title="Every card, weakest first, ignoring the schedule">Cram</button>
-          <button class="btn btn-sm" data-deck="${u.id}">Study</button>
+          <button class="btn btn-sm" data-deck="${u.id}" ${s.due ? "" : "disabled"} title="${s.due ? "Review the cards that are due" : "Nothing due — use Cram to go through the deck anyway"}">Study</button>
         </div>`;
     }
     html += `</div></div>
@@ -79,15 +81,19 @@ const Flashcards = (() => {
       queue = Store.weakCards(cards);
       if (!queue.length) queue = MATH340.util.shuffle(cards);
     } else {
+      // Due cards first, then the ones never seen — the same set the
+      // "ready" counts on the deck list describe. Cards the schedule has
+      // not asked for yet stay out: reviewing them early would promote
+      // them before their interval has been tested.
       const now = Date.now();
-      const due = [], fresh = [], later = [];
+      const due = [], fresh = [];
       for (const c of cards) {
         const st = Store.getCard(c.id);
         if (!st.seen) fresh.push(c);
         else if (st.due <= now) due.push(c);
-        else later.push(c);
       }
-      queue = MATH340.util.shuffle(due).concat(MATH340.util.shuffle(fresh), MATH340.util.shuffle(later));
+      queue = MATH340.util.shuffle(due).concat(MATH340.util.shuffle(fresh));
+      if (!queue.length) return decksHome(el);
     }
 
     session = { title, short, unitId, mode, queue, idx: 0, revealed: false, right: 0, wrong: 0, relearned: 0 };
@@ -161,7 +167,7 @@ const Flashcards = (() => {
             ${s.relearned ? `${s.relearned} missed ${s.relearned === 1 ? "card came" : "cards came"} back later in the session and ${s.relearned === 1 ? "was" : "were"} re-tested. ` : ""}
             ${pct >= 85
               ? "Strong recall. These cards are now spaced further out — come back when they are due."
-              : "Anything you missed is back in box 1 and due again tomorrow. That is the system working, not a setback."}
+              : "Anything you missed is back in box 1 and due again next session. That is the system working, not a setback."}
           </p>
           <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
             <button class="btn" id="fcAgain">Study again</button>

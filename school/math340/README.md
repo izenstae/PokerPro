@@ -116,8 +116,7 @@ Each unit is a single self-registering file in `data/` — adding a new week req
 ├── lib/katex/            # Vendored KaTeX (offline math rendering)
 ├── tools/
 │   ├── check-generators.js  # Smoke test: every problem type is well posed (node, no deps)
-│   ├── check-app.js         # Tests: grading, hints, Leitner ladder, weakness model, migration
-│   └── screenshots.js       # Regenerates docs/assets/*.png (needs Playwright; not run in CI)
+│   └── check-app.js         # Tests: grading, hints, Leitner ladder, weakness model, migration
 ├── .github/workflows/
 │   ├── checks.yml        # Runs both test suites on every push and PR
 │   └── deploy-pages.yml  # Publishes the site to GitHub Pages on push to main

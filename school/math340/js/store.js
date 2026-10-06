@@ -39,21 +39,58 @@ const Store = (() => {
     return { v: SCHEMA, cards: {}, practice: {}, misses: [], exams: [], sheet: [], activity: {} };
   }
 
+  const isObj = v => !!v && typeof v === "object" && !Array.isArray(v);
+  const isNum = v => typeof v === "number" && Number.isFinite(v);
+  const numOr = (v, d) => (isNum(v) ? v : d);
+
+  /* Any file shape in → the v2 shape out. A progress file can arrive from an
+   * import, a sync merge or a corrupted localStorage, so every entry is
+   * checked rather than trusted: malformed cards, rows and entries are
+   * dropped, never kept in a form that would throw on render later. */
   function migrate(raw) {
     const s = blank();
-    if (!raw || typeof raw !== "object") return s;
-    s.cards = raw.cards || {};
-    s.practice = raw.practice || {};
-    s.activity = raw.activity || {};
-    s.misses = Array.isArray(raw.misses) ? raw.misses : [];
-    s.exams = Array.isArray(raw.exams) ? raw.exams : [];
-    s.sheet = Array.isArray(raw.sheet) ? raw.sheet : [];
-    // v1 practice rows have no per-variant breakdown; give them an empty one
-    // so callers never have to null-check it.
-    for (const p of Object.values(s.practice)) {
-      if (!p.variants) p.variants = {};
-      if (!Array.isArray(p.recent)) p.recent = [];
+    if (!isObj(raw)) return s;
+    if (isObj(raw.cards)) {
+      for (const [id, c] of Object.entries(raw.cards)) {
+        if (!isObj(c) || !isNum(c.box) || !isNum(c.due)) continue;
+        s.cards[id] = {
+          box: Math.min(Math.max(Math.round(c.box), 0), MAX_BOX), due: c.due,
+          seen: Math.max(0, numOr(c.seen, 0)), lapses: Math.max(0, numOr(c.lapses, 0)),
+        };
+      }
     }
+    if (isObj(raw.practice)) {
+      for (const [id, p] of Object.entries(raw.practice)) {
+        if (!isObj(p) || !isNum(p.attempts) || !isNum(p.correct)) continue;
+        const variants = {};
+        if (isObj(p.variants)) {
+          for (const [name, v] of Object.entries(p.variants)) {
+            if (isObj(v) && isNum(v.a) && isNum(v.c)) variants[name] = { a: v.a, c: v.c };
+          }
+        }
+        // v1 practice rows have no per-variant breakdown; they get an empty one
+        // so callers never have to null-check it.
+        s.practice[id] = {
+          ...p, attempts: p.attempts, correct: p.correct,
+          recent: Array.isArray(p.recent) ? p.recent.map(r => (r ? 1 : 0)).slice(-10) : [],
+          variants,
+        };
+      }
+    }
+    if (isObj(raw.activity)) {
+      for (const [day, n] of Object.entries(raw.activity)) if (isNum(n) && n > 0) s.activity[day] = n;
+    }
+    if (Array.isArray(raw.misses)) {
+      s.misses = raw.misses.filter(m => isObj(m) && typeof m.q === "string" && typeof m.sol === "string" && isNum(m.answer))
+        .map(m => ({ ...m, key: String(m.key || (m.genId + "|" + (m.variant || "") + "|" + (m.at || 0))) }))
+        .slice(-MAX_MISSES);
+    }
+    if (Array.isArray(raw.exams)) {
+      s.exams = raw.exams.filter(e => isObj(e) && isNum(e.n) && e.n > 0 && isNum(e.correct))
+        .map(e => ({ ...e, at: numOr(e.at, 0), label: String(e.label == null ? "" : e.label) }))
+        .slice(-MAX_EXAMS);
+    }
+    if (Array.isArray(raw.sheet)) s.sheet = [...new Set(raw.sheet.filter(id => typeof id === "string"))];
     return s;
   }
 
@@ -82,6 +119,17 @@ const Store = (() => {
            "-" + String(dt.getDate()).padStart(2, "0");
   }
 
+  /* Local midnight `days` days from now. Cards are scheduled in whole days
+   * ("due tomorrow"), so a card promoted at 21:00 on Monday with a one-day
+   * interval is due from Tuesday 00:00, not Tuesday 21:00. setDate steps by
+   * calendar day, so the DST change does not shift it. */
+  function midnightIn(days) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + days);
+    return d.getTime();
+  }
+
   function bumpActivity(n) {
     const k = dayKey(new Date());
     state.activity[k] = (state.activity[k] || 0) + (n || 1);
@@ -95,12 +143,17 @@ const Store = (() => {
     getCard(id) {
       return state.cards[id] || { box: 0, due: 0, seen: 0, lapses: 0 };
     },
+    /* A card is promoted only when it was due. Getting a card right before
+     * its interval is up (a cram session, re-studying a deck) says nothing
+     * about whether it would have survived the full gap, so the box and the
+     * due date stay where the schedule put them. A miss always drops it. */
     gradeCard(id, correct) {
       const c = this.getCard(id);
-      if (correct) c.box = Math.min((c.box || 0) + 1, MAX_BOX);
-      else { c.box = 1; c.lapses = (c.lapses || 0) + 1; }
+      const early = correct && c.seen > 0 && c.due > Date.now();
+      if (!correct) { c.box = 1; c.lapses = (c.lapses || 0) + 1; }
+      else if (!early) c.box = Math.min((c.box || 0) + 1, MAX_BOX);
       c.seen = (c.seen || 0) + 1;
-      c.due = Date.now() + INTERVALS[c.box] * 24 * 3600 * 1000;
+      if (!early) c.due = midnightIn(INTERVALS[c.box]);
       state.cards[id] = c;
       bumpActivity();
       save();
@@ -265,7 +318,7 @@ const Store = (() => {
     exportJSON() { return JSON.stringify(state, null, 2); },
     importJSON(text) {
       const parsed = JSON.parse(text);
-      if (!parsed || typeof parsed !== "object" || !parsed.cards) throw new Error("Not a valid progress file.");
+      if (!isObj(parsed) || !isObj(parsed.cards)) throw new Error("Not a valid progress file.");
       state = migrate(parsed);
       save();
     },
