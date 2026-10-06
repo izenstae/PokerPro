@@ -698,6 +698,7 @@ body{display:block; padding:0; font-family:var(--sans)}
 .top{position:sticky; top:0; z-index:30; background:rgba(20,26,36,.92); backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px); border-bottom:1px solid var(--line)}
 .topin{max-width:960px; margin:0 auto; padding:0 20px; height:58px; display:flex; align-items:center; gap:20px}
 .brand{display:flex; align-items:center; gap:9px; text-decoration:none; color:var(--dim); font-size:17px; letter-spacing:.01em; flex:0 0 auto}
+.hub{flex:0 0 auto; font-size:12px; color:var(--faint); text-decoration:none; border:1px solid var(--line); border-radius:6px; padding:4px 8px; margin-right:-6px} .hub:hover{color:var(--bone); border-color:var(--dim)}
 .brand .suit{color:var(--gold); font-size:18px}
 .brand b{color:var(--bone); font-weight:700}
 .nav{display:flex; gap:4px; flex:1; justify-content:center}
@@ -1094,6 +1095,7 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
 <body>
 <header class="top">
   <div class="topin">
+    <a class="hub" href="../" title="Back to the Skill Builder hub" aria-label="Skill Builder hub">&lsaquo; Hub</a>
     <a class="brand" href="#/home" aria-label="PokerPro home"><span class="suit">&spades;</span><span>Poker<b>Pro</b></span></a>
     <nav class="nav" id="nav" aria-label="Main"></nav>
     <div class="topr"><a class="gpill" id="gPill" href="#/home" aria-label="Daily goal and streak"></a><button class="spill off" id="syncPill" type="button"><i></i>Sync off</button></div>

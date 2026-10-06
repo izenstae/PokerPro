@@ -1,7 +1,7 @@
 {
-  "name": "PokerPro: learn poker like a trader",
-  "short_name": "PokerPro",
-  "description": "A poker course with spaced-repetition drills, a graded six-handed table and a skill level that tracks how you actually play.",
+  "name": "Skill Builder: poker, chess, languages, school",
+  "short_name": "Skill Builder",
+  "description": "One hub for everything you are learning: a learning calendar around your classes and hockey, spaced-repetition drills, graded practice, and levels for poker, chess, Swedish, Hebrew, Spanish, quant games and your coursework. Works offline; syncs between devices.",
   "start_url": "./#/home",
   "scope": "./",
   "display": "standalone",

@@ -1,19 +1,16 @@
-name: Deploy to GitHub Pages
+name: Build, test and deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
-      - claude/web-deployment-practice-ll0mfm
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
-# Allow this workflow to publish to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# One deploy at a time; let an in-progress run finish
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -22,44 +19,36 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Build index.html from src/
+      - name: Build the hub, PokerPro and the service worker
         run: node build.js
-
-      - name: Run tests
+      - name: Test PokerPro, the hub, and Math 340
         run: npm test
-
-      - name: Assemble site
+      - name: Assemble the site
         run: |
-          mkdir -p _site
-          cp index.html _site/index.html
-          cp site/* _site/
+          mkdir -p _site/poker _site/school
+          cp index.html sw.js _site/
+          cp site/manifest.webmanifest site/icon.svg _site/
+          cp poker/index.html poker/manifest.webmanifest poker/icon.svg poker/sw.js _site/poker/
+          cp -r school/math340 _site/school/math340
+          rm -rf _site/school/math340/tools _site/school/math340/docs
           touch _site/.nojekyll
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v5
         with:
           enablement: true
-
-      - name: Upload site artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
-
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATH 340 · Probability Studio</title>
+<meta name="description" content="Interactive study companion for MATH 340: Probability — spaced-repetition flashcards, generated practice problems with worked solutions, timed exam rehearsals, a formula-sheet builder, and progress tracking.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='Georgia'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="lib/katex/katex.min.css">
+<script defer src="lib/katex/katex.min.js"></script>
+<script defer src="lib/katex/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">P</div>
+      <div>
+        <div class="brand-title">Probability Studio</div>
+        <div class="brand-sub">MATH 340 · Fall 2026</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <a href="#/dashboard" data-route="dashboard"><span class="nav-ico">◧</span> Dashboard</a>
+      <a href="#/flashcards" data-route="flashcards"><span class="nav-ico">⧉</span> Flashcards</a>
+      <a href="#/practice" data-route="practice"><span class="nav-ico">✎</span> Practice</a>
+      <a href="#/exam" data-route="exam"><span class="nav-ico">⏱</span> Exam Mode</a>
+      <a href="#/reference" data-route="reference"><span class="nav-ico">Σ</span> Reference</a>
+      <a href="#/schedule" data-route="schedule"><span class="nav-ico">▦</span> Schedule</a>
+      <a href="#/progress" data-route="progress"><span class="nav-ico">◔</span> Progress</a>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="btn btn-ghost btn-sm" id="themeToggle" title="Toggle theme">◐ Theme</button>
+      <div class="foot-note">Blitzstein &amp; Hwang,<br><em>Introduction to Probability</em></div>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right" id="topbarWeek"></div>
+    </header>
+    <main class="content" id="view" aria-live="polite"></main>
+  </div>
+</div>
+
+<!-- Course content (add a new file here each week as material is released) -->
+<script src="data/manifest.js"></script>
+<script src="data/distributions.js"></script>
+<script src="data/ch1.js"></script>
+<script src="data/ch2.js"></script>
+<script src="data/ch3.js"></script>
+
+<!-- Application -->
+<script src="js/store.js"></script>
+<script src="js/flashcards.js"></script>
+<script src="js/practice.js"></script>
+<script src="js/exam.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
