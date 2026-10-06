@@ -33,25 +33,30 @@ var SCHOOL_COURSES = [
 /* the Leitner ladder the Math 340 store uses, so the hub can count what is due without loading the app */
 var SCH_INTERVALS = [0, 0, 1, 2, 4, 9, 21];
 
+/* calendar arithmetic on local days. Dates are compared at local noon, so a DST change
+   (an hour more or less in the day) never shifts a date across midnight or miscounts days. */
+function schLocalDate(iso) { var p = String(iso).split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }           /* local midnight of "YYYY-MM-DD" */
+function schNoon(d) { d = d instanceof Date ? d : new Date(d); return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).getTime(); }
+function schDayDiff(a, b) { return Math.round((schNoon(a) - schNoon(b)) / 864e5); }                              /* whole local days from b to a */
+function schAddDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+/* whole days from today until the date: 0 on the day itself, 1 the day before, -1 the day after (overdue) */
 function schDaysUntil(iso, now) {
-  var d = new Date(iso + "T23:59:59");
-  return Math.ceil((d - (now || Date.now())) / 864e5);
+  return schDayDiff(schLocalDate(iso), now == null ? Date.now() : now);
 }
 function schWeekOf(course, now) {
-  var start = new Date(course.termStart + "T00:00:00");
-  var wk = Math.floor(((now || Date.now()) - start) / (7 * 864e5)) + 1;
+  var wk = Math.floor(schDayDiff(now == null ? Date.now() : now, schLocalDate(course.termStart)) / 7) + 1;
   return Math.min(Math.max(wk, 0), 11);
 }
 /* the next quiz: weekly on quizDay from week 2, per the syllabus, unless the manifest says otherwise */
 function schNextQuiz(course, now) {
   now = now || Date.now();
   var sched = (typeof MATH340 !== "undefined" && course.id === "math340" && MATH340.schedule) || null;
-  var start = new Date(course.termStart + "T00:00:00"), today = new Date(now); today.setHours(0, 0, 0, 0);
+  var start = schLocalDate(course.termStart), today = new Date(now); today.setHours(0, 0, 0, 0);
   for (var w = 1; w <= 10; w++) {
     var row = sched ? sched.filter(function (r) { return r.week === w; })[0] : { week: w, quiz: w >= 2 && w !== 6 && w !== 10, topic: "" };
     if (!row || !row.quiz) continue;
-    var day = new Date(start.getTime() + ((w - 1) * 7 + (course.quizDay == null ? 2 : course.quizDay - 1)) * 864e5);
-    if (day >= today) return { week: w, topic: row.topic || "", days: Math.round((day - today) / 864e5), date: day };
+    var day = schAddDays(start, (w - 1) * 7 + (course.quizDay == null ? 2 : course.quizDay - 1)), days = schDayDiff(day, today);
+    if (days >= 0) return { week: w, topic: row.topic || "", days: days, date: day };
   }
   return null;
 }
@@ -101,7 +106,7 @@ function schDemand(course, R, now) {
   var items = [], exam = null, hw = null;
   (course.keyDates || []).forEach(function (k) {
     var d = schDaysUntil(k.date, now);
-    if (d < 0) return;
+    if (d < 0) return;                       /* -1 is the day after: past, not "today" */
     if (k.kind === "exam" && (!exam || d < exam.days)) exam = { days: d, label: k.label, date: k.date };
     if (k.kind === "hw" && (!hw || d < hw.days)) hw = { days: d, label: k.label, date: k.date };
   });
@@ -116,4 +121,4 @@ function schDemand(course, R, now) {
   return { items: items, exam: exam, hw: hw, quiz: quiz, week: schWeekOf(course, now) };
 }
 
-if (typeof module !== "undefined") module.exports = { SCHOOL_COURSES: SCHOOL_COURSES, SCH_INTERVALS: SCH_INTERVALS, schDaysUntil: schDaysUntil, schWeekOf: schWeekOf, schNextQuiz: schNextQuiz, schRead: schRead, schDemand: schDemand };
+if (typeof module !== "undefined") module.exports = { SCHOOL_COURSES: SCHOOL_COURSES, SCH_INTERVALS: SCH_INTERVALS, schLocalDate: schLocalDate, schDayDiff: schDayDiff, schDaysUntil: schDaysUntil, schWeekOf: schWeekOf, schNextQuiz: schNextQuiz, schRead: schRead, schDemand: schDemand };
