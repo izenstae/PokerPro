@@ -312,7 +312,7 @@ function endCp() {
   if (cp.placement) {
     var S = c.stages[cp.stage], newly = 0;
     if (passedNow) {
-      S.lessons.filter(passable).forEach(function (L) { if (passed(c.id, L.id)) return; progress[c.id + ":" + L.id] = 1; newly++; lessonSkillIds(c, L).forEach(function (id) { srsGraduate(skillOf(id), now); }); });
+      S.lessons.filter(passable).forEach(function (L) { if (passed(c.id, L.id)) return; progress[c.id + ":" + L.id] = now; newly++; lessonSkillIds(c, L).forEach(function (id) { srsGraduate(skillOf(id), now); }); });
       cp.placed += newly; HUB.placed[c.id] = Math.max(HUB.placed[c.id] || 0, cp.stage + 1);
       if (newly) gmGain(c.id, GM_XP_PLACE * newly, null);
       saveSoon();
@@ -327,7 +327,7 @@ function endCp() {
   } else {
     var L = c.lessonById[cp.id], first = !passed(c.id, L.id);
     if (passedNow) {
-      progress[c.id + ":" + L.id] = 1;
+      progress[c.id + ":" + L.id] = now;
       lessonSkillIds(c, L).forEach(function (id) { srsGraduate(skillOf(id), now); });
       if (first) gmGain(c.id, GM_XP_LESSON, "Lesson passed");
       saveSoon(); gmCheckTrophies();
