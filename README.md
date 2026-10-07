@@ -12,7 +12,7 @@ Six tracks, one page, no server:
 | **Swedish** | 30 lessons: sounds, 430 words by frequency, the grammar core, tenses and clauses, conversation, six graded readers, the C-level programme | per-word schedules that harden from recognition to production, dictation and speech; paradigm drills | six scripted conversations graded turn by turn, dictation, translation, an immersion log | a CEFR estimate (A0–C2) from words known, grammar passed, applied scores and hours |
 | **Hebrew** (modern and Biblical) | 35 lessons: the alef-bet and points, 430 modern words, the root-and-binyan verb system, four readers, and a Biblical track (90 most-frequent words, the Qal paradigm, parsing, Genesis 1, Psalm 23 and the Shema word by word) | as Swedish, with an on-screen Hebrew keyboard | five conversations, dictation, translation, the log | CEFR estimate |
 | **Spanish** | 30 lessons: sounds and stress, 430 words, ser/estar, the verb system to the subjunctive, six readers | as Swedish | six conversations, dictation, translation, the log | CEFR estimate |
-| **Quant games** | the plan and the techniques | — | five two-minute games (arithmetic sprint, sequences, estimation, percentages, odds) modelled on the quant-firm screening game; no stakes, outside the budget | score history, tiers that rise with your median |
+| **Quant games** | the plan and the techniques | — | the screening games at the sites' own settings: Zetamac's default arithmetic (a right answer is taken as typed, no Enter) and the Optiver 80 in 8, plus sequences, estimation, percentages and odds; no stakes, outside the budget | score history, best, median against a fixed target |
 
 Everything is one page: the Math 340 studio draws inside the hub at `#/school/math340/…` and PokerPro runs inside the hub at `#/poker/…` with the hub's header, tabs and theme, so nothing hands you off to another app. It installs on a Mac, iPad and iPhone, works offline after the first visit, and syncs between devices through one private GitHub gist with a merge that never overwrites.
 
@@ -51,7 +51,7 @@ sb/
   ics.js                imported calendars: the .ics parser and recurrence, busy time and deadlines by date
   school.js             the School track: course registry, the SCHOOL_APPS registry the inlined course apps join, reading a course's saved progress, what it needs today
   hubsync.js            the cross-device merge for hub + PokerPro + Math 340 state
-  quant.js              the five quant games, scoring, tiers, the plan
+  quant.js              the quant games, scoring, the plan
   chess.js              the chess engine: move generation, FEN, SAN, search, evaluation, grading
   chess_drills.js       chess generators, the Play model, the chess level
   chess_course.js       the chess course
@@ -73,7 +73,7 @@ npm run serve        # http://localhost:8000
 node tools/smoke.js  # the headless pass (needs Playwright with Chromium)
 ```
 
-The hub's suites: `sb_chess.test.js` (perft against the published counts, SAN, mates, grading), `sb_planner.test.js` (windows, budgets, the plan's ordering and caps, the forecast), `sb_ics.test.js` (.ics parsing, recurrence, moved and cancelled occurrences, deadlines, imported busy time, assignment work and the dynamic budget in the planner), `sb_lang.test.js` (every lesson of every language resolves, every drill and every word at every box produces a gradable question, the level model), `sb_chess_drills.test.js` (curated puzzles verified by the engine, generated mates really mate, forks really fork, the square rule agrees with a search, a full graded game), `sb_sync.test.js` (the merge is commutative and idempotent, a wipe wins), `sb_quant.test.js` (every game at every tier).
+The hub's suites: `sb_chess.test.js` (perft against the published counts, SAN, mates, grading), `sb_planner.test.js` (windows, budgets, the plan's ordering and caps, the forecast), `sb_ics.test.js` (.ics parsing, recurrence, moved and cancelled occurrences, deadlines, imported busy time, assignment work and the dynamic budget in the planner), `sb_lang.test.js` (every lesson of every language resolves, every drill and every word at every box produces a gradable question, the level model), `sb_chess_drills.test.js` (curated puzzles verified by the engine, generated mates really mate, forks really fork, the square rule agrees with a search, a full graded game), `sb_sync.test.js` (the merge is commutative and idempotent, a wipe wins), `sb_quant.test.js` (every game, Zetamac's exact ranges, the 80 in 8's options).
 
 ## Adding content
 

@@ -140,7 +140,7 @@ function drawSkills(box) {
   var P = pokerRead();
   card("poker", "♠", "Poker", "Playing optimally: the maths from pot odds to CFR solvers, a graded table.", courseLevel("poker"), [P.lessons + " of " + POKER_TOTAL_LESSONS + " lessons", P.due + " due", P.auto + " skills automatic"], TRACK_COLOR.poker, "#/poker", P.due);
   COURSE_ORDER.forEach(function (cid) { var c = COURSES[cid], d = dueIds(cid).length; card(cid, c.glyph, c.name, c.tagline, courseLevel(cid), [courseLessonsPassed(c) + " of " + courseLessonsTotal(c) + " lessons", d + " due", courseSkillIds(cid).filter(function (id) { return skills[id].box >= 6; }).length + " automatic"], c.color, "#/c/" + cid, d); });
-  var ql = qtLevel(HUB.quant); card("quant", "Σ", "Quant games", "Two-minute arithmetic, sequences, estimation, percentages and odds. No stakes.", ql, [plural((HUB.quant.runs || []).length, "run"), "sprint tier " + (qtTier(HUB.quant, "sprint") + 1)], TRACK_COLOR.quant, "#/quant", 0);
+  var ql = qtLevel(HUB.quant); card("quant", "Σ", "Quant games", "Zetamac arithmetic, the Optiver 80 in 8, sequences, estimation, percentages and odds. No stakes.", ql, [plural((HUB.quant.runs || []).length, "run"), "Zetamac best " + qtBest(HUB.quant, "sprint")], TRACK_COLOR.quant, "#/quant", 0);
   box.appendChild(grid);
   var T = sbTrophies(trophySummary()), got = T.filter(function (t) { return t.got; });
   var tp = el("div", "panel"); tp.style.marginTop = "16px";
@@ -192,6 +192,13 @@ function drawPath(box, c) {
         ul.appendChild(a);
       });
       li.appendChild(ul);
+      if (dn) {
+        var rs = btn("Reset this stage", "danger sm", function () {
+          if (!rs.dataset.armed) { rs.dataset.armed = "1"; rs.textContent = "Sure? Its lessons and reviews start over"; setTimeout(function () { delete rs.dataset.armed; rs.textContent = "Reset this stage"; }, 3000); return; }
+          var n = resetStage(c, S); toast("Stage " + S.n + ", " + esc(S.title) + ": " + plural(n, "lesson") + " un-passed. The path picks up here.", ""); route();
+        });
+        rs.style.margin = "8px 0 4px"; li.appendChild(rs);
+      }
     }
     list.appendChild(li);
   });
