@@ -367,9 +367,9 @@ const Exam = (() => {
               : "This is the useful kind of bad score — it found the gaps while it still costs nothing. Work the topics below, then sit another set."}
         </p>
         <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
-          <a class="btn" href="#/practice">Drill the misses</a>
+          <a class="btn" href="${App.link("practice")}">Drill the misses</a>
           <button class="btn btn-ghost" id="exAgain">Another sitting</button>
-          <a class="btn btn-ghost" href="#/progress">See progress</a>
+          <a class="btn btn-ghost" href="${App.link("progress")}">See progress</a>
         </div>
       </div>
 

@@ -172,7 +172,7 @@ const Flashcards = (() => {
           <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
             <button class="btn" id="fcAgain">Study again</button>
             <button class="btn btn-ghost" id="fcBack">All decks</button>
-            <a class="btn btn-ghost" href="#/practice">Practise problems</a>
+            <a class="btn btn-ghost" href="${App.link("practice")}">Practise problems</a>
           </div>
         </div>
       </div>`;

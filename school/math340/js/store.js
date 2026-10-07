@@ -323,6 +323,8 @@ const Store = (() => {
       save();
     },
     reset() { state = blank(); save(); },
+    /* read the store again: the hub writes this key after a sync merge (and another tab may), and the next save here must build on that */
+    reload() { state = load(); },
 
     /* ---- formula-sheet selection ----
      * The midterm allows one 8.5x11" sheet, so which identities you have

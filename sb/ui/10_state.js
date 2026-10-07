@@ -285,11 +285,11 @@ function buildDemand() {
   });
   var P = pokerRead();
   D.poker = { name: "Poker", due: P.due, dueMin: P.dueMin, overdue: P.overdue, level: P.level && P.level.placed ? P.level.level.index : 0,
-    lesson: P.lessons < POKER_TOTAL_LESSONS ? { id: "next", title: "Next poker lesson", min: 8, href: "poker/#/learn" } : null,
-    drill: { href: "poker/#/practice/review", label: "Reviews" }, apply: { href: "poker/#/play", label: "Poker: play graded hands", min: 15 } };
+    lesson: P.lessons < POKER_TOTAL_LESSONS ? { id: "next", title: "Next poker lesson", min: 8, href: "#/poker/learn" } : null,
+    drill: { href: "#/poker/practice/review", label: "Reviews" }, apply: { href: "#/poker/play", label: "Poker: play graded hands", min: 15 } };
   SCHOOL_COURSES.forEach(function (sc) {
     var R = schoolRead(sc), dm = schDemand(sc, R, now);
-    D["school:" + sc.id] = { name: sc.code, school: true, due: R.due + R.misses, dueMin: dm.items.filter(function (i) { return i.kind === "review"; }).reduce(function (a, i) { return a + i.min; }, 0), overdue: 0, level: 0, lesson: null, drill: { href: sc.href + "#/practice", label: "Practice" }, apply: null, items: dm.items, meta: dm };
+    D["school:" + sc.id] = { name: sc.code, school: true, due: R.due + R.misses, dueMin: dm.items.filter(function (i) { return i.kind === "review"; }).reduce(function (a, i) { return a + i.min; }, 0), overdue: 0, level: 0, lesson: null, drill: { href: schLink(sc, "practice"), label: "Practice" }, apply: null, items: dm.items, meta: dm };
   });
   return D;
 }

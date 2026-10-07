@@ -31,14 +31,17 @@ function route() {
   view = parts[0]; curHash = "#/" + parts.join("/");
   if (view !== "drill") { if (sess || cp) { sess = null; cp = null; } q = null; cancelAnimationFrame(raf); }
   if (view !== "c" || parts[2] !== "apply") game = game && game.over ? null : game;
+  schoolLeave();
+  /* PokerPro is already on screen: steer it to the new page rather than reloading it */
+  if (view === "poker" && pokerSteer(parts.slice(1))) { drawNav(); drawGamePill(); return; }
   var main = $("main"); main.innerHTML = ""; main.className = "wrap v-" + view;
   try {
     if (view === "home") drawHome(main);
     else if (view === "calendar") drawCalendar(main, parts[1] || "week");
     else if (view === "skills") drawSkills(main);
     else if (view === "c") drawCourse(main, parts[1], parts[2] || "learn", parts[3]);
-    else if (view === "poker") drawPoker(main);
-    else if (view === "school") drawSchool(main, parts[1]);
+    else if (view === "poker") drawPoker(main, parts.slice(1));
+    else if (view === "school") drawSchool(main, parts[1], parts[2]);
     else if (view === "quant") drawQuant(main, parts[1]);
     else if (view === "library") drawLibrary(main, parts[1] || "all");
     else if (view === "method") drawMethod(main);

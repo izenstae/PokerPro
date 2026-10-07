@@ -183,24 +183,58 @@ function drawCalSettings(box) {
 }
 
 /* ============================================================ POKER ============================================================ */
-function drawPoker(box) {
-  var P = pokerRead(), lv = courseLevel("poker");
-  box.innerHTML = '<div class="chead"><div class="cg" style="color:var(--gold)">♠</div><div><div class="crumbs"><a href="#/skills">Skills</a><span>›</span>Poker</div><h1>Poker</h1><p>PokerPro: a nine-stage path from the rules to Bayesian exploitation, 37 drills on a spaced schedule, four CFR solver labs, a six-handed table where every decision is priced and graded, and a level measured at that table. It runs as its own app; the hub reads its progress for the calendar and the levels.</p><div class="cmeta"><span>Level: <b>' + esc(lv.name) + '</b></span><span>Lessons: <b>' + P.lessons + ' / ' + POKER_TOTAL_LESSONS + '</b></span><span>Due today: <b>' + P.due + '</b></span><span>XP: <b>' + P.xp.toLocaleString() + '</b></span><span>Streak: <b>' + P.streak + '</b></span></div></div></div>';
-  var hero = el("div", "hero");
-  hero.innerHTML = '<div class="kick">PokerPro</div><h2>' + (P.due ? plural(P.due, "review") + " due" : P.lessons ? "All clear in poker" : "Start with the rules, or take the placement test") + '</h2><p>' + (P.due ? "About " + Math.max(1, Math.round(P.dueMin)) + " minutes. Reviews first, then the next lesson, then hands at the table." : P.lessons ? "Keep the reviews up and put the maths to work at the table." : "PokerPro has its own placement test that passes every stage you already know.") + '</p>';
-  var row = el("div", "row");
-  [["Open PokerPro", "poker/#/home", "go"], ["Reviews", "poker/#/practice/review", "ghost"], ["Learn", "poker/#/learn", "ghost"], ["Play the table", "poker/#/play", "ghost"], ["Level", "poker/#/level", "ghost"]].forEach(function (b) { var a = el("a", "act " + b[2], b[0]); a.href = b[1]; row.appendChild(a); });
-  hero.appendChild(row); box.appendChild(hero);
-  var g = el("div", "grid2");
-  var d = el("div", "panel"); d.innerHTML = '<div class="ph"><h3>Level at the table</h3><a href="poker/#/level">Details ›</a></div><div class="lvname">' + esc(lv.name) + '</div><div class="lvabout">' + esc(lv.about) + '</div><div class="clist">' + lv.detail.map(function (x) { return "<div><span>" + esc(x[0]) + "</span><b>" + esc(String(x[1])) + "</b></div>"; }).join("") + (P.hands ? '<div><span>Hands played</span><b>' + P.hands + '</b></div><div><span>Decision score</span><b>' + (P.quality != null ? Math.round(100 * P.quality) : "–") + '</b></div>' : "") + '</div>';
-  g.appendChild(d);
-  var h = el("div", "panel"); h.innerHTML = '<div class="ph"><h3>How it connects</h3></div><p class="pnote">Poker keeps its own storage in this browser. The hub reads it for: the reviews due (into today\'s plan), minutes studied (into the history), the level (into Skills), and the sync file (so PokerPro\'s progress travels with everything else). PokerPro\'s own Sync tab still works; the hub\'s sync covers it too.</p><p class="pnote">' + (P.has ? "Progress found: " + P.skills + " skills on the schedule, " + P.auto + " automatic." : "No PokerPro progress in this browser yet. Open it and pass the first checkpoint, or sync from another device.") + '</p>';
-  g.appendChild(h); box.appendChild(g);
+/* PokerPro runs inside the hub, in a frame of its own: it keeps its globals, its storage and its keyboard, and the hub
+   keeps the header, the tabs and the theme. The frame hides PokerPro's own header, follows the hub's palette and
+   reports its height, so the page scrolls as one. The hub's #/poker/<page...> is the app's #/<page...>: the app posts
+   every page it moves to and the hub's hash follows without redrawing, so Back works and the hub never reloads it. */
+var pokerFrame = null;
+var POKER_TABS = [["home", "Home"], ["learn", "Learn"], ["practice", "Practice"], ["play", "Play"], ["level", "Level"], ["library", "Library"]];
+function pokerHash(parts) { return "#/" + (parts && parts.length ? parts.join("/") : "home"); }
+function pokerSteer(parts) {
+  if (!pokerFrame || !pokerFrame.isConnected) return false;
+  try { var w = pokerFrame.contentWindow, h = pokerHash(parts); if (w.location.hash !== h) w.location.hash = h; } catch (e) { return false; }
+  drawPokerHead(parts);
+  return true;
 }
+function drawPokerHead(parts) {
+  var head = $("phead"), nav = $("pnav"); if (!head || !nav) return;
+  var P = pokerRead(), lv = courseLevel("poker"), cur = parts && parts[0] || "home";
+  head.innerHTML = '<div class="cg" style="color:var(--gold)">♠</div><div><div class="crumbs"><a href="#/skills">Skills</a><span>›</span>Poker</div><h1>Poker</h1><p>A nine-stage path from the rules to Bayesian exploitation, 37 drills on a spaced schedule, four CFR solver labs, a six-handed table where every decision is priced and graded, and a level measured at that table.</p><div class="cmeta"><span>Level: <b>' + esc(lv.name) + '</b></span><span>Lessons: <b>' + P.lessons + ' / ' + POKER_TOTAL_LESSONS + '</b></span><span>Due today: <b>' + P.due + '</b></span><span>XP: <b>' + P.xp.toLocaleString() + '</b></span><span>Streak: <b>' + P.streak + '</b></span></div></div>';
+  nav.innerHTML = POKER_TABS.map(function (t) { return '<a href="#/poker/' + t[0] + '"' + (cur === t[0] ? ' aria-current="page"' : '') + '>' + t[1] + (t[0] === "practice" && P.due ? ' <span class="nbadge">' + P.due + '</span>' : '') + '</a>'; }).join("");
+}
+function drawPoker(box, parts) {
+  var head = el("div", "chead"); head.id = "phead"; box.appendChild(head);
+  var nav = el("nav", "subnav"); nav.id = "pnav"; box.appendChild(nav);
+  drawPokerHead(parts);
+  var f = el("iframe", "pframe"); f.id = "pframe"; f.title = "PokerPro"; f.src = "poker/" + pokerHash(parts); f.setAttribute("scrolling", "no");
+  box.appendChild(f); pokerFrame = f;
+}
+function pokerTheme() { if (pokerFrame && pokerFrame.isConnected) { try { pokerFrame.contentWindow.postMessage({ pokerproTheme: themeNow() }, location.origin); } catch (e) {} } }
+/* the frame tells the hub where it is and how tall it is; the hub's hash follows (replace, not push: the frame's own history has the entry) */
+window.addEventListener("message", function (e) {
+  if (e.origin !== location.origin || !e.data || !pokerFrame || e.source !== pokerFrame.contentWindow || view !== "poker") return;
+  if (typeof e.data.pokerproHeight === "number") { pokerFrame.style.height = Math.max(320, Math.ceil(e.data.pokerproHeight)) + "px"; }
+  if (typeof e.data.pokerproHash === "string") {
+    var h = "#/poker" + e.data.pokerproHash.replace(/^#\/?/, "/").replace(/\/$/, "");
+    if (location.hash !== h) {
+      curHash = h; try { history.replaceState(null, "", h); } catch (err) { location.hash = h; }
+      /* a new page in the frame: bring its top into view, as the app's own scroll-to-top would */
+      var top = pokerFrame.getBoundingClientRect().top + window.scrollY - 70; if (window.scrollY > top) window.scrollTo(0, Math.max(0, top));
+    }
+    drawPokerHead(h.replace(/^#\/poker\/?/, "").split("/").filter(Boolean));
+  }
+});
 
 /* ============================================================ SCHOOL ============================================================ */
-function drawSchool(box, id) {
-  box.innerHTML = '<div class="vhead"><div><h1>School</h1><p>Your courses come first on every day. Each one keeps its own flashcards, generated problems and timed rehearsals; the hub reads what is due and the key dates and puts them at the front of the plan. Add a course as the term adds one.</p></div></div>';
+var schoolPage = null;   /* the course page on screen: { course, page, app, host } */
+function schoolLeave() { if (view === "school" && schoolPage) return; Object.keys(SCHOOL_APPS).forEach(function (id) { SCHOOL_APPS[id].leave(); }); schoolPage = null; }
+/* after a sync merge or a write from another tab, the inlined apps must read the store again or their next save would undo it */
+function schoolReload() { Object.keys(SCHOOL_APPS).forEach(function (id) { SCHOOL_APPS[id].reload(); }); }
+function schoolPages(sc) { var app = SCHOOL_APPS[sc.id]; return app ? app.pages : (sc.links || []).map(function (l) { return { id: l[1], title: l[0] }; }); }
+function drawSchool(box, id, page) {
+  var sc = id && SCHOOL_COURSES.filter(function (x) { return x.id === id; })[0];
+  if (sc) { drawSchoolCourse(box, sc, page); return; }
+  box.innerHTML = '<div class="vhead"><div><h1>School</h1><p>Your courses come first on every day. Each one keeps its own flashcards, generated problems and timed rehearsals, all of it here in the hub; the hub reads what is due and the key dates and puts them at the front of the plan. Add a course as the term adds one.</p></div></div>';
   var now = Date.now();
   SCHOOL_COURSES.forEach(function (sc) {
     var R = schoolRead(sc), dm = schDemand(sc, R, now);
@@ -214,13 +248,36 @@ function drawSchool(box, id) {
     dates.innerHTML = '<div class="ph"><h3>Key dates</h3><span>from the syllabus</span></div><div class="dates">' + dl.map(function (x) { return '<div><span class="dd">' + x.k.date.slice(5) + '</span><span>' + esc(x.k.label) + ' <span class="tag">' + x.k.kind + '</span></span><span class="in' + (x.dd >= 0 && x.dd <= 3 ? " soon" : "") + '">' + (x.dd < 0 ? Math.abs(x.dd) + " days ago" : x.dd === 0 ? "today" : x.dd === 1 ? "tomorrow" : "in " + x.dd + " days") + '</span></div>'; }).join("") + (dm.quiz ? '<div><span class="dd">quiz</span><span>Week ' + dm.quiz.week + ' quiz' + (dm.quiz.topic ? " · " + esc(dm.quiz.topic) : "") + ' <span class="tag">quiz</span></span><span class="in' + (dm.quiz.days <= 2 ? " soon" : "") + '">' + (dm.quiz.days === 0 ? "today" : dm.quiz.days === 1 ? "tomorrow" : "in " + dm.quiz.days + " days") + '</span></div>' : "") + '</div>' + (sc.gradeWeights ? '<p class="pnote">Grade: ' + sc.gradeWeights.map(function (w) { return esc(w[0]) + " " + w[1] + "%"; }).join(" · ") + '</p>' : "");
     p.appendChild(dates);
     if (R.weak && R.weak.length) { var wk = el("div", "panel tight"); wk.style.marginTop = "10px"; wk.innerHTML = '<div class="ph"><h3>Weakest topics</h3><span>first-try accuracy, recent answers weighted</span></div><div class="clist">' + R.weak.map(function (w) { var g = (typeof MATH340 !== "undefined") ? MATH340.units.flatMap(function (u) { return u.generators || []; }).filter(function (x) { return x.id === w.id; })[0] : null; return '<div><span>' + esc(g ? g.name : w.id) + '</span><b>' + w.correct + ' / ' + w.attempts + '</b></div>'; }).join("") + '</div>'; p.appendChild(wk); }
-    var links = el("div", "links"); (sc.links || []).forEach(function (l) { var a = el("a", "", l[0]); a.href = sc.href + l[1]; links.appendChild(a); }); p.appendChild(links);
-    var row = el("div", "row"); row.style.marginTop = "12px"; var open = el("a", "act go", "Open " + esc(sc.code)); open.href = sc.href; row.appendChild(open); p.appendChild(row);
+    var links = el("div", "links"); schoolPages(sc).forEach(function (pg) { var a = el("a", "", esc(pg.title)); a.href = schLink(sc, pg.id); links.appendChild(a); }); p.appendChild(links);
+    var row = el("div", "row"); row.style.marginTop = "12px"; var open = el("a", "act go", "Open " + esc(sc.code)); open.href = schLink(sc, "dashboard"); row.appendChild(open); p.appendChild(row);
     box.appendChild(p);
   });
   var add = el("div", "panel"); add.innerHTML = '<div class="ph"><h3>Adding a course</h3></div><p class="pnote">New coursework is added as it arrives: a chapter or homework set goes into the course\'s own <code>data/</code> folder (Math 340 has a ten-minute recipe in <code>school/math340/docs/ADDING_CONTENT.md</code>), and a new course is one entry in <code>sb/school.js</code> plus its folder under <code>school/</code>. The hub, the calendar and the sync pick it up on the next build. See <code>docs/ADDING_A_COURSE.md</code>.</p>';
   box.appendChild(add);
 }
+/* one course, inside the hub: its header and tabs are the hub's, the page below is the course app's own */
+function drawSchoolCourse(box, sc, page) {
+  var app = SCHOOL_APPS[sc.id], R = schoolRead(sc), dm = schDemand(sc, R, Date.now()), pages = schoolPages(sc);
+  page = pages.some(function (p) { return p.id === page; }) ? page : pages[0].id;
+  var inDays = function (d) { return d === 0 ? "today" : d === 1 ? "tomorrow" : "in " + d + " days"; };
+  var head = el("div", "chead");
+  head.innerHTML = '<div class="cg" style="color:' + sc.color + '">' + esc(sc.glyph) + '</div><div><div class="crumbs"><a href="#/school">School</a><span>›</span>' + esc(sc.code) + '</div><h1>' + esc(sc.name) + '</h1><p>' + esc(sc.code) + ' · ' + esc(sc.term) + (app ? ' · ' + esc(app.weekLabel()) : '') + '</p><div class="cmeta"><span>Cards due: <b>' + R.due + '</b></span><span>To redo: <b>' + R.misses + '</b></span><span>Mastery: <b>' + Math.round(100 * R.mastery) + '%</b></span><span>Streak: <b>' + R.streak + '</b></span>' + (dm.quiz ? '<span>Quiz: <b>' + inDays(dm.quiz.days) + '</b></span>' : '') + (dm.exam && dm.exam.days <= 21 ? '<span>' + esc(dm.exam.label.split("·")[0].trim()) + ': <b>' + inDays(dm.exam.days) + '</b></span>' : '') + '</div></div>';
+  box.appendChild(head);
+  var nav = el("nav", "subnav");
+  nav.innerHTML = pages.map(function (p) { return '<a href="' + schLink(sc, p.id) + '"' + (page === p.id ? ' aria-current="page"' : '') + '>' + esc(p.title) + (p.id === "flashcards" && R.due ? ' <span class="nbadge">' + R.due + '</span>' : p.id === "practice" && R.misses ? ' <span class="nbadge">' + R.misses + '</span>' : '') + '</a>'; }).join("");
+  /* the tab you are already on: no hashchange, so redraw the page (out of a card session or a problem, say) */
+  nav.addEventListener("click", function (e) { var a = e.target.closest("a"); if (a && a.getAttribute("href") === location.hash) { e.preventDefault(); route(); } });
+  box.appendChild(nav);
+  var wrap = el("div", "m340"), host = el("div", "content"); host.id = "schoolApp"; wrap.appendChild(host); box.appendChild(wrap);
+  if (!app) { host.innerHTML = '<div class="empty">This course\'s app is not built into the hub. <a href="' + sc.href + '#/' + page + '">Open it on its own ›</a></div>'; return; }
+  schoolPage = { course: sc, page: page, app: app, host: host };
+  app.mount(page, host, { base: "#/school/" + sc.id + "/" });
+  /* KaTeX loads deferred, after this script: the first page drawn before it is ready is typeset once it is */
+  if (!window.renderMathInElement) window.addEventListener("load", function () { if (host.isConnected) app.typeset(host); }, { once: true });
+}
+/* the flashcard keys (space, 1, 2) reach the course page the way they do in its own app */
+document.addEventListener("keydown", function (e) { if (view === "school" && schoolPage && schoolPage.page === "flashcards" && !e.target.matches("input, textarea, select")) schoolPage.app.onKey(e, schoolPage.host); });
+window.addEventListener("beforeunload", function (e) { if (Object.keys(SCHOOL_APPS).some(function (id) { return SCHOOL_APPS[id].inProgress(); })) { e.preventDefault(); e.returnValue = ""; } });
 
 /* ============================================================ QUANT ============================================================ */
 var qrun = null;
@@ -289,7 +346,7 @@ function drawLibrary(box, sub) {
       else if (sub === "glossary") { var gl = c.glossary.filter(function (g) { return !qv || (g[0] + " " + (g[1] || []).join(" ") + " " + g[2]).toLowerCase().indexOf(qv) >= 0; }); if (!gl.length) return; list.appendChild(el("h3", "sech", esc(c.name))); var p = el("div", "panel clist"); p.innerHTML = gl.map(function (g) { return '<div><span><b>' + esc(g[0]) + '</b><small>' + esc(g[2]) + '</small></span><b><a href="#/c/' + cid + '/learn/' + g[3] + '" style="color:var(--gold);text-decoration:none">lesson ›</a></b></div>'; }).join(""); list.appendChild(p); }
       else { list.appendChild(el("h3", "sech", esc(c.name))); c.reading.forEach(function (g) { var p2 = el("div", "panel clist"); p2.style.marginBottom = "10px"; p2.innerHTML = '<div><span><b>' + esc(g.g) + '</b></span></div>' + g.items.map(function (it) { return "<div><span>" + esc(it[0]) + "<small>" + esc(it[1]) + "</small></span></div>"; }).join(""); list.appendChild(p2); }); }
     });
-    if (sub === "reading") { list.appendChild(el("h3", "sech", "Poker")); list.appendChild(el("p", "pnote", "PokerPro's reading list (Chen & Ankenman, Brokos, Acevedo, the CFR papers) is on its own Library tab: <a href='poker/#/library/reading'>open it ›</a>.")); }
+    if (sub === "reading") { list.appendChild(el("h3", "sech", "Poker")); list.appendChild(el("p", "pnote", "PokerPro's reading list (Chen & Ankenman, Brokos, Acevedo, the CFR papers) is on its own Library tab: <a href='#/poker/library/reading'>open it ›</a>.")); }
   }
   search.oninput = draw; draw();
 }
@@ -309,7 +366,10 @@ function syncApply(merged) {
   var before = hsCanon(syncLocal());
   hubHydrate(merged.hub); saveRelease(); saveNow();
   try { if (merged.poker) STORE.set(POKER_KEYS.course, JSON.stringify(merged.poker)); if (merged.pokerGame) STORE.set(POKER_KEYS.game, JSON.stringify(merged.pokerGame)); if (merged.pokerSim) STORE.set(POKER_KEYS.sim, JSON.stringify(merged.pokerSim)); if (merged.math340) STORE.set("math340-progress-v1", JSON.stringify(merged.math340)); } catch (e) {}
-  return hsCanon(syncLocal()) !== before;
+  var changed = hsCanon(syncLocal()) !== before;
+  /* the apps that run inside the hub hold their state in memory: hand them the merged store, or their next save would undo it */
+  if (changed) { schoolReload(); if (pokerFrame && pokerFrame.isConnected) { try { pokerFrame.contentWindow.location.reload(); } catch (e) {} } if (view === "school" && schoolPage) route(); }
+  return changed;
 }
 var SYNC_FILE_HUB = HS_FILE;
 async function hubFindGist(token, seed) {
@@ -397,6 +457,7 @@ function drawThemeBtn() {
   b.innerHTML = dark ? THEME_ICON.sun : THEME_ICON.moon; b.title = dark ? "Switch to the paper theme" : "Switch to the lamp theme";
   var forced = !!document.documentElement.getAttribute("data-theme");
   document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.content = forced ? (dark ? "#161411" : "#F4EFE6") : (m.media && m.media.indexOf("dark") >= 0 ? "#161411" : "#F4EFE6"); });
+  pokerTheme();
 }
 $("themeBtn").onclick = function () { var next = themeNow() === "dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", next); try { localStorage.setItem("sb-theme", next); } catch (e) {} drawThemeBtn(); };
 if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawThemeBtn); } catch (e) {} }
@@ -411,5 +472,9 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.
   setInterval(function () { if (sync.token && sync.auto && !sync.busy) syncNow("every 5 minutes"); }, 5 * 60 * 1000);
   window.addEventListener("online", function () { if (sync.token && sync.auto) syncNow("back online"); });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && sync.token && sync.auto) syncNow("back to the tab"); });
-  window.addEventListener("storage", function (e) { if (e.key === POKER_KEYS.course || e.key === "math340-progress-v1") { if (view === "home" || view === "school" || view === "poker") route(); } });
+  /* another tab, or PokerPro in its frame, saved: the numbers on Today and School change; a course page mid-session is left alone (its store rereads first) */
+  window.addEventListener("storage", function (e) {
+    if (e.key === "math340-progress-v1") schoolReload();
+    if (e.key === POKER_KEYS.course || e.key === "math340-progress-v1") { if (view === "home" || (view === "school" && !schoolPage)) route(); else if (view === "poker") drawPokerHead(location.hash.replace(/^#\/poker\/?/, "").split("/").filter(Boolean)); }
+  });
 })();

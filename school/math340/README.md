@@ -102,7 +102,7 @@ Each unit is a single self-registering file in `data/` — adding a new week req
 ├── index.html            # App shell — add one <script> tag per new content unit
 ├── css/styles.css        # Theme (light/dark), layout, components
 ├── js/
-│   ├── app.js            # Router, dashboard + study plan, schedule, reference, progress
+│   ├── app.js            # Shell: pages (dashboard + study plan, schedule, reference, progress), mount() for the hub, the standalone router
 │   ├── flashcards.js     # Leitner engine, review/cram sessions, in-session relearning
 │   ├── practice.js       # Problem runner, hints, answer grading, "which method?" drill
 │   ├── exam.js           # Timed deferred-feedback sittings + scored report

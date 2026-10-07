@@ -16,6 +16,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="stylesheet" href="school/math340/lib/katex/katex.min.css">
+<script defer src="school/math340/lib/katex/katex.min.js"></script>
+<script defer src="school/math340/lib/katex/contrib/auto-render.min.js"></script>
 <script>(function(){try{var t=localStorage.getItem("sb-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <style>
 /* ============================================================
@@ -388,6 +391,21 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 .sch .panel{box-shadow:none; background:var(--paper)}
 .dates > div{display:grid; grid-template-columns:70px 1fr auto; gap:10px; padding:8px 0; border-bottom:1px solid var(--rule); font-size:14px; align-items:center} .dates > div:last-child{border-bottom:0} .dates .dd{font:12px var(--mono); color:var(--ink2)} .dates .in{color:var(--accent); font:12px var(--mono); white-space:nowrap} .dates .in.soon{color:var(--red); font-weight:700}
 .links{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px} .links a{font-size:12.5px; color:var(--ink2); text-decoration:none; border:1px solid var(--rule2); border-radius:999px; padding:5px 12px} .links a:hover{color:var(--ink); border-color:var(--ink)}
+
+/* ---- a course app inside the hub ----
+   The course's stylesheet is inlined below by the build, scoped to .m340, and its colour variables are mapped onto the
+   hub's palette here (so it follows the hub's theme). What comes after the inlined sheet overrides the few class names
+   the two stylesheets share (.hero, .stat, .kbd) and the standalone app's page padding. */
+.m340{--bg:var(--paper); --surface:var(--card); --surface-2:var(--paper2); --border:var(--rule); --text:var(--ink); --text-dim:var(--ink2); --accent:var(--purple); --accent-soft:var(--tint-purple); --accent-contrast:var(--on-badge); --green-soft:var(--tint-green); --red-soft:var(--tint-red); --amber:var(--gold); --amber-soft:var(--tint-gold); --radius:6px; --font-head:var(--serif); --font-body:var(--sans)}
+.m340 *{box-sizing:border-box;}.m340 [hidden]{display:none !important;}.m340{margin:0;padding:0;}.m340{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15.5px;line-height:1.55;}.m340 a{color:var(--accent);text-decoration:none;}.m340 .app{display:flex;min-height:100vh;}.m340 .sidebar{width:248px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}.m340 .brand{display:flex;gap:12px;align-items:center;padding:20px 18px 16px;}.m340 .brand-mark{width:40px;height:40px;border-radius:11px;background:var(--accent);color:var(--accent-contrast);font-family:var(--font-head);font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;}.m340 .brand-title{font-family:var(--font-head);font-size:17px;font-weight:700;}.m340 .brand-sub{font-size:12px;color:var(--text-dim);}.m340 .nav{display:flex;flex-direction:column;padding:8px 10px;gap:2px;}.m340 .nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;color:var(--text-dim);font-weight:500;font-size:14.5px;}.m340 .nav a:hover{background:var(--surface-2);color:var(--text);}.m340 .nav a.active{background:var(--accent-soft);color:var(--accent);}.m340 .nav-ico{width:20px;text-align:center;font-size:15px;}.m340 .sidebar-foot{margin-top:auto;padding:14px 16px 18px;border-top:1px solid var(--border);}.m340 .foot-note{font-size:11.5px;color:var(--text-dim);margin-top:10px;}.m340 .main-wrap{flex:1;min-width:0;display:flex;flex-direction:column;}.m340 .topbar{display:flex;align-items:center;gap:14px;padding:14px 28px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:20;}.m340 .topbar-title{font-family:var(--font-head);font-size:19px;font-weight:700;}.m340 .topbar-right{margin-left:auto;font-size:13px;color:var(--text-dim);}.m340 .hamburger{display:none;background:none;border:none;font-size:20px;color:var(--text);cursor:pointer;}.m340 .content{padding:28px;max-width:1060px;width:100%;margin:0 auto;}.m340 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px;}.m340 .card h2{font-family:var(--font-head);font-size:19px;margin:0 0 6px;}.m340 .card h3{font-family:var(--font-head);font-size:16.5px;margin:18px 0 8px;}.m340 .muted{color:var(--text-dim);font-size:13.5px;}.m340 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}.m340 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}.m340 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}.m340 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--accent);color:var(--accent-contrast);border:none;border-radius:9px;cursor:pointer;padding:10px 18px;font-size:14.5px;font-weight:600;font-family:var(--font-body);transition:filter .12s,transform .05s;}.m340 .btn:hover{filter:brightness(1.08);}.m340 .btn:active{transform:translateY(1px);}.m340 .btn-ghost{background:var(--surface-2);color:var(--text);}.m340 .btn-green{background:var(--green);color:#fff;}.m340 .btn-red{background:var(--red);color:#fff;}.m340 .btn-sm{padding:6px 12px;font-size:13px;}.m340 .btn[disabled]{opacity:.5;cursor:default;}.m340 .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--surface-2);color:var(--text-dim);}.m340 .pill-accent{background:var(--accent-soft);color:var(--accent);}.m340 .pill-green{background:var(--green-soft);color:var(--green);}.m340 .pill-red{background:var(--red-soft);color:var(--red);}.m340 .pill-amber{background:var(--amber-soft);color:var(--amber);}.m340 .progress-bar{height:8px;background:var(--surface-2);border-radius:999px;overflow:hidden;}.m340 .progress-bar > div{height:100%;background:var(--accent);border-radius:999px;transition:width .4s;}.m340 .progress-bar.green > div{background:var(--green);}.m340 table.tbl{width:100%;border-collapse:collapse;font-size:14px;}.m340 table.tbl th,.m340 table.tbl td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;}.m340 table.tbl th{color:var(--text-dim);font-size:12px;text-transform:uppercase;letter-spacing:.05em;}.m340 table.tbl th .katex{text-transform:none;letter-spacing:normal;}.m340 table.tbl tr:last-child td{border-bottom:none;}.m340 tr.current-week{background:var(--accent-soft);}.m340 .stat{text-align:center;padding:14px 8px;}.m340 .stat .num{font-family:var(--font-head);font-size:28px;font-weight:700;}.m340 .stat .lbl{font-size:12px;color:var(--text-dim);margin-top:2px;}.m340 .deck-row{display:flex;align-items:center;gap:16px;padding:14px 4px;border-bottom:1px solid var(--border);}.m340 .deck-row:last-child{border-bottom:none;}.m340 .deck-info{flex:1;min-width:0;}.m340 .deck-name{font-weight:600;}.m340 .deck-meta{font-size:12.5px;color:var(--text-dim);margin-top:2px;}.m340 .deck-bar{width:180px;}.m340 .fc-stage{max-width:720px;margin:0 auto;}.m340 .fc-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);min-height:320px;padding:34px 36px;display:flex;flex-direction:column;cursor:pointer;}.m340 .fc-tag{font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;}.m340 .fc-front{font-family:var(--font-head);font-size:21px;line-height:1.45;}.m340 .fc-back{margin-top:20px;padding-top:20px;border-top:1px dashed var(--border);font-size:16.5px;}.m340 .fc-hint{margin-top:auto;padding-top:22px;text-align:center;color:var(--text-dim);font-size:13px;}.m340 .fc-actions{display:flex;gap:12px;justify-content:center;margin-top:20px;}.m340 .fc-actions .btn{min-width:150px;}.m340 .fc-progress{text-align:center;margin:14px 0 18px;color:var(--text-dim);font-size:13.5px;}.m340 .box-dots{display:flex;gap:4px;}.m340 .box-dots span{width:8px;height:8px;border-radius:50%;background:var(--surface-2);}.m340 .box-dots span.on{background:var(--accent);}.m340 .topic-row{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--border);}.m340 .topic-row:last-child{border-bottom:none;}.m340 .q-text{font-size:16px;margin:10px 0 18px;line-height:1.65;}.m340 .answer-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}.m340 .answer-row input[type="text"]{flex:1;min-width:200px;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:15px;font-family:var(--font-body);}.m340 .answer-row input:focus{outline:none;border-color:var(--accent);}.m340 .mc-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}.m340 .mc-opt{padding:12px 15px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);cursor:pointer;font-size:15px;text-align:left;color:var(--text);font-family:var(--font-body);}.m340 .mc-opt:hover{border-color:var(--accent);}.m340 .mc-opt.sel-right{border-color:var(--green);background:var(--green-soft);}.m340 .mc-opt.sel-wrong{border-color:var(--red);background:var(--red-soft);}.m340 .mc-opt.reveal-right{border-color:var(--green);}.m340 .verdict{font-weight:700;margin:14px 0 4px;}.m340 .verdict.ok{color:var(--green);}.m340 .verdict.bad{color:var(--red);}.m340 .solution{background:var(--surface-2);border-radius:10px;padding:16px 18px;margin-top:14px;font-size:14.5px;}.m340 .solution .sol-step{margin:8px 0;}.m340 .dist-card{margin-bottom:14px;}.m340 .dist-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}.m340 .dist-head h3{margin:0;}.m340 .dist-body{margin-top:10px;overflow-x:auto;}.m340 .ref-group-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}.m340 .ref-group-head h2{flex:1;min-width:0;}.m340 .guide-tbl td{font-size:13.5px;}.m340 .ident-pick{display:flex;align-items:flex-start;padding-top:2px;}.m340 .ident-pick input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;}.m340 .ident-item{display:flex;gap:12px;padding:12px 2px;border-bottom:1px solid var(--border);}.m340 .ident-item.picked,.m340 .dist-card.picked{background:var(--accent-soft);border-radius:8px;}.m340 .ident-item:last-child{border-bottom:none;}.m340 .ident-name{font-weight:600;font-size:14px;}.m340 .ident-formula{margin:6px 0 2px;overflow-x:auto;}.m340 .ident-note{font-size:13px;color:var(--text-dim);}.m340 .hero{background:linear-gradient(120deg,var(--accent-soft),var(--surface));border-color:var(--accent-soft);}.m340 .plan-row{display:flex;align-items:flex-start;gap:14px;padding:13px 12px;margin:0 -12px;border-radius:11px;color:var(--text);border-bottom:1px solid var(--border);}.m340 .plan-row:last-child{border-bottom:none;}.m340 .plan-row:hover{background:var(--surface-2);}.m340 .plan-row.lead{background:var(--accent-soft);border-bottom-color:transparent;}.m340 .plan-ico{width:34px;height:34px;flex-shrink:0;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--surface);color:var(--accent);font-size:16px;border:1px solid var(--border);}.m340 .plan-title{display:block;font-weight:600;}.m340 .plan-why{display:block;margin-top:2px;}.m340 .plan-go{color:var(--text-dim);align-self:center;}.m340 .callout{background:var(--accent-soft);border-radius:10px;padding:12px 14px;margin:0 0 16px;font-size:13.5px;}.m340 .run-foot{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center;}.m340 .hint-box{background:var(--amber-soft);border-left:3px solid var(--amber);border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;font-size:14.5px;}.m340 .hint-box .sol-step{margin:8px 0;}.m340 .verdict.warn{color:var(--amber);}.m340 .kbd{display:inline-block;padding:1px 6px;border-radius:5px;margin-left:6px;font-size:11px;font-weight:600;opacity:.75;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);}.m340 .btn-ghost .kbd{background:var(--surface);border-color:var(--border);color:var(--text-dim);}.m340 .exam-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;max-width:820px;margin:0 auto 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;box-shadow:var(--shadow);}.m340 .exam-clock{font-family:var(--font-head);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;}.m340 .exam-clock .urgent{color:var(--red);}.m340 .exam-palette{display:flex;flex-wrap:wrap;gap:6px;max-width:820px;margin:0 auto 14px;}.m340 .pal{width:32px;height:32px;border-radius:8px;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-dim);font-size:13px;font-weight:600;font-family:var(--font-body);}.m340 .pal.done{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft);}.m340 .pal.flag{border-color:var(--amber);}.m340 .pal.on{outline:2px solid var(--accent);outline-offset:1px;}.m340 .preset-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;}.m340 .preset-card:hover,.m340 .preset-card:focus{border-color:var(--accent);outline:none;}.m340 .preset-head{display:flex;align-items:center;gap:10px;font-size:15.5px;}.m340 .preset-ico{font-size:18px;color:var(--accent);}.m340 .exam-review{padding:16px 0;border-bottom:1px solid var(--border);}.m340 .exam-review:last-child{border-bottom:none;}.m340 .exam-review-head{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}.m340 .exam-review summary{cursor:pointer;font-size:13px;}.m340 .empty-state{text-align:center;padding:48px 20px;color:var(--text-dim);}.m340 .empty-state .big{font-size:40px;margin-bottom:10px;}.m340 .week-badge{font-weight:600;color:var(--accent);}.m340 .katex{font-size:1.06em;}.m340 .katex-display{overflow-x:auto;overflow-y:hidden;padding:4px 0;}.m340 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}.m340 .select{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:14px;font-family:var(--font-body);}@media (max-width:900px){.m340 .grid-2,.m340 .grid-3,.m340 .grid-4{grid-template-columns:1fr 1fr;}.m340 .mc-opts{grid-template-columns:1fr;}}@media (max-width:720px){.m340 .sidebar{position:fixed;z-index:50;left:0;top:0;transform:translateX(-100%);transition:transform .2s;}.m340 .sidebar.open{transform:translateX(0);}body.nav-open .m340::before{content:"";position:fixed;inset:0;z-index:40;background:rgba(12,14,22,.42);}.m340 .hamburger{display:block;}.m340 .content{padding:16px;}.m340 .grid-2,.m340 .grid-3,.m340 .grid-4{grid-template-columns:1fr;}.m340 .deck-bar{display:none;}.m340 .fc-card{padding:22px 20px;}}.m340 .print-only{display:none;}@page{size:letter portrait;margin:0.45in;}@media print{.m340,.m340{--bg:#fff;--surface:#fff;--surface-2:#fff;--text:#000;--text-dim:#333;--border:#bbb;--accent:#000;--accent-soft:#fff;--shadow:none;}.m340{background:#fff;color:#000;}.m340 .sidebar,.m340 .topbar,.m340 .no-print,.m340 .hamburger{display:none !important;}.m340 .app,.m340 .main-wrap{display:block;}.m340 .content{padding:0;max-width:none;}.m340 .card{background:none;border:none;box-shadow:none;padding:0;margin:0 0 10pt;break-inside:avoid;}.m340 a{color:#000;text-decoration:none;}.m340 .btn,.m340 .select,.m340 .toolbar,.m340 .pal,.m340 .exam-palette,.m340 .fc-actions{display:none !important;}.m340 table.tbl th,.m340 table.tbl td{border-bottom:1px solid #ccc;padding:4pt 6pt;}}@media print{body.printing-sheet .m340 .print-only{display:block;}body.printing-sheet .m340 .sheet-head{font-size:9pt;border-bottom:1pt solid #000;padding-bottom:3pt;margin-bottom:6pt;}body.printing-sheet .m340 .ident-item{display:none;}body.printing-sheet .m340 .dist-card{display:none;}body.printing-sheet .m340 .ident-item.picked{display:block;}body.printing-sheet .m340 .dist-card.picked{display:block;}body.printing-sheet .m340 .content{column-count:2;column-gap:14pt;column-fill:auto;font-size:7.8pt;line-height:1.22;}body.printing-sheet .m340 .sheet-head{column-span:all;}body.printing-sheet .m340 .ident-item.picked,body.printing-sheet .m340 .dist-card.picked{break-inside:avoid;page-break-inside:avoid;background:none;border-radius:0;border-bottom:0.5pt solid #bbb;padding:2pt 0;margin:0;}body.printing-sheet .m340 .ident-name{font-size:7.8pt;font-weight:700;}body.printing-sheet .m340 .ident-formula{margin:1pt 0 0;}body.printing-sheet .m340 .ident-formula p,body.printing-sheet .m340 .ident-formula br + br{display:none;}body.printing-sheet .m340 .dist-head h3{font-size:8.5pt;margin:0;}body.printing-sheet .m340 .dist-card .tbl th,body.printing-sheet .m340 .dist-card .tbl td{padding:1pt 4pt;border:none;}body.printing-sheet .m340 .pill{background:none;color:#444;padding:0 3pt 0 0;font-size:7pt;}body.printing-sheet .m340 .muted{color:#333;}body.printing-sheet .m340 .katex{font-size:0.97em;}body.printing-sheet .m340 .katex-display{margin:1pt 0;text-align:left;padding:0;}body.printing-sheet .m340 .katex-display > .katex{text-align:left;}}
+.m340 .content{padding:0; max-width:none}
+.m340 .hero{padding:20px 22px; margin:0 0 18px; border:1px solid var(--rule); border-top:1px solid var(--rule)} .m340 .hero h2{font-size:19px; margin:0 0 2px; max-width:none; line-height:1.3} .m340 .hero p{margin-bottom:0; max-width:none; font-size:13.5px}
+.m340 .stat{padding:14px 8px; border-right:0} .m340 .kbd{margin-top:0; max-width:none; gap:0; display:inline-block}
+.m340 .card{box-shadow:var(--shadow)} .m340 .btn{border-radius:4px} .m340 .fc-card{border-radius:6px}
+@media print{ body.printing-sheet .top, body.printing-sheet .savebar, body.printing-sheet .chead, body.printing-sheet .subnav, body.printing-sheet .toasts{display:none !important} body.printing-sheet .wrap{max-width:none; padding:0} }
+
+/* ---- PokerPro inside the hub: the hub's course header and tabs, then the app in a frame that sizes itself to its content ---- */
+.pframe{display:block; width:100%; border:0; height:600px; background:transparent}
 
 /* ---- sync ---- */
 .sstat{display:flex; gap:14px; align-items:flex-start; padding:18px 20px; border:1px solid var(--rule); border-radius:6px; background:var(--card); margin-bottom:16px; box-shadow:var(--shadow)} .sstat .sdot{width:12px; height:12px; border-radius:50%; background:var(--ink3); margin-top:7px; flex:none} .sstat.on .sdot{background:var(--green)} .sstat.error .sdot{background:var(--red)} .sstat.busy .sdot{background:var(--gold)}
@@ -2244,7 +2262,18 @@ function plWeekLines(S) {
    and a reader for its saved progress, and the planner puts it at
    the front of every day. Add a course by adding one entry to
    SCHOOL_COURSES (see docs/ADDING_A_COURSE.md).
+
+   A course app is not a link out of the hub: the build inlines its
+   views and it registers itself in SCHOOL_APPS under the course id,
+   so its pages draw inside the hub at #/school/<id>/<page>. The
+   course's own index.html still works on its own for the tests and
+   as an installable app of its own.
    ============================================================ */
+
+/* course id -> the course app's shell: { pages: [{ id, title }], mount(page, el, { base }), leave(), inProgress(), onKey(e, el), typeset(el) } */
+var SCHOOL_APPS = {};
+/* the hub route of a course page */
+function schLink(course, page) { return "#/school/" + course.id + "/" + page; }
 
 var SCHOOL_COURSES = [
   {
@@ -2261,7 +2290,8 @@ var SCHOOL_COURSES = [
       { date: "2026-11-23", label: "Final Exam · 11:30 am–2:00 pm (cumulative)", kind: "exam" }
     ],
     quizDay: 3,            /* Wednesday */
-    links: [["Dashboard", "#/dashboard"], ["Flashcards", "#/flashcards"], ["Practice", "#/practice"], ["Exam mode", "#/exam"], ["Reference", "#/reference"], ["Schedule", "#/schedule"], ["Progress", "#/progress"]],
+    /* the app's pages, in the order the hub's course tabs show them; SCHOOL_APPS[id].pages (if the app is inlined) is the authority */
+    links: [["Dashboard", "dashboard"], ["Flashcards", "flashcards"], ["Practice", "practice"], ["Exam mode", "exam"], ["Reference", "reference"], ["Schedule", "schedule"], ["Progress", "progress"]],
     gradeWeights: [["Participation", 5], ["Homework", 15], ["Quizzes", 25], ["Midterm", 20], ["Final Exam", 25], ["Final Project", 10]]
   }
 ];
@@ -2302,9 +2332,10 @@ function schRead(course, raw, now, units) {
   var st = null;
   try { st = raw ? JSON.parse(raw) : null; } catch (e) { st = null; }
   var out = { has: !!st, due: 0, fresh: 0, total: 0, mastered: 0, misses: 0, exams: 0, today: 0, streak: 0, lastExam: null, mastery: 0, weak: [] };
-  if (!st) return out;
-  var cards = st.cards || {}, seen = Object.keys(cards);
   var decks = units ? units.filter(function (u) { return u.flashcards && u.flashcards.length; }) : null;
+  /* no saved store yet: every card is unseen, and unseen cards are ready to study, as the course's own pages count them */
+  if (!st) { if (decks) decks.forEach(function (u) { out.total += u.flashcards.length; }); out.fresh = out.due = out.total; return out; }
+  var cards = st.cards || {}, seen = Object.keys(cards);
   if (decks) {
     var boxSum = 0;
     decks.forEach(function (u) { u.flashcards.forEach(function (card) {
@@ -2347,13 +2378,13 @@ function schDemand(course, R, now) {
     if (k.kind === "hw" && (!hw || d < hw.days)) hw = { days: d, label: k.label, date: k.date };
   });
   var quiz = schNextQuiz(course, now);
-  if (R.due) items.push({ kind: "review", min: Math.max(5, Math.min(25, Math.round(R.due * 0.3))), label: "Review " + R.due + " flashcard" + (R.due === 1 ? "" : "s"), href: course.href + "#/flashcards", why: R.fresh ? R.fresh + " never seen, the rest due today." : "Due today by the Leitner boxes." });
-  if (R.misses) items.push({ kind: "review", min: Math.max(5, Math.min(20, R.misses * 3)), label: "Redo " + R.misses + " missed problem" + (R.misses === 1 ? "" : "s"), href: course.href + "#/practice", why: "A miss redone is worth more than a fresh problem you would have got right." });
-  if (quiz && quiz.days <= 2) items.push({ kind: "apply", min: 20, label: "Quiz " + (quiz.days === 0 ? "today" : quiz.days === 1 ? "tomorrow" : "in " + quiz.days + " days") + ": sit a timed set", href: course.href + "#/exam", why: "Five problems, 15 minutes, no hints: the conditions the quiz is graded under." });
-  if (exam && exam.days <= 14) items.push({ kind: "apply", min: exam.days <= 3 ? 45 : 30, label: exam.label.split("·")[0].trim() + " in " + exam.days + " day" + (exam.days === 1 ? "" : "s") + ": full rehearsal", href: course.href + "#/exam", why: "Sit it under the clock, then drill what it finds. Build the formula sheet on the Reference page." });
-  if (hw && hw.days <= 3) items.push({ kind: "homework", min: hw.days === 0 ? 60 : 45, label: hw.label + (hw.days === 0 ? " today" : " in " + hw.days + " day" + (hw.days === 1 ? "" : "s")), href: course.href + "#/schedule", why: "Homework is 15% of the grade and the quiz draws on it. Reserve the time." });
-  if (R.weak && R.weak.length) items.push({ kind: "practice", min: 12, label: "Drill your weakest topic", href: course.href + "#/practice", why: "Target my weak spots draws from the topics you miss most." });
-  if (!items.length) items.push({ kind: "practice", min: 12, label: "Mixed practice session", href: course.href + "#/practice", why: "Nothing due: interleaved problems with the topic hidden are the best use of ten minutes." });
+  if (R.due) items.push({ kind: "review", min: Math.max(5, Math.min(25, Math.round(R.due * 0.3))), label: "Review " + R.due + " flashcard" + (R.due === 1 ? "" : "s"), href: schLink(course, "flashcards"), why: R.fresh ? R.fresh + " never seen, the rest due today." : "Due today by the Leitner boxes." });
+  if (R.misses) items.push({ kind: "review", min: Math.max(5, Math.min(20, R.misses * 3)), label: "Redo " + R.misses + " missed problem" + (R.misses === 1 ? "" : "s"), href: schLink(course, "practice"), why: "A miss redone is worth more than a fresh problem you would have got right." });
+  if (quiz && quiz.days <= 2) items.push({ kind: "apply", min: 20, label: "Quiz " + (quiz.days === 0 ? "today" : quiz.days === 1 ? "tomorrow" : "in " + quiz.days + " days") + ": sit a timed set", href: schLink(course, "exam"), why: "Five problems, 15 minutes, no hints: the conditions the quiz is graded under." });
+  if (exam && exam.days <= 14) items.push({ kind: "apply", min: exam.days <= 3 ? 45 : 30, label: exam.label.split("·")[0].trim() + " in " + exam.days + " day" + (exam.days === 1 ? "" : "s") + ": full rehearsal", href: schLink(course, "exam"), why: "Sit it under the clock, then drill what it finds. Build the formula sheet on the Reference page." });
+  if (hw && hw.days <= 3) items.push({ kind: "homework", min: hw.days === 0 ? 60 : 45, label: hw.label + (hw.days === 0 ? " today" : " in " + hw.days + " day" + (hw.days === 1 ? "" : "s")), href: schLink(course, "schedule"), why: "Homework is 15% of the grade and the quiz draws on it. Reserve the time." });
+  if (R.weak && R.weak.length) items.push({ kind: "practice", min: 12, label: "Drill your weakest topic", href: schLink(course, "practice"), why: "Target my weak spots draws from the topics you miss most." });
+  if (!items.length) items.push({ kind: "practice", min: 12, label: "Mixed practice session", href: schLink(course, "practice"), why: "Nothing due: interleaved problems with the topic hidden are the best use of ten minutes." });
   return { items: items, exam: exam, hw: hw, quiz: quiz, week: schWeekOf(course, now) };
 }
 
@@ -7358,7 +7389,7 @@ var ES_WRITING = [
  * in its own file under data/ and registers itself by calling
  * MATH340.registerUnit(...). To add a new week of material:
  *   1. create data/chN.js following the pattern of ch1.js
- *   2. add a <script src="data/chN.js"><\/script> tag to index.html
+ *   2. add a <\u0073cript src="data/chN.js"><\/script> tag to index.html
  * Nothing else needs to change — the app picks it up everywhere.
  * ============================================================ */
 
@@ -12647,6 +12678,7 @@ window.MATH340 = {
   });
 })();
 
+(function () {
 /* ============================================================
  * Progress store — persists to localStorage.
  *
@@ -12665,7 +12697,7 @@ window.MATH340 = {
  * v1 files (no `v`, no misses/exams/variants) are migrated on load
  * without losing any card or practice history.
  * ============================================================ */
-var M340Store = (() => {
+const Store = (() => {
   const KEY = "math340-progress-v1";   // key kept: v2 migrates v1 data in place
   const THEME_KEY = "math340-theme";
   const SCHEMA = 2;
@@ -12972,6 +13004,8 @@ var M340Store = (() => {
       save();
     },
     reset() { state = blank(); save(); },
+    /* read the store again: the hub writes this key after a sync merge (and another tab may), and the next save here must build on that */
+    reload() { state = load(); },
 
     /* ---- formula-sheet selection ----
      * The midterm allows one 8.5x11" sheet, so which identities you have
@@ -12993,6 +13027,1829 @@ var M340Store = (() => {
   };
 })();
 
+/* ============================================================
+ * Flashcards view — Leitner spaced repetition over the decks
+ * registered in MATH340.units.
+ *
+ * Two session shapes:
+ *   · review — the cards that are due, then new ones; nothing that the
+ *              schedule has not asked for yet (the daily habit)
+ *   · cram   — everything in scope, weakest first, ignoring the
+ *              schedule (the night before a quiz). Cards that were not
+ *              due are not promoted by a cram — see Store.gradeCard.
+ *
+ * A card you miss is re-queued a few cards later in the same session
+ * rather than being deferred to tomorrow. Relearning it once, now, is
+ * what stops the same card lapsing again next week.
+ * ============================================================ */
+const Flashcards = (() => {
+  let session = null;   // { unit, queue, idx, revealed, right, wrong, relearn }
+
+  const RELEARN_GAP = 4;   // cards to let pass before a missed card returns
+
+  function decksHome(el) {
+    session = null;
+    const decks = MATH340.units.filter(u => u.flashcards && u.flashcards.length);
+    const all = decks.flatMap(u => u.flashcards);
+    const allStats = Store.deckStats(all);
+
+    let html = `
+      <div class="card">
+        <h2>Flashcard Decks</h2>
+        <p class="muted">Spaced repetition with Leitner boxes: answer a card correctly and it moves up a box (reviewed less often); miss it and it drops to box 1 <em>and comes back later in the same session</em>. A card in box ${Store.MASTER_BOX}+ of ${Store.MAX_BOX} counts as mastered, and the top box is not due again for three weeks — long enough to carry it to the final.</p>
+        <div class="toolbar">
+          <button class="btn" id="fcAll" ${allStats.due ? "" : "disabled"}>▶ Review everything due (${allStats.due})</button>
+          <button class="btn btn-ghost" id="fcCramAll">⚡ Cram all decks, weakest first</button>
+        </div>
+        <div>`;
+    for (const u of decks) {
+      const s = Store.deckStats(u.flashcards);
+      html += `
+        <div class="deck-row">
+          <div class="deck-info">
+            <div class="deck-name">${u.title}</div>
+            <div class="deck-meta">${s.total} cards · ${s.mastered} mastered · ${s.due} ready${s.fresh ? ` · ${s.fresh} never seen` : ""}</div>
+          </div>
+          <div class="deck-bar">
+            <div class="progress-bar"><div style="width:${Math.round(s.mastery * 100)}%"></div></div>
+            <div class="muted" style="text-align:right; margin-top:3px">${Math.round(s.mastery * 100)}%</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" data-cram="${u.id}" title="Every card, weakest first, ignoring the schedule">Cram</button>
+          <button class="btn btn-sm" data-deck="${u.id}" ${s.due ? "" : "disabled"} title="${s.due ? "Review the cards that are due" : "Nothing due — use Cram to go through the deck anyway"}">Study</button>
+        </div>`;
+    }
+    html += `</div></div>
+      <div class="card">
+        <h3 style="margin-top:0">How to use this well</h3>
+        <ul class="muted" style="margin:6px 0 0; padding-left: 20px;">
+          <li>Say the answer <em>out loud or on paper</em> before flipping — recognition is not recall, and the flip feels far more convincing than it is.</li>
+          <li>Grade yourself strictly. "Nearly" is a miss; the cost of an extra review is seconds, the cost of a false "got it" is a quiz mark.</li>
+          <li>Review a little every day. Ten minutes daily beats an hour on Tuesday, and the schedule does the spacing for you.</li>
+          <li>Before a Wednesday quiz, <b>cram</b> last week's chapter — that mode ignores the schedule and leads with your weakest cards.</li>
+        </ul>
+      </div>`;
+    el.innerHTML = html;
+    el.querySelectorAll("[data-deck]").forEach(b =>
+      b.addEventListener("click", () => startSession(el, { unitId: b.dataset.deck, mode: "review" })));
+    el.querySelectorAll("[data-cram]").forEach(b =>
+      b.addEventListener("click", () => startSession(el, { unitId: b.dataset.cram, mode: "cram" })));
+    el.querySelector("#fcAll").addEventListener("click", () => startSession(el, { unitId: null, mode: "review" }));
+    el.querySelector("#fcCramAll").addEventListener("click", () => startSession(el, { unitId: null, mode: "cram" }));
+    App.typeset(el);
+  }
+
+  function startSession(el, { unitId, mode }) {
+    const units = unitId ? [MATH340.getUnit(unitId)] : MATH340.units.filter(u => u.flashcards && u.flashcards.length);
+    const cards = units.flatMap(u => u.flashcards || []);
+    const title = unitId ? units[0].title : "All decks";
+    const short = unitId ? (units[0].short || units[0].title) : "All decks";
+
+    let queue;
+    if (mode === "cram") {
+      // Weakest first: low box and repeated lapses lead, comfortable cards trail.
+      queue = Store.weakCards(cards);
+      if (!queue.length) queue = MATH340.util.shuffle(cards);
+    } else {
+      // Due cards first, then the ones never seen — the same set the
+      // "ready" counts on the deck list describe. Cards the schedule has
+      // not asked for yet stay out: reviewing them early would promote
+      // them before their interval has been tested.
+      const now = Date.now();
+      const due = [], fresh = [];
+      for (const c of cards) {
+        const st = Store.getCard(c.id);
+        if (!st.seen) fresh.push(c);
+        else if (st.due <= now) due.push(c);
+      }
+      queue = MATH340.util.shuffle(due).concat(MATH340.util.shuffle(fresh));
+      if (!queue.length) return decksHome(el);
+    }
+
+    session = { title, short, unitId, mode, queue, idx: 0, revealed: false, right: 0, wrong: 0, relearned: 0 };
+    render(el);
+  }
+
+  function render(el) {
+    const s = session;
+    if (!s) return decksHome(el);
+    if (s.idx >= s.queue.length) return renderDone(el);
+
+    const card = s.queue[s.idx];
+    const st = Store.getCard(card.id);
+    const dots = Array.from({ length: Store.MAX_BOX }, (_, i) => `<span class="${i < st.box ? "on" : ""}"></span>`).join("");
+    const seenBefore = s.queue.slice(0, s.idx).some(c => c.id === card.id);
+
+    el.innerHTML = `
+      <div class="fc-stage">
+        <div class="fc-progress">
+          ${s.short} · ${s.mode === "cram" ? "cram · " : ""}card ${s.idx + 1} of ${s.queue.length}
+          <span style="margin-left:12px" class="pill pill-green">${s.right} ✓</span>
+          <span class="pill pill-red">${s.wrong} ✗</span>
+          ${seenBefore ? `<span class="pill pill-amber">second look</span>` : ""}
+        </div>
+        <div class="fc-card" id="fcCard" tabindex="0" role="button" aria-label="Flashcard — click to flip">
+          <div class="fc-tag" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>${card.tag || ""}</span>
+            <span class="box-dots" title="Leitner box ${st.box} of ${Store.MAX_BOX}">${dots}</span>
+          </div>
+          <div class="fc-front">${card.front}</div>
+          ${s.revealed ? `<div class="fc-back">${card.back}</div>` : ""}
+          ${s.revealed ? "" : `<div class="fc-hint">Answer it out loud first — then click or press Space to check</div>`}
+        </div>
+        <div class="fc-actions">
+          ${s.revealed
+            ? `<button class="btn btn-red" id="fcMiss">✗ Missed it <span class="kbd">1</span></button>
+               <button class="btn btn-green" id="fcGot">✓ Got it <span class="kbd">2</span></button>`
+            : `<button class="btn btn-ghost" id="fcSkipDeck">Back to decks</button>
+               <button class="btn" id="fcReveal">Reveal <span class="kbd">space</span></button>`}
+        </div>
+      </div>`;
+
+    const flip = () => { if (!s.revealed) { s.revealed = true; render(el); } };
+    el.querySelector("#fcCard").addEventListener("click", flip);
+    if (s.revealed) {
+      el.querySelector("#fcGot").addEventListener("click", () => grade(el, true));
+      el.querySelector("#fcMiss").addEventListener("click", () => grade(el, false));
+    } else {
+      el.querySelector("#fcReveal").addEventListener("click", flip);
+      el.querySelector("#fcSkipDeck").addEventListener("click", () => decksHome(el));
+    }
+    App.typeset(el);
+  }
+
+  function renderDone(el) {
+    const s = session;
+    const total = s.right + s.wrong;
+    const pct = total ? Math.round(100 * s.right / total) : 0;
+    el.innerHTML = `
+      <div class="fc-stage">
+        <div class="card" style="text-align:center; padding: 40px 24px;">
+          <div style="font-size: 40px;">✓</div>
+          <h2>Deck complete</h2>
+          <p class="muted">${s.title}${s.mode === "cram" ? " · cram session" : ""}</p>
+          <div class="grid-3" style="max-width: 420px; margin: 18px auto;">
+            <div class="stat"><div class="num">${total}</div><div class="lbl">Reviewed</div></div>
+            <div class="stat"><div class="num" style="color:var(--green)">${s.right}</div><div class="lbl">Correct</div></div>
+            <div class="stat"><div class="num" style="color:var(--red)">${s.wrong}</div><div class="lbl">Missed</div></div>
+          </div>
+          <p class="muted" style="max-width:460px;margin:0 auto 18px;">
+            ${s.relearned ? `${s.relearned} missed ${s.relearned === 1 ? "card came" : "cards came"} back later in the session and ${s.relearned === 1 ? "was" : "were"} re-tested. ` : ""}
+            ${pct >= 85
+              ? "Strong recall. These cards are now spaced further out — come back when they are due."
+              : "Anything you missed is back in box 1 and due again next session. That is the system working, not a setback."}
+          </p>
+          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <button class="btn" id="fcAgain">Study again</button>
+            <button class="btn btn-ghost" id="fcBack">All decks</button>
+            <a class="btn btn-ghost" href="${App.link("practice")}">Practise problems</a>
+          </div>
+        </div>
+      </div>`;
+    el.querySelector("#fcAgain").addEventListener("click", () => startSession(el, { unitId: s.unitId, mode: s.mode }));
+    el.querySelector("#fcBack").addEventListener("click", () => decksHome(el));
+  }
+
+  function grade(el, correct) {
+    const s = session;
+    const card = s.queue[s.idx];
+    Store.gradeCard(card.id, correct);
+    if (correct) {
+      s.right++;
+    } else {
+      s.wrong++;
+      /* Re-queue it a few cards later instead of leaving the miss unrehearsed
+       * until tomorrow — but only once, so a hard card cannot loop forever. */
+      const alreadyBack = s.queue.slice(s.idx + 1).some(c => c.id === card.id);
+      if (!alreadyBack) {
+        const at = Math.min(s.idx + 1 + RELEARN_GAP, s.queue.length);
+        s.queue.splice(at, 0, card);
+        s.relearned++;
+      }
+    }
+    s.idx++;
+    s.revealed = false;
+    render(el);
+  }
+
+  function onKey(e, el) {
+    if (!session || session.idx >= session.queue.length) return;
+    if (e.code === "Space" || e.key === " ") {
+      if (!session.revealed) { e.preventDefault(); session.revealed = true; render(el); }
+    } else if (session.revealed) {
+      if (e.key === "1" || e.key === "j") grade(el, false);
+      if (e.key === "2" || e.key === "k") grade(el, true);
+    }
+  }
+
+  return { mount: decksHome, onKey };
+})();
+
+/* ============================================================
+ * Practice view — generated problems with worked solutions.
+ *
+ * Three session types share one problem runner:
+ *   · topic   — drill one named technique
+ *   · mixed   — interleaved topics, weighted toward your weak ones
+ *   · redo    — re-attempt problems you previously got wrong
+ * plus a separate "which method?" recognition drill.
+ *
+ * Two deliberate choices about feedback, both about learning rather
+ * than scorekeeping:
+ *   1. A wrong answer buys a hint and a second attempt instead of the
+ *      full solution. Getting unstuck beats being told.
+ *   2. Only *unaided, first-attempt* answers count as correct in your
+ *      stats — that is the number that predicts how an exam will go.
+ * ============================================================ */
+const Practice = (() => {
+  let current = null;   // active problem, see start()
+  let filterUnit = "all";
+
+  /* ---------------- answer parsing ---------------- */
+
+  // Whitespace out, Unicode minus and an explicit "+" sign normalised.
+  function normalise(text) {
+    return (text || "").trim().replace(/\s+/g, "").replace(/[\u2212\u2013]/g, "-").replace(/^\+/, "");
+  }
+  const NUM = String.raw`(?:\d*\.?\d+|\d+\.)(?:e[-+]?\d+)?`;   // 0.5, .5, 5., 1.4e-1
+
+  function parseAnswer(text) {
+    text = normalise(text);
+    if (!text) return NaN;
+    // thousands separators, e.g. "17,576,000" — counting answers get large enough
+    // that writing them out this way is natural. The pattern is deliberately strict
+    // so a decimal comma ("1,5") is still rejected rather than read as 15.
+    if (/^-?\d{1,3}(,\d{3})+$/.test(text)) text = text.replace(/,/g, "");
+    // percentage, e.g. "25%"
+    if (new RegExp(`^-?${NUM}%$`, "i").test(text)) return parseFloat(text) / 100;
+    // fraction, e.g. "5/36" or "0.5/2"
+    const frac = text.match(new RegExp(`^(-?${NUM})\\/(-?${NUM})$`, "i"));
+    if (frac) {
+      const den = parseFloat(frac[2]);
+      return den === 0 ? NaN : parseFloat(frac[1]) / den;
+    }
+    // scientific or plain number
+    const v = Number(text);
+    return Number.isFinite(v) ? v : NaN;
+  }
+
+  /* How many decimal places the student committed to, or -1 for anything
+   * that is not a plainly-typed number (a fraction, say). Trailing zeros are
+   * not a commitment — "0.140" is the same rounding as "0.14" — and a percent
+   * or an exponent shifts the point: "14%" and "1.4e-1" are both 0.14 to
+   * two places. */
+  function typedDecimals(text) {
+    const m = normalise(text).match(/^-?(\d*)(?:\.(\d*))?(?:e([-+]?\d+))?(%?)$/i);
+    if (!m || (!m[1] && !m[2])) return -1;
+    const frac = (m[2] || "").replace(/0+$/, "");
+    return Math.max(0, frac.length - (m[3] ? Number(m[3]) : 0) + (m[4] ? 2 : 0));
+  }
+
+  function round(x, d) { const p = Math.pow(10, d); return Math.round(x * p) / p; }
+
+  /* Absolute slack for an answer: 0.0006 (or 0.4%, if larger) for most, but
+   * an answer below about 0.01 is held to 5% of itself, down to 0.0002 — a
+   * flat 0.0006 would wave 0.004 through for 0.0046. */
+  function tolFor(problem) {
+    if (problem.tol != null) return problem.tol;
+    const a = Math.abs(problem.answer);
+    return Math.max(0.0002, Math.min(0.0006, a * 0.05), a * 0.004);
+  }
+
+  /* Correct if the value is within tolerance, OR if the student simply
+   * rounded — someone who writes 0.14 for 0.1389 has done the problem.
+   * The rounding allowance is capped at 5% relative error so it cannot
+   * rescue an answer that is merely in the neighbourhood. */
+  function checkAnswer(problem, userValue, text) {
+    if (!Number.isFinite(userValue)) return false;
+    const ans = problem.answer;
+    // Counts are exact. The old half-unit window quietly accepted 119.6 for
+    // 120; this only absorbs floating-point noise.
+    if (problem.kind === "count") return Math.abs(userValue - ans) < 1e-6;
+    if (Math.abs(userValue - ans) <= tolFor(problem)) return true;
+    const d = typedDecimals(text);
+    if (d >= 2 && Math.abs(userValue - ans) <= Math.max(Math.abs(ans) * 0.05, 1e-9)) {
+      return round(ans, d) === round(userValue, d);
+    }
+    return false;
+  }
+
+  function roundedNotExact(problem, userValue, text) {
+    if (problem.kind === "count") return false;
+    return Math.abs(userValue - problem.answer) > tolFor(problem);
+  }
+
+  /* Stored problem text (the mistake log) may have come from an imported or
+   * synced file; it is rendered as HTML, so it is sanitised on the way out. */
+  const clean = html => MATH340.util.sanitizeHtml(html);
+
+  /* A wrong answer often *is* a recognisable mistake. Naming it is worth
+   * more than "incorrect", and these three account for most of them. */
+  function diagnose(problem, u) {
+    const a = problem.answer;
+    const close = (x, y) => Math.abs(x - y) <= Math.max(0.004, Math.abs(y) * 0.01);
+    if (problem.kind === "prob") {
+      if (u > 1 || u < 0) {
+        return `A probability has to lie in \\([0, 1]\\) — that answer cannot be right whatever the arithmetic says. Check what you divided by.`;
+      }
+      if (close(u, 1 - a)) {
+        return `That is the <b>complement</b> of the answer: you computed \\(P(A^c)\\) where the question asked for \\(P(A)\\) (or the other way round). Subtract from 1.`;
+      }
+    }
+    if (problem.kind === "count" && !Number.isInteger(u)) {
+      return `Counts are whole numbers — a fraction here usually means a probability was computed instead of a count.`;
+    }
+    if (a > 0 && a < 1 && close(u, a / (1 - a))) {
+      return `That is the <b>odds</b> \\(P(A)/P(A^c)\\), not the probability. Convert back with \\(P = \\text{odds}/(1 + \\text{odds})\\).`;
+    }
+    if (u > 0 && a > 0 && close(u, a / (1 + a))) {
+      return `That looks like a probability where the question asked for <b>odds</b> (or vice versa): \\(\\text{odds} = P/(1-P)\\).`;
+    }
+    return null;
+  }
+
+  /* ---------------- solution steps (used as progressive hints) ---------------- */
+
+  function solSteps(sol) {
+    const parts = (sol.match(/<div class="sol-step">[\s\S]*?<\/div>/g) || []);
+    return parts.length ? parts : [sol];
+  }
+
+  /* ---------------- topic pools ---------------- */
+
+  function unitsWithGenerators() {
+    return MATH340.units.filter(u => u.generators && u.generators.length);
+  }
+
+  function poolFor(unitId) {
+    const pool = [];
+    for (const u of unitsWithGenerators()) {
+      if (unitId && unitId !== "all" && unitId !== u.id) continue;
+      pool.push(...u.generators);
+    }
+    return pool;
+  }
+
+  function findGen(id) {
+    for (const u of MATH340.units) {
+      for (const g of (u.generators || [])) if (g.id === id) return { gen: g, unit: u };
+    }
+    return null;
+  }
+
+  /* ---------------- home ---------------- */
+
+  function home(el) {
+    current = null;
+    const units = unitsWithGenerators();
+    const opts = [`<option value="all">All chapters</option>`]
+      .concat(units.map(u => `<option value="${u.id}" ${filterUnit === u.id ? "selected" : ""}>${u.title}</option>`)).join("");
+
+    const missCount = Store.missCount();
+    const scopePool = poolFor(filterUnit);
+    const weakest = scopePool
+      .map(g => ({ g, w: Store.weakness(g.id), p: Store.getPractice(g.id) }))
+      .filter(x => x.p.attempts >= 2)
+      .sort((a, b) => b.w - a.w).slice(0, 3);
+
+    let rows = "";
+    for (const u of units) {
+      if (filterUnit !== "all" && filterUnit !== u.id) continue;
+      for (const g of u.generators) {
+        const p = Store.getPractice(g.id);
+        const nTypes = (g.variantNames || []).length;
+        const acc = p.attempts ? Math.round(100 * p.correct / p.attempts) : null;
+        const recent = p.recent.slice(-5).map(r => r
+          ? `<span style="color:var(--green)">●</span>`
+          : `<span style="color:var(--red)">●</span>`).join(" ");
+        const seenTypes = Object.keys(p.variants || {}).length;
+        rows += `
+          <div class="topic-row">
+            <div style="flex:1; min-width:0;">
+              <div class="deck-name">${g.name}</div>
+              <div class="deck-meta">${g.blurb || ""} · <span class="pill">${u.short || u.title}</span> <span class="pill">${seenTypes}/${nTypes} problem types seen</span></div>
+            </div>
+            <div class="muted" style="min-width:110px; text-align:right;">
+              ${p.attempts ? `${p.correct}/${p.attempts} (${acc}%)<br><span style="font-size:11px">${recent}</span>` : "not started"}
+            </div>
+            <button class="btn btn-sm" data-gen="${g.id}">Practice</button>
+          </div>`;
+      }
+    }
+
+    el.innerHTML = `
+      <div class="card">
+        <h2>Practice Problems</h2>
+        <p class="muted">Each topic is a family of <em>structurally different</em> problems, not one template with the numbers shuffled — a topic cycles through all of its problem types before any of them repeats, so you practise recognising which method applies, not just executing it. Answers accept decimals (<code>0.1389</code>), fractions (<code>5/36</code>), or percents (<code>13.9%</code>), and sensible rounding is fine.</p>
+        <div class="toolbar">
+          <select class="select" id="pFilter" aria-label="Chapter filter">${opts}</select>
+          <button class="btn" id="pWeak">◎ Target my weak spots</button>
+          <button class="btn btn-ghost" id="pMix">▶ Mixed session</button>
+          <button class="btn btn-ghost" id="pIdent">⁇ Which method? drill</button>
+          <button class="btn btn-ghost" id="pRedo" ${missCount ? "" : "disabled"}>↺ Redo my misses${missCount ? ` (${missCount})` : ""}</button>
+        </div>
+        <p class="muted" style="margin:-8px 0 16px;">In a mixed session the topic is hidden until you answer — working out <em>which</em> tool applies is the part an exam actually tests. The percentages below are <b>first-try, unaided</b> accuracy: a hint or a second attempt counts as a miss, because that is what a quiz would do.</p>
+        ${weakest.length ? `<div class="callout">
+          <b>Weakest right now:</b> ${weakest.map(x => `${x.g.name} <span class="muted">(${Math.round(100 * x.p.correct / x.p.attempts)}%)</span>`).join(" · ")}.
+          "Target my weak spots" draws mostly from these.
+        </div>` : ""}
+        <div>${rows || `<div class="empty-state">No practice topics in this chapter yet.</div>`}</div>
+      </div>`;
+
+    el.querySelector("#pFilter").addEventListener("change", e => { filterUnit = e.target.value; home(el); });
+    el.querySelector("#pMix").addEventListener("click", () => startMixed(el, "mixed"));
+    el.querySelector("#pWeak").addEventListener("click", () => startMixed(el, "weak"));
+    el.querySelector("#pIdent").addEventListener("click", () => Identify.start(el, filterUnit));
+    const redo = el.querySelector("#pRedo");
+    if (missCount) redo.addEventListener("click", () => startRedo(el));
+    el.querySelectorAll("[data-gen]").forEach(b =>
+      b.addEventListener("click", () => startTopic(el, b.dataset.gen)));
+    App.typeset(el);
+  }
+
+  /* ---------------- session starters ---------------- */
+
+  function startTopic(el, genId) {
+    const found = findGen(genId);
+    if (!found) return home(el);
+    current = newProblem(found.gen, found.unit, { mode: "topic" });
+    render(el);
+  }
+
+  function startMixed(el, mode) {
+    const pool = poolFor(filterUnit);
+    if (!pool.length) return home(el);
+    const gen = mode === "weak"
+      ? Store.pickWeighted(pool, null)
+      : MATH340.util.rotate("mixed:" + filterUnit, pool);
+    const found = findGen(gen.id);
+    current = newProblem(found.gen, found.unit, { mode, filter: filterUnit });
+    render(el);
+  }
+
+  function startRedo(el) {
+    const queue = Store.misses();
+    if (!queue.length) return home(el);
+    runRedo(el, queue, 0);
+  }
+
+  function runRedo(el, queue, idx) {
+    if (idx >= queue.length) {
+      el.innerHTML = `
+        <div class="card" style="max-width:820px;margin:0 auto;text-align:center;padding:36px 24px;">
+          <div style="font-size:38px;">✓</div>
+          <h2>Miss queue cleared</h2>
+          <p class="muted">Every problem you got right has been removed from the log; the ones you missed again are still there.</p>
+          <button class="btn" id="redoDone">Back to practice</button>
+        </div>`;
+      el.querySelector("#redoDone").addEventListener("click", () => home(el));
+      return;
+    }
+    const m = queue[idx];
+    const found = findGen(m.genId);
+    current = {
+      gen: found ? found.gen : { id: m.genId, name: m.genName || m.genId },
+      unit: found ? found.unit : { id: m.unitId, short: m.unitShort || "" },
+      problem: { q: clean(m.q), sol: clean(m.sol), answer: m.answer, kind: m.kind, variant: m.variant },
+      mode: "redo", redo: { queue, idx, key: m.key },
+      attempts: 0, hintsShown: 0, answered: false, aided: false,
+    };
+    render(el);
+  }
+
+  function newProblem(gen, unit, opts) {
+    return {
+      gen, unit, problem: gen.make(),
+      mode: opts.mode, filter: opts.filter,
+      attempts: 0, hintsShown: 0, answered: false, aided: false,
+    };
+  }
+
+  function nextProblem(el) {
+    const c = current;
+    if (c.mode === "redo") return runRedo(el, c.redo.queue, c.redo.idx + 1);
+    if (c.mode === "topic") return startTopic(el, c.gen.id);
+    const pool = poolFor(c.filter);
+    if (!pool.length) return home(el);
+    const gen = c.mode === "weak"
+      ? Store.pickWeighted(pool, c.gen.id)
+      : MATH340.util.rotate("mixed:" + (c.filter || "all"), pool);
+    const found = findGen(gen.id);
+    current = newProblem(found.gen, found.unit, { mode: c.mode, filter: c.filter });
+    render(el);
+  }
+
+  /* ---------------- problem runner ---------------- */
+
+  function render(el) {
+    const c = current;
+    if (!c) return home(el);
+    const p = c.problem;
+    const steps = solSteps(p.sol);
+    const stats = Store.getPractice(c.gen.id);
+    // In a mixed session the topic is the thing under test, so it stays hidden
+    // until the problem is over. In a single-topic drill you already know it.
+    const hideTopic = (c.mode === "mixed" || c.mode === "weak") && !c.answered;
+    const hideVariant = !c.answered;
+
+    const label = c.mode === "redo"
+      ? `<span class="pill pill-amber">Redo · ${c.redo.idx + 1} of ${c.redo.queue.length}</span>`
+      : hideTopic
+        ? `<span class="pill">${c.mode === "weak" ? "Weak-spot session" : "Mixed session"} · topic hidden</span>`
+        : `<span class="pill pill-accent">${c.unit.short || c.unit.title}</span>` +
+          (c.answered && p.variant ? ` <span class="pill">${p.variant}</span>` : "");
+
+    el.innerHTML = `
+      <div class="card" style="max-width: 820px; margin: 0 auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <span>${label}</span>
+          <span class="muted">${hideTopic ? "" : c.gen.name + " · "}${stats.attempts ? `${stats.correct}/${stats.attempts} first-try` : "first attempt"}</span>
+        </div>
+        <div class="q-text" id="qText">${p.q}</div>
+        <div class="answer-row">
+          <input type="text" id="ansInput" aria-label="Your answer" placeholder="${p.kind === "count" ? "Enter a whole number…" : p.kind === "num" ? "Enter a number, e.g. 2.5 or 5/2…" : "Enter a probability, e.g. 0.25 or 1/4…"}" autocomplete="off" ${c.answered ? "disabled" : ""}>
+          ${c.answered ? "" : `<button class="btn" id="ansCheck">Check</button>
+          <button class="btn btn-ghost" id="ansHint">${steps.length > 1 ? "Hint" : "Show solution"}</button>`}
+        </div>
+        <div id="resultZone"></div>
+        <div id="hintZone"></div>
+        <div class="run-foot">
+          <button class="btn btn-ghost btn-sm" id="pBack">← All topics</button>
+          <span style="flex:1"></span>
+          <span id="nextSlot"></span>
+        </div>
+      </div>`;
+
+    const input = el.querySelector("#ansInput");
+    const hintZone = el.querySelector("#hintZone");
+    const resultZone = el.querySelector("#resultZone");
+    const nextSlot = el.querySelector("#nextSlot");
+
+    const showHint = () => {
+      if (c.answered) return;
+      c.aided = true;
+      c.hintsShown = Math.min(c.hintsShown + 1, steps.length);
+      if (c.hintsShown >= steps.length) return reveal(false, true);
+      hintZone.innerHTML = `<div class="hint-box"><b>Hint ${c.hintsShown}</b>
+        <span class="muted">— step ${c.hintsShown} of the worked solution. Using a hint logs this problem as a miss.</span>
+        ${steps.slice(0, c.hintsShown).join("")}</div>`;
+      const btn = el.querySelector("#ansHint");
+      if (btn) btn.textContent = c.hintsShown + 1 >= steps.length ? "Show full solution" : "Another hint";
+      App.typeset(hintZone);
+      input.focus();
+    };
+
+    /* `solved` = answered correctly. `unaided` = solved on the first try with
+     * no hints; that is what the stats record. */
+    const reveal = (solved, gaveUp) => {
+      if (c.answered) return;
+      const unaided = solved && !c.aided && c.attempts <= 1;
+      c.answered = true;
+
+      if (c.mode === "redo") {
+        if (solved) Store.clearMiss(c.redo.key);
+      } else {
+        Store.recordPractice(c.gen.id, unaided, p.variant);
+        if (!unaided) {
+          Store.recordMiss({
+            genId: c.gen.id, genName: c.gen.name, unitId: c.unit.id,
+            unitShort: c.unit.short || c.unit.title, variant: p.variant,
+            q: p.q, sol: p.sol, answer: p.answer, kind: p.kind,
+          });
+        }
+      }
+
+      const verdict = solved
+        ? (unaided ? `✓ Correct!` : `✓ Correct — but with ${c.aided ? "a hint" : "a second attempt"}, so it is logged as a miss and will come back in your redo queue.`)
+        : gaveUp ? `Solution revealed — logged as a miss.` : `✗ Not quite.`;
+
+      resultZone.innerHTML = `
+        <div class="verdict ${solved && unaided ? "ok" : solved ? "warn" : "bad"}">${verdict}
+          ${!solved ? ` The answer is <b>${MATH340.util.fmt(p.answer, 5)}</b>.` : ""}</div>
+        ${c.note ? `<p class="muted" style="margin:6px 0 0;">${c.note}</p>` : ""}
+        ${p.variant && (c.mode === "mixed" || c.mode === "weak")
+          ? `<p class="muted" style="margin:6px 0 0;">Topic: <b>${c.gen.name}</b> · shape: <b>${p.variant}</b></p>` : ""}
+        <div class="solution"><b>Worked solution</b>${p.sol}</div>`;
+      hintZone.innerHTML = "";
+      input.disabled = true;
+      el.querySelectorAll(".answer-row button").forEach(b => b.remove());
+
+      const next = document.createElement("button");
+      next.className = "btn"; next.id = "pNext";
+      next.textContent = c.mode === "redo"
+        ? (c.redo.idx + 1 >= c.redo.queue.length ? "Finish redo →" : "Next miss →")
+        : "Next problem →";
+      nextSlot.appendChild(next);
+      next.addEventListener("click", () => nextProblem(el));
+      next.focus();
+      App.typeset(resultZone);
+    };
+
+    if (!c.answered) {
+      el.querySelector("#ansCheck").addEventListener("click", () => {
+        const text = input.value;
+        const v = parseAnswer(text);
+        if (!Number.isFinite(v)) {
+          resultZone.innerHTML = `<div class="verdict bad">Please enter a number, fraction (<code>5/36</code>), or percent (<code>13.9%</code>).</div>`;
+          return;
+        }
+        c.attempts++;
+        if (checkAnswer(p, v, text)) {
+          if (roundedNotExact(p, v, text)) {
+            c.note = `Accepted as a correct rounding — the exact value is \\(${MATH340.util.fmt(p.answer, 6)}\\).`;
+          }
+          return reveal(true, false);
+        }
+        if (c.attempts === 1 && !c.aided) {
+          // First slip: a nudge and another go, rather than the whole answer.
+          const why = diagnose(p, v);
+          resultZone.innerHTML = `<div class="verdict bad">✗ Not quite — try once more.</div>
+            ${why ? `<p class="muted" style="margin:6px 0 0;">${why}</p>` : ""}`;
+          App.typeset(resultZone);
+          showHint();
+          input.select();
+          return;
+        }
+        c.note = diagnose(p, v);
+        reveal(false, false);
+      });
+      el.querySelector("#ansHint").addEventListener("click", showHint);
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") el.querySelector("#ansCheck")?.click();
+      });
+      input.focus();
+    }
+    el.querySelector("#pBack").addEventListener("click", () => home(el));
+    App.typeset(el);
+  }
+
+  return { mount: home, parseAnswer, checkAnswer, typedDecimals, solSteps, poolFor, findGen, sanitize: clean };
+})();
+
+/* ============================================================
+ * "Which method?" drill — a problem stem with no arithmetic to do,
+ * and a choice of techniques. Reading a problem and knowing which
+ * tool it wants is a separate skill from executing the tool, and it
+ * is the one that decides most exam questions. Questions are built
+ * from the existing generators, so it needs no content of its own.
+ * ============================================================ */
+const Identify = (() => {
+  let s = null; // { pool, q, options, answerIdx, asked, right, unitId }
+
+  function start(el, unitId) {
+    const pool = Practice.poolFor(unitId);
+    if (pool.length < 3) {
+      el.innerHTML = `<div class="empty-state">The method drill needs at least three practice topics in scope — pick "All chapters".</div>`;
+      return;
+    }
+    s = { pool, unitId, asked: 0, right: 0 };
+    nextQ(el);
+  }
+
+  function nextQ(el) {
+    const gen = MATH340.util.pick(s.pool);
+    const problem = gen.make();
+    const distractors = MATH340.util.shuffle(s.pool.filter(g => g.id !== gen.id)).slice(0, 3);
+    const options = MATH340.util.shuffle([gen, ...distractors]);
+    s.q = problem;
+    s.gen = gen;
+    s.options = options;
+    s.picked = null;
+    render(el);
+  }
+
+  function render(el) {
+    const picked = s.picked;
+    el.innerHTML = `
+      <div class="card" style="max-width:820px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <span class="pill pill-accent">Which method?</span>
+          <span class="muted">${s.asked ? `${s.right}/${s.asked} correct` : "no arithmetic needed — just name the tool"}</span>
+        </div>
+        <div class="q-text">${s.q.q}</div>
+        <p class="muted" style="margin:-6px 0 14px;">Which technique does this problem call for? You do not need to work out the number.</p>
+        <div class="mc-opts">
+          ${s.options.map((g, i) => {
+            let cls = "";
+            if (picked != null) {
+              if (g.id === s.gen.id) cls = picked === i ? "sel-right" : "reveal-right";
+              else if (picked === i) cls = "sel-wrong";
+            }
+            return `<button class="mc-opt ${cls}" data-opt="${i}" ${picked != null ? "disabled" : ""}>${g.name}<div class="muted" style="font-size:12px;margin-top:2px">${g.blurb || ""}</div></button>`;
+          }).join("")}
+        </div>
+        <div id="idResult"></div>
+        <div class="run-foot">
+          <button class="btn btn-ghost btn-sm" id="idBack">← All topics</button>
+          <span style="flex:1"></span>
+          ${picked != null ? `<button class="btn" id="idNext">Next →</button>` : ""}
+        </div>
+      </div>`;
+
+    el.querySelectorAll("[data-opt]").forEach(b => b.addEventListener("click", () => {
+      s.picked = Number(b.dataset.opt);
+      s.asked++;
+      const correct = s.options[s.picked].id === s.gen.id;
+      if (correct) s.right++;
+      render(el);
+      const zone = el.querySelector("#idResult");
+      zone.innerHTML = `<div class="verdict ${correct ? "ok" : "bad"}">${correct ? "✓ Right" : "✗ It is " + s.gen.name}</div>
+        <div class="solution"><b>Why</b><div class="sol-step">${s.gen.blurb || ""}</div>
+        <div class="sol-step">Shape: <b>${s.q.variant}</b>. The first step of the worked solution:</div>
+        ${Practice.solSteps(s.q.sol)[0]}</div>`;
+      App.typeset(zone);
+    }));
+    el.querySelector("#idBack").addEventListener("click", () => Practice.mount(el));
+    el.querySelector("#idNext")?.addEventListener("click", () => nextQ(el));
+    App.typeset(el);
+  }
+
+  return { start };
+})();
+
+/* ============================================================
+ * Exam mode — timed, mixed, deferred-feedback problem sets.
+ *
+ * Flashcards build recall and the practice page builds method, but
+ * 70% of this course's grade is decided under a clock with no hints,
+ * no topic labels and no feedback until it is over. Nothing else in
+ * the tool rehearses that, so this does:
+ *
+ *   · problems drawn across the whole scope, order interleaved
+ *   · no topic shown, no solution shown, no "correct" until you submit
+ *   · a real countdown, sized from the syllabus (quiz / 70-min midterm
+ *     / 150-min final)
+ *   · flag-for-review and free navigation, like a paper exam
+ *   · afterwards: a scored report, every worked solution, and every
+ *     miss pushed into the practice stats and the redo queue
+ * ============================================================ */
+const Exam = (() => {
+  let s = null;        // active sitting, see build()
+  let ticker = null;
+
+  /* The real sittings' dates and times come from the manifest's key dates,
+   * so a calendar change is made in one place. `which` picks the entry by
+   * label; { date: "Oct 21", time: "1:50–3:00 pm" } or empty strings. */
+  function realExam(which) {
+    const exams = MATH340.keyDates.filter(k => k.kind === "exam");
+    const k = exams.find(e => which.test(e.label));
+    if (!k) return { date: "", time: "" };
+    const date = MATH340.parseISODate(k.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const time = (k.label.split("·")[1] || "").replace(/\(.*\)/, "").trim();
+    return { date, time };
+  }
+  const MIDTERM = realExam(/midterm/i), FINAL = realExam(/final/i);
+
+  const PRESETS = [
+    {
+      id: "quiz", label: "Wednesday quiz", icon: "✎",
+      n: 5, minutes: 15,
+      blurb: "Five problems, 15 minutes — the weekly quiz covers the previous week's classes and homework.",
+      scope: "recent",
+    },
+    {
+      id: "midterm", label: "Midterm rehearsal", icon: "▦",
+      n: 12, minutes: 70,
+      blurb: `Twelve problems, 70 minutes — the length of the real sitting${MIDTERM.date ? ` (${MIDTERM.time ? MIDTERM.time + ", " : ""}${MIDTERM.date})` : ""}.`,
+      scope: "all",
+    },
+    {
+      id: "final", label: "Final rehearsal", icon: "◆",
+      n: 18, minutes: 150,
+      blurb: `Eighteen problems, 150 minutes, everything registered — the final is cumulative${FINAL.date ? ` (${FINAL.date})` : ""}.`,
+      scope: "all",
+    },
+    {
+      id: "custom", label: "Custom set", icon: "⚙",
+      n: 8, minutes: 30,
+      blurb: "Pick the scope and length yourself. Untimed is an option, but the clock is the point.",
+      scope: "all",
+    },
+  ];
+
+  // Answers go back into a value="" attribute between renders, and stored
+  // labels (which may have been imported or synced) are plain text.
+  const esc = MATH340.util.escapeHtml;
+
+  function fmtClock(sec) {
+    sec = Math.max(0, Math.round(sec));
+    const m = Math.floor(sec / 60), r = sec % 60;
+    return `${m}:${String(r).padStart(2, "0")}`;
+  }
+
+  /* ---------------- setup screen ---------------- */
+
+  function home(el) {
+    stopTicker();
+    s = null;
+    const units = MATH340.units.filter(u => u.generators && u.generators.length);
+    if (!units.length) {
+      el.innerHTML = `<div class="empty-state"><div class="big">▦</div>No practice generators are registered yet, so there is nothing to build an exam from.</div>`;
+      return;
+    }
+    const past = Store.exams();
+
+    el.innerHTML = `
+      <div class="card">
+        <h2>Exam Mode</h2>
+        <p class="muted">A timed, mixed problem set with no hints, no topic labels and no feedback until you submit — the conditions the quizzes, the midterm and the final are actually graded under. Practising under the real constraints is what makes the difference on the day; everything you miss is added to your practice stats and your redo queue.</p>
+        <div class="grid-2" id="presets">
+          ${PRESETS.map(p => `
+            <div class="preset-card" data-preset="${p.id}" role="button" tabindex="0">
+              <div class="preset-head"><span class="preset-ico">${p.icon}</span><b>${p.label}</b></div>
+              <p class="muted" style="margin:6px 0 10px;">${p.blurb}</p>
+              <span class="pill">${p.n} problems</span>
+              <span class="pill">${p.minutes} min</span>
+            </div>`).join("")}
+        </div>
+      </div>
+
+      <div class="card" id="customCard" style="display:none;">
+        <h3 style="margin-top:0;">Custom set</h3>
+        <div class="toolbar">
+          <label class="muted">Scope
+            <select class="select" id="exScope">
+              <option value="all">All chapters</option>
+              ${units.map(u => `<option value="${u.id}">${u.title}</option>`).join("")}
+            </select>
+          </label>
+          <label class="muted">Problems
+            <select class="select" id="exN">${[5, 8, 10, 12, 15, 18, 25].map(n => `<option ${n === 8 ? "selected" : ""}>${n}</option>`).join("")}</select>
+          </label>
+          <label class="muted">Time limit
+            <select class="select" id="exMin">${[10, 15, 20, 30, 45, 60, 70, 90, 150].map(m => `<option ${m === 30 ? "selected" : ""}>${m}</option>`).join("")}<option value="0">no limit</option></select>
+          </label>
+          <button class="btn" id="exStartCustom">Start</button>
+        </div>
+      </div>
+
+      ${past.length ? `
+      <div class="card">
+        <h3 style="margin-top:0;">Past sittings</h3>
+        <table class="tbl">
+          <tr><th>When</th><th>Set</th><th>Score</th><th>Time used</th></tr>
+          ${past.map(e => {
+            const pct = Math.round(100 * e.correct / e.n);
+            return `<tr>
+              <td>${new Date(e.at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</td>
+              <td>${esc(e.label)}<div class="muted" style="font-size:12px">${esc(e.scopeLabel || "")}</div></td>
+              <td><b>${e.correct}/${e.n}</b> <span class="pill ${pct >= 80 ? "pill-green" : pct >= 60 ? "pill-amber" : "pill-red"}">${pct}%</span></td>
+              <td class="muted">${fmtClock(e.seconds)}${e.limit ? " of " + e.limit + ":00" : ""}</td>
+            </tr>`;
+          }).join("")}
+        </table>
+      </div>` : ""}`;
+
+    const customCard = el.querySelector("#customCard");
+    el.querySelectorAll("[data-preset]").forEach(node => {
+      const go = () => {
+        const preset = PRESETS.find(p => p.id === node.dataset.preset);
+        if (preset.id === "custom") {
+          customCard.style.display = "";
+          customCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          return;
+        }
+        begin(el, {
+          label: preset.label,
+          scope: preset.scope === "recent" ? recentUnitId() : "all",
+          n: preset.n, minutes: preset.minutes,
+        });
+      };
+      node.addEventListener("click", go);
+      node.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    });
+    el.querySelector("#exStartCustom").addEventListener("click", () => {
+      begin(el, {
+        label: "Custom set",
+        scope: el.querySelector("#exScope").value,
+        n: Number(el.querySelector("#exN").value),
+        minutes: Number(el.querySelector("#exMin").value),
+      });
+    });
+    App.typeset(el);
+  }
+
+  /* The unit whose week most recently started — what a Wednesday quiz covers. */
+  function recentUnitId() {
+    const wk = MATH340.currentWeek();
+    const eligible = MATH340.units
+      .filter(u => u.generators && u.generators.length && (u.week || 1) <= Math.max(wk, 1))
+      .sort((a, b) => (b.week || 0) - (a.week || 0));
+    return eligible.length ? eligible[0].id : "all";
+  }
+
+  /* ---------------- building a sitting ---------------- */
+
+  function build(opts) {
+    const pool = Practice.poolFor(opts.scope);
+    if (!pool.length) return null;
+    /* Spread the paper over as many distinct topics as possible before
+     * repeating one, so a 12-problem set is not six Bayes questions. */
+    const items = [];
+    let bag = [];
+    for (let i = 0; i < opts.n; i++) {
+      if (!bag.length) bag = MATH340.util.shuffle(pool.slice());
+      const gen = bag.shift();
+      const found = Practice.findGen(gen.id);
+      const problem = gen.make();
+      items.push({
+        genId: gen.id, genName: gen.name,
+        unitId: found.unit.id, unitShort: found.unit.short || found.unit.title,
+        problem, answer: "", flagged: false,
+      });
+    }
+    const scopeUnit = MATH340.getUnit(opts.scope);
+    return {
+      label: opts.label,
+      scope: opts.scope,
+      scopeLabel: scopeUnit ? scopeUnit.title : "All chapters",
+      items, idx: 0,
+      limit: opts.minutes || 0,
+      started: Date.now(),
+      submitted: false,
+    };
+  }
+
+  function begin(el, opts) {
+    const sitting = build(opts);
+    if (!sitting) return home(el);
+    s = sitting;
+    startTicker(el);
+    renderQ(el);
+  }
+
+  /* ---------------- the clock ---------------- */
+
+  function stopTicker() {
+    if (ticker) { clearInterval(ticker); ticker = null; }
+  }
+
+  function startTicker(el) {
+    stopTicker();
+    ticker = setInterval(() => {
+      // The router replaces the view wholesale; if our node is gone, so are we.
+      if (!s || s.submitted || !el.isConnected || !el.querySelector("#exClock")) return stopTicker();
+      const left = remaining();
+      const clock = el.querySelector("#exClock");
+      clock.textContent = s.limit ? fmtClock(left) : fmtClock(elapsed());
+      clock.classList.toggle("urgent", !!s.limit && left <= 60);
+      if (s.limit && left <= 0) { stopTicker(); submit(el, true); }
+    }, 1000);
+  }
+
+  function elapsed() { return (Date.now() - s.started) / 1000; }
+  function remaining() { return s.limit * 60 - elapsed(); }
+
+  /* ---------------- question screen ---------------- */
+
+  function renderQ(el) {
+    const it = s.items[s.idx];
+    const p = it.problem;
+    const answered = s.items.filter(i => i.answer.trim()).length;
+
+    el.innerHTML = `
+      <div class="exam-bar">
+        <div>
+          <b>${s.label}</b>
+          <span class="muted"> · ${s.scopeLabel} · ${answered}/${s.items.length} answered</span>
+        </div>
+        <div class="exam-clock"><span id="exClock">${s.limit ? fmtClock(remaining()) : fmtClock(elapsed())}</span>
+          <span class="muted">${s.limit ? "left" : "elapsed"}</span></div>
+      </div>
+
+      <div class="exam-palette" id="palette">
+        ${s.items.map((i, k) => `<button class="pal ${k === s.idx ? "on" : ""} ${i.answer.trim() ? "done" : ""} ${i.flagged ? "flag" : ""}" data-jump="${k}" title="Problem ${k + 1}${i.flagged ? " (flagged)" : ""}">${k + 1}</button>`).join("")}
+      </div>
+
+      <div class="card" style="max-width:820px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span class="pill pill-accent">Problem ${s.idx + 1} of ${s.items.length}</span>
+          <button class="btn btn-ghost btn-sm" id="exFlag">${it.flagged ? "⚑ Flagged" : "⚐ Flag for review"}</button>
+        </div>
+        <div class="q-text">${p.q}</div>
+        <div class="answer-row">
+          <input type="text" id="exAns" aria-label="Your answer" value="${esc(it.answer)}" autocomplete="off"
+            placeholder="${p.kind === "count" ? "Whole number…" : p.kind === "num" ? "A number, e.g. 2.5 or 5/2…" : "A probability, e.g. 0.25 or 1/4…"}">
+        </div>
+        <p class="muted" style="margin:10px 0 0;">No feedback until you submit — exactly like the real thing. Answers are kept as you move around.</p>
+        <div class="run-foot">
+          <button class="btn btn-ghost btn-sm" id="exPrev" ${s.idx === 0 ? "disabled" : ""}>← Previous</button>
+          <span style="flex:1"></span>
+          ${s.idx < s.items.length - 1
+            ? `<button class="btn" id="exNext">Next →</button>`
+            : `<button class="btn" id="exSubmit">Submit exam</button>`}
+        </div>
+      </div>
+
+      <div style="max-width:820px;margin:0 auto;text-align:center;">
+        <button class="btn btn-ghost btn-sm" id="exSubmitEarly">Submit and grade now</button>
+        <button class="btn btn-ghost btn-sm" id="exAbandon" style="color:var(--red)">Abandon</button>
+      </div>`;
+
+    const input = el.querySelector("#exAns");
+    const stash = () => { s.items[s.idx].answer = input.value; };
+    const goto = k => { stash(); s.idx = Math.max(0, Math.min(s.items.length - 1, k)); renderQ(el); };
+
+    input.addEventListener("input", stash);
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); if (s.idx < s.items.length - 1) goto(s.idx + 1); else confirmSubmit(el); }
+    });
+    el.querySelectorAll("[data-jump]").forEach(b => b.addEventListener("click", () => goto(Number(b.dataset.jump))));
+    el.querySelector("#exPrev").addEventListener("click", () => goto(s.idx - 1));
+    el.querySelector("#exNext")?.addEventListener("click", () => goto(s.idx + 1));
+    el.querySelector("#exSubmit")?.addEventListener("click", () => { stash(); confirmSubmit(el); });
+    el.querySelector("#exSubmitEarly").addEventListener("click", () => { stash(); confirmSubmit(el); });
+    el.querySelector("#exFlag").addEventListener("click", () => { stash(); it.flagged = !it.flagged; renderQ(el); });
+    el.querySelector("#exAbandon").addEventListener("click", () => {
+      if (confirm("Abandon this sitting? Nothing will be recorded.")) { stopTicker(); s = null; home(el); }
+    });
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+    App.typeset(el);
+  }
+
+  function confirmSubmit(el) {
+    const blank = s.items.filter(i => !i.answer.trim()).length;
+    const flagged = s.items.filter(i => i.flagged).length;
+    if (blank || flagged) {
+      const bits = [];
+      if (blank) bits.push(`${blank} unanswered`);
+      if (flagged) bits.push(`${flagged} still flagged`);
+      if (!confirm(`Submit with ${bits.join(" and ")}?`)) return;
+    }
+    submit(el, false);
+  }
+
+  /* ---------------- grading ---------------- */
+
+  function submit(el, timedOut) {
+    stopTicker();
+    s.submitted = true;
+    s.seconds = Math.round(Math.min(elapsed(), s.limit ? s.limit * 60 : elapsed()));
+    s.timedOut = timedOut;
+
+    let correct = 0;
+    const byTopic = {};
+    for (const it of s.items) {
+      const v = Practice.parseAnswer(it.answer);
+      it.value = v;
+      it.correct = Number.isFinite(v) && Practice.checkAnswer(it.problem, v, it.answer);
+      if (it.correct) correct++;
+      // An exam answer is unaided by construction, so it is the most honest
+      // sample the weakness model gets. Feed it straight in.
+      Store.recordPractice(it.genId, it.correct, it.problem.variant);
+      if (!it.correct) {
+        Store.recordMiss({
+          genId: it.genId, genName: it.genName, unitId: it.unitId, unitShort: it.unitShort,
+          variant: it.problem.variant, q: it.problem.q, sol: it.problem.sol,
+          answer: it.problem.answer, kind: it.problem.kind,
+        });
+      }
+      const t = byTopic[it.genId] || (byTopic[it.genId] = { name: it.genName, n: 0, c: 0 });
+      t.n++; if (it.correct) t.c++;
+    }
+    s.correct = correct;
+    s.byTopic = byTopic;
+
+    Store.recordExam({
+      label: s.label, scope: s.scope, scopeLabel: s.scopeLabel,
+      n: s.items.length, correct, seconds: s.seconds, limit: s.limit,
+    });
+    renderReport(el);
+  }
+
+  function renderReport(el) {
+    const pct = Math.round(100 * s.correct / s.items.length);
+    const weak = Object.values(s.byTopic).filter(t => t.c < t.n)
+      .sort((a, b) => (a.c / a.n) - (b.c / b.n));
+
+    el.innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div style="font-size:38px;">${pct >= 80 ? "★" : pct >= 60 ? "◑" : "◔"}</div>
+        <h2 style="margin:4px 0 2px;">${s.correct} / ${s.items.length} &nbsp;<span class="pill ${pct >= 80 ? "pill-green" : pct >= 60 ? "pill-amber" : "pill-red"}">${pct}%</span></h2>
+        <p class="muted">${s.label} · ${s.scopeLabel} · ${fmtClock(s.seconds)} used${s.limit ? ` of ${s.limit}:00` : ""}${s.timedOut ? " · <b>time expired</b>" : ""}</p>
+        <p class="muted" style="max-width:560px;margin:10px auto 0;">
+          ${pct >= 80
+            ? "Solid. Keep the weak topics below in rotation so they do not decay."
+            : pct >= 60
+              ? "Passing, but the topics below are where the marks went. Drill those before the next sitting."
+              : "This is the useful kind of bad score — it found the gaps while it still costs nothing. Work the topics below, then sit another set."}
+        </p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
+          <a class="btn" href="${App.link("practice")}">Drill the misses</a>
+          <button class="btn btn-ghost" id="exAgain">Another sitting</button>
+          <a class="btn btn-ghost" href="${App.link("progress")}">See progress</a>
+        </div>
+      </div>
+
+      ${weak.length ? `<div class="card">
+        <h3 style="margin-top:0;">Where the marks went</h3>
+        ${weak.map(t => `
+          <div class="topic-row">
+            <div style="flex:1"><b>${t.name}</b></div>
+            <div class="muted">${t.c}/${t.n}</div>
+            <div class="deck-bar"><div class="progress-bar"><div style="width:${Math.round(100 * t.c / t.n)}%"></div></div></div>
+          </div>`).join("")}
+        <p class="muted" style="margin-bottom:0;">Every missed problem is now in your redo queue on the Practice page, with the worked solution.</p>
+      </div>` : ""}
+
+      <div class="card">
+        <h3 style="margin-top:0;">Every problem</h3>
+        ${s.items.map((it, k) => `
+          <div class="exam-review ${it.correct ? "ok" : "bad"}">
+            <div class="exam-review-head">
+              <span class="pill ${it.correct ? "pill-green" : "pill-red"}">${k + 1} · ${it.correct ? "correct" : "missed"}</span>
+              <span class="pill">${it.genName}</span>
+              <span class="pill">${it.problem.variant || ""}</span>
+            </div>
+            <div class="q-text" style="font-size:15px;margin:8px 0 10px;">${it.problem.q}</div>
+            <p class="muted" style="margin:0 0 8px;">
+              You answered <b>${it.answer.trim() ? esc(it.answer) : "—"}</b>${it.correct ? "" : ` · correct answer <b>${MATH340.util.fmt(it.problem.answer, 5)}</b>`}
+            </p>
+            <details ${it.correct ? "" : "open"}>
+              <summary class="muted">Worked solution</summary>
+              <div class="solution">${it.problem.sol}</div>
+            </details>
+          </div>`).join("")}
+      </div>`;
+
+    el.querySelector("#exAgain").addEventListener("click", () => home(el));
+    App.typeset(el);
+  }
+
+  return {
+    mount(el) {
+      // Returning to the tab mid-sitting resumes it; a finished one does not
+      // resurface — its score is in the history and its misses are in the
+      // redo queue, so the setup screen is what you came back for.
+      if (s && !s.submitted) { startTicker(el); return renderQ(el); }
+      home(el);
+    },
+    leave() {
+      stopTicker();
+      if (s && s.submitted) s = null;   // finished sittings do not survive a tab change
+    },
+    inProgress() { return !!(s && !s.submitted); },
+  };
+})();
+
+/* ============================================================
+ * App shell — routing, dashboard, schedule, reference, progress.
+ * ============================================================ */
+const App = (() => {
+  /* The views render into whatever element they are given. Standalone, that is
+   * this page's #view and the router below drives them; inside the Skill
+   * Builder hub, the hub calls App.mount(page, el, { base }) and the links the
+   * views write point back into the hub's own routes. */
+  let linkBase = "#/";
+  const link = name => linkBase + name;
+
+  /* ---------- KaTeX ---------- */
+  function typeset(el) {
+    if (window.renderMathInElement) {
+      try {
+        renderMathInElement(el, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true },
+          ],
+          throwOnError: false,
+        });
+      } catch (e) { /* keep raw TeX visible rather than crash */ }
+    }
+  }
+
+  /* ---------- helpers ---------- */
+  function fmtDate(iso) {
+    return MATH340.parseISODate(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  }
+  // Whole local calendar days: 0 on the day itself, 1 the day before, -1 the day after.
+  function daysUntil(iso) {
+    return MATH340.daysUntil(iso);
+  }
+  function inDays(n) {
+    return n === 0 ? "today" : n === 1 ? "tomorrow" : "in " + n + " days";
+  }
+  function weekLabel() {
+    const wk = MATH340.currentWeek();
+    if (wk <= 0) return "Term starts " + fmtDate(MATH340.course.termStart);
+    if (wk >= 11) {
+      // The final falls on the Monday after week 10, which is already "week 11":
+      // the term is not over while the exam is still ahead.
+      const exams = MATH340.keyDates.filter(k => k.kind === "exam");
+      const last = exams[exams.length - 1];
+      if (last && daysUntil(last.date) >= 0) return `${last.label.split("·")[0].trim()} ${inDays(daysUntil(last.date))}`;
+      return "Term complete";
+    }
+    const row = MATH340.schedule.find(r => r.week === wk);
+    return `Week ${wk} · ${row ? row.topic : ""}`;
+  }
+  const escapeHtml = MATH340.util.escapeHtml;
+  function escapeAttr(t) {
+    return String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  }
+  /* Plain text of a card, for the reference search box. */
+  function plain(html) {
+    return String(html).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").toLowerCase();
+  }
+
+  /* The next Wednesday that carries a quiz, per the syllabus schedule. */
+  function nextQuiz() {
+    return MATH340.nextQuiz();
+  }
+
+  /* ---------- Dashboard ---------- */
+
+  /* The dashboard's job is to answer "what should I do right now?" — a
+   * number of due cards is data, a ranked next action is a study plan. */
+  function studyPlan() {
+    const plan = [];
+    const decks = MATH340.units.filter(u => u.flashcards && u.flashcards.length);
+    const gens = MATH340.units.flatMap(u => u.generators || []);
+
+    let due = 0, fresh = 0;
+    for (const u of decks) { const s = Store.deckStats(u.flashcards); due += s.due; fresh += s.fresh; }
+    const misses = Store.missCount();
+    const quiz = nextQuiz();
+    const exam = MATH340.keyDates.filter(k => k.kind === "exam" && daysUntil(k.date) >= 0)[0];
+
+    if (due) {
+      plan.push({
+        pri: fresh === due ? 2 : 1,
+        icon: "⧉", href: link("flashcards"),
+        title: `Review ${due} flashcard${due === 1 ? "" : "s"}`,
+        why: fresh ? `${fresh} you have never seen; the rest are scheduled for today. About ${Math.max(1, Math.round(due * 0.2))} min.` : `Scheduled for today by the Leitner boxes. About ${Math.max(1, Math.round(due * 0.2))} min.`,
+      });
+    }
+    if (misses) {
+      plan.push({
+        pri: 1, icon: "↺", href: link("practice"),
+        title: `Redo ${misses} missed problem${misses === 1 ? "" : "s"}`,
+        why: "Problems you got wrong, kept with their worked solutions. Re-attempting a miss is worth more than a fresh problem you would have got right.",
+      });
+    }
+    if (quiz && quiz.days <= 2 && gens.length) {
+      plan.push({
+        pri: 0, icon: "✎", href: link("exam"),
+        title: `Quiz ${inDays(quiz.days)} — sit a timed set`,
+        why: `Week ${quiz.week} quiz covers the previous week's classes and homework. Five problems, 15 minutes, no hints.`,
+      });
+    }
+    if (exam && daysUntil(exam.date) <= 14 && gens.length) {
+      plan.push({
+        pri: 0, icon: "▦", href: link("exam"),
+        title: `${exam.label.split("·")[0].trim()} ${inDays(daysUntil(exam.date))}`,
+        why: "Sit a full-length rehearsal under the clock, then drill whatever it finds. Also: build your formula sheet on the Reference page.",
+      });
+    }
+    const weakest = gens.map(g => ({ g, w: Store.weakness(g.id), p: Store.getPractice(g.id) }))
+      .filter(x => x.p.attempts >= 3).sort((a, b) => b.w - a.w)[0];
+    if (weakest && weakest.w > 0.4) {
+      plan.push({
+        pri: 2, icon: "◎", href: link("practice"),
+        title: `Drill your weakest topic: ${weakest.g.name}`,
+        why: `${weakest.p.correct}/${weakest.p.attempts} first-try so far. "Target my weak spots" draws mostly from topics like this one.`,
+      });
+    }
+    if (!plan.length && gens.length) {
+      plan.push({
+        pri: 3, icon: "▶", href: link("practice"),
+        title: "Mixed practice session",
+        why: "Nothing is due and nothing is outstanding. Interleaved problems with the topic hidden are the best use of a free ten minutes.",
+      });
+    }
+    return plan.sort((a, b) => a.pri - b.pri).slice(0, 3);
+  }
+
+  function dashboard(el) {
+    const wk = MATH340.currentWeek();
+    const decks = MATH340.units.filter(u => u.flashcards && u.flashcards.length);
+    const gens = MATH340.units.flatMap(u => u.generators || []);
+
+    let dueTotal = 0, masteredTotal = 0, cardTotal = 0;
+    for (const u of decks) {
+      const s = Store.deckStats(u.flashcards);
+      dueTotal += s.due; masteredTotal += s.mastered; cardTotal += s.total;
+    }
+    const ps = Store.practiceStats(gens);
+    const upcoming = MATH340.keyDates.filter(k => daysUntil(k.date) >= 0).slice(0, 3);
+    const plan = studyPlan();
+    const lastExam = Store.exams()[0];
+
+    let unitCards = "";
+    for (const u of MATH340.units) {
+      if (!u.flashcards || !u.flashcards.length) continue;
+      const s = Store.deckStats(u.flashcards);
+      const pStats = Store.practiceStats(u.generators || []);
+      unitCards += `
+        <div class="card" style="margin-bottom:0;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+            <h3 style="margin:0; font-size:15.5px;">${u.title}</h3>
+            <span class="pill ${wk >= (u.week || 1) ? "pill-accent" : ""}">Week ${u.week}${wk < (u.week || 1) ? " · upcoming" : ""}</span>
+          </div>
+          <p class="muted" style="margin:8px 0 12px;">${u.description || ""}</p>
+          <div class="progress-bar"><div style="width:${Math.round(s.mastery * 100)}%"></div></div>
+          <div class="muted" style="margin-top:6px; display:flex; justify-content:space-between;">
+            <span>${Math.round(s.mastery * 100)}% card mastery</span>
+            <span>${pStats.attempts ? Math.round(100 * (pStats.accuracy || 0)) + "% first-try" : "no practice yet"}</span>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+            <a class="btn btn-sm btn-ghost" href="${link("flashcards")}">Cards</a>
+            ${(u.generators && u.generators.length) ? `<a class="btn btn-sm btn-ghost" href="${link("practice")}">Practice</a>` : ""}
+            ${u.referenceTable ? `<a class="btn btn-sm btn-ghost" href="${link("reference")}">Table</a>` : ""}
+          </div>
+        </div>`;
+    }
+
+    el.innerHTML = `
+      <div class="card hero">
+        <h2 style="margin-bottom:2px;">${greeting()}</h2>
+        <p class="muted" style="margin: 4px 0 0;">${weekLabel()} — ${dueTotal > 0
+          ? `you have <b>${dueTotal}</b> flashcard${dueTotal === 1 ? "" : "s"} ready to review.`
+          : "all caught up on reviews. Nice."}</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Today's plan</h3>
+        ${plan.map((p, i) => `
+          <a class="plan-row ${i === 0 ? "lead" : ""}" href="${p.href}">
+            <span class="plan-ico">${p.icon}</span>
+            <span style="flex:1;min-width:0;">
+              <span class="plan-title">${p.title}</span>
+              <span class="muted plan-why">${p.why}</span>
+            </span>
+            <span class="plan-go">→</span>
+          </a>`).join("") || `<p class="muted">Nothing registered to study yet.</p>`}
+      </div>
+
+      <div class="grid-4">
+        <div class="card stat" style="margin-bottom:0"><div class="num">${Store.streak()}</div><div class="lbl">day streak</div></div>
+        <div class="card stat" style="margin-bottom:0"><div class="num">${masteredTotal}<span class="muted" style="font-size:15px">/${cardTotal}</span></div><div class="lbl">cards mastered</div></div>
+        <div class="card stat" style="margin-bottom:0"><div class="num">${ps.attempts}</div><div class="lbl">problems attempted</div></div>
+        <div class="card stat" style="margin-bottom:0"><div class="num">${ps.attempts ? Math.round(100 * ps.accuracy) + "%" : "—"}</div><div class="lbl">first-try accuracy</div></div>
+      </div>
+
+      ${lastExam ? `<div class="card" style="margin-top:18px;">
+        <h3 style="margin-top:0;">Last timed sitting</h3>
+        <div class="topic-row">
+          <span class="pill ${lastExam.correct / lastExam.n >= 0.8 ? "pill-green" : lastExam.correct / lastExam.n >= 0.6 ? "pill-amber" : "pill-red"}">${Math.round(100 * lastExam.correct / lastExam.n)}%</span>
+          <div style="flex:1;">${escapeHtml(lastExam.label)} · ${lastExam.correct}/${lastExam.n} · ${escapeHtml(lastExam.scopeLabel || "")}</div>
+          <a class="btn btn-sm btn-ghost" href="${link("exam")}">Sit another</a>
+        </div>
+      </div>` : ""}
+
+      <div class="grid-2" style="margin-top:18px;">
+        ${unitCards}
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3 style="margin-top:0;">Coming up</h3>
+        ${upcoming.length ? upcoming.map(k => `
+          <div class="topic-row">
+            <span class="pill ${k.kind === "exam" ? "pill-red" : k.kind === "hw" ? "pill-amber" : ""}">${fmtDate(k.date)}</span>
+            <div style="flex:1;">${k.label}</div>
+            <span class="muted">${inDays(daysUntil(k.date))}</span>
+          </div>`).join("") : `<p class="muted">No upcoming dates on record.</p>`}
+        <p class="muted" style="margin-bottom:0;">Quizzes are given most Wednesdays and cover the previous week's classes and homework — see the <a href="${link("schedule")}">schedule</a>.</p>
+      </div>`;
+    typeset(el);
+  }
+
+  function greeting() {
+    const h = new Date().getHours();
+    const g = h < 5 ? "Late-night session" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+    return g + " 👋";
+  }
+
+  /* ---------- Schedule ---------- */
+  function schedule(el) {
+    const wk = MATH340.currentWeek();
+    const rows = MATH340.schedule.map(r => `
+      <tr class="${r.week === wk ? "current-week" : ""}">
+        <td><span class="week-badge">Week ${r.week}</span>${r.week === wk ? ` <span class="pill pill-accent">now</span>` : ""}</td>
+        <td>${r.topic}</td>
+        <td>${r.quiz ? `<span class="pill pill-amber">Quiz Wed</span>` : ""}</td>
+      </tr>`).join("");
+
+    el.innerHTML = `
+      <div class="card">
+        <h2>Course Schedule</h2>
+        <p class="muted">${MATH340.course.code} · ${MATH340.course.term} · ${MATH340.course.instructor} — MWF 1:50–3:00 pm. Tentative; chapters refer to ${MATH340.course.textbook}.</p>
+        <table class="tbl">
+          <tr><th>Week</th><th>Topics</th><th></th></tr>
+          ${rows}
+        </table>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" style="margin-bottom:0;">
+          <h3 style="margin-top:0;">Key dates</h3>
+          ${MATH340.keyDates.map(k => `
+            <div class="topic-row">
+              <span class="pill ${k.kind === "exam" ? "pill-red" : k.kind === "hw" ? "pill-amber" : ""}">${fmtDate(k.date)}</span>
+              <div style="flex:1;">${k.label}</div>
+            </div>`).join("")}
+        </div>
+        <div class="card" style="margin-bottom:0;">
+          <h3 style="margin-top:0;">Grade weighting</h3>
+          ${MATH340.gradeWeights.map(g => `
+            <div style="display:flex; align-items:center; gap:10px; margin:9px 0;">
+              <div style="width:110px; font-size:13.5px;">${g.name}</div>
+              <div class="progress-bar" style="flex:1;"><div style="width:${g.pct * 3}%"></div></div>
+              <div style="width:38px; text-align:right; font-size:13px;" class="muted">${g.pct}%</div>
+            </div>`).join("")}
+          <p class="muted" style="margin-bottom:0;">Lowest quiz and lowest homework are dropped. Midterm allows one 8.5×11" formula sheet — build it on the <a href="${link("reference")}">Reference page</a> and print it.</p>
+        </div>
+      </div>`;
+    typeset(el);
+  }
+
+  /* ---------- Reference ---------- */
+
+  /* The reference page doubles as the formula-sheet builder: tick the
+   * identities you want, then print. The midterm allows one 8.5x11"
+   * sheet, so this is a graded artefact, not a nicety. */
+  function reference(el) {
+    const sel = Store.sheet();
+    let html = "";
+    // Searchable text travels with each row so filtering is a class toggle
+    // rather than a re-render — re-running KaTeX on every keystroke is slow
+    // enough to feel broken, and it fights the caret.
+    const key = (...parts) => escapeAttr(parts.map(plain).join(" "));
+
+    // "How do I choose?" guides, where a unit supplies one.
+    for (const u of MATH340.units) {
+      if (!u.methodGuide || !u.methodGuide.length) continue;
+      const rows = u.methodGuide;
+      html += `
+        <div class="card no-print ref-sec" data-sec>
+          <h2>${u.short || u.title} — choosing the right tool</h2>
+          <p class="muted">The identities below are the easy part; picking the right one under time pressure is not. Read this column-by-column: the question's wording is the clue.</p>
+          <table class="tbl guide-tbl">
+            <tr><th style="width:34%">When the question says…</th><th style="width:26%">Reach for</th><th>Because</th></tr>
+            ${rows.map(g => `<tr class="ref-hit" data-k="${key(g.when, g.use, g.why)}"><td>${g.when}</td><td><b>${g.use}</b></td><td class="muted">${g.why}</td></tr>`).join("")}
+          </table>
+        </div>`;
+    }
+
+    // Identity sheets per chapter (rendered from the flashcards' backs).
+    for (const u of MATH340.units) {
+      if (u.referenceTable) continue;
+      if (!u.flashcards || !u.flashcards.length) continue;
+      const cards = u.flashcards;
+      html += `
+        <div class="card ref-group ref-sec" data-sec>
+          <div class="ref-group-head no-print">
+            <h2 style="margin:0">${u.title}</h2>
+            <button class="btn btn-ghost btn-sm" data-all="${u.id}">Select all</button>
+            <button class="btn btn-ghost btn-sm" data-none="${u.id}">Clear</button>
+          </div>
+          <p class="muted no-print">${u.description || ""}</p>
+          ${cards.map(c => `
+            <div class="ident-item ref-hit ${sel.has(c.id) ? "picked" : ""}" data-ident="${c.id}" data-k="${key(c.front, c.back, c.tag || "")}">
+              <label class="ident-pick no-print"><input type="checkbox" data-pick="${escapeAttr(c.id)}" ${sel.has(c.id) ? "checked" : ""} aria-label="Add to formula sheet"></label>
+              <div style="flex:1;min-width:0;">
+                <div class="ident-name">${c.tag ? `<span class="pill" style="margin-right:8px">${c.tag}</span>` : ""}${c.front}</div>
+                <div class="ident-formula">${c.back}</div>
+              </div>
+            </div>`).join("")}
+        </div>`;
+    }
+
+    // Distribution table.
+    for (const u of MATH340.units) {
+      if (!u.referenceTable) continue;
+      const dists = u.referenceTable;
+      html += `<div class="card no-print ref-sec" data-sec><h2 class="ref-hit" data-k="${key(u.title, u.description)}">${u.title}</h2><p class="muted ref-hit" data-k="${key(u.title, u.description)}">${u.description}</p></div>`;
+      for (const d of dists) {
+        const id = "dist:" + d.name;
+        html += `
+          <div class="card dist-card ref-group ref-hit ${sel.has(id) ? "picked" : ""}" data-ident="${escapeAttr(id)}" data-k="${key(d.name, d.story, d.params, d.pmf, d.type)}">
+            <div class="dist-head">
+              <label class="ident-pick no-print"><input type="checkbox" data-pick="${escapeAttr(id)}" ${sel.has(id) ? "checked" : ""} aria-label="Add to formula sheet"></label>
+              <h3>${d.name}</h3>
+              <span class="muted">\\(${d.params}\\)</span>
+              <span class="pill ${d.type === "discrete" ? "pill-accent" : "pill-green"}">${d.type}</span>
+            </div>
+            <p class="muted" style="margin: 8px 0 4px;">${d.story}</p>
+            <div class="dist-body">
+              <table class="tbl">
+                <tr><th style="width:130px">Support</th><td>\\(${d.support}\\)</td></tr>
+                <tr><th>${d.type === "discrete" ? "PMF" : "PDF"}</th><td>\\(${d.pmf}\\)</td></tr>
+                <tr><th>Mean</th><td>\\(${d.mean}\\)</td></tr>
+                <tr><th>Variance</th><td>\\(${d.variance}\\)</td></tr>
+                <tr><th>MGF</th><td>\\(${d.mgf}\\)</td></tr>
+              </table>
+            </div>
+          </div>`;
+      }
+    }
+
+    el.innerHTML = `
+      <div class="card no-print">
+        <h2>Reference &amp; formula sheet</h2>
+        <p class="muted">Every identity from the decks on one searchable page. Tick the ones you want and print: the midterm allows a single 8.5×11" sheet, and the print layout drops everything unticked and sets your selection in two dense columns. Roughly 25 entries fit on a side — which is the useful kind of constraint. Tick what you would actually forget, print it, and untick until it fits. Your selection is saved and travels in your progress export.</p>
+        <div class="toolbar">
+          <input type="text" class="select" id="refSearch" placeholder="Search identities, distributions, keywords…" style="flex:1;min-width:220px" aria-label="Search reference">
+          <span class="pill ${sel.size ? "pill-accent" : ""}" id="selCount">${sel.size} selected</span>
+          <button class="btn" id="refPrint" ${sel.size ? "" : "disabled"}>⎙ Print formula sheet</button>
+          <button class="btn btn-ghost" id="refClear" ${sel.size ? "" : "disabled"}>Clear selection</button>
+        </div>
+      </div>
+      ${html || `<div class="empty-state"><div class="big">Σ</div>No reference material registered yet.</div>`}
+      <div class="empty-state no-print" id="refEmpty" hidden><div class="big">Σ</div>Nothing here matches that search.</div>
+      <div class="print-only sheet-head">
+        <b>${MATH340.course.code} ${MATH340.course.name}</b> — formula sheet · ${sel.size} entries
+      </div>`;
+
+    const hits = [...el.querySelectorAll(".ref-hit")];
+    const secs = [...el.querySelectorAll("[data-sec]")];
+    el.querySelector("#refSearch").addEventListener("input", e => {
+      const q = e.target.value.trim().toLowerCase();
+      for (const h of hits) h.hidden = !!q && !h.dataset.k.includes(q);
+      let any = false;
+      for (const sec of secs) {
+        const live = [...sec.querySelectorAll(".ref-hit")].some(h => !h.hidden);
+        sec.hidden = !live;
+        any = any || live;
+      }
+      // Distribution cards are sections in their own right.
+      for (const d of el.querySelectorAll(".dist-card.ref-hit")) any = any || !d.hidden;
+      el.querySelector("#refEmpty").hidden = any;
+    });
+    el.querySelectorAll("[data-pick]").forEach(box => box.addEventListener("change", () => {
+      Store.toggleSheet(box.dataset.pick);
+      const row = box.closest("[data-ident]");
+      if (row) row.classList.toggle("picked", box.checked);
+      const n = Store.sheet().size;
+      el.querySelector("#selCount").textContent = n + " selected";
+      el.querySelector("#selCount").classList.toggle("pill-accent", n > 0);
+      el.querySelector("#refPrint").disabled = !n;
+      el.querySelector("#refClear").disabled = !n;
+    }));
+    el.querySelectorAll("[data-all]").forEach(b => b.addEventListener("click", () => {
+      const u = MATH340.getUnit(b.dataset.all);
+      Store.setSheet([...Store.sheet(), ...u.flashcards.map(c => c.id)]);
+      reference(el);
+    }));
+    el.querySelectorAll("[data-none]").forEach(b => b.addEventListener("click", () => {
+      const u = MATH340.getUnit(b.dataset.none);
+      const ids = new Set(u.flashcards.map(c => c.id));
+      Store.setSheet([...Store.sheet()].filter(id => !ids.has(id)));
+      reference(el);
+    }));
+    el.querySelector("#refPrint").addEventListener("click", () => {
+      document.body.classList.add("printing-sheet");
+      window.print();
+      setTimeout(() => document.body.classList.remove("printing-sheet"), 500);
+    });
+    el.querySelector("#refClear").addEventListener("click", () => { Store.setSheet([]); reference(el); });
+    typeset(el);
+  }
+
+  /* ---------- Progress ---------- */
+  function progress(el) {
+    const decks = MATH340.units.filter(u => u.flashcards && u.flashcards.length);
+    let deckRows = "";
+    for (const u of decks) {
+      const s = Store.deckStats(u.flashcards);
+      deckRows += `
+        <div class="deck-row">
+          <div class="deck-info">
+            <div class="deck-name">${u.title}</div>
+            <div class="deck-meta">${s.started}/${s.total} cards started · ${s.mastered} mastered (box ${Store.MASTER_BOX}+)</div>
+          </div>
+          <div class="deck-bar">
+            <div class="progress-bar green"><div style="width:${Math.round(s.mastery * 100)}%"></div></div>
+            <div class="muted" style="text-align:right; margin-top:3px">${Math.round(s.mastery * 100)}%</div>
+          </div>
+        </div>`;
+    }
+
+    let topicRows = "", weakShapes = "";
+    for (const u of MATH340.units) {
+      for (const g of (u.generators || [])) {
+        const p = Store.getPractice(g.id);
+        if (!p.attempts) continue;
+        const acc = Math.round(100 * p.correct / p.attempts);
+        const recentAcc = p.recent.length ? Math.round(100 * p.recent.reduce((a, b) => a + b, 0) / p.recent.length) : null;
+        const seen = Object.keys(p.variants || {}).length, total = (g.variantNames || []).length;
+        topicRows += `
+          <tr>
+            <td>${g.name}<div class="muted" style="font-size:12px">${u.short || u.title} · ${seen}/${total} shapes seen</div></td>
+            <td>${p.correct}/${p.attempts}</td>
+            <td>${acc}%</td>
+            <td>${recentAcc == null ? "—" : recentAcc + "%"} ${recentAcc != null && recentAcc >= 80 ? `<span class="pill pill-green">solid</span>` : recentAcc != null && recentAcc < 50 ? `<span class="pill pill-red">review</span>` : ""}</td>
+          </tr>`;
+        for (const v of Store.weakVariants(g.id)) {
+          weakShapes += `<tr><td>${v.name}<div class="muted" style="font-size:12px">${g.name}</div></td><td>${v.correct}/${v.attempts}</td><td>${Math.round(100 * v.acc)}%</td></tr>`;
+        }
+      }
+    }
+
+    // last 14 days of activity
+    let actCells = "";
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const n = Store.activityOn(d);
+      const level = n === 0 ? "var(--surface-2)" : n < 10 ? "color-mix(in srgb, var(--accent) 35%, var(--surface-2))" : n < 30 ? "color-mix(in srgb, var(--accent) 65%, var(--surface-2))" : "var(--accent)";
+      actCells += `<div title="${d.toDateString()}: ${n} reviews" style="width:22px;height:22px;border-radius:5px;background:${level}"></div>`;
+    }
+
+    const exams = Store.exams();
+    const misses = Store.missCount();
+
+    el.innerHTML = `
+      <div class="grid-3">
+        <div class="card stat" style="margin-bottom:0"><div class="num">${Store.streak()}</div><div class="lbl">day streak</div></div>
+        <div class="card stat" style="margin-bottom:0"><div class="num">${Store.totalReviews()}</div><div class="lbl">total reviews & problems</div></div>
+        <div class="card stat" style="margin-bottom:0"><div class="num">${misses}</div><div class="lbl">problems in redo queue</div></div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3 style="margin-top:0;">Last 14 days</h3>
+        <div style="display:flex; gap:5px; flex-wrap:wrap;">${actCells}</div>
+      </div>
+
+      ${exams.length ? `<div class="card">
+        <h3 style="margin-top:0;">Timed sittings</h3>
+        <table class="tbl">
+          <tr><th>When</th><th>Set</th><th>Score</th></tr>
+          ${exams.slice(0, 8).map(e => `<tr>
+            <td class="muted">${new Date(e.at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</td>
+            <td>${escapeHtml(e.label)}<div class="muted" style="font-size:12px">${escapeHtml(e.scopeLabel || "")}</div></td>
+            <td><b>${e.correct}/${e.n}</b> <span class="pill ${e.correct / e.n >= 0.8 ? "pill-green" : e.correct / e.n >= 0.6 ? "pill-amber" : "pill-red"}">${Math.round(100 * e.correct / e.n)}%</span></td>
+          </tr>`).join("")}
+        </table>
+      </div>` : ""}
+
+      <div class="card">
+        <h3 style="margin-top:0;">Flashcard mastery by unit</h3>
+        ${deckRows || `<p class="muted">No decks registered yet.</p>`}
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Practice accuracy by topic</h3>
+        <p class="muted" style="margin-top:0;">First-try, unaided answers only — a hint or a second attempt counts as a miss, because a quiz gives you neither.</p>
+        ${topicRows ? `<table class="tbl"><tr><th>Topic</th><th>Correct</th><th>Overall</th><th>Last 10</th></tr>${topicRows}</table>`
+          : `<p class="muted">No practice attempts yet — head to <a href="${link("practice")}">Practice</a> to get started.</p>`}
+      </div>
+
+      ${weakShapes ? `<div class="card">
+        <h3 style="margin-top:0;">Specific problem shapes to work on</h3>
+        <p class="muted" style="margin-top:0;">A topic's average can look fine while one shape inside it keeps catching you. These are the shapes below 60%.</p>
+        <table class="tbl"><tr><th>Shape</th><th>Correct</th><th>Rate</th></tr>${weakShapes}</table>
+      </div>` : ""}
+
+      <div class="card">
+        <h3 style="margin-top:0;">Backup</h3>
+        <p class="muted">Progress lives in this browser (localStorage). Export it to move between devices, or if you clear browser data.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" id="expBtn">Export progress</button>
+          <button class="btn btn-ghost btn-sm" id="impBtn">Import progress</button>
+          <button class="btn btn-ghost btn-sm" id="clrMiss" ${misses ? "" : "disabled"}>Clear redo queue</button>
+          <button class="btn btn-ghost btn-sm" id="rstBtn" style="color:var(--red)">Reset all progress</button>
+          <input type="file" id="impFile" accept="application/json" style="display:none">
+        </div>
+      </div>`;
+
+    el.querySelector("#expBtn").addEventListener("click", () => {
+      const blob = new Blob([Store.exportJSON()], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "math340-progress.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    const impFile = el.querySelector("#impFile");
+    el.querySelector("#impBtn").addEventListener("click", () => impFile.click());
+    impFile.addEventListener("change", () => {
+      const f = impFile.files[0];
+      if (!f) return;
+      f.text().then(t => {
+        try { Store.importJSON(t); progress(el); }
+        catch (e) { alert("Could not import: " + e.message); }
+      });
+    });
+    el.querySelector("#clrMiss").addEventListener("click", () => {
+      if (!misses) return;
+      if (confirm(`Discard all ${misses} problems in the redo queue?`)) { Store.clearAllMisses(); progress(el); }
+    });
+    el.querySelector("#rstBtn").addEventListener("click", () => {
+      if (confirm("Reset ALL flashcard and practice progress? This cannot be undone.")) {
+        Store.reset(); progress(el);
+      }
+    });
+    typeset(el);
+  }
+
+  /* ---------- Pages ---------- */
+  const routes = {
+    dashboard: { title: "Dashboard", mount: dashboard },
+    flashcards: { title: "Flashcards", mount: el => Flashcards.mount(el) },
+    practice: { title: "Practice", mount: el => Practice.mount(el) },
+    exam: { title: "Exam Mode", mount: el => Exam.mount(el) },
+    reference: { title: "Reference", mount: reference },
+    schedule: { title: "Schedule", mount: schedule },
+    progress: { title: "Progress", mount: progress },
+  };
+  const pages = Object.keys(routes).map(id => ({ id, title: routes[id].title }));
+
+  /* Draw one page into `el`. opts.base is the hash prefix the page's own links
+   * get ("#/" here, "#/school/math340/" in the hub). Leaving the exam page
+   * stops its clock, from either shell. */
+  function mount(name, el, opts) {
+    linkBase = (opts && opts.base) || "#/";
+    const r = routes[name] || routes.dashboard;
+    if (r !== routes.exam) Exam.leave();
+    r.mount(el);
+    return r;
+  }
+  function leave() { Exam.leave(); }
+  function inProgress() { return Exam.inProgress(); }
+
+  /* ---------- Standalone shell: router, theme, mobile nav ---------- */
+  const view = document.getElementById("view");
+  const titleEl = document.getElementById("topbarTitle");
+  const weekEl = document.getElementById("topbarWeek");
+
+  function route() {
+    const hash = (location.hash || "#/dashboard").replace(/^#\//, "");
+    const name = routes[hash] ? hash : "dashboard";
+    const r = routes[name];
+    titleEl.textContent = r.title;
+    weekEl.textContent = weekLabel();
+    document.querySelectorAll(".nav a").forEach(a =>
+      a.classList.toggle("active", a.dataset.route === name));
+    view.scrollTop = 0;
+    window.scrollTo(0, 0);
+    mount(name, view);
+    document.getElementById("sidebar").classList.remove("open");
+    document.body.classList.remove("nav-open");
+  }
+
+  function applyTheme(t) {
+    if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    else if (t === "light") document.documentElement.removeAttribute("data-theme");
+    else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      document.documentElement.setAttribute("data-theme", "dark");
+  }
+
+  if (view) {
+    window.addEventListener("hashchange", route);
+    /* Clicking a nav link for the route you are already on fires no
+     * hashchange, which would leave you stuck inside a flashcard session or a
+     * practice problem with a dead sidebar. Re-mount the view explicitly. */
+    document.addEventListener("click", e => {
+      const a = e.target.closest(".nav a[data-route]");
+      if (!a) return;
+      if ("#/" + a.dataset.route === (location.hash || "#/dashboard")) { e.preventDefault(); route(); }
+    });
+    window.addEventListener("beforeunload", e => {
+      if (Exam.inProgress()) { e.preventDefault(); e.returnValue = ""; }
+    });
+    window.addEventListener("DOMContentLoaded", () => {
+      applyTheme(Store.getTheme());
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        const dark = document.documentElement.getAttribute("data-theme") === "dark";
+        const next = dark ? "light" : "dark";
+        Store.setTheme(next);
+        applyTheme(next);
+      });
+      /* Mobile nav. The open sidebar sits over the topbar, hamburger included,
+       * so it needs a way out that is not "pick a destination": a backdrop tap
+       * or Escape closes it. */
+      const sidebar = document.getElementById("sidebar");
+      const setNav = open => {
+        sidebar.classList.toggle("open", open);
+        document.body.classList.toggle("nav-open", open);
+      };
+      document.getElementById("hamburger").addEventListener("click", e => {
+        e.stopPropagation();
+        setNav(!sidebar.classList.contains("open"));
+      });
+      document.addEventListener("click", e => {
+        if (sidebar.classList.contains("open") && !e.target.closest("#sidebar")) setNav(false);
+      });
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && sidebar.classList.contains("open")) setNav(false);
+      });
+      document.addEventListener("keydown", e => {
+        if ((location.hash || "").startsWith("#/flashcards") && !e.target.matches("input, textarea, select")) {
+          Flashcards.onKey(e, view);
+        }
+      });
+      route();
+    });
+    // KaTeX loads with defer; re-typeset once it is ready in case the first view rendered before it.
+    window.addEventListener("load", () => typeset(view));
+  }
+
+  return { typeset, link, mount, leave, inProgress, pages, weekLabel, onKey: (e, el) => Flashcards.onKey(e, el), reload: () => Store.reload() };
+})();
+
+SCHOOL_APPS["math340"] = App;
+})();
 /* ============================================================
    UI 1: state, storage, speech, XP and the bridges
    One saved object (HUB) holds everything the hub learns about
@@ -13280,11 +15137,11 @@ function buildDemand() {
   });
   var P = pokerRead();
   D.poker = { name: "Poker", due: P.due, dueMin: P.dueMin, overdue: P.overdue, level: P.level && P.level.placed ? P.level.level.index : 0,
-    lesson: P.lessons < POKER_TOTAL_LESSONS ? { id: "next", title: "Next poker lesson", min: 8, href: "poker/#/learn" } : null,
-    drill: { href: "poker/#/practice/review", label: "Reviews" }, apply: { href: "poker/#/play", label: "Poker: play graded hands", min: 15 } };
+    lesson: P.lessons < POKER_TOTAL_LESSONS ? { id: "next", title: "Next poker lesson", min: 8, href: "#/poker/learn" } : null,
+    drill: { href: "#/poker/practice/review", label: "Reviews" }, apply: { href: "#/poker/play", label: "Poker: play graded hands", min: 15 } };
   SCHOOL_COURSES.forEach(function (sc) {
     var R = schoolRead(sc), dm = schDemand(sc, R, now);
-    D["school:" + sc.id] = { name: sc.code, school: true, due: R.due + R.misses, dueMin: dm.items.filter(function (i) { return i.kind === "review"; }).reduce(function (a, i) { return a + i.min; }, 0), overdue: 0, level: 0, lesson: null, drill: { href: sc.href + "#/practice", label: "Practice" }, apply: null, items: dm.items, meta: dm };
+    D["school:" + sc.id] = { name: sc.code, school: true, due: R.due + R.misses, dueMin: dm.items.filter(function (i) { return i.kind === "review"; }).reduce(function (a, i) { return a + i.min; }, 0), overdue: 0, level: 0, lesson: null, drill: { href: schLink(sc, "practice"), label: "Practice" }, apply: null, items: dm.items, meta: dm };
   });
   return D;
 }
@@ -13905,14 +15762,17 @@ function route() {
   view = parts[0]; curHash = "#/" + parts.join("/");
   if (view !== "drill") { if (sess || cp) { sess = null; cp = null; } q = null; cancelAnimationFrame(raf); }
   if (view !== "c" || parts[2] !== "apply") game = game && game.over ? null : game;
+  schoolLeave();
+  /* PokerPro is already on screen: steer it to the new page rather than reloading it */
+  if (view === "poker" && pokerSteer(parts.slice(1))) { drawNav(); drawGamePill(); return; }
   var main = $("main"); main.innerHTML = ""; main.className = "wrap v-" + view;
   try {
     if (view === "home") drawHome(main);
     else if (view === "calendar") drawCalendar(main, parts[1] || "week");
     else if (view === "skills") drawSkills(main);
     else if (view === "c") drawCourse(main, parts[1], parts[2] || "learn", parts[3]);
-    else if (view === "poker") drawPoker(main);
-    else if (view === "school") drawSchool(main, parts[1]);
+    else if (view === "poker") drawPoker(main, parts.slice(1));
+    else if (view === "school") drawSchool(main, parts[1], parts[2]);
     else if (view === "quant") drawQuant(main, parts[1]);
     else if (view === "library") drawLibrary(main, parts[1] || "all");
     else if (view === "method") drawMethod(main);
@@ -14431,24 +16291,58 @@ function drawCalSettings(box) {
 }
 
 /* ============================================================ POKER ============================================================ */
-function drawPoker(box) {
-  var P = pokerRead(), lv = courseLevel("poker");
-  box.innerHTML = '<div class="chead"><div class="cg" style="color:var(--gold)">♠</div><div><div class="crumbs"><a href="#/skills">Skills</a><span>›</span>Poker</div><h1>Poker</h1><p>PokerPro: a nine-stage path from the rules to Bayesian exploitation, 37 drills on a spaced schedule, four CFR solver labs, a six-handed table where every decision is priced and graded, and a level measured at that table. It runs as its own app; the hub reads its progress for the calendar and the levels.</p><div class="cmeta"><span>Level: <b>' + esc(lv.name) + '</b></span><span>Lessons: <b>' + P.lessons + ' / ' + POKER_TOTAL_LESSONS + '</b></span><span>Due today: <b>' + P.due + '</b></span><span>XP: <b>' + P.xp.toLocaleString() + '</b></span><span>Streak: <b>' + P.streak + '</b></span></div></div></div>';
-  var hero = el("div", "hero");
-  hero.innerHTML = '<div class="kick">PokerPro</div><h2>' + (P.due ? plural(P.due, "review") + " due" : P.lessons ? "All clear in poker" : "Start with the rules, or take the placement test") + '</h2><p>' + (P.due ? "About " + Math.max(1, Math.round(P.dueMin)) + " minutes. Reviews first, then the next lesson, then hands at the table." : P.lessons ? "Keep the reviews up and put the maths to work at the table." : "PokerPro has its own placement test that passes every stage you already know.") + '</p>';
-  var row = el("div", "row");
-  [["Open PokerPro", "poker/#/home", "go"], ["Reviews", "poker/#/practice/review", "ghost"], ["Learn", "poker/#/learn", "ghost"], ["Play the table", "poker/#/play", "ghost"], ["Level", "poker/#/level", "ghost"]].forEach(function (b) { var a = el("a", "act " + b[2], b[0]); a.href = b[1]; row.appendChild(a); });
-  hero.appendChild(row); box.appendChild(hero);
-  var g = el("div", "grid2");
-  var d = el("div", "panel"); d.innerHTML = '<div class="ph"><h3>Level at the table</h3><a href="poker/#/level">Details ›</a></div><div class="lvname">' + esc(lv.name) + '</div><div class="lvabout">' + esc(lv.about) + '</div><div class="clist">' + lv.detail.map(function (x) { return "<div><span>" + esc(x[0]) + "</span><b>" + esc(String(x[1])) + "</b></div>"; }).join("") + (P.hands ? '<div><span>Hands played</span><b>' + P.hands + '</b></div><div><span>Decision score</span><b>' + (P.quality != null ? Math.round(100 * P.quality) : "–") + '</b></div>' : "") + '</div>';
-  g.appendChild(d);
-  var h = el("div", "panel"); h.innerHTML = '<div class="ph"><h3>How it connects</h3></div><p class="pnote">Poker keeps its own storage in this browser. The hub reads it for: the reviews due (into today\'s plan), minutes studied (into the history), the level (into Skills), and the sync file (so PokerPro\'s progress travels with everything else). PokerPro\'s own Sync tab still works; the hub\'s sync covers it too.</p><p class="pnote">' + (P.has ? "Progress found: " + P.skills + " skills on the schedule, " + P.auto + " automatic." : "No PokerPro progress in this browser yet. Open it and pass the first checkpoint, or sync from another device.") + '</p>';
-  g.appendChild(h); box.appendChild(g);
+/* PokerPro runs inside the hub, in a frame of its own: it keeps its globals, its storage and its keyboard, and the hub
+   keeps the header, the tabs and the theme. The frame hides PokerPro's own header, follows the hub's palette and
+   reports its height, so the page scrolls as one. The hub's #/poker/<page...> is the app's #/<page...>: the app posts
+   every page it moves to and the hub's hash follows without redrawing, so Back works and the hub never reloads it. */
+var pokerFrame = null;
+var POKER_TABS = [["home", "Home"], ["learn", "Learn"], ["practice", "Practice"], ["play", "Play"], ["level", "Level"], ["library", "Library"]];
+function pokerHash(parts) { return "#/" + (parts && parts.length ? parts.join("/") : "home"); }
+function pokerSteer(parts) {
+  if (!pokerFrame || !pokerFrame.isConnected) return false;
+  try { var w = pokerFrame.contentWindow, h = pokerHash(parts); if (w.location.hash !== h) w.location.hash = h; } catch (e) { return false; }
+  drawPokerHead(parts);
+  return true;
 }
+function drawPokerHead(parts) {
+  var head = $("phead"), nav = $("pnav"); if (!head || !nav) return;
+  var P = pokerRead(), lv = courseLevel("poker"), cur = parts && parts[0] || "home";
+  head.innerHTML = '<div class="cg" style="color:var(--gold)">♠</div><div><div class="crumbs"><a href="#/skills">Skills</a><span>›</span>Poker</div><h1>Poker</h1><p>A nine-stage path from the rules to Bayesian exploitation, 37 drills on a spaced schedule, four CFR solver labs, a six-handed table where every decision is priced and graded, and a level measured at that table.</p><div class="cmeta"><span>Level: <b>' + esc(lv.name) + '</b></span><span>Lessons: <b>' + P.lessons + ' / ' + POKER_TOTAL_LESSONS + '</b></span><span>Due today: <b>' + P.due + '</b></span><span>XP: <b>' + P.xp.toLocaleString() + '</b></span><span>Streak: <b>' + P.streak + '</b></span></div></div>';
+  nav.innerHTML = POKER_TABS.map(function (t) { return '<a href="#/poker/' + t[0] + '"' + (cur === t[0] ? ' aria-current="page"' : '') + '>' + t[1] + (t[0] === "practice" && P.due ? ' <span class="nbadge">' + P.due + '</span>' : '') + '</a>'; }).join("");
+}
+function drawPoker(box, parts) {
+  var head = el("div", "chead"); head.id = "phead"; box.appendChild(head);
+  var nav = el("nav", "subnav"); nav.id = "pnav"; box.appendChild(nav);
+  drawPokerHead(parts);
+  var f = el("iframe", "pframe"); f.id = "pframe"; f.title = "PokerPro"; f.src = "poker/" + pokerHash(parts); f.setAttribute("scrolling", "no");
+  box.appendChild(f); pokerFrame = f;
+}
+function pokerTheme() { if (pokerFrame && pokerFrame.isConnected) { try { pokerFrame.contentWindow.postMessage({ pokerproTheme: themeNow() }, location.origin); } catch (e) {} } }
+/* the frame tells the hub where it is and how tall it is; the hub's hash follows (replace, not push: the frame's own history has the entry) */
+window.addEventListener("message", function (e) {
+  if (e.origin !== location.origin || !e.data || !pokerFrame || e.source !== pokerFrame.contentWindow || view !== "poker") return;
+  if (typeof e.data.pokerproHeight === "number") { pokerFrame.style.height = Math.max(320, Math.ceil(e.data.pokerproHeight)) + "px"; }
+  if (typeof e.data.pokerproHash === "string") {
+    var h = "#/poker" + e.data.pokerproHash.replace(/^#\/?/, "/").replace(/\/$/, "");
+    if (location.hash !== h) {
+      curHash = h; try { history.replaceState(null, "", h); } catch (err) { location.hash = h; }
+      /* a new page in the frame: bring its top into view, as the app's own scroll-to-top would */
+      var top = pokerFrame.getBoundingClientRect().top + window.scrollY - 70; if (window.scrollY > top) window.scrollTo(0, Math.max(0, top));
+    }
+    drawPokerHead(h.replace(/^#\/poker\/?/, "").split("/").filter(Boolean));
+  }
+});
 
 /* ============================================================ SCHOOL ============================================================ */
-function drawSchool(box, id) {
-  box.innerHTML = '<div class="vhead"><div><h1>School</h1><p>Your courses come first on every day. Each one keeps its own flashcards, generated problems and timed rehearsals; the hub reads what is due and the key dates and puts them at the front of the plan. Add a course as the term adds one.</p></div></div>';
+var schoolPage = null;   /* the course page on screen: { course, page, app, host } */
+function schoolLeave() { if (view === "school" && schoolPage) return; Object.keys(SCHOOL_APPS).forEach(function (id) { SCHOOL_APPS[id].leave(); }); schoolPage = null; }
+/* after a sync merge or a write from another tab, the inlined apps must read the store again or their next save would undo it */
+function schoolReload() { Object.keys(SCHOOL_APPS).forEach(function (id) { SCHOOL_APPS[id].reload(); }); }
+function schoolPages(sc) { var app = SCHOOL_APPS[sc.id]; return app ? app.pages : (sc.links || []).map(function (l) { return { id: l[1], title: l[0] }; }); }
+function drawSchool(box, id, page) {
+  var sc = id && SCHOOL_COURSES.filter(function (x) { return x.id === id; })[0];
+  if (sc) { drawSchoolCourse(box, sc, page); return; }
+  box.innerHTML = '<div class="vhead"><div><h1>School</h1><p>Your courses come first on every day. Each one keeps its own flashcards, generated problems and timed rehearsals, all of it here in the hub; the hub reads what is due and the key dates and puts them at the front of the plan. Add a course as the term adds one.</p></div></div>';
   var now = Date.now();
   SCHOOL_COURSES.forEach(function (sc) {
     var R = schoolRead(sc), dm = schDemand(sc, R, now);
@@ -14462,13 +16356,36 @@ function drawSchool(box, id) {
     dates.innerHTML = '<div class="ph"><h3>Key dates</h3><span>from the syllabus</span></div><div class="dates">' + dl.map(function (x) { return '<div><span class="dd">' + x.k.date.slice(5) + '</span><span>' + esc(x.k.label) + ' <span class="tag">' + x.k.kind + '</span></span><span class="in' + (x.dd >= 0 && x.dd <= 3 ? " soon" : "") + '">' + (x.dd < 0 ? Math.abs(x.dd) + " days ago" : x.dd === 0 ? "today" : x.dd === 1 ? "tomorrow" : "in " + x.dd + " days") + '</span></div>'; }).join("") + (dm.quiz ? '<div><span class="dd">quiz</span><span>Week ' + dm.quiz.week + ' quiz' + (dm.quiz.topic ? " · " + esc(dm.quiz.topic) : "") + ' <span class="tag">quiz</span></span><span class="in' + (dm.quiz.days <= 2 ? " soon" : "") + '">' + (dm.quiz.days === 0 ? "today" : dm.quiz.days === 1 ? "tomorrow" : "in " + dm.quiz.days + " days") + '</span></div>' : "") + '</div>' + (sc.gradeWeights ? '<p class="pnote">Grade: ' + sc.gradeWeights.map(function (w) { return esc(w[0]) + " " + w[1] + "%"; }).join(" · ") + '</p>' : "");
     p.appendChild(dates);
     if (R.weak && R.weak.length) { var wk = el("div", "panel tight"); wk.style.marginTop = "10px"; wk.innerHTML = '<div class="ph"><h3>Weakest topics</h3><span>first-try accuracy, recent answers weighted</span></div><div class="clist">' + R.weak.map(function (w) { var g = (typeof MATH340 !== "undefined") ? MATH340.units.flatMap(function (u) { return u.generators || []; }).filter(function (x) { return x.id === w.id; })[0] : null; return '<div><span>' + esc(g ? g.name : w.id) + '</span><b>' + w.correct + ' / ' + w.attempts + '</b></div>'; }).join("") + '</div>'; p.appendChild(wk); }
-    var links = el("div", "links"); (sc.links || []).forEach(function (l) { var a = el("a", "", l[0]); a.href = sc.href + l[1]; links.appendChild(a); }); p.appendChild(links);
-    var row = el("div", "row"); row.style.marginTop = "12px"; var open = el("a", "act go", "Open " + esc(sc.code)); open.href = sc.href; row.appendChild(open); p.appendChild(row);
+    var links = el("div", "links"); schoolPages(sc).forEach(function (pg) { var a = el("a", "", esc(pg.title)); a.href = schLink(sc, pg.id); links.appendChild(a); }); p.appendChild(links);
+    var row = el("div", "row"); row.style.marginTop = "12px"; var open = el("a", "act go", "Open " + esc(sc.code)); open.href = schLink(sc, "dashboard"); row.appendChild(open); p.appendChild(row);
     box.appendChild(p);
   });
   var add = el("div", "panel"); add.innerHTML = '<div class="ph"><h3>Adding a course</h3></div><p class="pnote">New coursework is added as it arrives: a chapter or homework set goes into the course\'s own <code>data/</code> folder (Math 340 has a ten-minute recipe in <code>school/math340/docs/ADDING_CONTENT.md</code>), and a new course is one entry in <code>sb/school.js</code> plus its folder under <code>school/</code>. The hub, the calendar and the sync pick it up on the next build. See <code>docs/ADDING_A_COURSE.md</code>.</p>';
   box.appendChild(add);
 }
+/* one course, inside the hub: its header and tabs are the hub's, the page below is the course app's own */
+function drawSchoolCourse(box, sc, page) {
+  var app = SCHOOL_APPS[sc.id], R = schoolRead(sc), dm = schDemand(sc, R, Date.now()), pages = schoolPages(sc);
+  page = pages.some(function (p) { return p.id === page; }) ? page : pages[0].id;
+  var inDays = function (d) { return d === 0 ? "today" : d === 1 ? "tomorrow" : "in " + d + " days"; };
+  var head = el("div", "chead");
+  head.innerHTML = '<div class="cg" style="color:' + sc.color + '">' + esc(sc.glyph) + '</div><div><div class="crumbs"><a href="#/school">School</a><span>›</span>' + esc(sc.code) + '</div><h1>' + esc(sc.name) + '</h1><p>' + esc(sc.code) + ' · ' + esc(sc.term) + (app ? ' · ' + esc(app.weekLabel()) : '') + '</p><div class="cmeta"><span>Cards due: <b>' + R.due + '</b></span><span>To redo: <b>' + R.misses + '</b></span><span>Mastery: <b>' + Math.round(100 * R.mastery) + '%</b></span><span>Streak: <b>' + R.streak + '</b></span>' + (dm.quiz ? '<span>Quiz: <b>' + inDays(dm.quiz.days) + '</b></span>' : '') + (dm.exam && dm.exam.days <= 21 ? '<span>' + esc(dm.exam.label.split("·")[0].trim()) + ': <b>' + inDays(dm.exam.days) + '</b></span>' : '') + '</div></div>';
+  box.appendChild(head);
+  var nav = el("nav", "subnav");
+  nav.innerHTML = pages.map(function (p) { return '<a href="' + schLink(sc, p.id) + '"' + (page === p.id ? ' aria-current="page"' : '') + '>' + esc(p.title) + (p.id === "flashcards" && R.due ? ' <span class="nbadge">' + R.due + '</span>' : p.id === "practice" && R.misses ? ' <span class="nbadge">' + R.misses + '</span>' : '') + '</a>'; }).join("");
+  /* the tab you are already on: no hashchange, so redraw the page (out of a card session or a problem, say) */
+  nav.addEventListener("click", function (e) { var a = e.target.closest("a"); if (a && a.getAttribute("href") === location.hash) { e.preventDefault(); route(); } });
+  box.appendChild(nav);
+  var wrap = el("div", "m340"), host = el("div", "content"); host.id = "schoolApp"; wrap.appendChild(host); box.appendChild(wrap);
+  if (!app) { host.innerHTML = '<div class="empty">This course\'s app is not built into the hub. <a href="' + sc.href + '#/' + page + '">Open it on its own ›</a></div>'; return; }
+  schoolPage = { course: sc, page: page, app: app, host: host };
+  app.mount(page, host, { base: "#/school/" + sc.id + "/" });
+  /* KaTeX loads deferred, after this script: the first page drawn before it is ready is typeset once it is */
+  if (!window.renderMathInElement) window.addEventListener("load", function () { if (host.isConnected) app.typeset(host); }, { once: true });
+}
+/* the flashcard keys (space, 1, 2) reach the course page the way they do in its own app */
+document.addEventListener("keydown", function (e) { if (view === "school" && schoolPage && schoolPage.page === "flashcards" && !e.target.matches("input, textarea, select")) schoolPage.app.onKey(e, schoolPage.host); });
+window.addEventListener("beforeunload", function (e) { if (Object.keys(SCHOOL_APPS).some(function (id) { return SCHOOL_APPS[id].inProgress(); })) { e.preventDefault(); e.returnValue = ""; } });
 
 /* ============================================================ QUANT ============================================================ */
 var qrun = null;
@@ -14537,7 +16454,7 @@ function drawLibrary(box, sub) {
       else if (sub === "glossary") { var gl = c.glossary.filter(function (g) { return !qv || (g[0] + " " + (g[1] || []).join(" ") + " " + g[2]).toLowerCase().indexOf(qv) >= 0; }); if (!gl.length) return; list.appendChild(el("h3", "sech", esc(c.name))); var p = el("div", "panel clist"); p.innerHTML = gl.map(function (g) { return '<div><span><b>' + esc(g[0]) + '</b><small>' + esc(g[2]) + '</small></span><b><a href="#/c/' + cid + '/learn/' + g[3] + '" style="color:var(--gold);text-decoration:none">lesson ›</a></b></div>'; }).join(""); list.appendChild(p); }
       else { list.appendChild(el("h3", "sech", esc(c.name))); c.reading.forEach(function (g) { var p2 = el("div", "panel clist"); p2.style.marginBottom = "10px"; p2.innerHTML = '<div><span><b>' + esc(g.g) + '</b></span></div>' + g.items.map(function (it) { return "<div><span>" + esc(it[0]) + "<small>" + esc(it[1]) + "</small></span></div>"; }).join(""); list.appendChild(p2); }); }
     });
-    if (sub === "reading") { list.appendChild(el("h3", "sech", "Poker")); list.appendChild(el("p", "pnote", "PokerPro's reading list (Chen & Ankenman, Brokos, Acevedo, the CFR papers) is on its own Library tab: <a href='poker/#/library/reading'>open it ›</a>.")); }
+    if (sub === "reading") { list.appendChild(el("h3", "sech", "Poker")); list.appendChild(el("p", "pnote", "PokerPro's reading list (Chen & Ankenman, Brokos, Acevedo, the CFR papers) is on its own Library tab: <a href='#/poker/library/reading'>open it ›</a>.")); }
   }
   search.oninput = draw; draw();
 }
@@ -14557,7 +16474,10 @@ function syncApply(merged) {
   var before = hsCanon(syncLocal());
   hubHydrate(merged.hub); saveRelease(); saveNow();
   try { if (merged.poker) STORE.set(POKER_KEYS.course, JSON.stringify(merged.poker)); if (merged.pokerGame) STORE.set(POKER_KEYS.game, JSON.stringify(merged.pokerGame)); if (merged.pokerSim) STORE.set(POKER_KEYS.sim, JSON.stringify(merged.pokerSim)); if (merged.math340) STORE.set("math340-progress-v1", JSON.stringify(merged.math340)); } catch (e) {}
-  return hsCanon(syncLocal()) !== before;
+  var changed = hsCanon(syncLocal()) !== before;
+  /* the apps that run inside the hub hold their state in memory: hand them the merged store, or their next save would undo it */
+  if (changed) { schoolReload(); if (pokerFrame && pokerFrame.isConnected) { try { pokerFrame.contentWindow.location.reload(); } catch (e) {} } if (view === "school" && schoolPage) route(); }
+  return changed;
 }
 var SYNC_FILE_HUB = HS_FILE;
 async function hubFindGist(token, seed) {
@@ -14645,6 +16565,7 @@ function drawThemeBtn() {
   b.innerHTML = dark ? THEME_ICON.sun : THEME_ICON.moon; b.title = dark ? "Switch to the paper theme" : "Switch to the lamp theme";
   var forced = !!document.documentElement.getAttribute("data-theme");
   document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.content = forced ? (dark ? "#161411" : "#F4EFE6") : (m.media && m.media.indexOf("dark") >= 0 ? "#161411" : "#F4EFE6"); });
+  pokerTheme();
 }
 $("themeBtn").onclick = function () { var next = themeNow() === "dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", next); try { localStorage.setItem("sb-theme", next); } catch (e) {} drawThemeBtn(); };
 if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawThemeBtn); } catch (e) {} }
@@ -14659,7 +16580,11 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) window.
   setInterval(function () { if (sync.token && sync.auto && !sync.busy) syncNow("every 5 minutes"); }, 5 * 60 * 1000);
   window.addEventListener("online", function () { if (sync.token && sync.auto) syncNow("back online"); });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && sync.token && sync.auto) syncNow("back to the tab"); });
-  window.addEventListener("storage", function (e) { if (e.key === POKER_KEYS.course || e.key === "math340-progress-v1") { if (view === "home" || view === "school" || view === "poker") route(); } });
+  /* another tab, or PokerPro in its frame, saved: the numbers on Today and School change; a course page mid-session is left alone (its store rereads first) */
+  window.addEventListener("storage", function (e) {
+    if (e.key === "math340-progress-v1") schoolReload();
+    if (e.key === POKER_KEYS.course || e.key === "math340-progress-v1") { if (view === "home" || (view === "school" && !schoolPage)) route(); else if (view === "poker") drawPokerHead(location.hash.replace(/^#\/poker\/?/, "").split("/").filter(Boolean)); }
+  });
 })();
 
 /* ============================================================
