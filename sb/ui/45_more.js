@@ -280,53 +280,94 @@ document.addEventListener("keydown", function (e) { if (view === "school" && sch
 window.addEventListener("beforeunload", function (e) { if (Object.keys(SCHOOL_APPS).some(function (id) { return SCHOOL_APPS[id].inProgress(); })) { e.preventDefault(); e.returnValue = ""; } });
 
 /* ============================================================ QUANT ============================================================ */
-var qrun = null;
+var qrun = null, qwait = null;
+function qtClock(ms) { var t = Math.ceil(ms / 1000); return t >= 60 ? Math.floor(t / 60) + ":" + ("0" + t % 60).slice(-2) : String(t); }
 function drawQuant(box, gid) {
   var S = HUB.quant;
   if (!gid) {
     var lv = qtLevel(S);
-    box.innerHTML = '<div class="vhead"><div><h1>Quant games</h1><p>Two minutes against the clock, as many right answers as you can, no stakes. Modelled on the arithmetic game quant firms screen with. Your score over time is the progress; tiers raise the numbers as your median climbs.</p></div></div>';
-    var hero = el("div", "hero"); hero.innerHTML = '<div class="kick">Level: ' + esc(lv.name) + '</div><h2>' + (qtPlayedToday(S, todayKey(), dayKey) ? "Played today. Another run is free." : "One game today, before the first real session") + '</h2><p>The sprint is the one that transfers most; rotate through the others. A run takes two minutes and is not counted against your study budget.</p>'; box.appendChild(hero);
+    box.innerHTML = '<div class="vhead"><div><h1>Quant games</h1><p>The timed games quant firms screen with, at the sites\' own settings: Zetamac\'s arithmetic and the Optiver 80 in 8, plus sequences, estimation, percentages and odds. No stakes; your score over time is the progress.</p></div></div>';
+    var hero = el("div", "hero"); hero.innerHTML = '<div class="kick">Level: ' + esc(lv.name) + '</div><h2>' + (qtPlayedToday(S, todayKey(), dayKey) ? "Played today. Another run is free." : "One game today, before the first real session") + '</h2><p>Zetamac is the one that transfers most; play the 80 in 8 once a week. A run is not counted against your study budget.</p>'; box.appendChild(hero);
     var grid = el("div", "qgrid");
-    QT_GAMES.forEach(function (G) { var tier = qtTier(S, G.id), T = G.tiers[tier], hist = qtHistory(S, G.id, 5).filter(function (r) { return r.tier === tier; }).map(function (r) { return r.score; }), best = S.best[G.id + ":" + tier] || 0; var a = el("a", "qcard"); a.href = "#/quant/" + G.id; a.innerHTML = '<b>' + esc(G.name) + '</b><span>' + esc(G.blurb) + '</span><div class="qb">' + T.name + ' of ' + G.tiers.length + ' · ' + esc(T.about) + '</div><span>target ' + T.target + ' · best ' + best + ' · last: ' + (hist.length ? hist.join(", ") : "none yet") + '</span>'; grid.appendChild(a); });
+    QT_GAMES.forEach(function (G) { var hist = qtHistory(S, G.id, 5).map(function (r) { return r.score; }); var a = el("a", "qcard"); a.href = "#/quant/" + G.id; a.innerHTML = '<b>' + esc(G.name) + '</b><span>' + esc(G.blurb) + '</span><div class="qb">' + esc(G.about) + '</div><span>target ' + G.target + ' · best ' + qtBest(S, G.id) + ' · last: ' + (hist.length ? hist.join(", ") : "none yet") + '</span>'; grid.appendChild(a); });
     box.appendChild(grid);
     var plan = el("div", "panel"); plan.style.marginTop = "16px"; plan.innerHTML = '<div class="ph"><h3>The plan</h3></div>' + QT_PLAN.map(function (p) { return '<p class="pnote"><b>' + esc(p.title) + '.</b> ' + esc(p.body) + '</p>'; }).join(""); box.appendChild(plan);
     var det = el("div", "panel"); det.style.marginTop = "16px"; det.innerHTML = '<div class="ph"><h3>Where you stand</h3><span>score ' + Math.round(lv.score) + ' of 100</span></div><div class="clist">' + lv.detail.map(function (x) { return "<div><span>" + esc(x[0]) + "</span><b>" + esc(x[1]) + "</b></div>"; }).join("") + '</div>'; box.appendChild(det);
     return;
   }
   var G = qtGame(gid); if (!G) { go("#/quant"); return; }
-  var tier = qtTier(S, gid), T = G.tiers[tier];
   box.innerHTML = '<div class="crumbs"><a href="#/quant">Quant games</a><span>›</span>' + esc(G.name) + '</div>';
   var host = el("div", "panel"); box.appendChild(host);
   if (!qrun || qrun.g !== gid || qrun.over) {
-    host.innerHTML = '<div class="ph"><h3>' + esc(G.name) + ' · ' + T.name + '</h3><span>' + esc(T.about) + ' · target ' + T.target + ' in ' + G.secs + 's</span></div><p class="pnote">' + esc(G.blurb) + ' Type the answer and press Enter; a wrong answer shows the right one and moves on. ' + (G.id === "estimate" ? "Within " + Math.round(T.tol * 100) + "% counts." : G.id === "odds" || G.id === "percent" ? "Percentages to within half a point." : "Exact answers.") + '</p>';
-    var r = el("div", "row"); r.appendChild(btn("Start (" + G.secs + " seconds)", "go", function () { startQuant(gid); })); host.appendChild(r);
+    var how = G.mc ? "Press 1–4 or click an option; the next question comes straight away. " + G.count + " questions or " + qtClock(G.secs * 1000) + " minutes, whichever comes first; +1 right, −1 wrong."
+      : G.noSkip ? "Type the answer; it is taken the moment it is right, no Enter. There is no skipping: keep typing until it is right."
+      : "Type the answer; it is taken the moment it is right, no Enter. Press Enter to give up on a question: it shows the right answer and moves on. " + (G.id === "estimate" ? "Within " + Math.round(G.set.tol * 100) + "% counts." : G.id === "odds" || G.id === "percent" ? "Percentages to within half a point." : "Exact answers.");
+    host.innerHTML = '<div class="ph"><h3>' + esc(G.name) + '</h3><span>' + esc(G.about) + ' · target ' + G.target + '</span></div><p class="pnote">' + esc(G.blurb) + ' ' + esc(how) + '</p>';
+    var r = el("div", "row"); r.appendChild(btn("Start (" + (G.secs >= 60 && G.secs % 60 === 0 && G.secs > 120 ? G.secs / 60 + " minutes" : G.secs + " seconds") + ")", "go", function () { startQuant(gid); })); host.appendChild(r);
     var hist = qtHistory(S, gid, 60);
-    if (hist.length) { var ch = el("div", "panel"); ch.style.marginTop = "16px"; ch.innerHTML = '<div class="ph"><h3>Score over time</h3><span>' + plural(hist.length, "run") + ' · tier shown as colour depth</span></div>'; ch.appendChild(lineChart(hist.map(function (r, i) { return { x: i, y: r.score, label: r.score + " (tier " + (r.tier + 1) + ", " + new Date(r.t).toLocaleDateString() + ")" }; }), { y0: 0 })); ch.appendChild(el("p", "pnote", "Best at this tier: " + (S.best[gid + ":" + tier] || 0) + ". Five runs at or above the target as a median unlock the next tier.")); box.appendChild(ch); }
+    if (hist.length) { var ch = el("div", "panel"); ch.style.marginTop = "16px"; ch.innerHTML = '<div class="ph"><h3>Score over time</h3><span>' + plural(hist.length, "run") + '</span></div>'; ch.appendChild(lineChart(hist.map(function (r, i) { return { x: i, y: r.score, label: r.score + " (" + new Date(r.t).toLocaleDateString() + ")" }; }), { y0: 0 })); ch.appendChild(el("p", "pnote", "Best: " + qtBest(S, gid) + ". Target: " + G.target + ".")); box.appendChild(ch); }
     return;
   }
   drawQuantRun(host);
 }
 function startQuant(gid) {
-  var S = HUB.quant, G = qtGame(gid), tier = qtTier(S, gid);
-  qrun = { g: gid, tier: tier, t0: Date.now(), end: Date.now() + G.secs * 1000, score: 0, n: 0, log: [], q: null, over: false, by: {} };
-  qrun.q = qtQuestion(gid, tier);
+  var G = qtGame(gid);
+  clearTimeout(qwait);
+  qrun = { g: gid, t0: Date.now(), end: Date.now() + G.secs * 1000, score: 0, n: 0, q: null, over: false, by: {} };
+  qrun.q = qtQuestion(gid);
   route();
 }
+function qtAnswered(ok, shown) {
+  var G = qtGame(qrun.g), q = qrun.q;
+  qrun.n++; if (ok) qrun.score++; else if (G.mc) qrun.score--;
+  var k = q.kind; qrun.by[k] = qrun.by[k] || [0, 0]; qrun.by[k][0]++; if (ok) qrun.by[k][1]++;
+  var li = el("i", ok ? "" : "no", esc(q.q.replace(" ≈ ?", "").replace(", ?", "")) + (q.q.indexOf("?") >= 0 && q.choices ? " → " : " = ") + esc(q.show || String(Math.round(q.a * 100) / 100)) + (ok ? "" : " (you: " + esc(shown) + ")"));
+  $("qlog").prepend(li); $("qscore").textContent = qrun.score;
+  if (G.mc && qrun.n >= G.count) { endQuant($("qhost")); return; }
+  qrun.q = qtQuestion(qrun.g);
+  qtShowQ();
+}
+function qtShowQ() {
+  var q = qrun.q, ask = $("qask"); ask.textContent = q.q; ask.className = "qask" + (q.q.length > 24 ? " sm" : "");
+  var inp = $("qinp"); if (inp) { inp.value = ""; inp.focus(); }
+  var box = $("qopts"); if (!box) return;
+  box.innerHTML = "";
+  q.choices.forEach(function (c, i) { var b = el("button", "qopt", '<span>' + (i + 1) + '</span>' + esc(c)); b.type = "button"; b.onclick = function () { qtPickOpt(i); }; box.appendChild(b); });
+  $("qcount").textContent = (qrun.n + 1) + " of " + qtGame(qrun.g).count;
+}
+function qtPickOpt(i) { if (!qrun || qrun.over || !qrun.q.choices || i >= qrun.q.choices.length) return; qtAnswered(qtCheck(qrun.q, i), qrun.q.choices[i]); }
+document.addEventListener("keydown", function (e) { if (!qrun || qrun.over || !qrun.q || !qrun.q.choices || !$("qopts") || e.metaKey || e.ctrlKey || e.altKey) return; var i = "1234".indexOf(e.key); if (i >= 0 && e.key.length === 1) { e.preventDefault(); qtPickOpt(i); } });
 function drawQuantRun(host) {
   var G = qtGame(qrun.g);
-  host.innerHTML = '<div class="qclock" id="qclock"></div><div class="qask' + (qrun.q.q.length > 24 ? " sm" : "") + '" id="qask">' + esc(qrun.q.q) + '</div><div class="qentry"><input id="qinp" type="text" inputmode="decimal" autocomplete="off"></div><p class="hint" style="text-align:center">Enter to answer. Score <b id="qscore">' + qrun.score + '</b></p><div class="qlog" id="qlog"></div>';
-  var inp = $("qinp"); inp.focus();
-  inp.onkeydown = function (e) { if (e.key !== "Enter") return; var v = inp.value; if (!v.trim()) return; var ok = qtCheck(qrun.q, v); qrun.n++; if (ok) qrun.score++; var k = qrun.q.kind; qrun.by[k] = qrun.by[k] || [0, 0]; qrun.by[k][0]++; if (ok) qrun.by[k][1]++; var li = el("i", ok ? "" : "no", esc(qrun.q.q.replace(" ≈ ?", "").replace(", ?", "")) + " = " + esc(String(Math.round(qrun.q.a * 100) / 100)) + (ok ? "" : " (you: " + esc(v) + ")")); $("qlog").prepend(li); $("qscore").textContent = qrun.score; qrun.q = qtQuestion(qrun.g, qrun.tier); $("qask").textContent = qrun.q.q; $("qask").className = "qask" + (qrun.q.q.length > 24 ? " sm" : ""); inp.value = ""; };
-  function tickQ() { if (!qrun || qrun.over) return; var left = Math.max(0, qrun.end - Date.now()); var c = $("qclock"); if (!c) return; c.innerHTML = "<b>" + (left / 1000).toFixed(0) + "</b>s left"; if (left <= 0) { endQuant(host); return; } requestAnimationFrame(tickQ); }
+  host.id = "qhost";
+  host.innerHTML = '<div class="qclock" id="qclock"></div><div class="qask" id="qask"></div>' +
+    (G.mc ? '<div class="qopts" id="qopts"></div><p class="hint" style="text-align:center"><span id="qcount"></span> · keys 1–4 · score <b id="qscore">' + qrun.score + '</b></p>'
+      : '<div class="qentry"><input id="qinp" type="text" inputmode="' + (G.exact && G.id === "sprint" ? "numeric" : "decimal") + '" autocomplete="off"></div><p class="hint" style="text-align:center">' + (G.noSkip ? "No Enter needed." : "No Enter needed; Enter gives up on a question.") + ' Score <b id="qscore">' + qrun.score + '</b></p>') +
+    '<div class="qlog" id="qlog"></div>';
+  qtShowQ();
+  var inp = $("qinp");
+  if (inp) {
+    /* a right answer is taken as it is typed, like Zetamac; where a shorter number can already be within tolerance (12 for 12.5), wait for a pause in the typing */
+    inp.oninput = function () {
+      clearTimeout(qwait);
+      var v = inp.value, q = qrun.q;
+      if (!v.trim() || !qtCheck(q, v)) return;
+      if (G.exact) { qtAnswered(true, v); return; }
+      qwait = setTimeout(function () { if (qrun && !qrun.over && qrun.q === q && inp.value === v) qtAnswered(true, v); }, 600);
+    };
+    inp.onkeydown = function (e) { if (e.key !== "Enter" || G.noSkip) return; var v = inp.value; if (!v.trim()) return; clearTimeout(qwait); qtAnswered(qtCheck(qrun.q, v), v); };
+  }
+  function tickQ() { if (!qrun || qrun.over) return; var left = Math.max(0, qrun.end - Date.now()); var c = $("qclock"); if (!c) return; c.innerHTML = "<b>" + qtClock(left) + "</b>" + (left >= 60000 ? " left" : "s left"); if (left <= 0) { endQuant(host); return; } requestAnimationFrame(tickQ); }
   tickQ();
 }
 function endQuant(host) {
-  qrun.over = true;
-  var G = qtGame(qrun.g), R = qtRecord(HUB.quant, qrun.g, qrun.tier, qrun.score, qrun.n, Date.now());
-  gmGain(null, Math.min(15, Math.round(qrun.score / 3)), null); logDay("quant", G.secs, 0, 0); saveSoon();
-  host.innerHTML = '<div class="qres"><b>' + qrun.score + '</b><span>right in ' + G.secs + ' seconds, ' + qrun.n + ' attempted · ' + G.tiers[qrun.tier].name + ' target ' + G.tiers[qrun.tier].target + (R.best === qrun.score && qrun.score ? ' · <b style="font-size:14px;color:var(--gold)">new best</b>' : '') + '</span></div>' +
-    (R.moved ? '<div class="cpdone"><h3 class="pass">Tier up</h3><p>Your median over the last five runs beat the target. The next tier starts next run.</p></div>' : '<p class="pnote" style="text-align:center">' + (R.median != null ? "Median of the last five: " + R.median + " (target " + R.target + ")." : "Five runs at this tier set a median; " + (5 - qtHistory(HUB.quant, qrun.g, 5).filter(function (r) { return r.tier === qrun.tier; }).length) + " more to go.") + '</p>') +
+  if (qrun.over) return;
+  qrun.over = true; clearTimeout(qwait);
+  var G = qtGame(qrun.g), R = qtRecord(HUB.quant, qrun.g, qrun.score, qrun.n, Date.now()), secs = Math.min(G.secs, Math.round((Date.now() - qrun.t0) / 1000));
+  gmGain(null, Math.max(0, Math.min(15, Math.round(qrun.score / 3))), null); logDay("quant", secs, 0, 0); saveSoon();
+  var right = Object.keys(qrun.by).reduce(function (t, k) { return t + qrun.by[k][1]; }, 0);
+  host.innerHTML = '<div class="qres"><b>' + qrun.score + '</b><span>' + (G.mc ? right + ' right, ' + (qrun.n - right) + ' wrong of ' + qrun.n + ' answered in ' + qtClock(secs * 1000) + (secs >= 60 ? '' : 's') : 'right in ' + G.secs + ' seconds, ' + qrun.n + ' attempted') + ' · target ' + G.target + (R.newBest ? ' · <b style="font-size:14px;color:var(--gold)">new best</b>' : '') + '</span></div>' +
+    '<p class="pnote" style="text-align:center">' + (R.median != null ? "Median of the last five: " + R.median + " (target " + R.target + ")." : "Five runs set a median; " + (5 - qtHistory(HUB.quant, qrun.g, 5).length) + " more to go.") + '</p>' +
     '<div class="stats">' + Object.keys(qrun.by).map(function (k) { return '<div class="stat"><b>' + qrun.by[k][1] + '/' + qrun.by[k][0] + '</b><span>' + esc(k) + '</span></div>'; }).join("") + '</div>';
   var r = el("div", "row"); r.style.justifyContent = "center"; r.appendChild(btn("Again", "go", function () { startQuant(qrun.g); })); r.appendChild(btn("All games", "ghost", function () { qrun = null; go("#/quant"); })); host.appendChild(r);
 }
