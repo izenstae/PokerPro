@@ -1584,12 +1584,17 @@ function sbTrophies(s) {
    UNTIL, BYDAY, BYMONTHDAY, BYMONTH), EXDATE, and moved or
    cancelled single occurrences (RECURRENCE-ID).
    All-day events, free (TRANSPARENT) and cancelled events are
-   not busy time, so they are left out.
+   not busy time. Deadlines are read from the same files: an
+   assignment, paper, quiz or exam (an all-day or "due 11:59pm"
+   event with such a name, any exam, or any event in a calendar
+   set to Deadlines) becomes work the planner spreads over the
+   days before it.
    Pure functions: the Calendar settings call them, the tests
    call them with hand-made files.
    ============================================================ */
 
-var ICS_KINDS = ["class", "hockey", "work", "other"];
+var ICS_KINDS = ["class", "hockey", "work", "other", "due"];
+var ICS_KIND_NAMES = { class: "Class", hockey: "Hockey", work: "Work", other: "Busy", due: "Deadlines" };
 
 /* lines: unfold continuation lines, then split NAME;PARAMS:VALUE */
 function icsLines(text) {
@@ -1640,6 +1645,12 @@ function icsGuessKind(s) {
   return "other";
 }
 
+/* an event's kind: hockey by name anywhere; in a mixed (Busy) calendar, each event by its name; otherwise the calendar's */
+function icsEventKind(name, calKind) {
+  var g = icsGuessKind(name);
+  return g === "hockey" ? "hockey" : (!calKind || calKind === "other") ? g : calKind;
+}
+
 /* Parse a file into calendars: [{ name, ev: [{ n, uid, key, min, dur, r, x, rid }] }]
    today (a "YYYY-MM-DD" key) trims what can no longer matter: events that ended before it. */
 function icsParse(text, fallbackName, today) {
@@ -1677,10 +1688,8 @@ function icsParse(text, fallbackName, today) {
       var x = [];
       e.ex.forEach(function (L) { L.value.split(",").forEach(function (v) { var w = icsWhen({ value: v, params: L.params }); if (w) x.push(w.key); }); });
       var item = { n: icsText(P.SUMMARY ? P.SUMMARY.value : "") || "Busy", uid: P.UID ? P.UID.value : "", key: st.key, min: st.min, dur: Math.max(0, dur) };
-      if (st.allDay || free) {
-        if (!rid) return;                      /* an all-day or free event is not busy time */
-        item.skip = true;                      /* ...but an all-day override still removes the occurrence it replaces */
-      }
+      if (st.allDay) { item.ad = true; item.min = 0; item.dur = 1440; }   /* not busy time, but it can be a deadline */
+      if (free) item.fr = true;                                         /* free: not busy time, but it can be a deadline */
       if (cancelled) item.skip = true;
       if (r) item.r = r;
       if (x.length) item.x = x;
@@ -1757,34 +1766,91 @@ function icsOccurs(e, key) {
   return true;
 }
 
+/* uid -> days whose occurrence was moved or cancelled by a RECURRENCE-ID event */
+function icsMoved(cal) {
+  var moved = {};
+  cal.ev.forEach(function (e) { if (e.rid && e.uid) (moved[e.uid] = moved[e.uid] || {})[e.rid] = 1; });
+  return moved;
+}
+/* does event e (of a calendar whose moved map is given) have an occurrence starting on this day */
+function icsStartsOn(e, moved, key) {
+  return e.rid ? key === e.key : icsOccurs(e, key) && !(e.uid && moved[e.uid] && moved[e.uid][key]);
+}
 /* busy blocks on one day from a list of calendars: [{ n, k, f, t, cal }] in minutes */
 function icsBusy(cals, key) {
   var out = [];
   (cals || []).forEach(function (cal) {
-    if (cal.on === false) return;
-    var moved = {};                             /* uid -> days whose occurrence was moved or cancelled */
-    cal.ev.forEach(function (e) { if (e.rid && e.uid) (moved[e.uid] = moved[e.uid] || {})[e.rid] = 1; });
+    if (cal.on === false || cal.k === "due") return;
+    var moved = icsMoved(cal);
     cal.ev.forEach(function (e) {
-      if (e.skip) return;
+      if (e.skip || e.ad || e.fr) return;
       var days = Math.floor((e.min + e.dur - 1) / 1440);   /* how many days past its start an event reaches */
       for (var back = 0; back <= Math.max(0, days); back++) {
         var sk = icsAddDays(key, -back);
-        if (e.rid ? sk !== e.key : (!icsOccurs(e, sk) || (e.uid && moved[e.uid] && moved[e.uid][sk]))) continue;
+        if (!icsStartsOn(e, moved, sk)) continue;
         var f = e.min - back * 1440, t = f + e.dur;
         f = Math.max(0, f); t = Math.min(1440, t);
-        if (t > f) out.push({ n: e.n, k: icsGuessKind(e.n) === "hockey" ? "hockey" : cal.k || "other", f: f, t: t, cal: cal.name });
+        if (t > f) out.push({ n: e.n, k: icsEventKind(e.n, cal.k), f: f, t: t, cal: cal.name });
       }
     });
   });
   return out.sort(function (a, b) { return a.f - b.f; });
 }
 
+/* ---- deadlines ----
+   What an event name says about the work before it: the kind, a first estimate of the minutes it takes,
+   and how many days ahead to start. The estimate is editable per assignment in the Calendar. */
+var ICS_DUE_TYPES = [
+  { type: "exam", re: /\b(exam|midterm|mid-term|final exam|finals?|test)\b/i, est: 240, lead: 7, any: true },
+  { type: "quiz", re: /\bquiz(zes)?\b/i, est: 60, lead: 3, any: true },
+  { type: "paper", re: /\b(paper|essay|project|report|thesis|presentation|proposal|portfolio)\b/i, est: 240, lead: 7 },
+  { type: "homework", re: /\b(due|assignment|homework|hw\s?\d*|problem set|pset|p-set|ps\s?\d+|worksheet|lab\s?\d+|lab report|exercise|discussion post|deliverable)\b/i, est: 90, lead: 4 }
+];
+function icsDueType(name, forced) {
+  if (/hockey|skate/i.test(name)) return null;
+  for (var i = 0; i < ICS_DUE_TYPES.length; i++) if (ICS_DUE_TYPES[i].re.test(name)) return ICS_DUE_TYPES[i];
+  return forced ? ICS_DUE_TYPES[3] : null;
+}
+/* is this event a deadline: anything in a Deadlines calendar; elsewhere an exam or quiz, or an all-day,
+   free or short (30 min or less, like "due 11:59pm") event named like an assignment */
+function icsIsDue(e, cal) {
+  if (e.skip) return null;
+  var t = icsDueType(e.n, cal.k === "due");
+  if (!t) return null;
+  if (cal.k === "due" || t.any || e.ad || e.fr || e.dur <= 30) return t;
+  return null;
+}
+/* deadlines from a day for n days: [{ id, n, cal, key, min, ad, type, est, lead }], soonest first */
+function icsDeadlines(cals, from, days) {
+  var out = [];
+  (cals || []).forEach(function (cal) {
+    if (cal.on === false) return;
+    var moved = icsMoved(cal);
+    cal.ev.forEach(function (e) {
+      var t = icsIsDue(e, cal); if (!t) return;
+      for (var i = 0, k = from; i < days; i++, k = icsAddDays(k, 1)) {
+        if (!icsStartsOn(e, moved, k)) continue;
+        out.push({ id: (e.uid || e.n) + "@" + k, n: e.n, cal: cal.name, key: k, min: e.ad ? 1439 : e.min, ad: !!e.ad, type: t.type, est: t.est, lead: t.lead });
+      }
+    });
+  });
+  return out.sort(function (a, b) { return a.key < b.key ? -1 : a.key > b.key ? 1 : a.min - b.min; });
+}
+
 /* memo: the week view and the planner ask for the same days many times per draw */
 var icsMemo = { sig: "", days: {} };
-function icsDay(cals, key) {
+function icsFresh(cals) {
   var sig = (cals || []).map(function (c) { return c.name + ":" + c.at + ":" + c.on + ":" + c.k; }).join("|");
   if (sig !== icsMemo.sig) icsMemo = { sig: sig, days: {} };
+}
+function icsDay(cals, key) {
+  icsFresh(cals);
   return icsMemo.days[key] || (icsMemo.days[key] = icsBusy(cals, key));
+}
+function icsDue(cals, from, days) {
+  icsFresh(cals);
+  var k = "due:" + from + ":" + days;
+  return icsMemo.days[k] || (icsMemo.days[k] = icsDeadlines(cals, from, days));
 }
 
 /* add parsed calendars to the stored list: a calendar with the same name is replaced, keeping its settings */
@@ -1815,6 +1881,10 @@ function icsMerge(stored, parsed, now) {
      4. an applied session (a game, a conversation) to turn
         knowledge into use, once the reviews are done
      5. nothing after the sleep cutoff: consolidation needs sleep
+   The budget follows the day: a share of the free time left after
+   classes, hockey and everything else on the calendar, and after
+   the work for assignments and exams coming due, never more than
+   the cap.
    Pure functions: the Calendar screen calls them, the tests call
    them with hand-made weeks.
    ============================================================ */
@@ -1825,13 +1895,15 @@ var PL_KINDS = { class: "Class", hockey: "Hockey", work: "Work", other: "Busy" }
 
 function plDefault() {
   return {
-    cap: 60, hockeyCap: 40, heavyCap: 45,   /* minutes a day: normal, on a hockey day, on a day with 5+ busy hours */
+    cap: 60, hockeyCap: 40, heavyCap: 45,   /* minutes a day at most: any day, a hockey day, a day with 5+ busy hours */
+    share: 15,                               /* percent of the day's free time (after assignments) the skills may take */
     minBlock: 8, buffer: 15,                 /* smallest study block; minutes lost around every commitment */
     wake: "07:00", sleep: "23:00",
     newPerDay: 2, applyMin: 15,
     week: { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
     priority: { poker: 2, chess: 2, sv: 3, he: 3 },
-    lastNew: {}, lastApply: {}
+    lastNew: {}, lastApply: {},
+    dueEst: {}, dueDone: {}                  /* per deadline id: minutes of work it needs (when changed), finished */
   };
 }
 
@@ -1877,15 +1949,65 @@ function plFree(S, wd, dk) {
 }
 function plFreeMinutes(S, wd, dk) { return plFree(S, wd, dk).reduce(function (a, w) { return a + (w.t - w.f); }, 0); }
 
-/* how much study the day can take: the cap, lowered on a hockey day or a heavy day, never more than the free time */
-function plBudget(S, wd, dk) {
+/* deadlines from imported calendars (sb/ics.js), n days from a day key */
+function plDeadlines(S, from, days) {
+  if (!from || !S.cals || !S.cals.length) return [];
+  var due = typeof icsDue === "function" ? icsDue : typeof require === "function" ? require("./ics.js").icsDue : null;
+  return due ? due(S.cals, from, days) : [];
+}
+function plKeyDate(k) { var p = k.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function plKeyAdd(k, n) { var d = plKeyDate(k); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + (d.getMonth() < 9 ? "0" : "") + (d.getMonth() + 1) + "-" + (d.getDate() < 10 ? "0" : "") + d.getDate(); }
+/* every open deadline within reach and the days its work is spread over, from today:
+   from its lead (a week for an exam or a paper, four days for homework) up to the day before it is due,
+   or the day itself when it is due in the afternoon or evening (or all day). Each day takes a share
+   in proportion to its free time, so a packed day carries less of it. */
+function plDueAll(S, today) {
+  var out = [], est = S.dueEst || {}, done = S.dueDone || {};
+  plDeadlines(S, today, 22).forEach(function (d) {
+    if (done[d.id]) return;
+    var mins = est[d.id] != null ? +est[d.id] : d.est;
+    var last = d.ad || d.min >= 720 ? d.key : plKeyAdd(d.key, -1);
+    var first = plKeyAdd(d.key, -d.lead); if (first < today) first = today;
+    if (last < first || mins <= 0) return;
+    var days = [], tot = 0;
+    for (var k = first; k <= last; k = plKeyAdd(k, 1)) { var f = plFreeMinutes(S, plKeyDate(k).getDay(), k); days.push({ key: k, free: f }); tot += f; }
+    var left = mins;
+    days.forEach(function (x, i) {
+      var m = i === days.length - 1 ? left : Math.min(left, Math.round(mins * (tot ? x.free / tot : 1 / days.length) / 5) * 5);
+      x.min = Math.max(0, Math.min(m, x.free)); left -= x.min;
+    });
+    out.push({ id: d.id, n: d.n, cal: d.cal, key: d.key, min: d.min, ad: d.ad, type: d.type, est: mins, days: days });
+  });
+  return out;
+}
+/* the assignment work that falls on one day: [{ id, n, cal, key, min (today's share), due (its due time), est, left (days) }] */
+function plDueWork(S, dk, today) {
+  if (!dk || !S.cals || !S.cals.length) return [];
+  today = today || dk;
+  if (dk < today) return [];
+  var out = [];
+  plDueAll(S, today).forEach(function (d) {
+    d.days.forEach(function (x, i) { if (x.key === dk && x.min > 0) out.push({ id: d.id, n: d.n, cal: d.cal, key: d.key, due: d.min, ad: d.ad, type: d.type, est: d.est, min: x.min, left: d.days.length - i }); });
+  });
+  return out;
+}
+
+/* how much study the day can take: a share of the free time left after assignment work, never more than the cap,
+   lowered on a hockey day or a heavy day. today: the real today, so later days' assignment work is spread from it */
+function plBudget(S, wd, dk, today) {
   var cap = S.cap || 60, why = "";
   if (plHas(S, wd, "hockey", dk)) { cap = Math.min(cap, S.hockeyCap || cap); why = "hockey day"; }
   else if (plBusyMinutes(S, wd, dk) >= 300) { cap = Math.min(cap, S.heavyCap || cap); why = "heavy day"; }
-  var free = plFreeMinutes(S, wd, dk);
-  if (free < cap) { cap = free; why = why ? why + ", little free time" : "little free time"; }
-  return { minutes: Math.max(0, cap), why: why, free: free };
+  var free = plFreeMinutes(S, wd, dk), due = plDueWork(S, dk, today).reduce(function (a, d) { return a + d.min; }, 0), avail = Math.max(0, free - due);
+  var share = S.share == null ? 15 : +S.share;
+  if (share > 0) {
+    var dyn = Math.round(avail * share / 100 / 5) * 5;
+    if (dyn < cap) { cap = dyn; why = (why ? why + ", " : "") + (due ? Math.round(due) + " min of assignments" : "busy day") + ": " + share + "% of " + plHours(avail) + " free"; }
+  }
+  if (avail < cap) { cap = avail; why = why ? why + ", little free time" : "little free time"; }
+  return { minutes: Math.max(0, cap), why: why, free: free, due: due };
 }
+function plHours(m) { return m >= 60 ? (Math.round(m / 6) / 10) + " h" : m + " min"; }
 
 /* Lay out one day.
    demand: { skillId: { name, due, dueMin, overdue (days), lesson: {id, title, min, href} | null,
@@ -1966,7 +2088,7 @@ function plPlan(S, wd, demand, done, dayKey) {
     if (wi >= wins.length) { b.at = null; return; }
     b.at = { f: cur, t: cur + b.min }; cur += b.min;
   });
-  return { budget: budget, left: left, used: used, free: B.free, why: B.why, blocks: blocks, doneTotal: doneTotal, newN: newN };
+  return { budget: budget, left: left, used: used, free: B.free, due: B.due, why: B.why, blocks: blocks, doneTotal: doneTotal, newN: newN };
 }
 
 /* which skills studied today, to remember the rotation */
@@ -12751,7 +12873,12 @@ function planToday(now) {
   /* make room: push the generic blocks down until the school work fits the budget */
   var left = plan.left - schoolMin, kept = [], deferred = [];
   plan.blocks.forEach(function (b) { if (b.deferred) { deferred.push(b); return; } if (b.min <= left) { kept.push(b); left -= b.min; } else { b.deferred = true; b.why = "Schoolwork took today's budget; it waits for tomorrow."; deferred.push(b); } });
-  var blocks = school.concat(kept).concat(deferred);
+  /* assignments and exams from the imported calendars: today's share of their work, reserved on top of the skills' budget (which already shrank for it) */
+  var assign = plDueWork(S, key, key).map(function (d) {
+    return { skill: "due:" + d.id, kind: "assignment", min: d.min, label: d.n.replace(/\s*[-–:(]?\s*(is )?due\)?$/i, "") + " · " + dueWhen(d, key), href: "#/calendar/forecast", school: true,
+      why: (d.type === "exam" || d.type === "quiz" ? "Study for it: " : "Work on it: ") + "about " + plHours(d.est) + " in all, spread over " + plural(d.left, "day") + (d.left > 1 ? " left" : "") + " by how much free time each has. Mark it finished in Calendar › Forecast." };
+  });
+  var blocks = assign.concat(school).concat(kept).concat(deferred);
   /* place the blocks into the free windows again, school first */
   var wins = plFree(S, wd, key).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
   var nowMin = new Date(now).getHours() * 60 + new Date(now).getMinutes();
@@ -12768,6 +12895,12 @@ function planToday(now) {
   var marks = (HUB.gstate.planDone && HUB.gstate.planDone[key]) || {};
   blocks.forEach(function (b, i) { b.i = i; b.done = !!marks[b.skill + ":" + b.kind] || ((done[b.skill] || 0) >= b.min && b.kind !== "homework" && b.kind !== "lesson"); if (b.kind === "lesson" && b.id && D[b.skill] && D[b.skill].lesson && D[b.skill].lesson.id !== b.id) b.done = true; });
   return plan;
+}
+/* "due today 11:59pm", "due tomorrow", "due Fri 2pm" */
+function dueWhen(d, today) {
+  var days = Math.round((plKeyDate(d.key) - plKeyDate(today)) / SRS_DAY), when = days <= 0 ? "today" : days === 1 ? "tomorrow" : days < 7 ? PL_DAYS[plKeyDate(d.key).getDay()] : plKeyDate(d.key).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  var t = d.ad ? "" : " " + plFmt(d.due != null ? d.due : d.min);
+  return "due " + when + t;
 }
 function planMark(b) {
   var key = todayKey(), PD = HUB.gstate.planDone || (HUB.gstate.planDone = {}), m = PD[key] || (PD[key] = {});
@@ -13335,8 +13468,8 @@ function go(h) { location.hash = h; }
 
 /* ============================================================ TODAY ============================================================ */
 var TRACK_COLOR = { poker: "#A8761A", chess: "#2F7A4E", sv: "#2F5C9E", he: "#C2451F", es: "#B9321C", quant: "#6A4FB6" };
-function trackColor(k) { return k.indexOf("school:") === 0 ? "#6A4FB6" : TRACK_COLOR[k] || "#8E8779"; }
-function trackName(k) { if (k === "poker") return "Poker"; if (k.indexOf("school:") === 0) { var sc = SCHOOL_COURSES.filter(function (x) { return "school:" + x.id === k; })[0]; return sc ? sc.code : k; } return COURSES[k] ? COURSES[k].name : k; }
+function trackColor(k) { return k.indexOf("school:") === 0 || k.indexOf("due:") === 0 ? "#6A4FB6" : TRACK_COLOR[k] || "#8E8779"; }
+function trackName(k) { if (k === "poker") return "Poker"; if (k.indexOf("due:") === 0) return "Assignment"; if (k.indexOf("school:") === 0) { var sc = SCHOOL_COURSES.filter(function (x) { return "school:" + x.id === k; })[0]; return sc ? sc.code : k; } return COURSES[k] ? COURSES[k].name : k; }
 function blockLabel(b) { return b.school || b.label.indexOf(":") > 0 && b.label.indexOf(trackName(b.skill)) === 0 ? b.label : trackName(b.skill) + ": " + b.label; }
 function trackHref(k) { if (k === "poker") return "#/poker"; if (k.indexOf("school:") === 0) return "#/school/" + k.slice(7); return "#/c/" + k; }
 function drawHome(box) {
@@ -13369,7 +13502,7 @@ function drawHome(box) {
     list.appendChild(a);
   });
   P.appendChild(list);
-  P.appendChild(el("p", "pnote", "Budget today: <b>" + plan.budget + " min</b> (" + (plan.why || "your normal cap") + "). The planner puts school items first, then reviews by how overdue they are, then at most two new lessons, then one applied session. Edit the week, the cap and the priorities in <a href='#/calendar/settings'>Calendar › Settings</a>."));
+  P.appendChild(el("p", "pnote", "Budget today: <b>" + plan.budget + " min</b> for the skills (" + (plan.why || "your normal cap") + ")" + (plan.due ? ", after " + Math.round(plan.due) + " min of assignment work" : "") + ". The planner puts assignments and school items first, then reviews by how overdue they are, then at most two new lessons, then one applied session. Edit the week, the cap and the priorities in <a href='#/calendar/settings'>Calendar › Settings</a>."));
   box.appendChild(P);
 
   /* every track at a glance */
@@ -13670,7 +13803,7 @@ function drawWeek(box) {
   var w = el("div", "week"); w.style.setProperty("--hour", hourPx + "px");
   w.appendChild(el("div", "hd", ""));
   var sunday = new Date(now); sunday.setDate(now.getDate() - wd);
-  var dks = []; for (var d = 0; d < 7; d++) { var dt = new Date(sunday); dt.setDate(sunday.getDate() + d); dks.push(dayKey(dt.getTime())); var B = plBudget(S, d, dks[d]); w.appendChild(el("div", "hd" + (d === wd ? " today" : ""), PL_DAYS_SHORT[d] + "<b>" + dt.getDate() + "</b>" + B.minutes + " min" + (B.why ? "<br><span style='color:var(--accent)'>" + esc(B.why) + "</span>" : ""))); }
+  var dks = []; for (var d = 0; d < 7; d++) { var dt = new Date(sunday); dt.setDate(sunday.getDate() + d); dks.push(dayKey(dt.getTime())); var B = plBudget(S, d, dks[d], todayKey()), hd = el("div", "hd" + (d === wd ? " today" : ""), PL_DAYS_SHORT[d] + "<b>" + dt.getDate() + "</b>" + B.minutes + " min" + (B.due ? "<br><span style='color:var(--purple)'>+" + Math.round(B.due) + " assignments</span>" : "") + (plHas(S, d, "hockey", dks[d]) ? "<br><span style='color:var(--accent)'>hockey day</span>" : "")); if (B.why) hd.title = "Skills: " + B.minutes + " min (" + B.why + ")"; w.appendChild(hd); }
   var hrs = el("div", "hrs"); hrs.style.height = (endH - startH) * hourPx + "px";
   for (var h = startH; h <= endH; h++) { var lab = el("i", "", plFmt(h * 60)); lab.style.top = (h - startH) * hourPx + "px"; hrs.appendChild(lab); }
   w.appendChild(hrs);
@@ -13693,10 +13826,11 @@ function drawForecast(box) {
   var fc = plForecast(items, now, 14, dayKey), S = HUB.plan;
   var p = el("div", "panel"); p.innerHTML = '<div class="ph"><h3>Reviews falling due, next 14 days</h3><span>exact: every skill has a date</span></div>';
   var g = el("div", "fc");
-  fc.forEach(function (r, i) { var d = new Date(now + i * SRS_DAY), wd = d.getDay(), dk = dayKey(d.getTime()), B = plBudget(S, wd, dk); var cell = el("div", (i === 0 ? "today" : "") + (r.total > 40 ? " heavy" : "")); cell.innerHTML = '<b>' + (i === 0 ? "Today" : PL_DAYS_SHORT[wd] + " " + d.getDate()) + '</b><div class="n">' + r.total + '</div><div class="by">' + Object.keys(r.by).map(function (k) { return '<i style="color:' + trackColor(k) + '">' + r.by[k] + ' ' + esc(trackName(k)) + '</i>'; }).join("") + '</div><div class="cm" style="font-size:10.5px;color:var(--faint);margin-top:4px">' + B.minutes + ' min budget' + (plHas(S, wd, "hockey", dk) ? " · hockey" : "") + '</div>'; g.appendChild(cell); });
+  fc.forEach(function (r, i) { var d = new Date(now + i * SRS_DAY), wd = d.getDay(), dk = dayKey(d.getTime()), B = plBudget(S, wd, dk, todayKey()); var cell = el("div", (i === 0 ? "today" : "") + (r.total > 40 ? " heavy" : "")); cell.innerHTML = '<b>' + (i === 0 ? "Today" : PL_DAYS_SHORT[wd] + " " + d.getDate()) + '</b><div class="n">' + r.total + '</div><div class="by">' + Object.keys(r.by).map(function (k) { return '<i style="color:' + trackColor(k) + '">' + r.by[k] + ' ' + esc(trackName(k)) + '</i>'; }).join("") + '</div><div class="cm" style="font-size:10.5px;color:var(--faint);margin-top:4px">' + B.minutes + ' min budget' + (B.due ? ' · +' + Math.round(B.due) + ' assignments' : '') + (plHas(S, wd, "hockey", dk) ? " · hockey" : "") + '</div>'; g.appendChild(cell); });
   p.appendChild(g);
   p.appendChild(el("p", "pnote", "Reviews are the floor of each day. A heavy day (outlined red) means a lot came due at once; the fix is to keep new lessons to the daily cap, not to skip the reviews. Overdue reviews roll forward and show on today."));
   box.appendChild(p);
+  box.appendChild(drawDeadlines(S));
   /* school dates */
   var sd = el("div", "panel"); sd.style.marginTop = "16px"; sd.innerHTML = '<div class="ph"><h3>School dates</h3><a href="#/school">School ›</a></div>';
   var list = el("div", "dates"), any = false;
@@ -13727,16 +13861,39 @@ function drawMonth(box) {
   var tot = 0, n = 0; Object.keys(plog).forEach(function (k) { if (k.indexOf(y + "-" + ("0" + (m + 1)).slice(-2)) === 0) { tot += plog[k].s; n++; } });
   box.appendChild(el("p", "pnote", "This month: " + fmtDur(tot) + " over " + plural(n, "day") + " in the hub" + (P.has ? ", plus PokerPro's own log" : "") + "."));
 }
+/* assignments and exams from the imported calendars: the estimate of each, how the planner spreads it, and finishing it */
+function drawDeadlines(S) {
+  var p = el("div", "panel"); p.style.marginTop = "16px";
+  p.innerHTML = '<div class="ph"><h3>Assignments and exams</h3><a href="#/calendar/settings">Calendars ›</a></div>';
+  var today = todayKey(), all = plDeadlines(S, today, 22), plan = {}; plDueAll(S, today).forEach(function (d) { plan[d.id] = d; });
+  if (!(S.cals || []).length) { p.appendChild(el("p", "pnote", "Import your calendars in <a href='#/calendar/settings'>Week &amp; settings</a>: assignments, papers, quizzes and exams in them show up here, and the planner makes time for them before they are due.")); return p; }
+  if (!all.length) { p.appendChild(el("p", "pnote", "Nothing due in the next three weeks in your imported calendars. If your assignments are in a calendar of their own (a Canvas feed, say), set that calendar to Deadlines in Week &amp; settings.")); return p; }
+  var list = el("div", "busylist callist duelist");
+  all.forEach(function (d) {
+    var fin = !!(S.dueDone || {})[d.id], P = plan[d.id], est = (S.dueEst || {})[d.id] != null ? +S.dueEst[d.id] : d.est, row = el("div");
+    var spread = P ? P.days.filter(function (x) { return x.min > 0; }).map(function (x) { return (x.key === today ? "today" : PL_DAYS_SHORT[plKeyDate(x.key).getDay()]) + " " + x.min; }).join(" · ") : "";
+    row.innerHTML = '<span' + (fin ? ' style="opacity:.55"' : '') + '><span class="dot k-school"></span>' + esc(d.n.replace(/\s*[-–:(]?\s*(is )?due\)?$/i, "")) + ' <small>' + esc(dueWhen(d, today)) + ' · ' + esc(d.cal) + (fin ? " · finished" : spread ? "<br>planned (min): " + spread : est ? "" : " · no time planned") + '</small></span>';
+    var inp = el("input"); inp.type = "number"; inp.min = 0; inp.max = 40; inp.step = 0.5; inp.value = Math.round(est / 30) / 2; inp.style.width = "74px"; inp.title = "Hours of work it needs";
+    inp.onchange = function () { S.dueEst = S.dueEst || {}; S.dueEst[d.id] = Math.max(0, Math.round((+inp.value || 0) * 60)); S.at = Date.now(); saveSoon(); route(); };
+    var lab = el("label", "", ""); lab.style.cssText = "display:flex;align-items:center;gap:4px;font-size:12px;color:var(--dim)"; lab.appendChild(inp); lab.appendChild(document.createTextNode("h"));
+    row.appendChild(lab);
+    row.appendChild(btn(fin ? "reopen" : "finished", "ghost sm", function () { S.dueDone = S.dueDone || {}; if (fin) delete S.dueDone[d.id]; else S.dueDone[d.id] = Date.now(); Object.keys(S.dueDone).forEach(function (k) { var dk = k.slice(k.lastIndexOf("@") + 1); if (dk < plKeyAdd(today, -30)) delete S.dueDone[k]; }); S.at = Date.now(); saveSoon(); route(); }));
+    list.appendChild(row);
+  });
+  p.appendChild(list);
+  p.appendChild(el("p", "pnote", "Each one gets a first estimate from its name (homework 1.5 h, a paper or project 4 h, a quiz 1 h, an exam 4 h of study); change the hours to what it really takes. The work is spread from a few days before (a week for papers and exams) up to the due date, more on days with more free time, and it comes out of the day before the skills get their share. Mark it finished and its time goes back to the skills."));
+  return p;
+}
 /* calendars imported from .ics files: their events are busy time on their own dates, on top of the week above */
 function drawImported(S) {
   var p = el("div", "panel"); p.style.marginTop = "16px";
-  p.innerHTML = '<div class="ph"><h3>Imported calendars</h3><span>.ics files from Apple, Google or Outlook</span></div><p class="pnote">Import one .ics file or several at once; a file holding several calendars becomes one entry per calendar. Their events block study time on the days they happen, repeating events included. All-day and free events are left out. An event named hockey counts as hockey wherever it is. To refresh a calendar, import a newer export of it: one with the same name is replaced and keeps its settings.</p>';
+  p.innerHTML = '<div class="ph"><h3>Imported calendars</h3><span>.ics files from Apple, Google or Outlook</span></div><p class="pnote">Import one .ics file or several at once; a file holding several calendars becomes one entry per calendar. Their events block study time on the days they happen, repeating events included; all-day and free events do not. An event named hockey counts as hockey wherever it is, and in a calendar left as Busy each event is sorted by its name (a course code is a class, a shift is work). Assignments, papers, quizzes and exams are picked out by name and get time before they are due (see Forecast); set a calendar to Deadlines when every event in it is something due, like a Canvas feed. To refresh a calendar, import a newer export of it: one with the same name is replaced and keeps its settings.</p>';
   var cals = S.cals || [];
   var list = el("div", "busylist callist");
   cals.forEach(function (c, i) {
     var rep = c.ev.filter(function (e) { return e.r; }).length, row = el("div");
-    row.innerHTML = '<span><span class="dot ' + (c.k === "class" ? "k-class" : c.k === "hockey" ? "k-hockey" : "k-other") + '"></span>' + esc(c.name) + ' <small>' + plural(c.ev.filter(function (e) { return !e.skip; }).length, "event") + (rep ? ", " + rep + " repeating" : "") + (c.on === false ? " · off" : "") + '</small></span>';
-    var kind = el("select"); kind.style.width = "auto"; ICS_KINDS.forEach(function (k) { var o = el("option", "", PL_KINDS[k]); o.value = k; if ((c.k || "other") === k) o.selected = true; kind.appendChild(o); });
+    row.innerHTML = '<span><span class="dot ' + (c.k === "class" ? "k-class" : c.k === "hockey" ? "k-hockey" : c.k === "due" ? "k-school" : "k-other") + '"></span>' + esc(c.name) + ' <small>' + plural(c.ev.filter(function (e) { return !e.skip; }).length, "event") + (rep ? ", " + rep + " repeating" : "") + (c.on === false ? " · off" : "") + '</small></span>';
+    var kind = el("select"); kind.style.width = "auto"; ICS_KINDS.forEach(function (k) { var o = el("option", "", ICS_KIND_NAMES[k]); o.value = k; if ((c.k || "other") === k) o.selected = true; kind.appendChild(o); });
     kind.onchange = function () { c.k = kind.value; c.at = Date.now(); S.at = Date.now(); saveSoon(); route(); };
     row.appendChild(kind);
     row.appendChild(btn(c.on === false ? "turn on" : "turn off", "ghost sm", function () { c.on = c.on === false; c.at = Date.now(); S.at = Date.now(); saveSoon(); route(); }));
@@ -13787,7 +13944,8 @@ function drawCalSettings(box) {
   var g = el("div", "grid3");
   function num(label, key, min, max, step, help) { var w = el("div", "field"); w.innerHTML = '<label class="f">' + label + '</label>'; var i = el("input"); i.type = "number"; i.min = min; i.max = max; i.step = step || 1; i.value = S[key]; i.onchange = function () { S[key] = +i.value; S.at = Date.now(); saveSoon(); }; w.appendChild(i); if (help) w.appendChild(el("div", "hint", help)); return w; }
   function time(label, key, help) { var w = el("div", "field"); w.innerHTML = '<label class="f">' + label + '</label>'; var i = el("input"); i.type = "time"; i.value = S[key]; i.onchange = function () { S[key] = i.value; S.at = Date.now(); saveSoon(); }; w.appendChild(i); if (help) w.appendChild(el("div", "hint", help)); return w; }
-  g.appendChild(num("Study cap, minutes a day", "cap", 10, 300, 5, "Reviews, lessons and applied sessions in the hub. School blocks count inside it; homework blocks are reserved on top."));
+  g.appendChild(num("Share of free time for the skills, %", "share", 0, 100, 5, "Each day's budget is this share of its free time, after classes, hockey, everything on your calendars and assignment work. 0 turns it off and every day gets the cap."));
+  g.appendChild(num("Most study minutes on a day", "cap", 10, 300, 5, "The ceiling on an open day. Reviews, lessons and applied sessions in the hub; school blocks count inside it, homework and assignment blocks are reserved on top."));
   g.appendChild(num("Cap on hockey days", "hockeyCap", 5, 300, 5, "Lower, because you are tired and the day is short."));
   g.appendChild(num("Cap on heavy days (5+ busy hours)", "heavyCap", 5, 300, 5, ""));
   g.appendChild(num("New lessons a day, at most", "newPerDay", 0, 6, 1, "Across every skill, never two in one skill. Two is the evidence-based default."));

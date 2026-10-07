@@ -53,8 +53,8 @@ function go(h) { location.hash = h; }
 
 /* ============================================================ TODAY ============================================================ */
 var TRACK_COLOR = { poker: "#A8761A", chess: "#2F7A4E", sv: "#2F5C9E", he: "#C2451F", es: "#B9321C", quant: "#6A4FB6" };
-function trackColor(k) { return k.indexOf("school:") === 0 ? "#6A4FB6" : TRACK_COLOR[k] || "#8E8779"; }
-function trackName(k) { if (k === "poker") return "Poker"; if (k.indexOf("school:") === 0) { var sc = SCHOOL_COURSES.filter(function (x) { return "school:" + x.id === k; })[0]; return sc ? sc.code : k; } return COURSES[k] ? COURSES[k].name : k; }
+function trackColor(k) { return k.indexOf("school:") === 0 || k.indexOf("due:") === 0 ? "#6A4FB6" : TRACK_COLOR[k] || "#8E8779"; }
+function trackName(k) { if (k === "poker") return "Poker"; if (k.indexOf("due:") === 0) return "Assignment"; if (k.indexOf("school:") === 0) { var sc = SCHOOL_COURSES.filter(function (x) { return "school:" + x.id === k; })[0]; return sc ? sc.code : k; } return COURSES[k] ? COURSES[k].name : k; }
 function blockLabel(b) { return b.school || b.label.indexOf(":") > 0 && b.label.indexOf(trackName(b.skill)) === 0 ? b.label : trackName(b.skill) + ": " + b.label; }
 function trackHref(k) { if (k === "poker") return "#/poker"; if (k.indexOf("school:") === 0) return "#/school/" + k.slice(7); return "#/c/" + k; }
 function drawHome(box) {
@@ -87,7 +87,7 @@ function drawHome(box) {
     list.appendChild(a);
   });
   P.appendChild(list);
-  P.appendChild(el("p", "pnote", "Budget today: <b>" + plan.budget + " min</b> (" + (plan.why || "your normal cap") + "). The planner puts school items first, then reviews by how overdue they are, then at most two new lessons, then one applied session. Edit the week, the cap and the priorities in <a href='#/calendar/settings'>Calendar › Settings</a>."));
+  P.appendChild(el("p", "pnote", "Budget today: <b>" + plan.budget + " min</b> for the skills (" + (plan.why || "your normal cap") + ")" + (plan.due ? ", after " + Math.round(plan.due) + " min of assignment work" : "") + ". The planner puts assignments and school items first, then reviews by how overdue they are, then at most two new lessons, then one applied session. Edit the week, the cap and the priorities in <a href='#/calendar/settings'>Calendar › Settings</a>."));
   box.appendChild(P);
 
   /* every track at a glance */

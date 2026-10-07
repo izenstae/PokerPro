@@ -24,8 +24,9 @@ var life = cal("Personal", [
 var parsed = I.icsParse(school + life, "export", "2026-10-07");
 eq(parsed.length, 2, "two calendars in one file");
 eq(parsed[0].name + "," + parsed[1].name, "School,Personal", "named by X-WR-CALNAME");
-eq(parsed[0].ev.length, 2, "past one-off and all-day events dropped");
-eq(parsed[1].ev.filter(function (e) { return e.uid === "dr"; }).length, 0, "free (transparent) events dropped");
+eq(parsed[0].ev.filter(function (e) { return e.uid === "old"; }).length, 0, "past one-off events dropped");
+eq(parsed[0].ev.filter(function (e) { return e.ad; }).length, 1, "all-day events kept (they can be deadlines), marked");
+eq(parsed[1].ev.filter(function (e) { return e.fr; }).length, 1, "free (transparent) events kept, marked");
 eq(I.icsParse(cal("", [["SUMMARY:x", "DTSTART:20261101T100000", "DTEND:20261101T110000"]]), "work", "2026-10-07")[0].name, "work", "unnamed calendar takes the file name");
 /* folded lines and escaped text */
 eq(I.icsParse("BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nSUMMARY:Lab\\, room\r\n  204\r\nDTSTART:20261101T100000\r\nDTEND:20261101T110000\r\nEND:VEVENT\r\nEND:VCALENDAR", "x")[0].ev[0].n, "Lab, room 204", "unfolds lines and unescapes commas");
@@ -52,6 +53,7 @@ eq(busy(cals, "2026-11-30").join(), "MATH 340 09:00-10:15,Lease review 10:00-11:
 eq(busy(cals, "2026-10-19").join(), "MATH 340 09:00-10:15", "all-day holiday is not busy");
 eq(I.icsBusy(cals, "2026-10-08")[0].k, "hockey", "an event named hockey is hockey in any calendar");
 
+eq(I.icsBusy(cals, "2026-10-09").map(function (b) { return b.k; }).join(), "class,work", "in a Busy calendar each event is sorted by name");
 /* turning a calendar off, and re-importing keeps settings */
 cals[0].k = "work"; cals[1].on = false;
 eq(busy(cals, "2026-10-08").join(), "", "a calendar turned off is not busy");
@@ -72,6 +74,53 @@ eq(P.plBusyMinutes(S, 3, "2026-10-07"), 75, "the same class in the week and impo
 var demand = { sv: { name: "Swedish", due: 30, dueMin: 18, overdue: 0, lesson: null, drill: { href: "#s" }, apply: null, level: 1 } };
 var plan = P.plPlan(S, 4, demand, {}, "2026-10-08");
 ok(plan.blocks.filter(function (b) { return b.at; }).every(function (b) { return b.at.t <= P.plMins("18:45") || b.at.f >= P.plMins("21:15"); }), "the plan keeps clear of imported hockey");
+
+/* deadlines: picked out by name and shape, or by a Deadlines calendar */
+var mixed = I.icsMerge([], I.icsParse(cal("Everything", [
+  ["UID:cl", "SUMMARY:ECON 101", "DTSTART:20261005T100000", "DTEND:20261005T113000", "RRULE:FREQ=WEEKLY;BYDAY=MO,WE"],
+  ["UID:hw", "SUMMARY:Problem Set 4", "DTSTART:20261012T235900", "DTEND:20261012T235900"],
+  ["UID:ex", "SUMMARY:ECON 101 Midterm", "DTSTART:20261016T090000", "DTEND:20261016T110000"],
+  ["UID:pp", "SUMMARY:History paper", "DTSTART;VALUE=DATE:20261020", "DTEND;VALUE=DATE:20261021"],
+  ["UID:lab", "SUMMARY:Lab 3 section", "DTSTART:20261008T130000", "DTEND:20261008T160000"],
+  ["UID:hg", "SUMMARY:Hockey final", "DTSTART:20261010T180000", "DTEND:20261010T200000"]
+]) + cal("Canvas", [["UID:cv", "SUMMARY:Reading response", "DTSTART:20261009T170000", "DTEND:20261009T180000"]]), "x", "2026-10-07"), 1);
+mixed[1].k = "due";
+var dl = I.icsDeadlines(mixed, "2026-10-07", 22);
+eq(dl.map(function (d) { return d.n + ":" + d.type; }).join(), "Reading response:homework,Problem Set 4:homework,ECON 101 Midterm:exam,History paper:paper", "deadlines found, soonest first");
+eq(busy(mixed, "2026-10-09").join(), "", "a Deadlines calendar is not busy time");
+eq(busy(mixed, "2026-10-16").join(), "ECON 101 Midterm 09:00-11:00", "an exam is busy time and a deadline");
+eq(busy(mixed, "2026-10-08").join(), "Lab 3 section 13:00-16:00", "a three-hour lab section is a class, not a deadline");
+
+/* spreading the work and the dynamic budget */
+var D = P.plDefault(); D.cals = mixed; D.cap = 120;
+var all = P.plDueAll(D, "2026-10-07");
+var ps = all.filter(function (d) { return d.n === "Problem Set 4"; })[0];
+eq(ps.days.map(function (x) { return x.key; }).join(), "2026-10-08,2026-10-09,2026-10-10,2026-10-11,2026-10-12", "due 11:59pm Monday: from four days before through Monday evening");
+eq(ps.days.reduce(function (a, x) { return a + x.min; }, 0), 90, "the whole estimate is planned");
+var mt = all.filter(function (d) { return d.type === "exam"; })[0];
+eq(mt.days[0].key, "2026-10-09", "exam study starts a week ahead");
+eq(mt.days[mt.days.length - 1].key, "2026-10-15", "...and ends the day before a morning exam");
+var pap = all.filter(function (d) { return d.type === "paper"; })[0];
+eq(pap.days[pap.days.length - 1].key, "2026-10-20", "an all-day deadline can be worked on that day");
+var sun = mt.days.filter(function (x) { return x.key === "2026-10-11"; })[0], wed = mt.days.filter(function (x) { return x.key === "2026-10-14"; })[0];
+ok(sun.free > wed.free && sun.min > wed.min, "a day with more free time takes more of it: Sun " + sun.min + " > Wed " + wed.min);
+var wk = P.plDueWork(D, "2026-10-13", "2026-10-07");
+ok(wk.some(function (d) { return d.type === "exam"; }) && wk.some(function (d) { return d.type === "paper"; }), "Tuesday the 13th carries the exam and the paper");
+var b0 = P.plBudget(D, 3, "2026-10-07", "2026-10-07"), bA = P.plBudget(D, 0, "2026-10-11", "2026-10-07");
+eq(b0.due, P.plDueWork(D, "2026-10-07").reduce(function (a, d) { return a + d.min; }, 0), "today carries part of Friday's reading response");
+var E = P.plDefault(); E.cap = 300; E.week[2] = [{ n: "Work", k: "work", f: "09:00", t: "12:00" }, { n: "Lab", k: "class", f: "13:00", t: "14:00" }];
+eq(P.plBudget(E, 2).minutes, Math.round(P.plFreeMinutes(E, 2) * 0.15 / 5) * 5, "budget is 15% of the free time");
+ok(P.plBudget(E, 2).minutes < P.plBudget(E, 0).minutes, "a busier day gets less than an open one");
+E.cap = 60; eq(P.plBudget(E, 0).minutes, 60, "an open day is held to the cap");
+ok(bA.due > 0 && bA.minutes === Math.min(120, Math.round((bA.free - bA.due) * 0.15 / 5) * 5), "with assignments the share comes from what is left: " + bA.minutes + " of " + bA.free + " free, " + bA.due + " due");
+D.cap = 300; var bB = P.plBudget(D, 0, "2026-10-11", "2026-10-07");
+eq(bB.minutes, Math.round((bB.free - bB.due) * 0.15 / 5) * 5, "under a high cap the share decides");
+ok(/assignments: 15% of/.test(bB.why), "the reason names the assignments: " + bB.why); D.cap = 120;
+D.dueDone = {}; D.dueDone[ps.id] = 1;
+ok(!P.plDueAll(D, "2026-10-07").some(function (d) { return d.id === ps.id; }), "a finished assignment drops out");
+D.dueEst = {}; D.dueEst[mt.id] = 600;
+eq(P.plDueAll(D, "2026-10-07").filter(function (d) { return d.type === "exam"; })[0].days.reduce(function (a, x) { return a + x.min; }, 0), 600, "an edited estimate is used");
+var Z = P.plDefault(); Z.share = 0; eq(P.plBudget(Z, 0).minutes, 60, "share 0: every day gets the cap");
 
 console.log((fails ? "FAIL " : "ok   ") + "sb_ics: " + (n - fails) + "/" + n + " checks");
 if (fails) process.exit(1);
