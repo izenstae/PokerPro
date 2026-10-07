@@ -82,12 +82,20 @@ const server = http.createServer((q, s) => { let u = decodeURIComponent(q.url.sp
   await page.evaluate(() => startPlacement("es", 0)); await page.waitForTimeout(200);
   for (let i = 0; i < 14; i++) { const st = await page.evaluate(() => ({ cp: !!cp, answered, done: !document.querySelector(".cpdone").hidden })); if (st.done || !st.cp) break; if (st.answered) { await page.evaluate(() => advance()); await page.waitForTimeout(60); continue; } await page.evaluate(() => submit(q.answer)); await page.waitForTimeout(60); if (await page.evaluate(() => !!(q && q.confPending))) await page.evaluate(() => pickConfidence("s")); }
   ok(await page.evaluate(() => !!progress["es:es_sounds"] && !!progress["es:es_stress"]), "placement passed stage 0 of Spanish");
-  /* the quant game runs */
+  /* the quant game runs: Zetamac takes a right answer as it is typed, no Enter */
   await go("#/quant/sprint"); await page.click("text=Start");
   await page.waitForTimeout(100);
-  await page.evaluate(() => { for (let i = 0; i < 5; i++) { const inp = document.getElementById("qinp"); inp.value = String(qrun.q.a); inp.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" })); } qrun.end = Date.now() - 1; });
+  await page.evaluate(() => { for (let i = 0; i < 5; i++) { const inp = document.getElementById("qinp"); inp.value = String(qrun.q.a); inp.dispatchEvent(new Event("input")); } qrun.end = Date.now() - 1; });
   await page.waitForTimeout(300);
-  ok(await page.evaluate(() => HUB.quant.runs.length === 1 && HUB.quant.runs[0].score === 5), "quant run recorded with score 5");
+  ok(await page.evaluate(() => HUB.quant.runs.length === 1 && HUB.quant.runs[0].score === 5), "quant run recorded with score 5, no Enter pressed");
+  /* the Optiver 80 in 8: keys pick an option, +1 right, -1 wrong */
+  await go("#/quant/optiver"); await page.click("text=Start");
+  await page.waitForTimeout(100);
+  for (let i = 0; i < 3; i++) { const ci = await page.evaluate(() => qrun.q.ci); await page.keyboard.press(String(ci + 1)); }
+  { const wrong = await page.evaluate(() => (qrun.q.ci + 1) % 4); await page.keyboard.press(String(wrong + 1)); }
+  ok(await page.evaluate(() => qrun.n === 4 && qrun.score === 2), "Optiver: three right and one wrong score 2");
+  await page.evaluate(() => { qrun.end = Date.now() - 1; }); await page.waitForTimeout(300);
+  ok(await page.evaluate(() => HUB.quant.runs.length === 2 && HUB.quant.runs[1].g === "optiver"), "Optiver run recorded");
   /* play: one engine move */
   await go("#/c/chess/apply"); await page.click("text=Start the game"); await page.waitForTimeout(200);
   await page.evaluate(() => { const m = chLegal(game.s)[0]; heroPlays(m); }); await page.waitForTimeout(800);
