@@ -8,7 +8,7 @@
     "test:brute": "node test/evaluator.brute.js",
     "serve": "node -e \"const h=require('http'),f=require('fs'),p=require('path');h.createServer((q,s)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const fp=p.join(__dirname,u);const t={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.woff2':'font/woff2','.woff':'font/woff','.ttf':'font/ttf','.png':'image/png'}[p.extname(fp)]||'application/octet-stream';f.readFile(fp,(e,b)=>{if(e){s.statusCode=404;s.end('not found');return}s.setHeader('content-type',t);s.end(b)})}).listen(8000,()=>console.log('http://localhost:8000'))\"",
     "test:poker": "node test/engine.test.js && node test/range.test.js && node test/drills.test.js && node test/soak.js && node test/cfr.test.js && node test/leduc.test.js && node test/river.test.js && node test/turn.test.js && node test/srs.test.js && node test/sync.test.js && node test/library.test.js && node test/drills2.test.js && node test/holdem.test.js && node test/play.test.js && node test/level.test.js && node test/game.test.js",
-    "test:hub": "node test/sb_chess.test.js && node test/sb_planner.test.js && node test/sb_lang.test.js && node test/sb_sync.test.js && node test/sb_quant.test.js && node test/sb_chess_drills.test.js",
+    "test:hub": "node test/sb_chess.test.js && node test/sb_planner.test.js && node test/sb_lang.test.js && node test/sb_sync.test.js && node test/sb_quant.test.js && node test/sb_school.test.js && node test/sb_chess_drills.test.js",
     "test:school": "cd school/math340 && node tools/check-generators.js 500 && node tools/check-app.js"
   },
   "license": "MIT",

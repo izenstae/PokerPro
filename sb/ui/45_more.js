@@ -26,7 +26,7 @@ function drawWeek(box) {
     else { var free = plFree(S, d); free.forEach(function (f) { var e = el("div", "evt study", "<b>free</b>" + plFmt(f.f) + "–" + plFmt(f.t)); e.style.opacity = ".35"; e.style.top = ((f.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, (f.t - f.f) / 60 * hourPx - 2) + "px"; col.appendChild(e); }); }
     w.appendChild(col);
   }
-  box.appendChild(w);
+  var ww = el("div", "weekwrap"); ww.appendChild(w); box.appendChild(ww);
   box.appendChild(el("div", "legend", '<span><i class="dot k-class"></i>class</span><span><i class="dot k-hockey"></i>hockey</span><span><i class="dot k-study"></i>study block (today) / free window (other days)</span><span><i class="dot k-school"></i>school block</span>'));
   var p = el("div", "panel"); p.style.marginTop = "16px";
   p.innerHTML = '<div class="ph"><h3>Today\'s blocks</h3><a href="#/home">Today ›</a></div><div class="clist">' + (plan.blocks.length ? plan.blocks.map(function (b) { return '<div><span>' + (b.at ? plFmt(b.at.f) + "–" + plFmt(b.at.t) + " · " : "") + esc(blockLabel(b)) + '<small>' + esc(b.why) + '</small></span><b>' + b.min + ' min</b></div>'; }).join("") : '<div><span>No blocks today.</span></div>') + '</div><p class="pnote">Blocks are placed in your free windows from now onward and never split. Mark them done on Today; a block also counts as done once its track has logged that many minutes.</p>';
@@ -103,16 +103,17 @@ function drawCalSettings(box) {
   g.appendChild(num("Buffer around commitments, minutes", "buffer", 0, 60, 5, "Getting there and back."));
   g.appendChild(time("Day starts", "wake", "No block before this."));
   g.appendChild(time("Sleep cutoff", "sleep", "Nothing after this: consolidation needs sleep."));
-  g.appendChild(num("XP goal a day", "xpgoal", 20, 300, 10, ""));
+  var gw = el("div", "field"); gw.innerHTML = '<label class="f">XP goal a day</label>';
+  var gi = el("input"); gi.type = "number"; gi.min = 20; gi.max = 300; gi.step = 10; gi.value = HUB.gstate.goal;
+  gi.onchange = function () { var v = Math.round(+gi.value); if (!(v >= 20)) { gi.value = HUB.gstate.goal; return; } HUB.gstate.goal = Math.min(300, v); gi.value = HUB.gstate.goal; HUB.gstate.goalAt = Date.now(); saveSoon(); drawGamePill(); };
+  gw.appendChild(gi); g.appendChild(gw);
   st.appendChild(g);
-  var xg = st.querySelector("input[type=number]:last-of-type");
-  st.querySelectorAll("input").forEach(function (i) { if (i.value == S.xpgoal && i.min == 20) { i.value = HUB.gstate.goal; i.onchange = function () { HUB.gstate.goal = +i.value; HUB.gstate.goalAt = Date.now(); saveSoon(); drawGamePill(); }; } });
   box.appendChild(st);
   var pr = el("div", "panel"); pr.style.marginTop = "16px"; pr.innerHTML = '<div class="ph"><h3>Priorities</h3><span>who gets the budget first</span></div><p class="pnote">School is always first and always on. For the rest: 3 = focus (first pick for new lessons), 2 = normal, 1 = light (reviews mostly), 0 = paused (nothing scheduled; reviews still wait).</p>';
   var pg = el("div", "prio");
   var tracks = [["poker", "Poker"]].concat(COURSE_ORDER.map(function (cid) { return [cid, COURSES[cid].name]; }));
   SCHOOL_COURSES.forEach(function (sc) { pg.innerHTML += '<span>' + esc(sc.code) + ' · ' + esc(sc.name) + '</span><span class="tag school">school: always first</span>'; });
-  tracks.forEach(function (t) { var lab = el("span", "", esc(t[1])), sel = el("select"); [["3", "3 · focus"], ["2", "2 · normal"], ["1", "1 · light"], ["0", "0 · paused"]].forEach(function (o) { var op = el("option", "", o[1]); op.value = o[0]; if (String(S.priority[t[0]] == null ? 2 : S.priority[t[0]]) === o[0]) op.selected = true; sel.appendChild(op); }); sel.onchange = function () { S.priority[t[0]] = +sel.value; S.at = Date.now(); saveSoon(); }; pg.appendChild(lab); pg.appendChild(sel); });
+  tracks.forEach(function (t) { var lab = el("span", "", esc(t[1])), sel = el("select"); [["3", "3 · focus"], ["2", "2 · normal"], ["1", "1 · light"], ["0", "0 · paused"]].forEach(function (o) { var op = el("option", "", o[1]); op.value = o[0]; if (String(plPriority(S, t[0])) === o[0]) op.selected = true; sel.appendChild(op); }); sel.onchange = function () { S.priority[t[0]] = +sel.value; S.at = Date.now(); saveSoon(); }; pg.appendChild(lab); pg.appendChild(sel); });
   pr.appendChild(pg); box.appendChild(pr);
   var pv = el("div", "panel"); pv.style.marginTop = "16px";
   pv.innerHTML = '<div class="ph"><h3>Each day, as set</h3></div><div class="clist">' + plWeekLines(S).map(function (d) { return '<div><span>' + d.name + '<small>' + (d.busy.length ? d.busy.map(function (b) { return esc(b.n) + " " + plFmt(b.f) + "–" + plFmt(b.t); }).join(", ") : "nothing fixed") + ' · free: ' + (d.free.length ? d.free.map(function (f) { return plFmt(f.f) + "–" + plFmt(f.t); }).join(", ") : "none") + '</small></span><b>' + d.budget.minutes + ' min' + (d.budget.why ? " · " + esc(d.budget.why) : "") + '</b></div>'; }).join("") + '</div>';
@@ -182,7 +183,7 @@ function drawQuant(box, gid) {
     host.innerHTML = '<div class="ph"><h3>' + esc(G.name) + ' · ' + T.name + '</h3><span>' + esc(T.about) + ' · target ' + T.target + ' in ' + G.secs + 's</span></div><p class="pnote">' + esc(G.blurb) + ' Type the answer and press Enter; a wrong answer shows the right one and moves on. ' + (G.id === "estimate" ? "Within " + Math.round(T.tol * 100) + "% counts." : G.id === "odds" || G.id === "percent" ? "Percentages to within half a point." : "Exact answers.") + '</p>';
     var r = el("div", "row"); r.appendChild(btn("Start (" + G.secs + " seconds)", "go", function () { startQuant(gid); })); host.appendChild(r);
     var hist = qtHistory(S, gid, 60);
-    if (hist.length) { var ch = el("div", "panel"); ch.style.marginTop = "16px"; ch.innerHTML = '<div class="ph"><h3>Score over time</h3><span>' + plural(hist.length, "run") + ' · tier shown as colour depth</span></div>'; ch.appendChild(lineChart(hist.map(function (r, i) { return { x: i, y: r.score, label: r.score + " (tier " + (r.tier + 1) + ", " + new Date(r.t).toLocaleDateString() + ")" }; }), { y0: 0 })); var byOp = {}; ch.appendChild(el("p", "pnote", "Best at this tier: " + (S.best[gid + ":" + tier] || 0) + ". Five runs at or above the target as a median unlock the next tier.")); box.appendChild(ch); }
+    if (hist.length) { var ch = el("div", "panel"); ch.style.marginTop = "16px"; ch.innerHTML = '<div class="ph"><h3>Score over time</h3><span>' + plural(hist.length, "run") + ' · tier shown as colour depth</span></div>'; ch.appendChild(lineChart(hist.map(function (r, i) { return { x: i, y: r.score, label: r.score + " (tier " + (r.tier + 1) + ", " + new Date(r.t).toLocaleDateString() + ")" }; }), { y0: 0 })); ch.appendChild(el("p", "pnote", "Best at this tier: " + (S.best[gid + ":" + tier] || 0) + ". Five runs at or above the target as a median unlock the next tier.")); box.appendChild(ch); }
     return;
   }
   drawQuantRun(host);
@@ -244,7 +245,7 @@ function syncLogAdd(kind, msg) { sync.log.push({ t: Date.now(), k: kind, m: msg 
 function syncLocal() { var pr = pokerRaw(); var m3 = null; try { m3 = JSON.parse(STORE.get("math340-progress-v1") || "null"); } catch (e) {} return { v: 1, hub: hubSnapshot(), poker: pr.course, pokerGame: pr.game, pokerSim: pr.sim ? Object.assign({ at: 0 }, pr.sim) : null, math340: m3, devices: {} }; }
 function syncApply(merged) {
   var before = hsCanon(syncLocal());
-  HUB = Object.assign(hsEmptyHub(), merged.hub); HUB.gstate = Object.assign({ goal: 60, goalAt: 0, seen: {}, conf: true }, merged.hub.gstate || {}); HUB.plan = Object.assign(plDefault(), merged.hub.plan || {}); HUB.plan.week = Object.assign(plDefault().week, (merged.hub.plan || {}).week || {}); HUB.plan.priority = Object.assign(plDefault().priority, (merged.hub.plan || {}).priority || {}); HUB.quant = Object.assign(qtNew(), merged.hub.quant || {}); rebind(); saveNow();
+  hubHydrate(merged.hub); saveRelease(); saveNow();
   try { if (merged.poker) STORE.set(POKER_KEYS.course, JSON.stringify(merged.poker)); if (merged.pokerGame) STORE.set(POKER_KEYS.game, JSON.stringify(merged.pokerGame)); if (merged.pokerSim) STORE.set(POKER_KEYS.sim, JSON.stringify(merged.pokerSim)); if (merged.math340) STORE.set("math340-progress-v1", JSON.stringify(merged.math340)); } catch (e) {}
   return hsCanon(syncLocal()) !== before;
 }
@@ -291,7 +292,8 @@ function drawSync(box) {
   var tk = el("div", "panel"); tk.innerHTML = '<div class="ph"><h3>' + (sync.token ? "Token" : "Connect") + '</h3></div>';
   if (!sync.token) {
     tk.innerHTML += '<p class="pnote">Create a GitHub token with only the <b>gist</b> permission, then paste it here on each device. The app finds or creates one secret gist and talks to GitHub directly; there is no server of its own. The token lives only in this browser\'s storage.</p><p class="pnote"><a href="https://github.com/settings/tokens/new?scopes=gist&description=Skill%20Builder%20sync" target="_blank" rel="noopener">Create a token ›</a> (classic, tick <b>gist</b>; or a fine-grained token with Gists: read and write)</p>';
-    var f = el("div", "row"); var inp = el("input"); inp.type = "text"; inp.placeholder = "ghp_… or github_pat_…"; inp.autocomplete = "off"; inp.style.flex = "1 1 240px"; f.appendChild(inp);
+    var f = el("div", "row"); var inp = el("input"); inp.type = "password"; inp.placeholder = "ghp_… or github_pat_…"; inp.autocomplete = "off"; inp.autocapitalize = "off"; inp.spellcheck = false; inp.setAttribute("aria-label", "GitHub token"); inp.style.flex = "1 1 240px"; f.appendChild(inp);
+    var show = el("button", "chip", "Show"); show.type = "button"; show.setAttribute("aria-pressed", "false"); show.onclick = function () { var vis = inp.type === "password"; inp.type = vis ? "text" : "password"; show.textContent = vis ? "Hide" : "Show"; show.setAttribute("aria-pressed", vis ? "true" : "false"); inp.focus(); }; f.appendChild(show);
     f.appendChild(btn("Connect", "go", function () { var t = inp.value.trim(); if (!t) return; sync.token = t; sync.state = "on"; syncSaveCfg(); syncNow("first connect"); route(); })); tk.appendChild(f);
   } else {
     tk.innerHTML += '<p class="pnote">Token ' + esc(sync.token.slice(0, 7)) + '…' + esc(sync.token.slice(-4)) + (sync.gist ? ' · gist <a href="https://gist.github.com/' + esc(sync.gist) + '" target="_blank" rel="noopener">' + esc(sync.gist.slice(0, 7)) + '</a>' : "") + '</p>';
@@ -305,9 +307,14 @@ function drawSync(box) {
   var fi = el("input"); fi.type = "file"; fi.accept = ".json,application/json"; fi.style.display = "none"; fi.onchange = function () { var f = fi.files[0]; if (!f) return; var rd = new FileReader(); rd.onload = function () { try { var st = JSON.parse(rd.result); syncApply(hsMergeAll(syncLocal(), hsNorm(st))); toast("<b>Restored.</b> Merged with what was here.", "goal"); route(); } catch (e) { toast("That file could not be read.", ""); } }; rd.readAsText(f); };
   br.appendChild(btn("Restore from file", "ghost sm", function () { fi.click(); })); br.appendChild(fi); bk.appendChild(br);
   bk.innerHTML += '<div class="ph" style="margin-top:16px"><h3>Settings</h3></div>';
-  var cf = el("div", "row"); cf.appendChild(btn("Confidence prompt: " + (HUB.gstate.conf !== false ? "on" : "off"), "ghost sm", function () { HUB.gstate.conf = HUB.gstate.conf === false; saveSoon(); route(); })); bk.appendChild(cf);
+  var cf = el("div", "row"); cf.appendChild(btn("Confidence prompt: " + (HUB.gstate.conf !== false ? "on" : "off"), "ghost sm", function () { HUB.gstate.conf = HUB.gstate.conf === false; HUB.gstate.confAt = Date.now(); saveSoon(); route(); })); bk.appendChild(cf);
   bk.appendChild(el("p", "pnote", "The prompt after each answer (guessing / fairly sure / sure) builds a calibration score. Turn it off for speed."));
-  var wipe = btn("Clear all hub progress", "danger sm", function () { if (!wipe.dataset.armed) { wipe.dataset.armed = "1"; wipe.textContent = "Sure? Click again"; setTimeout(function () { delete wipe.dataset.armed; wipe.textContent = "Clear all hub progress"; }, 3000); return; } var g0 = HUB.gstate.goal; HUB = hsEmptyHub(); HUB.epoch = Date.now(); HUB.gstate = { goal: g0, goalAt: Date.now(), seen: {}, conf: true, primed: true }; HUB.plan = plDefault(); HUB.quant = qtNew(); rebind(); saveNow(); syncSoon(); toast("Hub progress cleared. PokerPro and Math 340 keep theirs; clear those in their own apps.", ""); route(); }); wipe.style.marginTop = "12px"; bk.appendChild(wipe);
+  var wipe = btn("Clear all hub progress", "danger sm", function () { if (!wipe.dataset.armed) { wipe.dataset.armed = "1"; wipe.textContent = "Sure? Click again"; setTimeout(function () { delete wipe.dataset.armed; wipe.textContent = "Clear all hub progress"; }, 3000); return; } hubHydrate({ epoch: Date.now(), gstate: { goal: HUB.gstate.goal, goalAt: Date.now(), primed: true } }); saveNow(); syncSoon(); toast("Hub progress cleared. PokerPro and Math 340 keep theirs; clear those in their own apps.", ""); route(); }); wipe.style.marginTop = "12px"; bk.appendChild(wipe);
+  if (saveHold) {
+    bk.appendChild(el("p", "pnote", "<b>The saved copy on this device could not be read.</b> It is kept in this browser as <code>" + esc(HUB_KEY) + ".corrupt</code> and nothing is written over it until you choose: sync (merges what the gist has), restore a backup file, or start fresh."));
+    var fresh = btn("Start fresh on this device", "danger sm", function () { saveRelease(); hubHydrate({ epoch: Date.now(), gstate: { primed: true, goalAt: Date.now() } }); saveNow(); syncSoon(); toast("Started fresh. The unreadable copy is still in this browser's storage.", ""); route(); });
+    fresh.style.marginTop = "12px"; bk.appendChild(fresh);
+  }
   g.appendChild(bk); box.appendChild(g);
   var inst = el("div", "panel"); inst.style.marginTop = "16px";
   inst.innerHTML = '<div class="ph"><h3>Install on your Mac, iPad and iPhone</h3><span>works offline after the first visit</span></div><div class="install"><b>iPhone and iPad (Safari):</b> open this page, tap Share, then <b>Add to Home Screen</b>. It opens full-screen with its own icon, and everything, including PokerPro and the Math 340 tool, works offline.<br><b>Mac (Safari 17+):</b> File › <b>Add to Dock</b>. <b>Mac (Chrome/Edge):</b> the install icon in the address bar, or the menu › Install Skill Builder.<br><b>Offline:</b> a service worker caches all three apps on the first visit. Progress made offline is saved on the device and merged with the gist the next time you are online, on every device.</div>' +
@@ -326,7 +333,8 @@ function themeNow() { var t = document.documentElement.getAttribute("data-theme"
 function drawThemeBtn() {
   var b = $("themeBtn"); if (!b) return; var dark = themeNow() === "dark";
   b.innerHTML = dark ? THEME_ICON.sun : THEME_ICON.moon; b.title = dark ? "Switch to the paper theme" : "Switch to the lamp theme";
-  var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? "#161411" : "#F4EFE6";
+  var forced = !!document.documentElement.getAttribute("data-theme");
+  document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.content = forced ? (dark ? "#161411" : "#F4EFE6") : (m.media && m.media.indexOf("dark") >= 0 ? "#161411" : "#F4EFE6"); });
 }
 $("themeBtn").onclick = function () { var next = themeNow() === "dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", next); try { localStorage.setItem("sb-theme", next); } catch (e) {} drawThemeBtn(); };
 if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawThemeBtn); } catch (e) {} }

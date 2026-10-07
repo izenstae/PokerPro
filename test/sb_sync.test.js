@@ -31,5 +31,97 @@ var AW = ctx.hsMergeAll(A, W);
 ok(Object.keys(AW.hub.progress).length === 0 && Object.keys(AW.hub.skills).length === 0, "a newer epoch (a wipe) wins outright");
 ok(ctx.hsCanon(ctx.hsMergeAll(W, A)) === ctx.hsCanon(AW), "and commutes");
 var E = ctx.hsMergeAll(null, A); ok(ctx.hsCanon(E) === ctx.hsCanon(ctx.hsMergeAll(A, ctx.hsEmpty())), "merging with nothing is the identity");
+function same(x, y) { return ctx.hsCanon(x) === ctx.hsCanon(y); }
+function hub(h) { return { v: 1, hub: Object.assign({ epoch: 0 }, h) }; }
+
+/* trophies: the first sighting survives, whichever side syncs first */
+var T1 = hub({ gstate: { seen: { a: 500, b: 100 } } }), T2 = hub({ gstate: { seen: { a: 300, c: 900 } } });
+var TM = ctx.hsMergeAll(T1, T2);
+ok(TM.hub.gstate.seen.a === 300 && TM.hub.gstate.seen.b === 100 && TM.hub.gstate.seen.c === 900, "trophy seen: the earliest time, union of keys");
+ok(same(TM, ctx.hsMergeAll(T2, T1)), "and commutes");
+
+/* the plan ticks of today survive a sync with a device that has none, in either order */
+var local = hub({ gstate: { planDone: { "2026-10-06": { "sv:review": true, "poker:lesson": true }, "2026-10-05": { "he:review": true } }, planLast: "2026-10-06", conf: false, primed: true, planStreak: 3 } });
+var remote = hub({ gstate: { planDone: { "2026-10-06": { "chess:apply": true }, "2026-09-20": { "sv:review": true } }, planLast: "2026-10-05", conf: true, planStreak: 2 } });
+var LR = ctx.hsMergeAll(local, remote), RL = ctx.hsMergeAll(remote, local);
+ok(same(LR, RL), "gstate plan fields merge commutatively");
+var pd = LR.hub.gstate.planDone["2026-10-06"];
+ok(pd && pd["sv:review"] && pd["poker:lesson"] && pd["chess:apply"], "today's ticks are the union of both devices: " + JSON.stringify(pd));
+ok(LR.hub.gstate.planDone["2026-10-05"]["he:review"] && LR.hub.gstate.planDone["2026-09-20"], "other days are kept as sets");
+ok(LR.hub.gstate.planLast === "2026-10-06", "planLast is the later day");
+ok(LR.hub.gstate.planStreak === 3, "the streak is the max");
+ok(LR.hub.gstate.primed === true, "primed is OR");
+ok(LR.hub.gstate.conf === true && RL.hub.gstate.conf === true, "with nothing to date it, conf is OR");
+var cA = hub({ gstate: { conf: false, confAt: 20 } }), cB = hub({ gstate: { conf: true, confAt: 10 } });
+ok(ctx.hsMergeAll(cA, cB).hub.gstate.conf === false && ctx.hsMergeAll(cB, cA).hub.gstate.conf === false && ctx.hsMergeAll(cB, cA).hub.gstate.confAt === 20, "with a stamp the newer conf wins both ways");
+var sA = hub({ gstate: { conf: false, goalAt: 50 }, plan: { at: 900 } }), sB = hub({ gstate: { conf: true, goalAt: 60 }, plan: { at: 100 } });
+ok(ctx.hsMergeAll(sA, sB).hub.gstate.conf === false && ctx.hsMergeAll(sB, sA).hub.gstate.conf === false, "without a conf stamp the side whose settings moved later (plan.at) decides, both ways");
+var many = {}; for (var di = 1; di <= 12; di++) many["2026-09-" + (di < 10 ? "0" : "") + di] = { "sv:review": true };
+var PM = ctx.hsMergePlanDone(many, { "2026-10-06": { "a:b": true } });
+ok(Object.keys(PM).length === 8 && PM["2026-10-06"] && !PM["2026-09-01"], "only the newest eight days of ticks are kept");
+ok(same(PM, ctx.hsMergePlanDone({ "2026-10-06": { "a:b": true } }, many)), "in either order");
+var sc1 = hub({ gstate: { schoolClear: 2 } }), sc2 = hub({ gstate: { schoolClear: 1 } });
+ok(ctx.hsMergeAll(sc1, sc2).hub.gstate.schoolClear === 2 && ctx.hsMergeAll(sc2, sc1).hub.gstate.schoolClear === 2, "schoolClear is a counter: max");
+ok(same(ctx.hsMergeAll(LR, local), LR) && same(ctx.hsMergeAll(LR, remote), LR), "the plan merge is idempotent");
+
+/* skills: a graduated skill (box 1, never answered) is never demoted by a fresh copy */
+var grad = { box: 1, due: 5000, run: 0, n: 0, ok: 0, lapses: 0, last: 0, secs: 0, hist: [] }, fresh = { box: 0, due: 0, run: 0, n: 0, ok: 0, lapses: 0, last: 0, secs: 0, hist: [] };
+ok(ctx.hsNewerSkill(grad, fresh).box === 1 && ctx.hsNewerSkill(fresh, grad).box === 1, "graduated beats fresh in both orders");
+var G1 = hub({ skills: { "sv:w:1": grad } }), G2 = hub({ skills: { "sv:w:1": fresh } });
+ok(ctx.hsMergeAll(G1, G2).hub.skills["sv:w:1"].box === 1 && ctx.hsMergeAll(G2, G1).hub.skills["sv:w:1"].box === 1, "through the whole merge too");
+var crammed = { box: 1, due: 9000, n: 3, ok: 2, last: 700 };
+ok(ctx.hsNewerSkill(grad, crammed) === crammed && ctx.hsNewerSkill(crammed, grad) === crammed, "a graduated skill yields to an answered copy of the same box");
+var wrongOnce = { box: 0, due: 100, n: 1, ok: 0, last: 700 };
+ok(ctx.hsNewerSkill(grad, wrongOnce).box === 1 && ctx.hsNewerSkill(wrongOnce, grad).box === 1, "but an answered box-0 copy never demotes a graduated one");
+var t1 = { box: 2, last: 500, n: 4, ok: 3 }, t2 = { box: 3, last: 500, n: 4, ok: 3 };
+ok(ctx.hsNewerSkill(t1, t2) === t2 && ctx.hsNewerSkill(t2, t1) === t2, "a tie on last goes to the higher box");
+var u1 = { box: 2, last: 500, n: 4, ok: 3 }, u2 = { box: 2, last: 500, n: 6, ok: 3 };
+ok(ctx.hsNewerSkill(u1, u2) === u2 && ctx.hsNewerSkill(u2, u1) === u2, "then to the more answered");
+var v1 = { box: 2, last: 900, n: 4, ok: 3 }, v2 = { box: 3, last: 500, n: 9, ok: 9 };
+ok(ctx.hsNewerSkill(v1, v2) === v1 && ctx.hsNewerSkill(v2, v1) === v1, "when both were answered the later answer still wins");
+var w1 = { box: 2, last: 500, n: 4, ok: 3, due: 1 }, w2 = { box: 2, last: 500, n: 4, ok: 3, due: 2 };
+ok(ctx.hsNewerSkill(w1, w2) === ctx.hsNewerSkill(w2, w1), "a full tie is still order-independent");
+
+/* capped sets: the newest survive whichever side is first */
+var gA = [], gB = []; for (var gi = 0; gi < 60; gi++) { gA.push({ t: 1000 + gi * 2, result: "win" }); gB.push({ t: 1001 + gi * 2, result: "loss" }); }
+var CA = hub({ chess: { d: [], games: gA, puzzle: 1000, pn: 0, ph: [] } }), CB = hub({ chess: { d: [], games: gB, puzzle: 1000, pn: 0, ph: [] } });
+var CAB = ctx.hsMergeAll(CA, CB), CBA = ctx.hsMergeAll(CB, CA);
+ok(CAB.hub.chess.games.length === 60 && same(CAB, CBA), "two disjoint 60-game sets merge to the same 60 in either order");
+ok(CAB.hub.chess.games[0].t === 1119 && CAB.hub.chess.games[59].t === 1060, "the survivors are the 60 most recent, newest first");
+ok(CAB.hub.chess.games.filter(function (g) { return g.result === "win"; }).length === 30, "half from each side");
+var LA = [], LB = []; for (var li = 0; li < 1500; li++) { LA.push({ id: "a" + li, t: li * 2 }); LB.push({ id: "b" + li, t: li * 2 + 1 }); }
+var LAB = ctx.hsMergeAll(hub({ logs: LA }), hub({ logs: LB })), LBA = ctx.hsMergeAll(hub({ logs: LB }), hub({ logs: LA }));
+ok(LAB.hub.logs.length === 2000 && same(LAB, LBA) && LAB.hub.logs[0].t === 1000 && LAB.hub.logs[1999].t === 2999, "logs: sorted by time, then capped to the newest 2000, both ways");
+ok(same(ctx.hsUnionBy([{ k: 1, t: 5 }, { k: 2, t: 1 }], [{ k: 3, t: 3 }], function (x) { return x.k; }, 2, function (x) { return x.t; }), [{ k: 3, t: 3 }, { k: 1, t: 5 }]), "hsUnionBy sorts before it caps");
+
+/* malformed payloads: nothing throws, the shape is restored, and both orders agree */
+var bad = { v: 1, hub: { epoch: 0, progress: null, skills: null, plog: "x", gstate: null, chess: { d: "no", games: null, puzzle: "abc", pn: null }, apply: 7, logs: "not a list", plan: "later", placed: [1, 2], quant: { runs: {}, tier: null, best: "no" } }, poker: "x", pokerGame: 3, pokerSim: [], math340: { cards: null, practice: 4, misses: "m", exams: null, sheet: {}, activity: [] }, devices: null };
+var mergedBad = null, threw = false;
+try { mergedBad = ctx.hsMergeAll(A, bad); } catch (e) { threw = true; console.log("  threw: " + (e && e.stack)); }
+ok(!threw && mergedBad && mergedBad.hub.progress["sv:sv_v1"] && mergedBad.hub.skills["sv:w:sv_v1:0"].box === 2, "a malformed gist merges without throwing and keeps the good side");
+ok(!threw && same(mergedBad, ctx.hsMergeAll(bad, A)), "and in either order");
+ok(!threw && mergedBad.hub.chess.games.length === 1 && mergedBad.hub.logs.length === 1 && mergedBad.hub.plan.cap === 60 && mergedBad.math340.cards.c1, "arrays and objects on the bad side read as empty");
+ok(!threw && mergedBad.poker && mergedBad.poker.progress.price && mergedBad.pokerGame.goal === 60 && mergedBad.pokerSim.at === 5, "a string, a number and an array where PokerPro's objects belong read as absent");
+var N = ctx.hsNorm(bad);
+ok(N.hub.skills && typeof N.hub.skills === "object" && Array.isArray(N.hub.logs) && N.hub.logs.length === 0 && N.hub.plan === null && Array.isArray(N.hub.chess.games) && N.hub.chess.puzzle === 0 && Array.isArray(N.hub.quant.runs) && N.poker === null && N.math340.cards && Array.isArray(N.math340.misses) && N.devices && typeof N.devices === "object", "hsNorm coerces every known sub-shape");
+ok(same(ctx.hsNorm(null), ctx.hsEmpty()) && same(ctx.hsNorm("junk"), ctx.hsEmpty()) && same(ctx.hsNorm([1]), ctx.hsEmpty()), "a non-object file normalises to empty");
+var halfSkills = hub({ skills: { good: { box: 2, last: 5 }, bad: "x", worse: null } });
+var HS = ctx.hsMergeAll(halfSkills, A);
+ok(HS.hub.skills.good && !HS.hub.skills.bad && !HS.hub.skills.worse && same(HS, ctx.hsMergeAll(A, halfSkills)), "non-object skill records are dropped, not merged");
+var badDays = hub({ plog: { "2026-10-01": "x", "2026-10-03": { s: 5 } } });
+ok(ctx.hsMergeAll(badDays, A).hub.plog["2026-10-01"].s === 600 && ctx.hsMergeAll(badDays, A).hub.plog["2026-10-03"].s === 5, "non-object day logs are dropped");
+threw = false; try { ctx.hsMergeAll({ hub: { epoch: "7", skills: { a: { box: "2", last: "x" } } } }, A); } catch (e) { threw = true; }
+ok(!threw, "string numbers in the hub do not throw");
+
+/* unknown top-level keys round-trip, the remote (b) copy when both have one */
+var X1 = Object.assign({}, A, { future: { schema: 2, note: "from A" }, flag: 1 }), X2 = Object.assign({}, B, { future: { schema: 3 }, other: [1] });
+var XM = ctx.hsMergeAll(X1, X2);
+ok(XM.future && XM.future.schema === 3 && XM.flag === 1 && XM.other && XM.other.length === 1, "unknown keys from both sides are kept, b's copy when both have it");
+ok(ctx.hsMergeAll(X2, X1).future.schema === 2, "(and a's when a is the remote)");
+ok(ctx.hsNorm(X1).future && ctx.hsNorm(X1).future.note === "from A", "hsNorm keeps unknown keys");
+ok(same(ctx.hsMergeAll(X1, XM), XM) && same(ctx.hsMergeAll(XM, X2), XM) && same(ctx.hsMergeAll(XM, XM), XM), "merging again with the merged file as the remote changes nothing");
+var oldStyle = ctx.hsMergeAll(A, B);
+ok(Object.keys(oldStyle).sort().join(",") === "devices,hub,math340,poker,pokerGame,pokerSim,v", "without unknown keys the file has exactly its known keys");
+
 console.log("sync: " + (n - fails) + "/" + n + " passed");
 if (fails) process.exit(1);

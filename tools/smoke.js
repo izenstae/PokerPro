@@ -12,7 +12,8 @@ const server = http.createServer((q, s) => { let u = decodeURIComponent(q.url.sp
   const page = await browser.newPage({ viewport: { width: 1100, height: 900 } });
   const errors = [];
   page.on("pageerror", e => errors.push("pageerror: " + e.message));
-  page.on("console", m => { if (m.type() === "error") errors.push("console: " + m.text()); });
+  const cspHits = [];
+  page.on("console", m => { if (/Content Security Policy/.test(m.text())) cspHits.push(m.text()); else if (m.type() === "error") errors.push("console: " + m.text()); });
   const base = "http://localhost:8765/";
   let fails = 0, n = 0;
   const ok = (c, m) => { n++; if (!c) { fails++; console.log("  FAIL " + m); } };
@@ -47,6 +48,21 @@ const server = http.createServer((q, s) => { let u = decodeURIComponent(q.url.sp
   }
   const passedCp = await page.evaluate(() => !!progress["chess:ch_value"] && !!skills["chess:chvalue"]);
   ok(passedCp, "checkpoint passed and the drill joined the schedule");
+  /* a failed checkpoint, then Try again: the result panel is already at #/drill, so it must redraw the table itself */
+  await go("#/c/chess/learn/ch_value"); await page.click("text=Retake checkpoint"); await page.waitForTimeout(200);
+  for (let i = 0; i < 40; i++) { const st = await page.evaluate(() => ({ cp: !!cp, answered, done: !document.querySelector(".cpdone").hidden })); if (st.done || !st.cp) break; if (st.answered) { await page.evaluate(() => advance()); await page.waitForTimeout(60); continue; } await page.evaluate(() => submit(q.kind === "choice" ? (q.options.filter(o => o !== q.answer)[0] || "zzz") : "zzz")); await page.waitForTimeout(60); if (await page.evaluate(() => !!(q && q.confPending))) await page.evaluate(() => pickConfidence("s")); }
+  ok(await page.evaluate(() => !document.querySelector(".cpdone").hidden && !!document.querySelector(".cpdone h3.fail")), "a checkpoint answered wrong fails");
+  await page.click("text=Try again"); await page.waitForTimeout(200);
+  ok(await page.evaluate(() => location.hash === "#/drill" && !document.querySelector(".table").hidden && document.querySelector(".cpdone").hidden && !!q && !!cp), "Try again shows the table again and hides the result");
+  /* Enter on a focused option answers with that option */
+  for (let i = 0; i < 10 && !(await page.evaluate(() => q && q.kind === "choice" && !answered)); i++) await page.evaluate(() => { answered = false; cp.marks = []; cp.asked = []; next(); });
+  if (await page.evaluate(() => q && q.kind === "choice")) {
+    const picked = await page.evaluate(() => { const bs = document.querySelectorAll("#controls .opts button"); const b = bs[bs.length - 1]; b.focus(); return b.textContent.replace(/\d$/, ""); });
+    await page.keyboard.press("Enter"); await page.waitForTimeout(80);
+    ok(await page.evaluate(p => answered && (q.confPending ? q.confPending.said === p : true), picked), "Enter on a focused choice button answers with it");
+    if (await page.evaluate(() => !!q.confPending)) { await page.evaluate(() => { document.querySelectorAll("#reveal .confq button")[1].focus(); }); await page.keyboard.press("Enter"); await page.waitForTimeout(80); ok(await page.evaluate(() => q.conf === "f" && !q.confPending), "Enter on a focused confidence button picks it"); }
+  } else ok(false, "no choice question reached for the Enter check");
+  await page.evaluate(() => { cp = null; sess = null; });
   /* a vocabulary checkpoint in Hebrew */
   await go("#/c/he/learn/he_v1"); await page.click("text=Start checkpoint"); await page.waitForTimeout(200);
   for (let i = 0; i < 40; i++) { const st = await page.evaluate(() => ({ cp: !!cp, answered, done: !document.querySelector(".cpdone").hidden })); if (st.done || !st.cp) break; if (st.answered) { await page.evaluate(() => advance()); await page.waitForTimeout(60); continue; } await page.evaluate(() => submit(q.answer)); await page.waitForTimeout(60); if (await page.evaluate(() => !!(q && q.confPending))) await page.evaluate(() => pickConfidence("f")); }
@@ -91,6 +107,8 @@ const server = http.createServer((q, s) => { let u = decodeURIComponent(q.url.sp
   await page.goto(base + "#/home", { waitUntil: "load" }); await page.waitForTimeout(300);
   const wide = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 2);
   ok(!wide, "no horizontal overflow at phone width");
+  for (const r of ["#/quant", "#/c/chess/apply", "#/library/all", "#/calendar/week"]) { await go(r); await page.waitForTimeout(100); const w = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]); ok(w[0] <= w[1] + 2, "no horizontal overflow at 390px on " + r + " (" + w.join("/") + ")"); }
+  ok(cspHits.length === 0, "no Content-Security-Policy violations: " + cspHits.slice(0, 3).join(" | "));
   console.log("smoke: " + (n - fails) + "/" + n + " passed" + (errors.length ? "\n" + errors.join("\n") : ""));
   await browser.close(); server.close();
   process.exit(fails ? 1 : 0);

@@ -20,17 +20,23 @@ const Practice = (() => {
 
   /* ---------------- answer parsing ---------------- */
 
+  // Whitespace out, Unicode minus and an explicit "+" sign normalised.
+  function normalise(text) {
+    return (text || "").trim().replace(/\s+/g, "").replace(/[\u2212\u2013]/g, "-").replace(/^\+/, "");
+  }
+  const NUM = String.raw`(?:\d*\.?\d+|\d+\.)(?:e[-+]?\d+)?`;   // 0.5, .5, 5., 1.4e-1
+
   function parseAnswer(text) {
-    text = (text || "").trim().replace(/\s+/g, "");
+    text = normalise(text);
     if (!text) return NaN;
     // thousands separators, e.g. "17,576,000" — counting answers get large enough
     // that writing them out this way is natural. The pattern is deliberately strict
     // so a decimal comma ("1,5") is still rejected rather than read as 15.
     if (/^-?\d{1,3}(,\d{3})+$/.test(text)) text = text.replace(/,/g, "");
     // percentage, e.g. "25%"
-    if (/^-?\d*\.?\d+%$/.test(text)) return parseFloat(text) / 100;
+    if (new RegExp(`^-?${NUM}%$`, "i").test(text)) return parseFloat(text) / 100;
     // fraction, e.g. "5/36" or "0.5/2"
-    const frac = text.match(/^(-?\d*\.?\d+)\/(-?\d*\.?\d+)$/);
+    const frac = text.match(new RegExp(`^(-?${NUM})\\/(-?${NUM})$`, "i"));
     if (frac) {
       const den = parseFloat(frac[2]);
       return den === 0 ? NaN : parseFloat(frac[1]) / den;
@@ -40,13 +46,28 @@ const Practice = (() => {
     return Number.isFinite(v) ? v : NaN;
   }
 
-  // Decimal places in a plainly-typed decimal, or -1 if it isn't one.
+  /* How many decimal places the student committed to, or -1 for anything
+   * that is not a plainly-typed number (a fraction, say). Trailing zeros are
+   * not a commitment — "0.140" is the same rounding as "0.14" — and a percent
+   * or an exponent shifts the point: "14%" and "1.4e-1" are both 0.14 to
+   * two places. */
   function typedDecimals(text) {
-    const m = (text || "").trim().replace(/\s+/g, "").match(/^-?\d*\.(\d+)$/);
-    return m ? m[1].length : -1;
+    const m = normalise(text).match(/^-?(\d*)(?:\.(\d*))?(?:e([-+]?\d+))?(%?)$/i);
+    if (!m || (!m[1] && !m[2])) return -1;
+    const frac = (m[2] || "").replace(/0+$/, "");
+    return Math.max(0, frac.length - (m[3] ? Number(m[3]) : 0) + (m[4] ? 2 : 0));
   }
 
   function round(x, d) { const p = Math.pow(10, d); return Math.round(x * p) / p; }
+
+  /* Absolute slack for an answer: 0.0006 (or 0.4%, if larger) for most, but
+   * an answer below about 0.01 is held to 5% of itself, down to 0.0002 — a
+   * flat 0.0006 would wave 0.004 through for 0.0046. */
+  function tolFor(problem) {
+    if (problem.tol != null) return problem.tol;
+    const a = Math.abs(problem.answer);
+    return Math.max(0.0002, Math.min(0.0006, a * 0.05), a * 0.004);
+  }
 
   /* Correct if the value is within tolerance, OR if the student simply
    * rounded — someone who writes 0.14 for 0.1389 has done the problem.
@@ -58,8 +79,7 @@ const Practice = (() => {
     // Counts are exact. The old half-unit window quietly accepted 119.6 for
     // 120; this only absorbs floating-point noise.
     if (problem.kind === "count") return Math.abs(userValue - ans) < 1e-6;
-    const tol = problem.tol != null ? problem.tol : Math.max(0.0006, Math.abs(ans) * 0.004);
-    if (Math.abs(userValue - ans) <= tol) return true;
+    if (Math.abs(userValue - ans) <= tolFor(problem)) return true;
     const d = typedDecimals(text);
     if (d >= 2 && Math.abs(userValue - ans) <= Math.max(Math.abs(ans) * 0.05, 1e-9)) {
       return round(ans, d) === round(userValue, d);
@@ -69,9 +89,12 @@ const Practice = (() => {
 
   function roundedNotExact(problem, userValue, text) {
     if (problem.kind === "count") return false;
-    const tol = problem.tol != null ? problem.tol : Math.max(0.0006, Math.abs(problem.answer) * 0.004);
-    return Math.abs(userValue - problem.answer) > tol;
+    return Math.abs(userValue - problem.answer) > tolFor(problem);
   }
+
+  /* Stored problem text (the mistake log) may have come from an imported or
+   * synced file; it is rendered as HTML, so it is sanitised on the way out. */
+  const clean = html => MATH340.util.sanitizeHtml(html);
 
   /* A wrong answer often *is* a recognisable mistake. Naming it is worth
    * more than "incorrect", and these three account for most of them. */
@@ -240,7 +263,7 @@ const Practice = (() => {
     current = {
       gen: found ? found.gen : { id: m.genId, name: m.genName || m.genId },
       unit: found ? found.unit : { id: m.unitId, short: m.unitShort || "" },
-      problem: { q: m.q, sol: m.sol, answer: m.answer, kind: m.kind, variant: m.variant },
+      problem: { q: clean(m.q), sol: clean(m.sol), answer: m.answer, kind: m.kind, variant: m.variant },
       mode: "redo", redo: { queue, idx, key: m.key },
       attempts: 0, hintsShown: 0, answered: false, aided: false,
     };
@@ -413,7 +436,7 @@ const Practice = (() => {
     App.typeset(el);
   }
 
-  return { mount: home, parseAnswer, checkAnswer, solSteps, poolFor, findGen };
+  return { mount: home, parseAnswer, checkAnswer, typedDecimals, solSteps, poolFor, findGen, sanitize: clean };
 })();
 
 /* ============================================================

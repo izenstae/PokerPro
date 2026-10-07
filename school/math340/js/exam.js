@@ -18,6 +18,19 @@ const Exam = (() => {
   let s = null;        // active sitting, see build()
   let ticker = null;
 
+  /* The real sittings' dates and times come from the manifest's key dates,
+   * so a calendar change is made in one place. `which` picks the entry by
+   * label; { date: "Oct 21", time: "1:50–3:00 pm" } or empty strings. */
+  function realExam(which) {
+    const exams = MATH340.keyDates.filter(k => k.kind === "exam");
+    const k = exams.find(e => which.test(e.label));
+    if (!k) return { date: "", time: "" };
+    const date = MATH340.parseISODate(k.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const time = (k.label.split("·")[1] || "").replace(/\(.*\)/, "").trim();
+    return { date, time };
+  }
+  const MIDTERM = realExam(/midterm/i), FINAL = realExam(/final/i);
+
   const PRESETS = [
     {
       id: "quiz", label: "Wednesday quiz", icon: "✎",
@@ -28,13 +41,13 @@ const Exam = (() => {
     {
       id: "midterm", label: "Midterm rehearsal", icon: "▦",
       n: 12, minutes: 70,
-      blurb: "Twelve problems, 70 minutes — the length of the real sitting (1:50–3:00 pm, Oct 21).",
+      blurb: `Twelve problems, 70 minutes — the length of the real sitting${MIDTERM.date ? ` (${MIDTERM.time ? MIDTERM.time + ", " : ""}${MIDTERM.date})` : ""}.`,
       scope: "all",
     },
     {
       id: "final", label: "Final rehearsal", icon: "◆",
       n: 18, minutes: 150,
-      blurb: "Eighteen problems, 150 minutes, everything registered — the final is cumulative (Nov 23).",
+      blurb: `Eighteen problems, 150 minutes, everything registered — the final is cumulative${FINAL.date ? ` (${FINAL.date})` : ""}.`,
       scope: "all",
     },
     {
@@ -45,10 +58,9 @@ const Exam = (() => {
     },
   ];
 
-  // Answers go back into a value="" attribute between renders.
-  function esc(t) {
-    return String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-  }
+  // Answers go back into a value="" attribute between renders, and stored
+  // labels (which may have been imported or synced) are plain text.
+  const esc = MATH340.util.escapeHtml;
 
   function fmtClock(sec) {
     sec = Math.max(0, Math.round(sec));
@@ -111,7 +123,7 @@ const Exam = (() => {
             const pct = Math.round(100 * e.correct / e.n);
             return `<tr>
               <td>${new Date(e.at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</td>
-              <td>${e.label}<div class="muted" style="font-size:12px">${e.scopeLabel || ""}</div></td>
+              <td>${esc(e.label)}<div class="muted" style="font-size:12px">${esc(e.scopeLabel || "")}</div></td>
               <td><b>${e.correct}/${e.n}</b> <span class="pill ${pct >= 80 ? "pill-green" : pct >= 60 ? "pill-amber" : "pill-red"}">${pct}%</span></td>
               <td class="muted">${fmtClock(e.seconds)}${e.limit ? " of " + e.limit + ":00" : ""}</td>
             </tr>`;

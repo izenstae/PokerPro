@@ -470,7 +470,7 @@ var ES_GENDER = {
   rule: { 1: "-o is usually masculine, -a usually feminine. Famous exceptions: el día, el mapa, el problema, el idioma, el clima (Greek -ma words are masculine); la mano, la foto, la moto. Nouns in -ción, -sión, -dad, -tad, -tud are feminine; -or, -aje are masculine." },
   rows: [["libro", "el", "book"], ["casa", "la", "house"], ["día", "el", "day"], ["mano", "la", "hand"], ["problema", "el", "problem"], ["ciudad", "la", "city"], ["coche", "el", "car"], ["noche", "la", "night"],
     ["mapa", "el", "map"], ["foto", "la", "photo"], ["idioma", "el", "language"], ["universidad", "la", "university"], ["reloj", "el", "watch"], ["canción", "la", "song"], ["viaje", "el", "trip"], ["calle", "la", "street"],
-    ["agua", "el (f.)", "water"], ["clima", "el", "climate"], ["flor", "la", "flower"], ["color", "el", "colour"], ["leche", "la", "milk"], ["pie", "el", "foot"], ["sal", "la", "salt"], ["pan", "el", "bread"],
+    ["agua", "el", "water (f., but el in the singular)"], ["clima", "el", "climate"], ["flor", "la", "flower"], ["color", "el", "colour"], ["leche", "la", "milk"], ["pie", "el", "foot"], ["sal", "la", "salt"], ["pan", "el", "bread"],
     ["gente", "la", "people"], ["equipo", "el", "team"], ["clase", "la", "class"], ["lápiz", "el", "pencil"], ["moto", "la", "motorbike"], ["sistema", "el", "system"]]
 };
 var ES_PLURAL = {
@@ -595,9 +595,9 @@ var ES_DIALOGUES = [
   { id: "es_d1", title: "Hello, who are you?", setting: "A new teammate at the rink. Introduce yourself.", level: "A1",
     turns: [
       { bot: "¡Hola! Me llamo Lucía. ¿Cómo te llamas?", botg: "Hi! My name is Lucía. What's your name?", expect: ["me llamo", "mi nombre", "^soy "], model: "¡Hola! Me llamo Erik.", modelg: "Hi! My name is Erik.", hint: "Me llamo ... (My name is ...)" },
-      { bot: "¡Mucho gusto! ¿De dónde eres?", botg: "Nice to meet you! Where are you from?", expect: ["soy de", "de canad", "vengo de"], model: "Soy de Canadá.", modelg: "I'm from Canada.", hint: "Soy de ... " },
+      { bot: "¡Mucho gusto! ¿De dónde eres?", botg: "Nice to meet you! Where are you from?", expect: ["soy de", "de canad[aá]", "canadiense", "vengo de"], model: "Soy de Canadá.", modelg: "I'm from Canada.", hint: "Soy de ... " },
       { bot: "¡Qué bien! ¿Vives aquí ahora?", botg: "Great! Do you live here now?", expect: ["^s[ií]", "^no", "vivo"], model: "Sí, vivo aquí ahora.", modelg: "Yes, I live here now.", hint: "Sí / No, vivo ..." },
-      { bot: "¿Juegas al hockey?", botg: "Do you play hockey?", expect: ["s[ií]", "juego"], model: "Sí, juego al hockey.", modelg: "Yes, I play hockey.", hint: "Sí, juego al ..." },
+      { bot: "¿Juegas al hockey?", botg: "Do you play hockey?", expect: ["s[ií]", "juego"], reject: ["no"], model: "Sí, juego al hockey.", modelg: "Yes, I play hockey.", hint: "Sí, juego al ..." },
       { bot: "¡Perfecto! Nos vemos en el entrenamiento. ¡Adiós!", botg: "Perfect! See you at practice. Bye!", expect: ["adi[oó]s", "hasta", "nos vemos", "chao"], model: "¡Adiós, hasta luego!", modelg: "Bye, see you later!", hint: "Adiós / Hasta luego / Nos vemos" }
     ] },
   { id: "es_d2", title: "At the café", setting: "Order a coffee and something to eat, then pay.", level: "A1",
@@ -616,7 +616,7 @@ var ES_DIALOGUES = [
     ] },
   { id: "es_d4", title: "At the doctor", setting: "You hurt your knee at hockey. Say what happened in the past tense.", level: "A2",
     turns: [
-      { bot: "Buenos días, ¿qué le pasa?", botg: "Good morning, what's wrong?", expect: ["me duele", "rodilla", "me lesion", "me ca[ií]"], model: "Me duele la rodilla.", modelg: "My knee hurts.", hint: "Me duele ... / Me lesioné ..." },
+      { bot: "Buenos días, ¿qué le pasa?", botg: "Good morning, what's wrong?", expect: ["me duele", "rodilla", "me lesion[eé]", "me ca[ií]"], model: "Me duele la rodilla.", modelg: "My knee hurts.", hint: "Me duele ... / Me lesioné ..." },
       { bot: "Entiendo. ¿Cuándo pasó?", botg: "I see. When did it happen?", expect: ["ayer", "anoche", "hace", "en el entrenamiento", "el (lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo)"], model: "Ayer, en el entrenamiento de hockey.", modelg: "Yesterday, at hockey practice.", hint: "Ayer / Hace ... / En el entrenamiento" },
       { bot: "¿Puede caminar?", botg: "Can you walk?", expect: ["s[ií]", "no", "un poco", "puedo"], model: "Sí, pero me cuesta.", modelg: "Yes, but it's hard.", hint: "Sí / No / Un poco" },
       { bot: "Tome este medicamento dos veces al día y descanse una semana. ¿De acuerdo?", botg: "Take this medicine twice a day and rest a week. OK?", expect: ["de acuerdo", "vale", "gracias", "s[ií]"], model: "De acuerdo, muchas gracias.", modelg: "OK, thanks a lot.", hint: "De acuerdo / Vale, gracias" }

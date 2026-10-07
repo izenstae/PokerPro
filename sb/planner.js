@@ -21,18 +21,25 @@
 var PL_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 var PL_DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 var PL_KINDS = { class: "Class", hockey: "Hockey", work: "Work", other: "Busy" };
+/* every track the planner knows, with its starting priority (3 focus, 2 normal, 1 light, 0 paused);
+   a track missing from a saved priority map counts as 2, the same as the settings page shows it */
+var PL_TRACKS = [["poker", 2], ["chess", 2], ["sv", 3], ["he", 3], ["es", 3]];
+var PL_PRIORITY_DEFAULT = 2;
 
 function plDefault() {
+  var pr = {};
+  PL_TRACKS.forEach(function (t) { pr[t[0]] = t[1]; });
   return {
     cap: 60, hockeyCap: 40, heavyCap: 45,   /* minutes a day: normal, on a hockey day, on a day with 5+ busy hours */
     minBlock: 8, buffer: 15,                 /* smallest study block; minutes lost around every commitment */
     wake: "07:00", sleep: "23:00",
     newPerDay: 2, applyMin: 15,
     week: { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
-    priority: { poker: 2, chess: 2, sv: 3, he: 3 },
+    priority: pr,
     lastNew: {}, lastApply: {}
   };
 }
+function plPriority(S, id) { var p = S && S.priority ? S.priority[id] : null; return p == null ? PL_PRIORITY_DEFAULT : (+p || 0); }
 
 function plMins(hhmm) { var p = String(hhmm || "0:0").split(":"); return (+p[0]) * 60 + (+p[1] || 0); }
 function plFmt(m) {
@@ -42,19 +49,43 @@ function plFmt(m) {
 }
 function plFmt24(m) { var h = Math.floor(m / 60), mm = m % 60; return (h < 10 ? "0" : "") + h + ":" + (mm < 10 ? "0" : "") + mm; }
 
-/* the fixed blocks of a weekday, sorted, as minutes */
+/* the fixed blocks of a weekday as minutes, unsorted. A block whose end is before its start crosses
+   midnight (22:00-02:00): it is kept whole with t past 1440 and flagged, so callers can split it. */
+function plBusyRaw(S, wd) {
+  return ((S.week && S.week[wd]) || []).map(function (b) {
+    var f = plMins(b.f), t = plMins(b.t), cross = t < f;
+    return { n: b.n || PL_KINDS[b.k] || "Busy", k: b.k || "other", f: f, t: cross ? t + 1440 : t, cross: cross };
+  }).filter(function (b) { return b.t > b.f; });
+}
+/* the fixed blocks of a weekday, sorted, clipped to the day: a midnight-crossing block is
+   both its evening part (until 24:00) and its early-morning part (from 00:00) */
 function plBusy(S, wd) {
-  return ((S.week && S.week[wd]) || []).map(function (b) { return { n: b.n || PL_KINDS[b.k] || "Busy", k: b.k || "other", f: plMins(b.f), t: plMins(b.t) }; })
-    .filter(function (b) { return b.t > b.f; }).sort(function (a, b) { return a.f - b.f; });
+  var out = [];
+  plBusyRaw(S, wd).forEach(function (b) {
+    if (!b.cross) { out.push({ n: b.n, k: b.k, f: b.f, t: b.t }); return; }
+    out.push({ n: b.n, k: b.k, f: b.f, t: 1440 });
+    if (b.t > 1440) out.push({ n: b.n, k: b.k, f: 0, t: b.t - 1440 });
+  });
+  return out.sort(function (a, b) { return a.f - b.f; });
 }
 function plHas(S, wd, kind) { return plBusy(S, wd).some(function (b) { return b.k === kind; }); }
 function plBusyMinutes(S, wd) { return plBusy(S, wd).reduce(function (a, b) { return a + (b.t - b.f); }, 0); }
 
-/* free windows between waking and the sleep cutoff, with a buffer around every commitment */
+/* the sleep cutoff as minutes after the start of the day: one at or before the wake time ("00:30") is after midnight */
+function plSleepMins(S) { var wake = plMins(S.wake), sleep = plMins(S.sleep); return sleep <= wake ? sleep + 1440 : sleep; }
+
+/* free windows between waking and the sleep cutoff, with a buffer around every commitment.
+   Minutes run past 1440 when the cutoff is after midnight; plFmt wraps them. */
 function plFree(S, wd) {
-  var wake = plMins(S.wake), sleep = plMins(S.sleep), buf = S.buffer || 0;
+  var wake = plMins(S.wake), sleep = plSleepMins(S), buf = S.buffer || 0;
+  var busy = [];
+  plBusyRaw(S, wd).forEach(function (b) {
+    busy.push({ f: b.f, t: b.t });                                  /* whole, running past midnight if it does */
+    if (b.cross && b.t > 1440) busy.push({ f: 0, t: b.t - 1440 });  /* and its early-morning part on this day */
+  });
+  busy.sort(function (a, b) { return a.f - b.f; });
   var out = [], cur = wake;
-  plBusy(S, wd).forEach(function (b) {
+  busy.forEach(function (b) {
     var f = Math.max(wake, b.f - buf), t = Math.min(sleep, b.t + buf);
     if (f > cur) out.push({ f: cur, t: f });
     if (t > cur) cur = t;
@@ -82,17 +113,22 @@ function plBudget(S, wd) {
 function plPlan(S, wd, demand, done, dayKey) {
   demand = demand || {}; done = done || {};
   var B = plBudget(S, wd), budget = B.minutes, reserve = Math.round(budget * 0.1);
-  var ids = Object.keys(demand).filter(function (id) { return (S.priority[id] || 0) > 0; });
-  var pr = function (id) { return S.priority[id] || 0; };
+  var pr = function (id) { return plPriority(S, id); };   /* a track missing from the map is normal (2), not paused */
+  var ids = Object.keys(demand).filter(function (id) { return pr(id) > 0; });
   var used = 0, blocks = [];
   function spent(id) { return done[id] || 0; }
   var doneTotal = ids.reduce(function (a, id) { return a + spent(id); }, 0);
   var left = Math.max(0, budget - doneTotal);
 
-  /* 1. reviews, most pressing first: priority, then how overdue, then how many */
+  /* 1. reviews, most pressing first: how overdue (in days, capped at 5), then priority, then how many are due.
+        Overdue first because every extra day past the due date lowers the chance the item is still there;
+        the README promises this order. */
   var rev = ids.filter(function (id) { return demand[id].due > 0; }).sort(function (a, b) {
     var A = demand[a], Bb = demand[b];
-    return (pr(b) * 10 + Math.min(5, Bb.overdue || 0) + Math.min(3, Bb.due / 10)) - (pr(a) * 10 + Math.min(5, A.overdue || 0) + Math.min(3, A.due / 10));
+    var oa = Math.min(5, A.overdue || 0), ob = Math.min(5, Bb.overdue || 0);
+    if (ob !== oa) return ob - oa;
+    if (pr(b) !== pr(a)) return pr(b) - pr(a);
+    return (Bb.due || 0) - (A.due || 0);
   });
   rev.forEach(function (id) {
     var D = demand[id], m = Math.max(S.minBlock || 8, Math.min(25, Math.round(D.dueMin || D.due * 0.5)));
@@ -165,11 +201,13 @@ function plNote(S, dayKey, blocks) {
   });
 }
 
-/* reviews falling due per day for the next n days: items = [{ skill, due }] (ms) */
+/* reviews falling due per day for the next n days: items = [{ skill, due }] (ms).
+   Steps by local calendar day (noon-anchored, like gmNextDay), not by 24 hours, so a DST
+   change inside the range never repeats or skips a day key. */
 function plForecast(items, now, days, dayKeyFn) {
-  var out = [], DAY = 864e5;
+  var out = [], d0 = new Date(now);
   for (var d = 0; d < days; d++) {
-    var t0 = now + d * DAY, key = dayKeyFn(t0), row = { key: key, total: 0, by: {} };
+    var t0 = d === 0 ? now : new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + d, 12).getTime(), key = dayKeyFn(t0), row = { key: key, total: 0, by: {} };
     items.forEach(function (it) {
       var dueDay = dayKeyFn(Math.max(it.due, now));           /* overdue counts today */
       if (dueDay === key) { row.total++; row.by[it.skill] = (row.by[it.skill] || 0) + 1; }
@@ -188,6 +226,6 @@ function plWeekLines(S) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  PL_DAYS: PL_DAYS, PL_DAYS_SHORT: PL_DAYS_SHORT, PL_KINDS: PL_KINDS, plDefault: plDefault, plMins: plMins, plFmt: plFmt, plFmt24: plFmt24,
-  plBusy: plBusy, plHas: plHas, plFree: plFree, plFreeMinutes: plFreeMinutes, plBudget: plBudget, plPlan: plPlan, plNote: plNote, plForecast: plForecast, plWeekLines: plWeekLines
+  PL_DAYS: PL_DAYS, PL_DAYS_SHORT: PL_DAYS_SHORT, PL_KINDS: PL_KINDS, PL_TRACKS: PL_TRACKS, plDefault: plDefault, plPriority: plPriority, plMins: plMins, plFmt: plFmt, plFmt24: plFmt24,
+  plBusy: plBusy, plBusyRaw: plBusyRaw, plSleepMins: plSleepMins, plHas: plHas, plFree: plFree, plFreeMinutes: plFreeMinutes, plBudget: plBudget, plPlan: plPlan, plNote: plNote, plForecast: plForecast, plWeekLines: plWeekLines
 };

@@ -23,15 +23,12 @@ const App = (() => {
   }
 
   /* ---------- helpers ---------- */
-  const DAY = 24 * 3600 * 1000;
-
   function fmtDate(iso) {
-    const d = new Date(iso + "T12:00:00");
-    return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    return MATH340.parseISODate(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
   }
+  // Whole local calendar days: 0 on the day itself, 1 the day before, -1 the day after.
   function daysUntil(iso) {
-    const d = new Date(iso + "T23:59:59");
-    return Math.ceil((d - new Date()) / DAY);
+    return MATH340.daysUntil(iso);
   }
   function inDays(n) {
     return n === 0 ? "today" : n === 1 ? "tomorrow" : "in " + n + " days";
@@ -39,10 +36,18 @@ const App = (() => {
   function weekLabel() {
     const wk = MATH340.currentWeek();
     if (wk <= 0) return "Term starts " + fmtDate(MATH340.course.termStart);
-    if (wk >= 11) return "Term complete";
+    if (wk >= 11) {
+      // The final falls on the Monday after week 10, which is already "week 11":
+      // the term is not over while the exam is still ahead.
+      const exams = MATH340.keyDates.filter(k => k.kind === "exam");
+      const last = exams[exams.length - 1];
+      if (last && daysUntil(last.date) >= 0) return `${last.label.split("·")[0].trim()} ${inDays(daysUntil(last.date))}`;
+      return "Term complete";
+    }
     const row = MATH340.schedule.find(r => r.week === wk);
     return `Week ${wk} · ${row ? row.topic : ""}`;
   }
+  const escapeHtml = MATH340.util.escapeHtml;
   function escapeAttr(t) {
     return String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
   }
@@ -53,14 +58,7 @@ const App = (() => {
 
   /* The next Wednesday that carries a quiz, per the syllabus schedule. */
   function nextQuiz() {
-    const start = new Date(MATH340.course.termStart + "T00:00:00");
-    const now = new Date(); now.setHours(0, 0, 0, 0);
-    for (const row of MATH340.schedule) {
-      if (!row.quiz) continue;
-      const wed = new Date(start.getTime() + ((row.week - 1) * 7 + 2) * DAY);
-      if (wed >= now) return { week: row.week, topic: row.topic, days: Math.round((wed - now) / DAY) };
-    }
-    return null;
+    return MATH340.nextQuiz();
   }
 
   /* ---------- Dashboard ---------- */
@@ -198,7 +196,7 @@ const App = (() => {
         <h3 style="margin-top:0;">Last timed sitting</h3>
         <div class="topic-row">
           <span class="pill ${lastExam.correct / lastExam.n >= 0.8 ? "pill-green" : lastExam.correct / lastExam.n >= 0.6 ? "pill-amber" : "pill-red"}">${Math.round(100 * lastExam.correct / lastExam.n)}%</span>
-          <div style="flex:1;">${lastExam.label} · ${lastExam.correct}/${lastExam.n} · ${lastExam.scopeLabel || ""}</div>
+          <div style="flex:1;">${escapeHtml(lastExam.label)} · ${lastExam.correct}/${lastExam.n} · ${escapeHtml(lastExam.scopeLabel || "")}</div>
           <a class="btn btn-sm btn-ghost" href="#/exam">Sit another</a>
         </div>
       </div>` : ""}
@@ -482,7 +480,7 @@ const App = (() => {
           <tr><th>When</th><th>Set</th><th>Score</th></tr>
           ${exams.slice(0, 8).map(e => `<tr>
             <td class="muted">${new Date(e.at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</td>
-            <td>${e.label}<div class="muted" style="font-size:12px">${e.scopeLabel || ""}</div></td>
+            <td>${escapeHtml(e.label)}<div class="muted" style="font-size:12px">${escapeHtml(e.scopeLabel || "")}</div></td>
             <td><b>${e.correct}/${e.n}</b> <span class="pill ${e.correct / e.n >= 0.8 ? "pill-green" : e.correct / e.n >= 0.6 ? "pill-amber" : "pill-red"}">${Math.round(100 * e.correct / e.n)}%</span></td>
           </tr>`).join("")}
         </table>

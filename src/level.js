@@ -86,7 +86,7 @@ function lvAddHand(Lg, hand, now, learned) {
   Lg = Lg || lvNew();
   now = now || Date.now();
   var streets = ["preflop", "flop", "turn", "river"];
-  (hand.decisions || []).forEach(function (dec) {
+  (hand.decisions || []).forEach(function (dec, di) {
     var A = dec.A, G = dec.G;
     var k = lvKnown(G.concepts, learned);
     Lg.d.push({ t: now, q: G.quality, l: Math.round(100 * G.loss) / 100, g: G.grade, c: G.concepts.slice(), k: k, s: A.street });
@@ -94,7 +94,8 @@ function lvAddHand(Lg, hand, now, learned) {
       var did = A.options.filter(function (o) { return o.key === G.chosen; })[0];
       var best = A.options.filter(function (o) { return o.key === A.best; })[0];
       Lg.m.unshift({
-        id: now.toString(36) + "-" + hand.no + "-" + A.street, t: now, no: hand.no, pos: hand.pos,
+        /* the decision's index keeps two mistakes on the same street of one hand apart */
+        id: now.toString(36) + "-" + hand.no + "-" + A.street + "-" + di, t: now, no: hand.no, pos: hand.pos,
         cards: hand.cards.slice(), board: A.board.slice(), street: streets[A.street] || "",
         pot: A.pot, toCall: A.toCall, eq: A.eq, grade: G.grade, loss: G.loss,
         did: did ? did.label : "", didEV: did ? did.ev : 0, best: best ? best.label : "", bestEV: best ? best.ev : 0,

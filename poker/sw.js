@@ -1,7 +1,7 @@
 /* PokerPro service worker: the app works offline after one visit.
    Pages: network first (you always get the newest version when online),
    falling back to the cached copy. Everything else: cache first. */
-var CACHE = "pokerpro-v2";
+var CACHE = "pokerpro-v3";
 var CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", function (e) {
@@ -9,7 +9,8 @@ self.addEventListener("install", function (e) {
 });
 self.addEventListener("activate", function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
-    return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+    /* only PokerPro's own old caches: CacheStorage is shared by the whole origin, and the hub's worker keeps its "skillbuilder-" cache */
+    return Promise.all(keys.filter(function (k) { return k !== CACHE && k.indexOf("pokerpro-") === 0; }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
 });
 self.addEventListener("fetch", function (e) {
@@ -17,16 +18,14 @@ self.addEventListener("fetch", function (e) {
   if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;   /* sync and fonts go straight to the network */
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).then(function (res) {
-      var copy = res.clone();
-      caches.open(CACHE).then(function (c) { c.put("./index.html", copy); });
+      if (res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put("./index.html", copy); }); }
       return res;
     }).catch(function () { return caches.match("./index.html"); }));
     return;
   }
   e.respondWith(caches.match(req).then(function (hit) {
     return hit || fetch(req).then(function (res) {
-      var copy = res.clone();
-      caches.open(CACHE).then(function (c) { c.put(req, copy); });
+      if (res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
       return res;
     });
   }));

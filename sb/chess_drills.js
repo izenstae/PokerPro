@@ -40,9 +40,20 @@ var CH_MATE1 = [
   ["2k5/8/2K5/8/8/8/8/7R w - - 0 1", "Rh8#", "King and rook: opposition, then the check on the edge."]
 ];
 
+/* [fen, the model first move, note]; every first move that forces mate in two is accepted (chdMate2Firsts), and the tests verify each position */
 var CH_MATE2 = [
   ["5r1k/6pp/8/4N3/8/1Q6/B7/7K w - - 0 1", "Qg8+", "Philidor's legacy, shortened: Qg8+ Rxg8, Nf7#."],
-  ["5k2/8/4K3/8/8/8/8/7R w - - 0 1", "Rg1", "The rook takes the g-file, the king is driven to the edge, and the check on the eighth is mate: a waiting move wins."]
+  ["5k2/8/4K3/8/8/8/8/7R w - - 0 1", "Rg1", "The rook takes the g-file, the king is driven to the edge, and the check on the eighth is mate: a waiting move wins."],
+  ["2k5/8/3K4/8/8/8/8/R7 w - - 0 1", "Rb1", "The mirror image: Rb1 takes the b-file, Kd8 is forced, and Rb8 is mate."],
+  ["k7/8/8/8/8/8/6R1/5R2 w - - 0 1", "Rf7", "Two rooks: one takes the seventh rank, the king must step to b8, and the other rook mates on the eighth."],
+  ["7k/8/5K2/8/8/8/8/3Q4 w - - 0 1", "Qd7", "King and queen: a quiet move leaves the king one square, Kg8, and Qg7 is mate next to the king."],
+  ["1k6/8/1K6/8/8/8/8/2Q5 w - - 0 1", "Qc7+", "Qc7+ drives the king into the corner and Qa7 mates; several quiet queen moves also force mate in two."],
+  ["k7/8/2K5/8/8/8/8/7Q w - - 0 1", "Qb1", "The queen takes the b-file from a distance; the king has only a7, and Qb7 is mate."],
+  ["r5k1/5ppp/8/8/8/8/4QPPP/4R1K1 w - - 0 1", "Qe8+", "Back-rank deflection: Qe8+ Rxe8, Rxe8#. The queen is given up to drag the defender off the rank."],
+  ["4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w - - 0 1", "Qb8+", "Morphy's Opera game: Qb8+ Nxb8, Rd8#. The bishop on g5 guards d8."],
+  ["r2qkb1r/pp2nppp/3p4/2pNN1B1/2BnP3/3P4/PPP2PPP/R2bK2R w KQkq - 1 1", "Nf6+", "Légal's theme: Nf6+ gxf6, Bxf7#. The queen was given up for this."],
+  ["r2q1r1k/pb2Nppp/8/7Q/8/R7/5PPP/6K1 w - - 0 1", "Qxh7+", "Anastasia's mate: Qxh7+ Kxh7, Rh3#. The knight on e7 takes g8 and g6 from the king."],
+  ["5bk1/8/8/2q2b2/8/2N5/PP1N1PPP/2KR4 b - - 0 1", "Qxc3+", "Boden's mate: Qxc3+ bxc3, Ba3#. Two bishops on crossing diagonals against the castled king."]
 ];
 
 var CH_OPENINGS = [
@@ -130,15 +141,56 @@ function chdFindForks(s) {
   });
   return out;
 }
+/* the forks that survive a short search: within CH_FORK_SLACK of the engine's best move at depth 3 and winning material against the best defence */
+var CH_FORK_DEPTH = 3, CH_FORK_LIMIT = 60000, CH_FORK_SLACK = 50, CH_FORK_GAIN = 150;
+function chdForkScore(s, m) { chMake(s, m); var r = chSearch(s, CH_FORK_DEPTH - 1, CH_FORK_LIMIT); chUnmake(s); return -r.score; }
+function chdSoundForks(s, forks) {
+  var best = chSearch(s, CH_FORK_DEPTH, CH_FORK_LIMIT).score, before = chEval(s), out = [];
+  forks.forEach(function (f) { var v = chdForkScore(s, f.m); if (best - v <= CH_FORK_SLACK && v - before >= CH_FORK_GAIN) out.push(f); });
+  return out;
+}
+/* a built fork: the enemy king and a rook or queen a knight's move from one square, our knight a knight's move away, kings and a few extra men placed legally */
+function chdBuildFork(rnd) {
+  var side = rnd() < 0.5 ? 1 : -1;
+  for (var t = 0; t < 40; t++) {
+    var s = chNew(); s.side = side;
+    var to = chSq((rnd() * 8) | 0, (rnd() * 8) | 0);
+    var A = lgShuffle(CH_KNIGHT.map(function (d) { return to + d; }).filter(chOnBoard), rnd);
+    if (A.length < 3) continue;
+    s.b[A[0]] = -CH_K * side; s.b[A[1]] = -side * chdPick([CH_R, CH_R, CH_Q], rnd); s.b[A[2]] = CH_N * side;
+    var placed = false;
+    for (var k = 0; k < 20 && !placed; k++) {
+      var wk = chSq((rnd() * 8) | 0, (rnd() * 8) | 0);
+      if (s.b[wk] || wk === to || Math.max(Math.abs(chFile(wk) - chFile(A[0])), Math.abs(chRank(wk) - chRank(A[0]))) <= 1) continue;
+      s.b[wk] = CH_K * side; if (chAttacked(s, wk, -side)) { s.b[wk] = 0; continue; } placed = true;
+    }
+    if (!placed || chInCheck(s, -side)) continue;
+    var extra = 2 + ((rnd() * 5) | 0);
+    for (k = 0; k < extra; k++) {
+      var sq = chSq((rnd() * 8) | 0, 1 + ((rnd() * 6) | 0));
+      if (s.b[sq] || sq === to) continue;
+      s.b[sq] = chdPick([CH_P, CH_P, CH_P, CH_P, CH_N, CH_B], rnd) * (rnd() < 0.5 ? 1 : -1);
+      if (chInCheck(s, side) || chInCheck(s, -side)) s.b[sq] = 0;
+    }
+    var forks = chdFindForks(s).filter(function (f) { return f.m.to === to; });
+    if (forks.length) return { s: s, forks: forks };
+  }
+  return null;
+}
 CH_DRILLS.chfork = { name: "Forks", target: 12, gen: function (ctx) {
-  var rnd = chdRnd(ctx), best = null;
-  for (var t = 0; t < 80 && !best; t++) {
+  var rnd = chdRnd(ctx), best = null, t0 = Date.now();
+  /* first a fork that arose in a random game, then a built one; each is kept only if the search agrees it is the move */
+  for (var t = 0; t < 40 && !best && Date.now() - t0 < 250; t++) {
     var s = chRandomPosition(10 + ((rnd() * 30) | 0), rnd);
     if (chStatus(s) === "checkmate" || chStatus(s) === "stalemate" || chInCheck(s)) continue;
     var f = chdFindForks(s);
-    if (f.length) best = { s: s, forks: f };
+    if (f.length) { f = chdSoundForks(s, f); if (f.length) best = { s: s, forks: f }; }
   }
-  if (!best) { var s2 = chFromFen("r3k3/8/8/3N4/8/8/8/4K3 w - - 0 1"); best = { s: s2, forks: chdFindForks(s2) }; }
+  for (t = 0; t < 6 && !best && Date.now() - t0 < 800; t++) {
+    var built = chdBuildFork(rnd);
+    if (built) { var fb = chdSoundForks(built.s, built.forks); if (fb.length) best = { s: built.s, forks: fb }; }
+  }
+  if (!best) { var s2 = chFromFen("r3k3/8/8/3N4/8/8/8/4K3 w - - 0 1"); best = { s: s2, forks: chdSoundForks(s2, chdFindForks(s2)) }; }
   if (!best.forks.length) return CH_DRILLS.chbest.gen(ctx);
   var S = best.s, F = best.forks, sans = F.map(function (f) { return chSan(S, f.m); });
   var f0 = F[0];
@@ -161,18 +213,30 @@ CH_DRILLS.chmate1 = { name: "Mate in one", target: 15, gen: function (ctx) {
     explain: ["<b>" + sans[0] + "</b>" + (sans.length > 1 ? " (also " + sans.slice(1).join(", ") + ")" : "") + "." + (found.note ? " " + found.note : ""), "Mate in one: look at every check first. A checking move that leaves the king no square, no block and no capture is the answer."] };
 } };
 
+/* does the side to move have a mate in one? (chMatingMoves with an early exit) */
+function chdHasMate1(s) { var ms = chLegal(s); for (var i = 0; i < ms.length; i++) { chMake(s, ms[i]); var mate = chInCheck(s) && !chLegal(s).length; chUnmake(s); if (mate) return true; } return false; }
+/* every first move that forces mate in two (the opponent has a reply, and each reply allows mate in one), as SAN */
+function chdMate2Firsts(s) {
+  var out = [];
+  chLegal(s).forEach(function (m) {
+    chMake(s, m);
+    var replies = chLegal(s), ok = replies.length > 0;
+    for (var i = 0; i < replies.length && ok; i++) { chMake(s, replies[i]); ok = chdHasMate1(s); chUnmake(s); }
+    chUnmake(s);
+    if (ok) out.push(chSan(s, m));
+  });
+  return out;
+}
 CH_DRILLS.chmate2 = { name: "Mate in two", target: 40, gen: function (ctx) {
   var rnd = chdRnd(ctx), found = null, t0 = Date.now();
-  for (var t = 0; t < 400 && !found && Date.now() - t0 < 1500; t++) {
+  for (var t = 0; t < 12 && !found && Date.now() - t0 < 400; t++) {
     var s = chRandomPosition(20 + ((rnd() * 50) | 0), rnd);
     var st = chStatus(s); if (st === "checkmate" || st === "stalemate" || chCount(s) < 6) continue;
-    if (chMatingMoves(s).length) continue;
-    var r = chSearch(s, 3, 120000);
-    if (r.move && r.score >= CH_MATE - 3) found = { s: s, note: "" };
+    if (chdHasMate1(s)) continue;
+    if (chdMate2Firsts(s).length) found = { s: s, note: "" };
   }
   if (!found) { var c = chdPick(CH_MATE2, rnd); found = { s: chFromFen(c[0]), note: c[2] }; }
-  var S = found.s, sans = [];
-  chLegal(S).forEach(function (mv) { chMake(S, mv); var rr = chSearch(S, 2, 150000); chUnmake(S); if (rr.score <= -CH_MATE + 3 && chLegal(S).length) sans.push(chSan(S, mv)); });
+  var S = found.s, sans = chdMate2Firsts(S);
   if (!sans.length) { var m0 = chMateIn(S, 2); sans = [m0 ? chSan(S, m0) : chSan(S, chLegal(S)[0])]; }
   return { kind: "move", question: chdSide(S) + " to move. <b>Mate in two.</b> Play the first move.", answer: sans[0], accept: sans, target: 40, board: chdPos(S), elo: 1400,
     explain: ["<b>" + sans[0] + "</b>" + (sans.length > 1 ? " (also " + sans.slice(1).join(", ") + ")" : "") + "." + (found.note ? " " + found.note : " Every reply allows mate next move."), "Mate in two: find a forcing first move (check, capture or threat) after which every reply allows mate in one. Calculate the opponent's every option, not just the obvious one."] };
@@ -246,7 +310,7 @@ CH_DRILLS.chelo = { name: "Elo", target: 20, gen: function (ctx) {
 CH_DRILLS.chwp = { name: "Evals to odds", target: 15, gen: function (ctx) {
   var rnd = chdRnd(ctx), cp = 50 * (((rnd() * 24) | 0) - 12), wp = chWinProb(cp);
   return { kind: "num", question: "The engine says <b>" + (cp >= 0 ? "+" : "") + (cp / 100).toFixed(1) + "</b> for White. Roughly what are White's winning chances, in percent? Within 8.", answer: Math.round(wp), tol: 8, target: 15, unit: "%",
-    explain: ["About " + Math.round(wp) + "%. The curve used by lichess and this app: 50 + 50 × (2 / (1 + e^(−0.00368 × cp)) − 1).", "+1.0 is about 65%, +2.0 about 80%, +3.0 about 90%. The curve flattens: going from +3 to +5 adds little, which is why a winning position does not need more material, it needs the win converted."] };
+    explain: ["About " + Math.round(wp) + "%. The curve used by lichess and this app: 50 + 50 × (2 / (1 + e^(−0.00368 × cp)) − 1).", "+1.0 is about 59%, +2.0 about 68%, +3.0 about 75%, +5.0 about 86%. The curve flattens: going from +3 to +5 adds little, which is why a winning position does not need more material, it needs the win converted."] };
 } };
 
 CH_DRILLS.chopen = { name: "Openings", target: 10, gen: function (ctx) {
@@ -285,7 +349,8 @@ function chEngineMove(g) {
     pick = top[(g.rnd() * top.length) | 0].move;
     if (sc[0].score >= CH_MATE - 50) pick = sc[0].move;
   } else {
-    var r = chSearch(g.s, L.depth, L.depth >= 6 ? 1500000 : L.depth >= 5 ? 900000 : 400000);
+    /* node budgets keep a move to a few seconds in plain JS (about 25-30k nodes a second): the depth is reached when the position allows */
+    var r = chSearch(g.s, L.depth, L.depth >= 6 ? 150000 : L.depth >= 5 ? 100000 : 150000);
     pick = r.move || ms[0];
   }
   var san = chSan(g.s, pick);
@@ -304,10 +369,12 @@ function chHeroMove(g, m, depth) {
   chPlayStatus(g);
   return j;
 }
+/* game accuracy: each hero move's accuracy from its win% drop (chMoveAccuracy), averaged; ACPL alongside */
+function chAccuracyOf(drops) { if (!drops.length) return null; return drops.reduce(function (a, d) { return a + chMoveAccuracy(100 * d); }, 0) / drops.length; }
 function chAccuracy(g) {
   if (!g.n) return null;
-  var acpl = g.loss / g.n;
-  return { acpl: acpl, accuracy: Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * acpl) - 3.1669)) };
+  var drops = g.moves.filter(function (m) { return m.who === "hero"; }).map(function (m) { return m.drop || 0; });
+  return { acpl: g.loss / g.n, accuracy: chAccuracyOf(drops) };
 }
 
 /* ---- the chess level: your recent moves and your tactics rating ---- */
@@ -323,7 +390,7 @@ var CHL_LEVELS = [
 ];
 function chlNew() { return { d: [], games: [], puzzle: 1000, pn: 0, ph: [] }; }
 function chlAddGame(L, g, now) {
-  g.moves.filter(function (m) { return m.who === "hero"; }).forEach(function (m) { L.d.push({ t: now, q: m.quality, l: m.loss, g: m.grade }); });
+  g.moves.filter(function (m) { return m.who === "hero"; }).forEach(function (m) { L.d.push({ t: now, q: m.quality, l: m.loss, g: m.grade, d: m.drop || 0 }); });
   if (L.d.length > 1500) L.d.splice(0, L.d.length - 1500);
   var acc = chAccuracy(g);
   L.games.unshift({ t: now, level: g.level, color: g.color, result: g.result, over: g.over, n: g.n, acc: acc ? Math.round(acc.accuracy) : null, acpl: acc ? Math.round(acc.acpl) : null, grades: g.grades, moves: g.moves.map(function (m) { return m.san; }) });
@@ -332,11 +399,13 @@ function chlAddGame(L, g, now) {
 }
 function chlRate(ds) { if (!ds.length) return null; var k = 6, p = 0.6, s = ds.reduce(function (a, d) { return a + d.q; }, 0); return 100 * (s + k * p) / (ds.length + k); }
 function chlLevel(r) { var Lv = CHL_LEVELS[0]; for (var i = 0; i < CHL_LEVELS.length; i++) if (r >= CHL_LEVELS[i].min) Lv = CHL_LEVELS[i]; var ix = CHL_LEVELS.indexOf(Lv), nx = CHL_LEVELS[ix + 1] || null; return { name: Lv.name, about: Lv.about, index: ix, next: nx, toNext: nx ? (r - Lv.min) / (nx.min - Lv.min) : 1 }; }
+/* a recorded move's win% drop: stored since the accuracy change; older records carry only the quality, which was 1 − 4 × drop */
+function chlDrop(x) { return x.d != null ? x.d : x.q > 0 ? (1 - x.q) / 4 : 0.25; }
 function chlSummary(L) {
   var d = (L && L.d) || [], recent = d.slice(-100), before = d.slice(-200, -100);
   var r = chlRate(recent), r0 = before.length >= 20 ? chlRate(before) : null;
   var wins = (L.games || []).filter(function (g) { return g.result === "win"; }).length;
-  return { n: d.length, placed: d.length >= 20, left: Math.max(0, 20 - d.length), rating: r, prev: r0, delta: r != null && r0 != null ? r - r0 : null, level: r != null ? chlLevel(r) : null, acpl: recent.length ? recent.reduce(function (a, x) { return a + x.l; }, 0) / recent.length : null, games: (L.games || []).length, wins: wins, puzzle: L.puzzle || 1000, puzzles: L.pn || 0, bestLevelBeaten: (L.games || []).filter(function (g) { return g.result === "win"; }).reduce(function (a, g) { return Math.max(a, g.level); }, 0) };
+  return { n: d.length, placed: d.length >= 20, left: Math.max(0, 20 - d.length), rating: r, prev: r0, delta: r != null && r0 != null ? r - r0 : null, level: r != null ? chlLevel(r) : null, acpl: recent.length ? recent.reduce(function (a, x) { return a + x.l; }, 0) / recent.length : null, accuracy: chAccuracyOf(recent.map(chlDrop)), games: (L.games || []).length, wins: wins, puzzle: L.puzzle || 1000, puzzles: L.pn || 0, bestLevelBeaten: (L.games || []).filter(function (g) { return g.result === "win"; }).reduce(function (a, g) { return Math.max(a, g.level); }, 0) };
 }
 /* a puzzle answered: Elo against the puzzle's rating, K shrinking as you settle */
 function chlPuzzle(L, elo, ok) {
@@ -348,7 +417,7 @@ function chlPuzzle(L, elo, ok) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  CH_DRILLS: CH_DRILLS, CH_MATE1: CH_MATE1, CH_MATE2: CH_MATE2, CH_OPENINGS: CH_OPENINGS, CH_UNI: CH_UNI, chdSquareRule: chdSquareRule, chdFindForks: chdFindForks,
+  CH_DRILLS: CH_DRILLS, CH_MATE1: CH_MATE1, CH_MATE2: CH_MATE2, CH_OPENINGS: CH_OPENINGS, CH_UNI: CH_UNI, chdSquareRule: chdSquareRule, chdFindForks: chdFindForks, chdSoundForks: chdSoundForks, chdBuildFork: chdBuildFork, chdMate2Firsts: chdMate2Firsts, chAccuracyOf: chAccuracyOf,
   CH_LEVELS_ENGINE: CH_LEVELS_ENGINE, chPlayNew: chPlayNew, chEngineMove: chEngineMove, chHeroMove: chHeroMove, chPlayStatus: chPlayStatus, chAccuracy: chAccuracy,
   CHL_LEVELS: CHL_LEVELS, chlNew: chlNew, chlAddGame: chlAddGame, chlSummary: chlSummary, chlPuzzle: chlPuzzle, chlLevel: chlLevel
 };

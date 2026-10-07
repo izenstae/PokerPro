@@ -136,12 +136,12 @@ var HE_VOCAB = {
     ["סֵפֶר", "sefer", "book", "n", "סְפָרִים", "סֵפֶר טוֹב.", "A good book."],
     ["כֶּסֶף", "kesef", "money; silver", "n", "", "אֵין לִי כֶּסֶף.", "I have no money."],
     ["שֵׁם", "shem", "name", "n", "שֵׁמוֹת (m.)", "מָה הַשֵּׁם שֶׁלְּךָ?", "What is your name?"],
-    ["דָּבָר", "davar", "thing; word", "n", "דְּבָרִים", "מַשֶּׁהוּ = something; שׁוּם דָּבָר = nothing", "שׁוּם דָּבָר.", "Nothing."]
+    ["דָּבָר", "davar", "thing; word", "n", "דְּבָרִים; שׁוּם דָּבָר = nothing", "שׁוּם דָּבָר.", "Nothing."]
   ],
   he_v5: [
     ["אֹכֶל", "ochel", "food", "n", "", "הָאֹכֶל טָעִים.", "The food is tasty."],
     ["מַיִם", "mayim", "water", "n", "plural form, m.", "כּוֹס מַיִם, בְּבַקָּשָׁה.", "A glass of water, please."],
-    ["קָפֶה", "kafe", "coffee", "n", "", "קָפֶה הָפוּךְ = latte", "אַתָּה רוֹצֶה קָפֶה?", "Do you want coffee?"],
+    ["קָפֶה", "kafe", "coffee", "n", "קָפֶה הָפוּךְ = latte", "אַתָּה רוֹצֶה קָפֶה?", "Do you want coffee?"],
     ["תֵּה", "te", "tea", "n", "", "תֵּה עִם נַעֲנַע.", "Tea with mint."],
     ["חָלָב", "chalav", "milk", "n", "", "חָלָב בַּקָּפֶה?", "Milk in the coffee?"],
     ["לֶחֶם", "lechem", "bread", "n", "", "לֶחֶם טָרִי.", "Fresh bread."],

@@ -92,6 +92,31 @@ ok(g2.grade === "Blunder" || g2.grade === "Mistake", "giving up the queen is a b
 ok(C.chWinProb(0) === 50, "even is 50%");
 ok(C.chWinProb(300) > 70 && C.chWinProb(-300) < 30, "win prob moves with eval");
 
+/* check suffix survives a draw status; mate scores do not poison the loss */
+eq(C.chSan(C.chFromFen("4k3/8/8/8/8/8/3n4/4K3 b - - 0 1"), C.chParseSan(C.chFromFen("4k3/8/8/8/8/8/3n4/4K3 b - - 0 1"), "Nf3")), "Nf3+", "check suffix with insufficient material");
+var fifty = C.chFromFen("4k3/8/8/8/8/8/8/R3K3 w - - 99 1");
+eq(C.chSan(fifty, C.chParseSan(fifty, "Ra8")), "Ra8+", "check suffix at the fifty-move mark");
+var missed = C.chJudge(m1, C.chParseSan(m1, "Ra2"), 3);
+ok(missed.loss <= 4000, "missing a mate costs a bounded loss (" + missed.loss + ")"); eq(missed.grade, "Blunder", "and grades Blunder");
+eq(C.chGrade(C.CH_MATE - 1, 200).loss, 1800, "loss clamps both sides to ±2000");
+/* insufficient material */
+ok(C.chInsufficient(C.chFromFen("4k3/8/8/8/8/8/3b4/2B1K3 w - - 0 1")), "KB vs KB, same colour, is dead");
+ok(!C.chInsufficient(C.chFromFen("4k3/8/8/8/8/8/2b5/2B1K3 w - - 0 1")), "KB vs KB on opposite colours is not");
+ok(!C.chInsufficient(C.chFromFen("4k3/8/8/8/8/8/8/1NN1K3 w - - 0 1")), "KNN is not dead");
+ok(C.chInsufficient(C.chFromFen("4k3/8/8/8/8/8/8/B1B1K3 w - - 0 1")), "two bishops on one colour are dead");
+ok(!C.chInsufficient(C.chFromFen("4k3/8/8/8/8/8/4P3/4K3 w - - 0 1")), "a pawn is enough");
+/* repetition keys: the ep square counts only when the capture is legal */
+var k1 = C.chStart(); C.chMake(k1, C.chParseSan(k1, "e4"));
+ok(C.chKey(k1).split(" ")[3] === "-", "after 1.e4 the key has no ep square (" + C.chKey(k1) + ")");
+eq(C.chKey(ep).split(" ")[3], "d6", "a legal en passant keeps the ep square in the key");
+/* move accuracy: lichess's curve on the win% drop */
+eq(C.chMoveAccuracy(0), 100, "no drop is 100");
+ok(Math.abs(C.chMoveAccuracy(1) - 95.6) < 0.1, "1 point drop ≈ 95.6 (" + C.chMoveAccuracy(1).toFixed(2) + ")");
+ok(Math.abs(C.chMoveAccuracy(2) - 91.4) < 0.1, "2 points ≈ 91.4"); ok(Math.abs(C.chMoveAccuracy(5) - 79.8) < 0.1, "5 points ≈ 79.8");
+eq(C.chMoveAccuracy(500), 0, "clamped at 0");
+/* win probability anchors the course quotes */
+[[50, 54.6], [100, 59.1], [200, 67.6], [300, 75.1], [500, 86.3]].forEach(function (a) { ok(Math.abs(C.chWinProb(a[0]) - a[1]) < 0.1, "win% at +" + a[0] + " is " + a[1]); });
+
 /* random positions are legal and material counts */
 var rp = C.chRandomPosition(20, function () { return 0.37; });
 ok(C.chLegal(rp).length > 0 || C.chStatus(rp), "random position is playable");

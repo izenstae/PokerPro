@@ -58,6 +58,11 @@ ok(pct.UTG < pct.HJ && pct.HJ < pct.CO && pct.CO < pct.BTN, "charts widen UTG < 
 ok(pct.UTG > 12 && pct.UTG < 22 && pct.BTN > 38 && pct.BTN < 55, "chart sizes are in the usual bands");
 ok(Object.keys(RFI).every(k => Object.keys(rangeClasses(RFI.UTG)).every(h => rangeClasses(RFI[k])[h])), "every seat opens everything UTG opens");
 ok(HAND_CLASSES.length === 169, "169 starting-hand classes");
+/* dealt-hand odds: suited connectors with no ace are 11 rank pairs (32s..KQs), 44 of 1,326 */
+let scQ = null;
+for (let i = 0; i < 3000 && !scQ; i++) { const q = GENS.prob(); if (/suited connectors/.test(q.question)) scQ = q; }
+ok(scQ && close(scQ.answer, 100 * 44 / 1326, 1e-9) && scQ.math.join(" ").indexOf("44 of 1,326") >= 0, "suited connectors: 44 of 1,326 = 3.32%");
+
 /* multi-street: pot and pot gives 5/9 */
 const a = 1 / 3; ok(close(a + (1 - a) * a, 5 / 9), "two pot-size streets: 5/9 of turn bets are bluffs");
 

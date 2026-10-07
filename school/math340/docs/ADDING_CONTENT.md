@@ -174,4 +174,4 @@ so the wording does not become a memorised cue — but it does not count as a va
   It does not run KaTeX. A malformed formula (an unknown command, a missing brace) passes the smoke test but renders as red error text in the browser, so open a few problems of each new variant in the site before pushing.
 
 - **Schedule updates:** dates and topics live in `data/manifest.js` (`schedule`, `keyDates`, `gradeWeights`). Adjust there if the instructor shifts the calendar or posts a new due date. `keyDates` entries of `kind: "exam"` also drive the dashboard's exam countdown and rehearsal prompts.
-- **Keep the README in step:** it quotes the topic and problem-type counts and has a per-unit table. `node tools/check-generators.js` prints the numbers. After a unit changes noticeably, refresh the screenshots with `node tools/screenshots.js` (needs Playwright with Chromium).
+- **Keep the README in step:** it quotes the topic and problem-type counts and has a per-unit table. `node tools/check-generators.js` prints the numbers. After a unit changes noticeably, retake the screenshots in `docs/assets/` by hand (there is no script for it).
