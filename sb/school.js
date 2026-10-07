@@ -8,7 +8,18 @@
    and a reader for its saved progress, and the planner puts it at
    the front of every day. Add a course by adding one entry to
    SCHOOL_COURSES (see docs/ADDING_A_COURSE.md).
+
+   A course app is not a link out of the hub: the build inlines its
+   views and it registers itself in SCHOOL_APPS under the course id,
+   so its pages draw inside the hub at #/school/<id>/<page>. The
+   course's own index.html still works on its own for the tests and
+   as an installable app of its own.
    ============================================================ */
+
+/* course id -> the course app's shell: { pages: [{ id, title }], mount(page, el, { base }), leave(), inProgress(), onKey(e, el), typeset(el) } */
+var SCHOOL_APPS = {};
+/* the hub route of a course page */
+function schLink(course, page) { return "#/school/" + course.id + "/" + page; }
 
 var SCHOOL_COURSES = [
   {
@@ -25,7 +36,8 @@ var SCHOOL_COURSES = [
       { date: "2026-11-23", label: "Final Exam · 11:30 am–2:00 pm (cumulative)", kind: "exam" }
     ],
     quizDay: 3,            /* Wednesday */
-    links: [["Dashboard", "#/dashboard"], ["Flashcards", "#/flashcards"], ["Practice", "#/practice"], ["Exam mode", "#/exam"], ["Reference", "#/reference"], ["Schedule", "#/schedule"], ["Progress", "#/progress"]],
+    /* the app's pages, in the order the hub's course tabs show them; SCHOOL_APPS[id].pages (if the app is inlined) is the authority */
+    links: [["Dashboard", "dashboard"], ["Flashcards", "flashcards"], ["Practice", "practice"], ["Exam mode", "exam"], ["Reference", "reference"], ["Schedule", "schedule"], ["Progress", "progress"]],
     gradeWeights: [["Participation", 5], ["Homework", 15], ["Quizzes", 25], ["Midterm", 20], ["Final Exam", 25], ["Final Project", 10]]
   }
 ];
@@ -66,9 +78,10 @@ function schRead(course, raw, now, units) {
   var st = null;
   try { st = raw ? JSON.parse(raw) : null; } catch (e) { st = null; }
   var out = { has: !!st, due: 0, fresh: 0, total: 0, mastered: 0, misses: 0, exams: 0, today: 0, streak: 0, lastExam: null, mastery: 0, weak: [] };
-  if (!st) return out;
-  var cards = st.cards || {}, seen = Object.keys(cards);
   var decks = units ? units.filter(function (u) { return u.flashcards && u.flashcards.length; }) : null;
+  /* no saved store yet: every card is unseen, and unseen cards are ready to study, as the course's own pages count them */
+  if (!st) { if (decks) decks.forEach(function (u) { out.total += u.flashcards.length; }); out.fresh = out.due = out.total; return out; }
+  var cards = st.cards || {}, seen = Object.keys(cards);
   if (decks) {
     var boxSum = 0;
     decks.forEach(function (u) { u.flashcards.forEach(function (card) {
@@ -111,14 +124,14 @@ function schDemand(course, R, now) {
     if (k.kind === "hw" && (!hw || d < hw.days)) hw = { days: d, label: k.label, date: k.date };
   });
   var quiz = schNextQuiz(course, now);
-  if (R.due) items.push({ kind: "review", min: Math.max(5, Math.min(25, Math.round(R.due * 0.3))), label: "Review " + R.due + " flashcard" + (R.due === 1 ? "" : "s"), href: course.href + "#/flashcards", why: R.fresh ? R.fresh + " never seen, the rest due today." : "Due today by the Leitner boxes." });
-  if (R.misses) items.push({ kind: "review", min: Math.max(5, Math.min(20, R.misses * 3)), label: "Redo " + R.misses + " missed problem" + (R.misses === 1 ? "" : "s"), href: course.href + "#/practice", why: "A miss redone is worth more than a fresh problem you would have got right." });
-  if (quiz && quiz.days <= 2) items.push({ kind: "apply", min: 20, label: "Quiz " + (quiz.days === 0 ? "today" : quiz.days === 1 ? "tomorrow" : "in " + quiz.days + " days") + ": sit a timed set", href: course.href + "#/exam", why: "Five problems, 15 minutes, no hints: the conditions the quiz is graded under." });
-  if (exam && exam.days <= 14) items.push({ kind: "apply", min: exam.days <= 3 ? 45 : 30, label: exam.label.split("·")[0].trim() + " in " + exam.days + " day" + (exam.days === 1 ? "" : "s") + ": full rehearsal", href: course.href + "#/exam", why: "Sit it under the clock, then drill what it finds. Build the formula sheet on the Reference page." });
-  if (hw && hw.days <= 3) items.push({ kind: "homework", min: hw.days === 0 ? 60 : 45, label: hw.label + (hw.days === 0 ? " today" : " in " + hw.days + " day" + (hw.days === 1 ? "" : "s")), href: course.href + "#/schedule", why: "Homework is 15% of the grade and the quiz draws on it. Reserve the time." });
-  if (R.weak && R.weak.length) items.push({ kind: "practice", min: 12, label: "Drill your weakest topic", href: course.href + "#/practice", why: "Target my weak spots draws from the topics you miss most." });
-  if (!items.length) items.push({ kind: "practice", min: 12, label: "Mixed practice session", href: course.href + "#/practice", why: "Nothing due: interleaved problems with the topic hidden are the best use of ten minutes." });
+  if (R.due) items.push({ kind: "review", min: Math.max(5, Math.min(25, Math.round(R.due * 0.3))), label: "Review " + R.due + " flashcard" + (R.due === 1 ? "" : "s"), href: schLink(course, "flashcards"), why: R.fresh ? R.fresh + " never seen, the rest due today." : "Due today by the Leitner boxes." });
+  if (R.misses) items.push({ kind: "review", min: Math.max(5, Math.min(20, R.misses * 3)), label: "Redo " + R.misses + " missed problem" + (R.misses === 1 ? "" : "s"), href: schLink(course, "practice"), why: "A miss redone is worth more than a fresh problem you would have got right." });
+  if (quiz && quiz.days <= 2) items.push({ kind: "apply", min: 20, label: "Quiz " + (quiz.days === 0 ? "today" : quiz.days === 1 ? "tomorrow" : "in " + quiz.days + " days") + ": sit a timed set", href: schLink(course, "exam"), why: "Five problems, 15 minutes, no hints: the conditions the quiz is graded under." });
+  if (exam && exam.days <= 14) items.push({ kind: "apply", min: exam.days <= 3 ? 45 : 30, label: exam.label.split("·")[0].trim() + " in " + exam.days + " day" + (exam.days === 1 ? "" : "s") + ": full rehearsal", href: schLink(course, "exam"), why: "Sit it under the clock, then drill what it finds. Build the formula sheet on the Reference page." });
+  if (hw && hw.days <= 3) items.push({ kind: "homework", min: hw.days === 0 ? 60 : 45, label: hw.label + (hw.days === 0 ? " today" : " in " + hw.days + " day" + (hw.days === 1 ? "" : "s")), href: schLink(course, "schedule"), why: "Homework is 15% of the grade and the quiz draws on it. Reserve the time." });
+  if (R.weak && R.weak.length) items.push({ kind: "practice", min: 12, label: "Drill your weakest topic", href: schLink(course, "practice"), why: "Target my weak spots draws from the topics you miss most." });
+  if (!items.length) items.push({ kind: "practice", min: 12, label: "Mixed practice session", href: schLink(course, "practice"), why: "Nothing due: interleaved problems with the topic hidden are the best use of ten minutes." });
   return { items: items, exam: exam, hw: hw, quiz: quiz, week: schWeekOf(course, now) };
 }
 
-if (typeof module !== "undefined") module.exports = { SCHOOL_COURSES: SCHOOL_COURSES, SCH_INTERVALS: SCH_INTERVALS, schLocalDate: schLocalDate, schDayDiff: schDayDiff, schDaysUntil: schDaysUntil, schWeekOf: schWeekOf, schNextQuiz: schNextQuiz, schRead: schRead, schDemand: schDemand };
+if (typeof module !== "undefined") module.exports = { SCHOOL_COURSES: SCHOOL_COURSES, SCHOOL_APPS: SCHOOL_APPS, schLink: schLink, SCH_INTERVALS: SCH_INTERVALS, schLocalDate: schLocalDate, schDayDiff: schDayDiff, schDaysUntil: schDaysUntil, schWeekOf: schWeekOf, schNextQuiz: schNextQuiz, schRead: schRead, schDemand: schDemand };

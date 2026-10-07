@@ -698,6 +698,19 @@ body{display:block; padding:0; font-family:var(--sans)}
 .top{position:sticky; top:0; z-index:30; background:rgba(20,26,36,.92); backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px); border-bottom:1px solid var(--line)}
 .topin{max-width:960px; margin:0 auto; padding:0 20px; height:58px; display:flex; align-items:center; gap:20px}
 .brand{display:flex; align-items:center; gap:9px; text-decoration:none; color:var(--dim); font-size:17px; letter-spacing:.01em; flex:0 0 auto}
+/* inside the Skill Builder hub (a frame): the hub's header, tabs and theme replace this page's own, and the palette is the hub's, paper or lamp-lit */
+.embedded .top{display:none} .embedded .wrap{max-width:none; padding:0 0 8px} .embedded body{background:transparent}
+.embedded.light{
+  --ink:#F4EFE6; --felt:#FBF9F4; --raise:#ECE6D9; --line:#DCD4C4;
+  --bone:#1A1814; --dim:#5C5649; --faint:#736C5C;
+  --green:#2F7A4E; --red:#B9321C; --gold:#906414; --blue:#2F5C9E;
+}
+.embedded:not(.light){
+  --ink:#161411; --felt:#211E19; --raise:#1E1B16; --line:#2F2B24;
+  --bone:#EEE7D8; --dim:#AAA190; --faint:#8E8778;
+  --green:#5FB37F; --red:#E0674F; --gold:#D9A441; --blue:#7AA2DE;
+}
+.embedded.light .gltip{color:var(--bone)}
 .hub{flex:0 0 auto; font-size:12px; color:var(--faint); text-decoration:none; border:1px solid var(--line); border-radius:6px; padding:4px 8px; margin-right:-6px} .hub:hover{color:var(--bone); border-color:var(--dim)}
 .brand .suit{color:var(--gold); font-size:18px}
 .brand b{color:var(--bone); font-weight:700}
@@ -1222,6 +1235,24 @@ table.pevt{width:100%; border-collapse:collapse; font-size:13px; margin-bottom:1
 /* ============================================================
    UI
    ============================================================ */
+/* PokerPro also runs inside the Skill Builder hub, in a frame: the hub keeps its own header there, so the link back to it goes */
+var EMBEDDED = false;
+try{ EMBEDDED = window.parent !== window && window.parent.location.origin === location.origin; }catch(e){ EMBEDDED = false; }
+if(EMBEDDED){
+  document.documentElement.classList.add("embedded");
+  /* the hub's theme, now and whenever it changes; and this page's height, so the hub's page scrolls as one */
+  /* the colour scheme must match the hub's too: the browser paints an opaque backdrop behind a frame whose scheme differs from its parent's */
+  var embedTheme = function(t){ document.documentElement.classList.toggle("light", t === "light"); document.documentElement.style.colorScheme = t === "light" ? "light" : "dark"; };
+  try{ if(typeof window.parent.themeNow === "function") embedTheme(window.parent.themeNow()); }catch(e){}
+  window.addEventListener("message", function(e){ if(e.origin === location.origin && e.data && typeof e.data.pokerproTheme === "string") embedTheme(e.data.pokerproTheme); });
+  var embedHeight = function(){ try{ window.parent.postMessage({ pokerproHeight: document.documentElement.scrollHeight }, location.origin); }catch(e){} };
+  window.addEventListener("DOMContentLoaded", function(){
+    if(window.ResizeObserver) new ResizeObserver(embedHeight).observe(document.body);
+    else setInterval(embedHeight, 500);
+    embedHeight();
+  });
+  window.addEventListener("load", embedHeight);
+}
 var MODE_META = {
   rules:"Rules", ladder:"Hand ladder", read:"Read your hand", who:"Who wins", position:"Position",
   prob:"Probability", potodds:"Pot odds", outs:"Outs to equity", allin:"Call or fold", ev:"Expected value",
@@ -3453,6 +3484,8 @@ function syncHash(){
     if(location.hash) location.hash = h;
     else history.replaceState(null, "", h);
   }
+  /* inside the Skill Builder hub, the hub's address follows this page */
+  if(EMBEDDED){ try{ window.parent.postMessage({ pokerproHash: h }, location.origin); }catch(e){} }
 }
 window.addEventListener("hashchange", function(){ if(location.hash !== curHash) route(); });
 

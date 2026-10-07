@@ -2,9 +2,12 @@
  * App shell — routing, dashboard, schedule, reference, progress.
  * ============================================================ */
 const App = (() => {
-  const view = document.getElementById("view");
-  const titleEl = document.getElementById("topbarTitle");
-  const weekEl = document.getElementById("topbarWeek");
+  /* The views render into whatever element they are given. Standalone, that is
+   * this page's #view and the router below drives them; inside the Skill
+   * Builder hub, the hub calls App.mount(page, el, { base }) and the links the
+   * views write point back into the hub's own routes. */
+  let linkBase = "#/";
+  const link = name => linkBase + name;
 
   /* ---------- KaTeX ---------- */
   function typeset(el) {
@@ -79,28 +82,28 @@ const App = (() => {
     if (due) {
       plan.push({
         pri: fresh === due ? 2 : 1,
-        icon: "⧉", href: "#/flashcards",
+        icon: "⧉", href: link("flashcards"),
         title: `Review ${due} flashcard${due === 1 ? "" : "s"}`,
         why: fresh ? `${fresh} you have never seen; the rest are scheduled for today. About ${Math.max(1, Math.round(due * 0.2))} min.` : `Scheduled for today by the Leitner boxes. About ${Math.max(1, Math.round(due * 0.2))} min.`,
       });
     }
     if (misses) {
       plan.push({
-        pri: 1, icon: "↺", href: "#/practice",
+        pri: 1, icon: "↺", href: link("practice"),
         title: `Redo ${misses} missed problem${misses === 1 ? "" : "s"}`,
         why: "Problems you got wrong, kept with their worked solutions. Re-attempting a miss is worth more than a fresh problem you would have got right.",
       });
     }
     if (quiz && quiz.days <= 2 && gens.length) {
       plan.push({
-        pri: 0, icon: "✎", href: "#/exam",
+        pri: 0, icon: "✎", href: link("exam"),
         title: `Quiz ${inDays(quiz.days)} — sit a timed set`,
         why: `Week ${quiz.week} quiz covers the previous week's classes and homework. Five problems, 15 minutes, no hints.`,
       });
     }
     if (exam && daysUntil(exam.date) <= 14 && gens.length) {
       plan.push({
-        pri: 0, icon: "▦", href: "#/exam",
+        pri: 0, icon: "▦", href: link("exam"),
         title: `${exam.label.split("·")[0].trim()} ${inDays(daysUntil(exam.date))}`,
         why: "Sit a full-length rehearsal under the clock, then drill whatever it finds. Also: build your formula sheet on the Reference page.",
       });
@@ -109,14 +112,14 @@ const App = (() => {
       .filter(x => x.p.attempts >= 3).sort((a, b) => b.w - a.w)[0];
     if (weakest && weakest.w > 0.4) {
       plan.push({
-        pri: 2, icon: "◎", href: "#/practice",
+        pri: 2, icon: "◎", href: link("practice"),
         title: `Drill your weakest topic: ${weakest.g.name}`,
         why: `${weakest.p.correct}/${weakest.p.attempts} first-try so far. "Target my weak spots" draws mostly from topics like this one.`,
       });
     }
     if (!plan.length && gens.length) {
       plan.push({
-        pri: 3, icon: "▶", href: "#/practice",
+        pri: 3, icon: "▶", href: link("practice"),
         title: "Mixed practice session",
         why: "Nothing is due and nothing is outstanding. Interleaved problems with the topic hidden are the best use of a free ten minutes.",
       });
@@ -157,9 +160,9 @@ const App = (() => {
             <span>${pStats.attempts ? Math.round(100 * (pStats.accuracy || 0)) + "% first-try" : "no practice yet"}</span>
           </div>
           <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
-            <a class="btn btn-sm btn-ghost" href="#/flashcards">Cards</a>
-            ${(u.generators && u.generators.length) ? `<a class="btn btn-sm btn-ghost" href="#/practice">Practice</a>` : ""}
-            ${u.referenceTable ? `<a class="btn btn-sm btn-ghost" href="#/reference">Table</a>` : ""}
+            <a class="btn btn-sm btn-ghost" href="${link("flashcards")}">Cards</a>
+            ${(u.generators && u.generators.length) ? `<a class="btn btn-sm btn-ghost" href="${link("practice")}">Practice</a>` : ""}
+            ${u.referenceTable ? `<a class="btn btn-sm btn-ghost" href="${link("reference")}">Table</a>` : ""}
           </div>
         </div>`;
     }
@@ -197,7 +200,7 @@ const App = (() => {
         <div class="topic-row">
           <span class="pill ${lastExam.correct / lastExam.n >= 0.8 ? "pill-green" : lastExam.correct / lastExam.n >= 0.6 ? "pill-amber" : "pill-red"}">${Math.round(100 * lastExam.correct / lastExam.n)}%</span>
           <div style="flex:1;">${escapeHtml(lastExam.label)} · ${lastExam.correct}/${lastExam.n} · ${escapeHtml(lastExam.scopeLabel || "")}</div>
-          <a class="btn btn-sm btn-ghost" href="#/exam">Sit another</a>
+          <a class="btn btn-sm btn-ghost" href="${link("exam")}">Sit another</a>
         </div>
       </div>` : ""}
 
@@ -213,7 +216,7 @@ const App = (() => {
             <div style="flex:1;">${k.label}</div>
             <span class="muted">${inDays(daysUntil(k.date))}</span>
           </div>`).join("") : `<p class="muted">No upcoming dates on record.</p>`}
-        <p class="muted" style="margin-bottom:0;">Quizzes are given most Wednesdays and cover the previous week's classes and homework — see the <a href="#/schedule">schedule</a>.</p>
+        <p class="muted" style="margin-bottom:0;">Quizzes are given most Wednesdays and cover the previous week's classes and homework — see the <a href="${link("schedule")}">schedule</a>.</p>
       </div>`;
     typeset(el);
   }
@@ -261,7 +264,7 @@ const App = (() => {
               <div class="progress-bar" style="flex:1;"><div style="width:${g.pct * 3}%"></div></div>
               <div style="width:38px; text-align:right; font-size:13px;" class="muted">${g.pct}%</div>
             </div>`).join("")}
-          <p class="muted" style="margin-bottom:0;">Lowest quiz and lowest homework are dropped. Midterm allows one 8.5×11" formula sheet — build it on the <a href="#/reference">Reference page</a> and print it.</p>
+          <p class="muted" style="margin-bottom:0;">Lowest quiz and lowest homework are dropped. Midterm allows one 8.5×11" formula sheet — build it on the <a href="${link("reference")}">Reference page</a> and print it.</p>
         </div>
       </div>`;
     typeset(el);
@@ -495,7 +498,7 @@ const App = (() => {
         <h3 style="margin-top:0;">Practice accuracy by topic</h3>
         <p class="muted" style="margin-top:0;">First-try, unaided answers only — a hint or a second attempt counts as a miss, because a quiz gives you neither.</p>
         ${topicRows ? `<table class="tbl"><tr><th>Topic</th><th>Correct</th><th>Overall</th><th>Last 10</th></tr>${topicRows}</table>`
-          : `<p class="muted">No practice attempts yet — head to <a href="#/practice">Practice</a> to get started.</p>`}
+          : `<p class="muted">No practice attempts yet — head to <a href="${link("practice")}">Practice</a> to get started.</p>`}
       </div>
 
       ${weakShapes ? `<div class="card">
@@ -546,7 +549,7 @@ const App = (() => {
     typeset(el);
   }
 
-  /* ---------- Router ---------- */
+  /* ---------- Pages ---------- */
   const routes = {
     dashboard: { title: "Dashboard", mount: dashboard },
     flashcards: { title: "Flashcards", mount: el => Flashcards.mount(el) },
@@ -556,11 +559,29 @@ const App = (() => {
     schedule: { title: "Schedule", mount: schedule },
     progress: { title: "Progress", mount: progress },
   };
+  const pages = Object.keys(routes).map(id => ({ id, title: routes[id].title }));
+
+  /* Draw one page into `el`. opts.base is the hash prefix the page's own links
+   * get ("#/" here, "#/school/math340/" in the hub). Leaving the exam page
+   * stops its clock, from either shell. */
+  function mount(name, el, opts) {
+    linkBase = (opts && opts.base) || "#/";
+    const r = routes[name] || routes.dashboard;
+    if (r !== routes.exam) Exam.leave();
+    r.mount(el);
+    return r;
+  }
+  function leave() { Exam.leave(); }
+  function inProgress() { return Exam.inProgress(); }
+
+  /* ---------- Standalone shell: router, theme, mobile nav ---------- */
+  const view = document.getElementById("view");
+  const titleEl = document.getElementById("topbarTitle");
+  const weekEl = document.getElementById("topbarWeek");
 
   function route() {
     const hash = (location.hash || "#/dashboard").replace(/^#\//, "");
     const name = routes[hash] ? hash : "dashboard";
-    if (name !== "exam") Exam.leave();   // stop the countdown when leaving
     const r = routes[name];
     titleEl.textContent = r.title;
     weekEl.textContent = weekLabel();
@@ -568,12 +589,11 @@ const App = (() => {
       a.classList.toggle("active", a.dataset.route === name));
     view.scrollTop = 0;
     window.scrollTo(0, 0);
-    r.mount(view);
+    mount(name, view);
     document.getElementById("sidebar").classList.remove("open");
     document.body.classList.remove("nav-open");
   }
 
-  /* ---------- Theme ---------- */
   function applyTheme(t) {
     if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
     else if (t === "light") document.documentElement.removeAttribute("data-theme");
@@ -581,54 +601,55 @@ const App = (() => {
       document.documentElement.setAttribute("data-theme", "dark");
   }
 
-  /* ---------- init ---------- */
-  window.addEventListener("hashchange", route);
-  /* Clicking a nav link for the route you are already on fires no
-   * hashchange, which would leave you stuck inside a flashcard session or a
-   * practice problem with a dead sidebar. Re-mount the view explicitly. */
-  document.addEventListener("click", e => {
-    const link = e.target.closest(".nav a[data-route]");
-    if (!link) return;
-    if ("#/" + link.dataset.route === (location.hash || "#/dashboard")) { e.preventDefault(); route(); }
-  });
-  window.addEventListener("beforeunload", e => {
-    if (Exam.inProgress()) { e.preventDefault(); e.returnValue = ""; }
-  });
-  window.addEventListener("DOMContentLoaded", () => {
-    applyTheme(Store.getTheme());
-    document.getElementById("themeToggle").addEventListener("click", () => {
-      const dark = document.documentElement.getAttribute("data-theme") === "dark";
-      const next = dark ? "light" : "dark";
-      Store.setTheme(next);
-      applyTheme(next);
-    });
-    /* Mobile nav. The open sidebar sits over the topbar, hamburger included,
-     * so it needs a way out that is not "pick a destination": a backdrop tap
-     * or Escape closes it. */
-    const sidebar = document.getElementById("sidebar");
-    const setNav = open => {
-      sidebar.classList.toggle("open", open);
-      document.body.classList.toggle("nav-open", open);
-    };
-    document.getElementById("hamburger").addEventListener("click", e => {
-      e.stopPropagation();
-      setNav(!sidebar.classList.contains("open"));
-    });
+  if (view) {
+    window.addEventListener("hashchange", route);
+    /* Clicking a nav link for the route you are already on fires no
+     * hashchange, which would leave you stuck inside a flashcard session or a
+     * practice problem with a dead sidebar. Re-mount the view explicitly. */
     document.addEventListener("click", e => {
-      if (sidebar.classList.contains("open") && !e.target.closest("#sidebar")) setNav(false);
+      const a = e.target.closest(".nav a[data-route]");
+      if (!a) return;
+      if ("#/" + a.dataset.route === (location.hash || "#/dashboard")) { e.preventDefault(); route(); }
     });
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape" && sidebar.classList.contains("open")) setNav(false);
+    window.addEventListener("beforeunload", e => {
+      if (Exam.inProgress()) { e.preventDefault(); e.returnValue = ""; }
     });
-    document.addEventListener("keydown", e => {
-      if ((location.hash || "").startsWith("#/flashcards") && !e.target.matches("input, textarea, select")) {
-        Flashcards.onKey(e, view);
-      }
+    window.addEventListener("DOMContentLoaded", () => {
+      applyTheme(Store.getTheme());
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        const dark = document.documentElement.getAttribute("data-theme") === "dark";
+        const next = dark ? "light" : "dark";
+        Store.setTheme(next);
+        applyTheme(next);
+      });
+      /* Mobile nav. The open sidebar sits over the topbar, hamburger included,
+       * so it needs a way out that is not "pick a destination": a backdrop tap
+       * or Escape closes it. */
+      const sidebar = document.getElementById("sidebar");
+      const setNav = open => {
+        sidebar.classList.toggle("open", open);
+        document.body.classList.toggle("nav-open", open);
+      };
+      document.getElementById("hamburger").addEventListener("click", e => {
+        e.stopPropagation();
+        setNav(!sidebar.classList.contains("open"));
+      });
+      document.addEventListener("click", e => {
+        if (sidebar.classList.contains("open") && !e.target.closest("#sidebar")) setNav(false);
+      });
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && sidebar.classList.contains("open")) setNav(false);
+      });
+      document.addEventListener("keydown", e => {
+        if ((location.hash || "").startsWith("#/flashcards") && !e.target.matches("input, textarea, select")) {
+          Flashcards.onKey(e, view);
+        }
+      });
+      route();
     });
-    route();
-  });
-  // KaTeX loads with defer; re-typeset once it is ready in case the first view rendered before it.
-  window.addEventListener("load", () => typeset(view));
+    // KaTeX loads with defer; re-typeset once it is ready in case the first view rendered before it.
+    window.addEventListener("load", () => typeset(view));
+  }
 
-  return { typeset };
+  return { typeset, link, mount, leave, inProgress, pages, weekLabel, onKey: (e, el) => Flashcards.onKey(e, el), reload: () => Store.reload() };
 })();
