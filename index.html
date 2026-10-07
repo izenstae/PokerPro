@@ -6,14 +6,16 @@
 <title>Skill Builder</title>
 <meta name="description" content="One hub for everything you are learning: a learning calendar around your classes and hockey, spaced-repetition drills, graded practice and levels for poker, chess, Swedish, Hebrew, Spanish, quant games and your coursework.">
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#F4EFE6">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.github.com https://gist.githubusercontent.com; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'">
+<meta name="theme-color" content="#F4EFE6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161411" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Skill Builder">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <script>(function(){try{var t=localStorage.getItem("sb-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 <style>
 /* ============================================================
@@ -23,10 +25,10 @@
    hairline rules instead of boxes wherever a box is not needed.
    ============================================================ */
 :root{
-  --paper:#F4EFE6; --paper2:#ECE6D9; --card:#FBF9F4; --ink:#1A1814; --ink2:#5C5649; --ink3:#8E8779; --rule:#DCD4C4; --rule2:#C9C0AD;
-  --accent:#C2451F; --on-accent:#FFF7F0; --green:#2F7A4E; --gold:#A8761A; --blue:#2F5C9E; --purple:#6A4FB6; --red:#B9321C;
+  --paper:#F4EFE6; --paper2:#ECE6D9; --card:#FBF9F4; --ink:#1A1814; --ink2:#5C5649; --ink3:#736C5C; --rule:#DCD4C4; --rule2:#C9C0AD;
+  --accent:#BC421D; --on-accent:#FFF7F0; --on-badge:#fff; --green:#2F7A4E; --gold:#906414; --blue:#2F5C9E; --purple:#6A4FB6; --red:#B9321C;
   --inv:#1A1814; --on-inv:#F4EFE6; --on-inv2:#B9B1A1;
-  --tint-accent:rgba(194,69,31,.08); --tint-green:rgba(47,122,78,.10); --tint-gold:rgba(168,118,26,.13); --tint-red:rgba(185,50,28,.08); --tint-blue:rgba(47,92,158,.10); --tint-purple:rgba(106,79,182,.10);
+  --tint-accent:rgba(188,66,29,.08); --tint-green:rgba(47,122,78,.10); --tint-gold:rgba(168,118,26,.13); --tint-red:rgba(185,50,28,.08); --tint-blue:rgba(47,92,158,.10); --tint-purple:rgba(106,79,182,.10);
   --grain:.055; --grain-blend:multiply; --shadow:0 1px 0 rgba(26,24,20,.04), 0 10px 30px -18px rgba(26,24,20,.35);
   --sq-l:#EBD9B4; --sq-d:#A97C50;
   /* the names the screens were written against */
@@ -37,8 +39,8 @@
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --paper:#161411; --paper2:#1E1B16; --card:#211E19; --ink:#EEE7D8; --ink2:#AAA190; --ink3:#766F61; --rule:#2F2B24; --rule2:#3D382F;
-    --accent:#E6673F; --on-accent:#1A0E08; --green:#5FB37F; --gold:#D9A441; --blue:#7AA2DE; --purple:#A692E0; --red:#E0674F;
+    --paper:#161411; --paper2:#1E1B16; --card:#211E19; --ink:#EEE7D8; --ink2:#AAA190; --ink3:#8E8778; --rule:#2F2B24; --rule2:#3D382F;
+    --accent:#E6673F; --on-accent:#1A0E08; --on-badge:#1A0E08; --green:#5FB37F; --gold:#D9A441; --blue:#7AA2DE; --purple:#A692E0; --red:#E0674F;
     --inv:#EEE7D8; --on-inv:#1A1814; --on-inv2:#5C5649;
     --tint-accent:rgba(230,103,63,.12); --tint-green:rgba(95,179,127,.12); --tint-gold:rgba(217,164,65,.14); --tint-red:rgba(224,103,79,.12); --tint-blue:rgba(122,162,222,.12); --tint-purple:rgba(166,146,224,.12);
     --grain:.07; --grain-blend:screen; --shadow:0 1px 0 rgba(0,0,0,.2), 0 12px 30px -16px rgba(0,0,0,.6);
@@ -46,8 +48,8 @@
   }
 }
 :root[data-theme="dark"]{
-  --paper:#161411; --paper2:#1E1B16; --card:#211E19; --ink:#EEE7D8; --ink2:#AAA190; --ink3:#766F61; --rule:#2F2B24; --rule2:#3D382F;
-  --accent:#E6673F; --on-accent:#1A0E08; --green:#5FB37F; --gold:#D9A441; --blue:#7AA2DE; --purple:#A692E0; --red:#E0674F;
+  --paper:#161411; --paper2:#1E1B16; --card:#211E19; --ink:#EEE7D8; --ink2:#AAA190; --ink3:#8E8778; --rule:#2F2B24; --rule2:#3D382F;
+  --accent:#E6673F; --on-accent:#1A0E08; --on-badge:#1A0E08; --green:#5FB37F; --gold:#D9A441; --blue:#7AA2DE; --purple:#A692E0; --red:#E0674F;
   --inv:#EEE7D8; --on-inv:#1A1814; --on-inv2:#5C5649;
   --tint-accent:rgba(230,103,63,.12); --tint-green:rgba(95,179,127,.12); --tint-gold:rgba(217,164,65,.14); --tint-red:rgba(224,103,79,.12); --tint-blue:rgba(122,162,222,.12); --tint-purple:rgba(166,146,224,.12);
   --grain:.07; --grain-blend:screen; --shadow:0 1px 0 rgba(0,0,0,.2), 0 12px 30px -16px rgba(0,0,0,.6);
@@ -83,7 +85,7 @@ kbd{font:11px var(--mono); color:var(--ink3); border:1px solid var(--rule2); bor
 .navi[aria-current="page"]{color:var(--ink)} .navi[aria-current="page"] svg{stroke:var(--accent); opacity:1}
 .navi[aria-current="page"]:after{content:""; position:absolute; left:11px; right:11px; bottom:-1px; height:2px; background:var(--accent)}
 .nbadge{font:700 10.5px var(--mono); min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--accent); color:var(--on-accent); display:inline-grid; place-items:center; font-style:normal}
-.nbadge.red{background:var(--purple); color:#fff}
+.nbadge.red{background:var(--purple); color:var(--on-badge)}
 .topr{flex:0 0 auto; display:flex; align-items:center; gap:8px; margin-left:auto}
 .gpill{display:inline-flex; align-items:center; gap:7px; padding:3px 10px 3px 5px; border-radius:20px; border:1px solid var(--rule2); color:var(--ink2); text-decoration:none; font:12px var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap}
 .gpill:hover{border-color:var(--ink); color:var(--ink)} .gpill .gs{filter:grayscale(1); opacity:.6} .gpill .gs.lit{filter:none; opacity:1; color:var(--ink)}
@@ -103,7 +105,10 @@ kbd{font:11px var(--mono); color:var(--ink3); border:1px solid var(--rule2); bor
   .navi .nbadge{position:absolute; top:0; left:calc(50% + 6px); height:16px; min-width:16px; font-size:9.5px}
   .wrap{padding:18px 16px calc(96px + env(safe-area-inset-bottom))} .spill{font-size:10px; padding:4px 8px} .spill span{display:none}
 }
-.wrap{position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:26px 24px 90px}
+.wrap{position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:26px 24px 90px} #main:focus{outline:none}
+/* a persistent line under the masthead when saving is off or has failed; drawSaveTag fills it */
+.savebar{position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:8px 24px; font:12px var(--mono); color:var(--red); border-bottom:1px solid var(--rule)} .savebar a{color:var(--red)}
+@media(max-width:760px){ .savebar{padding:8px 16px} }
 
 /* ---- the home ledger: on a wide screen the tracks sit in a right-hand rail ---- */
 @media(min-width:981px){
@@ -126,7 +131,7 @@ kbd{font:11px var(--mono); color:var(--ink3); border:1px solid var(--rule2); bor
 .pbar{height:4px; background:var(--rule); overflow:hidden} .pbar span{display:block; height:100%; background:var(--ink)}
 .pbar.gold span{background:var(--gold)}
 .clist > div{display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid var(--rule); font-size:14px; align-items:center}
-.clist > div:last-child{border-bottom:0} .clist span{color:var(--ink)} .clist > div > b{font:13px var(--mono); color:var(--ink2); white-space:nowrap; font-variant-numeric:tabular-nums} .clist b.due{color:var(--accent)}
+.clist > div:last-child{border-bottom:0} .clist span{color:var(--ink)} .clist > div > span{min-width:0; overflow-wrap:anywhere} .clist > div > b{font:13px var(--mono); color:var(--ink2); text-align:right; flex:0 1 auto; min-width:0; overflow-wrap:anywhere; font-variant-numeric:tabular-nums} .clist b.due{color:var(--accent)}
 .clist small{display:block; color:var(--ink3); font-size:12.5px; line-height:1.45}
 .row{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap}
 .act{font-family:var(--sans); font-size:13.5px; font-weight:600; letter-spacing:.01em; background:var(--ink); color:var(--paper); border:1px solid var(--ink); border-radius:4px; padding:10px 16px; min-height:40px; cursor:pointer; transition:background .12s, border-color .12s, color .12s, transform .06s; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px}
@@ -157,7 +162,7 @@ kbd{font:11px var(--mono); color:var(--ink3); border:1px solid var(--rule2); bor
 .hint{font-size:12.5px; color:var(--ink3); margin-top:10px}
 .xpchip{font:700 12px var(--mono); color:var(--gold); border:1px solid var(--gold); border-radius:12px; padding:2px 9px; font-variant-numeric:tabular-nums}
 .tag{display:inline-block; font:600 10px var(--mono); letter-spacing:.08em; text-transform:uppercase; border-radius:3px; padding:2px 6px; background:var(--paper2); color:var(--ink2); vertical-align:2px}
-.tag.gold{background:var(--gold); color:#fff} .tag.red{background:var(--red); color:#fff} .tag.green{background:var(--green); color:#fff} .tag.blue{background:var(--blue); color:#fff} .tag.school{background:var(--tint-purple); color:var(--purple)}
+.tag.gold{background:var(--gold); color:var(--on-badge)} .tag.red{background:var(--red); color:var(--on-badge)} .tag.green{background:var(--green); color:var(--on-badge)} .tag.blue{background:var(--blue); color:var(--on-badge)} .tag.school{background:var(--tint-purple); color:var(--purple)}
 .toasts{position:fixed; right:18px; bottom:18px; z-index:60; display:flex; flex-direction:column; gap:8px; align-items:flex-end; pointer-events:none}
 @media(max-width:820px){ .toasts{bottom:84px; left:16px; right:16px; align-items:stretch} }
 .toast{background:var(--inv); color:var(--on-inv2); border-left:3px solid var(--accent); border-radius:4px; padding:11px 15px; font-size:13.5px; box-shadow:0 10px 30px rgba(0,0,0,.25); max-width:380px; animation:tin .25s ease-out; transition:opacity .4s, transform .4s}
@@ -211,12 +216,12 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 @media(max-width:760px){ .hgreet h1{font-size:36px} .hero h2{font-size:27px} .vhead h1{font-size:32px} }
 
 /* ---- calendar ---- */
-.week{display:grid; grid-template-columns:50px repeat(7,1fr); gap:0; border:1px solid var(--rule); border-radius:6px; overflow:hidden; background:var(--card); font-size:11.5px; box-shadow:var(--shadow)}
+.weekwrap{overflow-x:auto; padding-bottom:14px; margin-bottom:-14px} .week{display:grid; grid-template-columns:50px repeat(7,minmax(96px,1fr)); min-width:722px; gap:0; border:1px solid var(--rule); border-radius:6px; overflow:hidden; background:var(--card); font-size:11.5px; box-shadow:var(--shadow)}
 .week .hd{padding:9px 4px; text-align:center; border-bottom:1px solid var(--ink); border-left:1px solid var(--rule); color:var(--ink3); font:10.5px var(--mono); letter-spacing:.06em; text-transform:uppercase; line-height:1.5} .week .hd b{display:block; color:var(--ink); font:500 20px var(--serif); letter-spacing:-.01em} .week .hd.today{background:var(--tint-accent)} .week .hd.today b{color:var(--accent)} .week .hd span{text-transform:none; letter-spacing:0}
 .week .hrs{position:relative; border-right:1px solid var(--rule)} .week .hrs i{position:absolute; left:5px; font:10px var(--mono); font-style:normal; color:var(--ink3); transform:translateY(-50%)}
 .week .col{position:relative; border-left:1px solid var(--rule); background-image:linear-gradient(var(--rule) 1px, transparent 1px); background-size:100% var(--hour)}
 .week .col.today{background-color:var(--tint-accent)}
-.evt{position:absolute; left:3px; right:3px; border-radius:3px; padding:3px 6px; font-size:10.5px; line-height:1.25; overflow:hidden; color:#fff; cursor:default}
+.evt{position:absolute; left:3px; right:3px; border-radius:3px; padding:3px 6px; font-size:10.5px; line-height:1.25; overflow:hidden; color:var(--on-badge); cursor:default}
 .evt.class{background:var(--blue)} .evt.hockey{background:var(--red)} .evt.work{background:var(--ink3)} .evt.other{background:var(--ink3)}
 .evt.study{background:var(--tint-green); border:1px solid var(--green); color:var(--ink)} .evt.study.school{background:var(--tint-purple); border-color:var(--purple)} .evt.study.deferred{opacity:.5; border-style:dashed}
 .evt b{display:block; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -279,7 +284,7 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 .steps{list-style:none; counter-reset:s; margin-bottom:14px} .steps li{counter-increment:s; position:relative; padding:4px 0 4px 28px; font-size:14.5px; line-height:1.55; color:var(--ink)} .steps li:before{content:counter(s); position:absolute; left:0; top:6px; width:18px; height:18px; border-radius:50%; border:1px solid var(--ink3); color:var(--ink2); font:10px var(--mono); display:grid; place-items:center}
 .punch{font-family:var(--serif); font-size:15.5px; line-height:1.6; color:var(--ink); border-top:1px solid var(--rule); padding-top:12px; margin-top:12px}
 .how{border:1px solid var(--rule); border-left:3px solid var(--green); border-radius:0 4px 4px 0; background:var(--card); overflow:hidden} .how h4{font:600 10px var(--mono); letter-spacing:.2em; text-transform:uppercase; color:var(--green); padding:12px 16px 0} .how h4 span{color:var(--ink3); font-weight:400}
-.howask{font-family:var(--serif); font-size:16.5px; line-height:1.45; color:var(--ink); padding:8px 16px 2px; font-style:italic} .howsteps{list-style:none; counter-reset:h; padding:6px 16px 6px; margin:0} .howsteps li{counter-increment:h; position:relative; padding:5px 0 5px 28px; font-size:14px; line-height:1.55; color:var(--ink)} .howsteps li:before{content:counter(h); position:absolute; left:0; top:6px; width:18px; height:18px; border-radius:50%; background:var(--green); color:#fff; font:600 10px var(--mono); display:grid; place-items:center}
+.howask{font-family:var(--serif); font-size:16.5px; line-height:1.45; color:var(--ink); padding:8px 16px 2px; font-style:italic} .howsteps{list-style:none; counter-reset:h; padding:6px 16px 6px; margin:0} .howsteps li{counter-increment:h; position:relative; padding:5px 0 5px 28px; font-size:14px; line-height:1.55; color:var(--ink)} .howsteps li:before{content:counter(h); position:absolute; left:0; top:6px; width:18px; height:18px; border-radius:50%; background:var(--green); color:var(--on-badge); font:600 10px var(--mono); display:grid; place-items:center}
 .how .tip{font-size:13px; line-height:1.55; color:var(--ink2); padding:10px 16px 12px; border-top:1px solid var(--rule); margin-top:4px} .how .tip b{color:var(--green); font:600 10px var(--mono); letter-spacing:.1em; text-transform:uppercase; margin-right:6px}
 .verse{border:1px solid var(--rule); border-radius:4px; padding:16px 18px; background:var(--card)} .verse .vt{font-size:24px; line-height:1.9; direction:rtl; color:var(--ink)} .verse .vn{color:var(--accent); font:12px var(--mono); margin-left:8px}
 .verse .vw{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; direction:rtl} .verse .vw span{background:var(--paper); border:1px solid var(--rule); border-radius:4px; padding:4px 8px; font-size:14px; direction:rtl} .verse .vw span small{display:block; direction:ltr; color:var(--ink2); font-size:11.5px}
@@ -287,7 +292,7 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 .bwrap{display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap} .bwrap .cap{flex:1 1 220px; margin-top:0; align-self:center}
 .sech{display:flex; align-items:center; gap:12px; font:600 11px var(--mono); letter-spacing:.16em; text-transform:uppercase; color:var(--ink2); margin:22px 0 12px} .sech:after{content:""; flex:1; height:1px; background:var(--rule)}
 .fxsec{border-top:1px solid var(--rule); padding-top:22px}
-.fx{background:var(--card); border:1px solid var(--rule); border-radius:4px; padding:16px 18px; margin-bottom:12px; box-shadow:var(--shadow)} .fxh{display:flex; justify-content:space-between; gap:10px; align-items:baseline; margin-bottom:10px} .fxh b{font-family:var(--serif); font-size:17px; font-weight:500} .fxh a{font:12px var(--mono); color:var(--accent); text-decoration:none; white-space:nowrap}
+.fx{background:var(--card); border:1px solid var(--rule); border-radius:4px; padding:16px 18px; margin-bottom:12px; box-shadow:var(--shadow)} .fxh{display:flex; justify-content:space-between; gap:10px; align-items:baseline; margin-bottom:10px} .fxh b{font-family:var(--serif); font-size:17px; font-weight:500; min-width:0; overflow-wrap:anywhere} .fxh a{font:12px var(--mono); color:var(--accent); text-decoration:none; text-align:right; flex:0 1 auto; min-width:0; overflow-wrap:anywhere}
 .fxm{font-family:var(--serif); font-size:21px; color:var(--ink); background:var(--paper); border:1px solid var(--rule); border-radius:4px; padding:12px 16px; overflow-x:auto; line-height:1.6; white-space:pre-wrap}
 .fxv{display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin-top:12px; font-size:14px} .fxv > div{display:contents} .fxv dt{font-family:var(--serif); color:var(--accent); white-space:nowrap} .fxv dd{color:var(--ink2)}
 .fxa{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px} .fxa span{font-size:12.5px; color:var(--ink2); background:var(--paper2); border-radius:3px; padding:4px 9px} .fxa b{color:var(--ink); font-weight:600}
@@ -320,7 +325,7 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 .recall{margin-top:12px; padding:14px 16px; border:1px dashed var(--accent); border-radius:4px; font-family:var(--serif); font-size:17px; line-height:1.55; color:var(--ink); background:var(--tint-accent)}
 .reveal{border-top:1px solid var(--rule); padding:18px 22px; background:var(--paper2)}
 .verdict{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px}
-.badge{font:600 10.5px var(--mono); letter-spacing:.16em; text-transform:uppercase; padding:4px 9px; border-radius:3px} .badge.ok{background:var(--green); color:#fff} .badge.no{background:var(--red); color:#fff} .badge.near{background:var(--gold); color:#fff}
+.badge{font:600 10.5px var(--mono); letter-spacing:.16em; text-transform:uppercase; padding:4px 9px; border-radius:3px} .badge.ok{background:var(--green); color:var(--on-badge)} .badge.no{background:var(--red); color:var(--on-badge)} .badge.near{background:var(--gold); color:var(--on-badge)}
 .said{font-size:13.5px; color:var(--ink2)} .said b{color:var(--ink)}
 .pace{font:11px var(--mono); letter-spacing:.1em; text-transform:uppercase; margin-left:auto} .pace.fast{color:var(--green)} .pace.slow{color:var(--ink3)}
 .srsline{font-size:13.5px; color:var(--ink2); margin:8px 0 12px; padding:9px 12px; border-radius:3px; background:var(--card); border:1px solid var(--rule)} .srsline b{color:var(--ink)} .srsline.up{border-left:3px solid var(--green)} .srsline.miss{border-left:3px solid var(--red)}
@@ -388,6 +393,10 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 .slog > div{display:grid; grid-template-columns:70px 1fr; gap:10px; padding:6px 0; border-bottom:1px solid var(--rule); font-size:12.5px; color:var(--ink2)} .slog > div:last-child{border-bottom:0} .slog .t{font-family:var(--mono); color:var(--ink3)}
 .devs > div{display:grid; grid-template-columns:1fr auto; padding:7px 0; border-bottom:1px solid var(--rule); font-size:14px} .devs > div:last-child{border-bottom:0} .devs small{color:var(--ink3); font-family:var(--mono); font-size:12px}
 .install{border:1px dashed var(--rule2); border-radius:4px; padding:14px 16px; font-size:14px; color:var(--ink2); line-height:1.65} .install b{color:var(--ink)}
+@media (pointer:coarse){
+  .chip,.pblock .chip{min-height:40px; padding:9px 14px; display:inline-flex; align-items:center} .spill{min-height:40px; padding:9px 12px} .tbtn{width:40px; height:40px} .gpill{min-height:40px; padding:5px 12px 5px 7px}
+  .ph a{display:inline-block; padding:12px 6px; margin:-12px -6px -12px auto}
+}
 @media (prefers-reduced-motion:reduce){ *{transition:none !important; animation:none !important} }
 </style>
 </head>
@@ -399,7 +408,8 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
     <div class="topr"><a class="gpill" id="gPill" href="#/home" aria-label="Daily goal and streak"></a><button class="spill off" id="syncPill" type="button"><i></i><span>Sync off</span></button><button class="tbtn" id="themeBtn" type="button" aria-label="Switch between light and dark"></button></div>
   </div>
 </header>
-<main class="wrap" id="main"></main>
+<div class="savebar" id="saveBar" role="status" hidden></div>
+<main class="wrap" id="main" tabindex="-1"></main>
 <div class="gltip" id="gltip" role="tooltip" hidden></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <script>
@@ -436,9 +446,11 @@ function srsLevel(s) { return SRS_LEVELS[s ? s.box : 0]; }
 function srsIsDue(s, now) { return !s || now >= s.due; }
 
 /* One answer. Returns what happened: up, miss, slow, clean.
-   A miss drops a box and makes it due now. A slow right answer
-   does not count toward the run. Cramming a skill that is not yet
-   due builds the run but never promotes: only spacing does that. */
+   A miss drops a box and makes it due now, so it comes back this
+   session; but a skill that lapsed today cannot climb a box until the
+   next local day, so three quick retries do not undo the lapse. A slow
+   right answer does not count toward the run. Cramming a skill that is
+   not yet due builds the run but never promotes: only spacing does that. */
 function srsRecord(s, ok, secs, target, now) {
   var goal = srsGoal(target, s.box);
   s.n++; s.last = now;
@@ -447,13 +459,13 @@ function srsRecord(s, ok, secs, target, now) {
   if (s.hist.length > SRS_HIST) s.hist.shift();
   if (!ok) {
     if (s.box > 0) { s.lapses++; s.box--; }
-    s.run = 0; s.due = now;
+    s.run = 0; s.due = now; s.lapsed = now;
     return { ev: "miss", box: s.box, goal: goal };
   }
   s.ok++;
   if (secs > goal) { s.run = 0; return { ev: "slow", box: s.box, goal: goal }; }
   s.run++;
-  if (now >= s.due && s.run >= srsNeed(s.box) && s.box < SRS_TOP) {
+  if (now >= s.due && s.run >= srsNeed(s.box) && s.box < SRS_TOP && srsCanClimb(s, now)) {
     s.box++;
     s.run = 0;
     s.due = now + SRS_DAYS[s.box] * SRS_DAY - SRS_SLACK;
@@ -461,6 +473,9 @@ function srsRecord(s, ok, secs, target, now) {
   }
   return { ev: "clean", box: s.box, goal: goal, run: s.run, need: srsNeed(s.box) };
 }
+
+/* promotion is gated to the day after the last lapse */
+function srsCanClimb(s, now) { return !s.lapsed || srsDayKey(now) > srsDayKey(s.lapsed); }
 
 /* put a skill on the schedule after a passed checkpoint: first review tomorrow */
 function srsGraduate(s, now) {
@@ -526,10 +541,17 @@ function srsDayKey(t) {
   return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
 }
 
+/* the local calendar day before a key: noon-anchored, so a DST change never skips or repeats a day */
+function srsPrevDay(key) {
+  var p = key.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2], 12);
+  d.setDate(d.getDate() - 1);
+  return srsDayKey(d.getTime());
+}
+
 function srsDayStreak(log, now) {
-  var n = 0, t = now;
-  if (!log[srsDayKey(t)]) t -= SRS_DAY;               /* today not started yet does not break it */
-  while (log[srsDayKey(t)]) { n++; t -= SRS_DAY; }
+  var n = 0, k = srsDayKey(now);
+  if (!log[k]) k = srsPrevDay(k);                     /* today not started yet does not break it */
+  while (log[k]) { n++; k = srsPrevDay(k); }
   return n;
 }
 
@@ -764,7 +786,7 @@ function lvAddHand(Lg, hand, now, learned) {
   Lg = Lg || lvNew();
   now = now || Date.now();
   var streets = ["preflop", "flop", "turn", "river"];
-  (hand.decisions || []).forEach(function (dec) {
+  (hand.decisions || []).forEach(function (dec, di) {
     var A = dec.A, G = dec.G;
     var k = lvKnown(G.concepts, learned);
     Lg.d.push({ t: now, q: G.quality, l: Math.round(100 * G.loss) / 100, g: G.grade, c: G.concepts.slice(), k: k, s: A.street });
@@ -772,7 +794,8 @@ function lvAddHand(Lg, hand, now, learned) {
       var did = A.options.filter(function (o) { return o.key === G.chosen; })[0];
       var best = A.options.filter(function (o) { return o.key === A.best; })[0];
       Lg.m.unshift({
-        id: now.toString(36) + "-" + hand.no + "-" + A.street, t: now, no: hand.no, pos: hand.pos,
+        /* the decision's index keeps two mistakes on the same street of one hand apart */
+        id: now.toString(36) + "-" + hand.no + "-" + A.street + "-" + di, t: now, no: hand.no, pos: hand.pos,
         cards: hand.cards.slice(), board: A.board.slice(), street: streets[A.street] || "",
         pot: A.pot, toCall: A.toCall, eq: A.eq, grade: G.grade, loss: G.loss,
         did: did ? did.label : "", didEV: did ? did.ev : 0, best: best ? best.label : "", bestEV: best ? best.ev : 0,
@@ -1155,16 +1178,38 @@ function syncWrite(token, id, st, keepalive) {
    Pure functions; the screen supplies speech and a keyboard.
    ============================================================ */
 
-var LG_NIQQUD = /[֑-ׇ]/g;
+var LG_NIQQUD = /[֑-ׇ]/g;                 /* U+0591–U+05C7: points, accents, and the maqaf, which lgStrip turns into a space first */
+var LG_MAQAF = /־/g;                       /* U+05BE: the Hebrew hyphen joins words, so it becomes a space, not nothing */
 var LG_FINALS = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };   /* ך ם ן ף ץ -> כ מ נ פ צ */
+var LG_LETTER = /[\p{L}\p{M}]/u;           /* a letter or a combining mark, in any script: \b fails for Hebrew and accented letters */
 
-function lgStrip(s) { return String(s || "").replace(LG_NIQQUD, ""); }
+function lgStrip(s) { return String(s || "").replace(LG_MAQAF, " ").replace(LG_NIQQUD, ""); }
 function lgNorm(s, lang) {
-  s = String(s == null ? "" : s).trim().toLowerCase();
+  s = String(s == null ? "" : s).normalize("NFC").trim().toLowerCase();
   s = s.replace(/\(.*?\)/g, "");                               /* "(to) run" -> "run" */
   if (lang === "he") { s = lgStrip(s).replace(/[ךםןףץ]/g, function (c) { return LG_FINALS[c]; }); s = s.replace(/[׳״'"]/g, ""); }
-  s = s.replace(/[.,!?;:"“”„«»…]/g, " ").replace(/\s+/g, " ").trim();
+  s = s.replace(/[.,!?¿¡;:"“”„«»…–—]/g, " ").replace(/\s+/g, " ").trim();
   return s;
+}
+/* word boundaries, Unicode-aware: a boundary is the start or end of the string, or a neighbour that is not a letter */
+function lgIsLetter(ch) { return !!ch && LG_LETTER.test(ch); }
+/* index of `needle` in `hay` with a boundary on both sides, or -1; `loose` relaxes the right side (a token that STARTS with the needle) */
+function lgFindWord(hay, needle, loose) {
+  if (!needle) return -1;
+  var i = hay.indexOf(needle);
+  while (i >= 0) {
+    if (!lgIsLetter(hay.charAt(i - 1)) && (loose || !lgIsLetter(hay.charAt(i + needle.length)))) return i;
+    i = hay.indexOf(needle, i + 1);
+  }
+  return -1;
+}
+/* de-duplicate by a key; the first of each key wins */
+function lgDistinct(list, keyOf) { var seen = {}, out = []; list.forEach(function (x) { var k = keyOf(x); if (!seen[k]) { seen[k] = 1; out.push(x); } }); return out; }
+/* multiple-choice options: the answer plus up to k distractors, all distinct by their normalised form, shuffled; fewer than k when the pool is small */
+function lgOptions(answer, pool, k, rnd, lang) {
+  var key = function (x) { return lgNorm(x, lang) || String(x).toLowerCase(); }, ak = key(answer);
+  var others = lgDistinct(lgShuffle(pool.filter(function (x) { return x != null && key(x) !== ak; }), rnd), key).slice(0, k);
+  return lgShuffle([answer].concat(others), rnd);
 }
 /* accepted answers: "a / b" or "a; b" in a gloss means either is fine */
 function lgSplit(g) { return String(g || "").split(/\s*[\/;]\s*|\s+or\s+/).map(function (x) { return x.trim(); }).filter(Boolean); }
@@ -1215,11 +1260,21 @@ var LG_LANG = { sv: { name: "Swedish", code: "sv-SE", rtl: false }, he: { name: 
 
 /* the word, as the learner should see it: Hebrew with points early, without later */
 function lgShow(item, box) { return item.lang === "he" && box >= 4 ? lgStrip(item.w) : item.w; }
+/* the example with the word blanked: { text, found } where `found` is the token taken out (the word itself, or an inflected
+   form that starts with it, like "går" for gå); null when the word is not in the sentence on a word boundary */
 function lgBlank(ex, w, lang) {
-  var plain = lang === "he" ? lgStrip(ex) : ex, target = lang === "he" ? lgStrip(w) : w;
-  var i = plain.toLowerCase().indexOf(target.toLowerCase());
-  if (i < 0) return null;
-  return plain.slice(0, i) + "____" + plain.slice(i + target.length);
+  var plain = lang === "he" ? lgStrip(ex) : String(ex || ""), target = (lang === "he" ? lgStrip(w) : String(w || "")).trim();
+  var low = plain.toLowerCase(), t = target.toLowerCase();
+  if (!t) return null;
+  var i = lgFindWord(low, t, false), end;
+  if (i >= 0) end = i + t.length;
+  else {
+    i = lgFindWord(low, t, true);
+    if (i < 0) return null;
+    end = i + t.length;
+    while (end < plain.length && lgIsLetter(plain.charAt(end))) end++;
+  }
+  return { text: plain.slice(0, i) + "____" + plain.slice(end), found: plain.slice(i, end) };
 }
 
 /* One question for a word, shaped by its box. caps: { tts: bool, asr: bool } says what the device can do. */
@@ -1246,8 +1301,9 @@ function lgWordQ(item, box, pool, caps, rnd) {
     return Object.assign(base, { kind: "text", question: "Type the " + L.name + " for <b>" + item.g + "</b>" + (item.pos ? " <small>(" + item.pos + ")</small>" : "") + ".", answer: item.w, accept: [item.w].concat(item.alt || []), target: 10, type: "produce", speak: null, speakAfter: caps.tts ? { text: item.w, lang: L.code } : null, keyboard: item.lang });
   }
   if (kind === "cloze") {
+    /* the form in the sentence is the answer; the base word (and its alternatives) are accepted too */
     var blank = lgBlank(item.ex, item.w, item.lang);
-    return Object.assign(base, { kind: "text", question: "Fill the gap: <span class='tw'>" + blank + "</span><br><small>" + item.exg + "</small>", answer: item.w, accept: [item.w].concat(item.alt || []), target: 12, type: "cloze", speak: null, speakAfter: caps.tts ? { text: item.ex, lang: L.code } : null, keyboard: item.lang });
+    return Object.assign(base, { kind: "text", question: "Fill the gap: <span class='tw'>" + blank.text + "</span><br><small>" + item.exg + "</small>", answer: blank.found, accept: [blank.found, item.w].concat(item.alt || []), target: 12, type: "cloze", speak: null, speakAfter: caps.tts ? { text: item.ex, lang: L.code } : null, keyboard: item.lang });
   }
   if (kind === "listen") {
     var useEx = item.ex && rnd() < 0.5;
@@ -1275,25 +1331,37 @@ function lgFormQ(table, lang, rnd, caps) {
   if (table.note) expl.push(table.note);
   if (table.rule && table.rule[ask]) expl.push(table.rule[ask]);
   var given = table.given == null ? 0 : table.given;
-  var others = table.rows.filter(function (r) { return r !== row && lgNorm(r[ask], lang) !== lgNorm(row[ask], lang); });
   var q = { kind: "text", question: table.q ? table.q.replace("{w}", "<b class='tw'>" + row[given] + "</b>").replace("{g}", row[table.gloss == null ? row.length - 1 : table.gloss]).replace("{form}", table.cols[ask]) :
     "<b class='tw'>" + row[given] + "</b> (" + row[row.length - 1] + "): give the <b>" + table.cols[ask] + "</b>.",
     answer: row[ask], accept: lgSplit(row[ask]).concat([row[ask]]), target: table.target || 10, explain: expl, lang: lang, rtl: L.rtl, keyboard: lang, speakAfter: caps.tts ? { text: lgSplit(row[ask])[0], lang: L.code } : null };
-  if (table.choice && others.length >= 3) {
-    var opts = lgShuffle([row[ask]].concat(lgShuffle(others.slice(), rnd).slice(0, 3).map(function (r) { return r[ask]; })), rnd);
-    q.kind = "choice"; q.options = opts; q.target = 7;
+  if (table.choice) {
+    /* distractors are the distinct other forms in the table; with fewer than two options the question stays typed */
+    var opts = lgOptions(row[ask], table.rows.filter(function (r) { return r !== row; }).map(function (r) { return r[ask]; }), 3, rnd, lang);
+    if (opts.length >= 2) { q.kind = "choice"; q.options = opts; q.target = 7; }
   }
   return q;
 }
 
 /* ---- the conversation grader ---- */
-/* a turn: { bot, botg, expect: [regex strings], model, modelg, hint }. A reply passes when any pattern matches. */
+/* a turn: { bot, botg, expect: [patterns], reject: [patterns], model, modelg, hint }. A reply passes when any expect pattern
+   matches and no reject pattern does. A pattern without regex metacharacters is literal: normalised like the reply and matched
+   on word boundaries ("ja" does not match "jag", "te" does not match "inte"); a multi-word literal matches a run of whole words.
+   A pattern with metacharacters is a regex, tested unanchored as written, with Hebrew points stripped and finals folded. */
+var LG_META = /[\\^$.*+?()[\]{}|]/;
+function lgPatternOk(p, s, lang) {
+  p = String(p == null ? "" : p);
+  if (LG_META.test(p)) {
+    var r = lang === "he" ? lgStrip(p).replace(/[ךםןףץ]/g, function (c) { return LG_FINALS[c]; }) : p.normalize("NFC");
+    try { return new RegExp(r, "i").test(s); } catch (e) { return false; }
+  }
+  var n = lgNorm(p, lang);
+  return !!n && lgFindWord(s, n, false) >= 0;
+}
 function lgTurnOk(turn, reply, lang) {
   var s = lgNorm(reply, lang);
   if (!s) return false;
-  return (turn.expect || []).some(function (p) {
-    try { return new RegExp(p, "i").test(s); } catch (e) { return lgNorm(p, lang) === s; }
-  });
+  if ((turn.reject || []).some(function (p) { return lgPatternOk(p, s, lang); })) return false;
+  return (turn.expect || []).some(function (p) { return lgPatternOk(p, s, lang); });
 }
 function lgDialogueScore(sc, replies, lang) {
   var ok = 0, n = sc.turns.filter(function (t) { return t.expect; }).length;
@@ -1315,9 +1383,13 @@ var LG_CEFR = [
   { min: 92, name: "C2", about: "Mastery. Near-native: nuance, idiom, register, anything you read or hear." }
 ];
 var LG_NEED = { sv: 700, he: 1100 };    /* FSI hours to professional working proficiency: Swedish category I, Hebrew category III */
+var LG_WORDS = 450;                      /* the vocabulary anchor when a course does not say how many words it has (the courses hold 425–514) */
+/* vocabulary: 25 points for words known, 10 more for words automatic, each on a log curve anchored at the course's word count
+   (st.total), so the term never falls when a word is promoted and all words automatic scores the full 35 */
 function lgLevelScore(st) {
-  var known = st.known || 0, auto = st.auto || 0;
-  var vocab = 30 * Math.min(1, Math.log(1 + known) / Math.log(1 + 5000)) + 5 * Math.min(1, auto / Math.max(1, known));
+  var known = st.known || 0, auto = st.auto || 0, total = st.total > 0 ? st.total : LG_WORDS;
+  var curve = function (n) { return Math.min(1, Math.log(1 + Math.max(0, n)) / Math.log(1 + total)); };
+  var vocab = 25 * curve(known) + 10 * curve(auto);
   var grammar = 25 * (st.grammarTotal ? st.grammarPassed / st.grammarTotal : 0);
   var uses = ["conv", "read", "listen", "write"].map(function (k) { return st[k]; }).filter(function (x) { return x != null; });
   var use = uses.length ? 20 * (uses.reduce(function (a, b) { return a + b; }, 0) / uses.length) * Math.min(1, uses.length / 4 + 0.5) : 0;
@@ -1339,7 +1411,7 @@ function lgNumberWords(lang, n) {
     if (n < 20) return ones[n];
     if (n < 100) return tens[(n / 10) | 0] + (n % 10 ? ones[n % 10] : "");
     if (n < 1000) return (n >= 200 ? ones[(n / 100) | 0] : "") + "hundra" + (n % 100 ? lgNumberWords("sv", n % 100) : "");
-    return (n >= 2000 ? ones[(n / 1000) | 0] : "ett") + "tusen" + (n % 1000 ? " " + lgNumberWords("sv", n % 1000) : "");
+    return (n >= 2000 ? ones[(n / 1000) | 0] + "tusen" : "ettusen") + (n % 1000 ? " " + lgNumberWords("sv", n % 1000) : "");   /* ett + tusen loses a t: ettusen */
   }
   /* Hebrew: the feminine forms, used for counting */
   var hOnes = ["אפס", "אחת", "שתיים", "שלוש", "ארבע", "חמש", "שש", "שבע", "שמונה", "תשע", "עשר"];
@@ -1535,7 +1607,7 @@ function langLevel(c, st) {
   var gram = c.lessonList.filter(function (L) { return passable(L) && !L.vocab && L.mode !== "quiz"; });
   var gp = gram.filter(function (L) { return st.progress[c.id + ":" + L.id]; }).length;
   var A = st.applyScores || {};
-  var lv = lgLevel({ known: known, auto: auto, grammarPassed: gp, grammarTotal: gram.length, conv: A.conv, read: A.read, listen: A.listen, write: A.write, hours: (st.hours || 0) + minutesOf(st.plog, c.id) / 60, need: c.need || 700 });
+  var lv = lgLevel({ known: known, auto: auto, grammarPassed: gp, grammarTotal: gram.length, conv: A.conv, read: A.read, listen: A.listen, write: A.write, hours: (st.hours || 0) + minutesOf(st.plog, c.id) / 60, need: c.need || 700, total: ids.length });
   lv.detail = [["Words known (box 3+)", known + " of " + ids.length], ["Words automatic (box 5+)", auto], ["Grammar lessons passed", gp + " of " + gram.length], ["Conversation", A.conv == null ? "–" : Math.round(100 * A.conv) + "%"], ["Reading", A.read == null ? "–" : Math.round(100 * A.read) + "%"], ["Listening", A.listen == null ? "–" : Math.round(100 * A.listen) + "%"], ["Writing", A.write == null ? "–" : Math.round(100 * A.write) + "%"], ["Hours (study + logged)", Math.round(((st.hours || 0) + minutesOf(st.plog, c.id) / 60) * 10) / 10 + " of " + (c.need || 700)]];
   lv.count = LG_CEFR.length;
   return lv;
@@ -1591,18 +1663,25 @@ function sbTrophies(s) {
 var PL_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 var PL_DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 var PL_KINDS = { class: "Class", hockey: "Hockey", work: "Work", other: "Busy" };
+/* every track the planner knows, with its starting priority (3 focus, 2 normal, 1 light, 0 paused);
+   a track missing from a saved priority map counts as 2, the same as the settings page shows it */
+var PL_TRACKS = [["poker", 2], ["chess", 2], ["sv", 3], ["he", 3], ["es", 3]];
+var PL_PRIORITY_DEFAULT = 2;
 
 function plDefault() {
+  var pr = {};
+  PL_TRACKS.forEach(function (t) { pr[t[0]] = t[1]; });
   return {
     cap: 60, hockeyCap: 40, heavyCap: 45,   /* minutes a day: normal, on a hockey day, on a day with 5+ busy hours */
     minBlock: 8, buffer: 15,                 /* smallest study block; minutes lost around every commitment */
     wake: "07:00", sleep: "23:00",
     newPerDay: 2, applyMin: 15,
     week: { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
-    priority: { poker: 2, chess: 2, sv: 3, he: 3 },
+    priority: pr,
     lastNew: {}, lastApply: {}
   };
 }
+function plPriority(S, id) { var p = S && S.priority ? S.priority[id] : null; return p == null ? PL_PRIORITY_DEFAULT : (+p || 0); }
 
 function plMins(hhmm) { var p = String(hhmm || "0:0").split(":"); return (+p[0]) * 60 + (+p[1] || 0); }
 function plFmt(m) {
@@ -1612,19 +1691,43 @@ function plFmt(m) {
 }
 function plFmt24(m) { var h = Math.floor(m / 60), mm = m % 60; return (h < 10 ? "0" : "") + h + ":" + (mm < 10 ? "0" : "") + mm; }
 
-/* the fixed blocks of a weekday, sorted, as minutes */
+/* the fixed blocks of a weekday as minutes, unsorted. A block whose end is before its start crosses
+   midnight (22:00-02:00): it is kept whole with t past 1440 and flagged, so callers can split it. */
+function plBusyRaw(S, wd) {
+  return ((S.week && S.week[wd]) || []).map(function (b) {
+    var f = plMins(b.f), t = plMins(b.t), cross = t < f;
+    return { n: b.n || PL_KINDS[b.k] || "Busy", k: b.k || "other", f: f, t: cross ? t + 1440 : t, cross: cross };
+  }).filter(function (b) { return b.t > b.f; });
+}
+/* the fixed blocks of a weekday, sorted, clipped to the day: a midnight-crossing block is
+   both its evening part (until 24:00) and its early-morning part (from 00:00) */
 function plBusy(S, wd) {
-  return ((S.week && S.week[wd]) || []).map(function (b) { return { n: b.n || PL_KINDS[b.k] || "Busy", k: b.k || "other", f: plMins(b.f), t: plMins(b.t) }; })
-    .filter(function (b) { return b.t > b.f; }).sort(function (a, b) { return a.f - b.f; });
+  var out = [];
+  plBusyRaw(S, wd).forEach(function (b) {
+    if (!b.cross) { out.push({ n: b.n, k: b.k, f: b.f, t: b.t }); return; }
+    out.push({ n: b.n, k: b.k, f: b.f, t: 1440 });
+    if (b.t > 1440) out.push({ n: b.n, k: b.k, f: 0, t: b.t - 1440 });
+  });
+  return out.sort(function (a, b) { return a.f - b.f; });
 }
 function plHas(S, wd, kind) { return plBusy(S, wd).some(function (b) { return b.k === kind; }); }
 function plBusyMinutes(S, wd) { return plBusy(S, wd).reduce(function (a, b) { return a + (b.t - b.f); }, 0); }
 
-/* free windows between waking and the sleep cutoff, with a buffer around every commitment */
+/* the sleep cutoff as minutes after the start of the day: one at or before the wake time ("00:30") is after midnight */
+function plSleepMins(S) { var wake = plMins(S.wake), sleep = plMins(S.sleep); return sleep <= wake ? sleep + 1440 : sleep; }
+
+/* free windows between waking and the sleep cutoff, with a buffer around every commitment.
+   Minutes run past 1440 when the cutoff is after midnight; plFmt wraps them. */
 function plFree(S, wd) {
-  var wake = plMins(S.wake), sleep = plMins(S.sleep), buf = S.buffer || 0;
+  var wake = plMins(S.wake), sleep = plSleepMins(S), buf = S.buffer || 0;
+  var busy = [];
+  plBusyRaw(S, wd).forEach(function (b) {
+    busy.push({ f: b.f, t: b.t });                                  /* whole, running past midnight if it does */
+    if (b.cross && b.t > 1440) busy.push({ f: 0, t: b.t - 1440 });  /* and its early-morning part on this day */
+  });
+  busy.sort(function (a, b) { return a.f - b.f; });
   var out = [], cur = wake;
-  plBusy(S, wd).forEach(function (b) {
+  busy.forEach(function (b) {
     var f = Math.max(wake, b.f - buf), t = Math.min(sleep, b.t + buf);
     if (f > cur) out.push({ f: cur, t: f });
     if (t > cur) cur = t;
@@ -1652,17 +1755,22 @@ function plBudget(S, wd) {
 function plPlan(S, wd, demand, done, dayKey) {
   demand = demand || {}; done = done || {};
   var B = plBudget(S, wd), budget = B.minutes, reserve = Math.round(budget * 0.1);
-  var ids = Object.keys(demand).filter(function (id) { return (S.priority[id] || 0) > 0; });
-  var pr = function (id) { return S.priority[id] || 0; };
+  var pr = function (id) { return plPriority(S, id); };   /* a track missing from the map is normal (2), not paused */
+  var ids = Object.keys(demand).filter(function (id) { return pr(id) > 0; });
   var used = 0, blocks = [];
   function spent(id) { return done[id] || 0; }
   var doneTotal = ids.reduce(function (a, id) { return a + spent(id); }, 0);
   var left = Math.max(0, budget - doneTotal);
 
-  /* 1. reviews, most pressing first: priority, then how overdue, then how many */
+  /* 1. reviews, most pressing first: how overdue (in days, capped at 5), then priority, then how many are due.
+        Overdue first because every extra day past the due date lowers the chance the item is still there;
+        the README promises this order. */
   var rev = ids.filter(function (id) { return demand[id].due > 0; }).sort(function (a, b) {
     var A = demand[a], Bb = demand[b];
-    return (pr(b) * 10 + Math.min(5, Bb.overdue || 0) + Math.min(3, Bb.due / 10)) - (pr(a) * 10 + Math.min(5, A.overdue || 0) + Math.min(3, A.due / 10));
+    var oa = Math.min(5, A.overdue || 0), ob = Math.min(5, Bb.overdue || 0);
+    if (ob !== oa) return ob - oa;
+    if (pr(b) !== pr(a)) return pr(b) - pr(a);
+    return (Bb.due || 0) - (A.due || 0);
   });
   rev.forEach(function (id) {
     var D = demand[id], m = Math.max(S.minBlock || 8, Math.min(25, Math.round(D.dueMin || D.due * 0.5)));
@@ -1735,11 +1843,13 @@ function plNote(S, dayKey, blocks) {
   });
 }
 
-/* reviews falling due per day for the next n days: items = [{ skill, due }] (ms) */
+/* reviews falling due per day for the next n days: items = [{ skill, due }] (ms).
+   Steps by local calendar day (noon-anchored, like gmNextDay), not by 24 hours, so a DST
+   change inside the range never repeats or skips a day key. */
 function plForecast(items, now, days, dayKeyFn) {
-  var out = [], DAY = 864e5;
+  var out = [], d0 = new Date(now);
   for (var d = 0; d < days; d++) {
-    var t0 = now + d * DAY, key = dayKeyFn(t0), row = { key: key, total: 0, by: {} };
+    var t0 = d === 0 ? now : new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + d, 12).getTime(), key = dayKeyFn(t0), row = { key: key, total: 0, by: {} };
     items.forEach(function (it) {
       var dueDay = dayKeyFn(Math.max(it.due, now));           /* overdue counts today */
       if (dueDay === key) { row.total++; row.by[it.skill] = (row.by[it.skill] || 0) + 1; }
@@ -1792,25 +1902,30 @@ var SCHOOL_COURSES = [
 /* the Leitner ladder the Math 340 store uses, so the hub can count what is due without loading the app */
 var SCH_INTERVALS = [0, 0, 1, 2, 4, 9, 21];
 
+/* calendar arithmetic on local days. Dates are compared at local noon, so a DST change
+   (an hour more or less in the day) never shifts a date across midnight or miscounts days. */
+function schLocalDate(iso) { var p = String(iso).split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }           /* local midnight of "YYYY-MM-DD" */
+function schNoon(d) { d = d instanceof Date ? d : new Date(d); return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12).getTime(); }
+function schDayDiff(a, b) { return Math.round((schNoon(a) - schNoon(b)) / 864e5); }                              /* whole local days from b to a */
+function schAddDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+/* whole days from today until the date: 0 on the day itself, 1 the day before, -1 the day after (overdue) */
 function schDaysUntil(iso, now) {
-  var d = new Date(iso + "T23:59:59");
-  return Math.ceil((d - (now || Date.now())) / 864e5);
+  return schDayDiff(schLocalDate(iso), now == null ? Date.now() : now);
 }
 function schWeekOf(course, now) {
-  var start = new Date(course.termStart + "T00:00:00");
-  var wk = Math.floor(((now || Date.now()) - start) / (7 * 864e5)) + 1;
+  var wk = Math.floor(schDayDiff(now == null ? Date.now() : now, schLocalDate(course.termStart)) / 7) + 1;
   return Math.min(Math.max(wk, 0), 11);
 }
 /* the next quiz: weekly on quizDay from week 2, per the syllabus, unless the manifest says otherwise */
 function schNextQuiz(course, now) {
   now = now || Date.now();
   var sched = (typeof MATH340 !== "undefined" && course.id === "math340" && MATH340.schedule) || null;
-  var start = new Date(course.termStart + "T00:00:00"), today = new Date(now); today.setHours(0, 0, 0, 0);
+  var start = schLocalDate(course.termStart), today = new Date(now); today.setHours(0, 0, 0, 0);
   for (var w = 1; w <= 10; w++) {
     var row = sched ? sched.filter(function (r) { return r.week === w; })[0] : { week: w, quiz: w >= 2 && w !== 6 && w !== 10, topic: "" };
     if (!row || !row.quiz) continue;
-    var day = new Date(start.getTime() + ((w - 1) * 7 + (course.quizDay == null ? 2 : course.quizDay - 1)) * 864e5);
-    if (day >= today) return { week: w, topic: row.topic || "", days: Math.round((day - today) / 864e5), date: day };
+    var day = schAddDays(start, (w - 1) * 7 + (course.quizDay == null ? 2 : course.quizDay - 1)), days = schDayDiff(day, today);
+    if (days >= 0) return { week: w, topic: row.topic || "", days: days, date: day };
   }
   return null;
 }
@@ -1860,7 +1975,7 @@ function schDemand(course, R, now) {
   var items = [], exam = null, hw = null;
   (course.keyDates || []).forEach(function (k) {
     var d = schDaysUntil(k.date, now);
-    if (d < 0) return;
+    if (d < 0) return;                       /* -1 is the day after: past, not "today" */
     if (k.kind === "exam" && (!exam || d < exam.days)) exam = { days: d, label: k.label, date: k.date };
     if (k.kind === "hw" && (!hw || d < hw.days)) hw = { days: d, label: k.label, date: k.date };
   });
@@ -1936,13 +2051,54 @@ var METHOD = [
 var HS_FILE = "skillbuilder-progress.json";
 
 function hsMaxNum(a, b) { return Math.max(+a || 0, +b || 0); }
+function hsMinNum(a, b) { a = +a || 0; b = +b || 0; return !a ? b : !b ? a : Math.min(a, b); }
 function hsNewer(a, b, key) { if (!a) return b; if (!b) return a; return (+b[key] || 0) > (+a[key] || 0) ? b : a; }
-function hsUnionBy(a, b, keyOf, cap) {
+/* shape guards: a malformed gist (null where an object should be, a string where an array should be)
+   must never throw in the merge, or one bad write breaks sync on every device */
+function hsIsObj(x) { return !!x && typeof x === "object" && !Array.isArray(x); }
+function hsObj(x) { return hsIsObj(x) ? x : {}; }
+function hsArr(x) { return Array.isArray(x) ? x : []; }
+function hsNum(x) { x = +x; return isFinite(x) ? x : 0; }
+function hsObjOf(x) { var out = {}; Object.keys(hsObj(x)).forEach(function (k) { if (hsIsObj(x[k])) out[k] = x[k]; }); return out; }   /* only the object-valued entries */
+function hsNumsOf(x) { var out = {}; Object.keys(hsObj(x)).forEach(function (k) { out[k] = hsNum(x[k]); }); return out; }
+/* a skill record: the more recently answered copy, with tiebreaks so a graduated skill
+   ({box: 1, last: 0}, never answered) is never demoted by a fresh copy, and a tie on
+   `last` (or an unanswered side) goes to the higher box, then the more answered, then
+   the more correct; a final canonical-string tiebreak keeps the choice order-independent */
+function hsNewerSkill(x, y) {
+  if (!hsIsObj(x)) return hsIsObj(y) ? y : x; if (!hsIsObj(y)) return x;
+  var lx = hsNum(x.last), ly = hsNum(y.last);
+  if (lx && ly && lx !== ly) return ly > lx ? y : x;
+  var bx = hsNum(x.box), by = hsNum(y.box); if (bx !== by) return by > bx ? y : x;
+  var nx = hsNum(x.n), ny = hsNum(y.n); if (nx !== ny) return ny > nx ? y : x;
+  var ox = hsNum(x.ok), oy = hsNum(y.ok); if (ox !== oy) return oy > ox ? y : x;
+  if (lx !== ly) return ly > lx ? y : x;
+  return hsCanon(y) > hsCanon(x) ? y : x;
+}
+/* a set by key; with a cap the newest by timeOf survive (sorted before capping, so both
+   merge orders keep the same members); without timeOf the cap keeps the last ones */
+function hsUnionBy(a, b, keyOf, cap, timeOf) {
   var seen = {}, out = [];
-  (a || []).concat(b || []).forEach(function (x) { var k = keyOf(x); if (k == null || seen[k]) return; seen[k] = 1; out.push(x); });
+  hsArr(a).concat(hsArr(b)).forEach(function (x) { if (x == null) return; var k = keyOf(x); if (k == null || seen[k]) return; seen[k] = 1; out.push(x); });
+  if (timeOf) out.sort(function (x, y) { return (hsNum(timeOf(x)) - hsNum(timeOf(y))) || (String(keyOf(x)) < String(keyOf(y)) ? -1 : String(keyOf(x)) > String(keyOf(y)) ? 1 : 0); });
   if (cap && out.length > cap) out = out.slice(-cap);
   return out;
 }
+/* the plan ticks: { dayKey: { "skill:kind": true } }; the union of the ticks per day, the newest days kept */
+var HS_PLAN_DAYS = 8;
+function hsMergePlanDone(a, b) {
+  a = hsObj(a); b = hsObj(b);
+  var out = {}, keys = {};
+  Object.keys(a).concat(Object.keys(b)).forEach(function (k) { if (hsIsObj(a[k]) || hsIsObj(b[k])) keys[k] = 1; });
+  Object.keys(keys).sort().slice(-HS_PLAN_DAYS).forEach(function (k) {
+    var x = hsObj(a[k]), y = hsObj(b[k]), m = {};
+    Object.keys(x).concat(Object.keys(y)).forEach(function (f) { if (x[f] || y[f]) m[f] = true; });
+    out[k] = m;
+  });
+  return out;
+}
+/* when did this hub's settings last move: the game-state stamps and the plan's `at` */
+function hsHubStamp(h) { var g = hsObj(h.gstate); return Math.max(hsNum(g.goalAt), hsNum(g.confAt), hsNum(hsObj(h.plan).at)); }
 function hsDayMerge(a, b) {
   var out = {};
   Object.keys(a || {}).concat(Object.keys(b || {})).forEach(function (k) {
@@ -1962,92 +2118,152 @@ function hsDayMerge(a, b) {
 
 /* the hub's own snapshot */
 function hsEmptyHub() { return { v: 1, epoch: 0, progress: {}, skills: {}, plog: {}, gstate: {}, chess: null, apply: {}, logs: [], plan: null, placed: {}, quant: null }; }
+/* coerce a hub snapshot to its shape: objects where objects belong, arrays where arrays belong,
+   finite numbers for counters, null for the optional parts; unknown keys ride along untouched */
+function hsNormHub(h) {
+  var out = Object.assign(hsEmptyHub(), hsObj(h));
+  out.epoch = hsNum(out.epoch);
+  out.progress = hsObj(out.progress);
+  out.skills = hsObjOf(out.skills);
+  out.plog = hsObjOf(out.plog);
+  out.gstate = Object.assign({}, hsObj(out.gstate));
+  if (out.gstate.seen != null) out.gstate.seen = hsNumsOf(out.gstate.seen);
+  if (out.gstate.calib != null && !hsIsObj(out.gstate.calib)) delete out.gstate.calib;
+  if (out.gstate.planDone != null && !hsIsObj(out.gstate.planDone)) delete out.gstate.planDone;
+  out.apply = hsObjOf(out.apply);
+  out.logs = hsArr(out.logs).filter(hsIsObj);
+  out.plan = hsIsObj(out.plan) ? out.plan : null;
+  out.placed = hsNumsOf(out.placed);
+  if (hsIsObj(out.chess)) { var c = out.chess = Object.assign({}, out.chess); c.d = hsArr(c.d); c.games = hsArr(c.games).filter(hsIsObj); c.ph = hsArr(c.ph); c.puzzle = c.puzzle == null ? 1000 : hsNum(c.puzzle); c.pn = hsNum(c.pn); }
+  else out.chess = null;
+  if (hsIsObj(out.quant)) { var q = out.quant = Object.assign({}, out.quant); q.runs = hsArr(q.runs).filter(hsIsObj); q.tier = hsNumsOf(q.tier); q.best = hsNumsOf(q.best); }
+  else out.quant = null;
+  return out;
+}
 function hsMergeHub(a, b) {
-  a = Object.assign(hsEmptyHub(), a || {}); b = Object.assign(hsEmptyHub(), b || {});
+  a = hsNormHub(a); b = hsNormHub(b);
   /* a newer epoch (a deliberate wipe) beats everything older */
-  if ((+a.epoch || 0) !== (+b.epoch || 0)) { var w = (+a.epoch || 0) > (+b.epoch || 0) ? a : b; return JSON.parse(JSON.stringify(w)); }
+  if (a.epoch !== b.epoch) { var w = a.epoch > b.epoch ? a : b; return JSON.parse(JSON.stringify(w)); }
   var m = hsEmptyHub(); m.epoch = a.epoch;
   Object.keys(a.progress).concat(Object.keys(b.progress)).forEach(function (k) { if (a.progress[k] || b.progress[k]) m.progress[k] = 1; });
-  Object.keys(a.skills).concat(Object.keys(b.skills)).forEach(function (k) { m.skills[k] = hsNewer(a.skills[k], b.skills[k], "last"); });
+  Object.keys(a.skills).concat(Object.keys(b.skills)).forEach(function (k) { m.skills[k] = hsNewerSkill(a.skills[k], b.skills[k]); });
   m.plog = hsDayMerge(a.plog, b.plog);
-  var ga = a.gstate || {}, gb = b.gstate || {};
+  /* game state: unknown fields last-writer (b), counters max, the goal by its stamp, trophies by first sighting,
+     the plan ticks a union per day, the plan day the later, flags by the newer settings stamp and otherwise OR,
+     so that merging in either order gives the same result */
+  var ga = a.gstate, gb = b.gstate, sa = hsHubStamp(a), sb = hsHubStamp(b);
   m.gstate = Object.assign({}, ga, gb);
-  ["spots", "sweeps", "plugged", "peakLevel", "convs", "planStreak"].forEach(function (k) { m.gstate[k] = hsMaxNum(ga[k], gb[k]); });
-  m.gstate.goal = (+gb.goalAt || 0) > (+ga.goalAt || 0) ? gb.goal : (ga.goal != null ? ga.goal : gb.goal);
+  ["spots", "sweeps", "plugged", "peakLevel", "convs", "planStreak", "schoolClear"].forEach(function (k) { if (ga[k] != null || gb[k] != null) m.gstate[k] = hsMaxNum(ga[k], gb[k]); });
+  m.gstate.goal = hsNum(gb.goalAt) > hsNum(ga.goalAt) ? gb.goal : hsNum(ga.goalAt) > hsNum(gb.goalAt) ? ga.goal : (ga.goal != null ? ga.goal : gb.goal);
   m.gstate.goalAt = hsMaxNum(ga.goalAt, gb.goalAt);
-  m.gstate.seen = Object.assign({}, ga.seen || {}, gb.seen || {});
-  if (ga.calib || gb.calib) { m.gstate.calib = {}; ["g", "f", "s"].forEach(function (k) { var p = (ga.calib || {})[k] || [0, 0], q = (gb.calib || {})[k] || [0, 0]; m.gstate.calib[k] = [hsMaxNum(p[0], q[0]), hsMaxNum(p[1], q[1])]; }); }
+  m.gstate.seen = {}; var seenA = hsObj(ga.seen), seenB = hsObj(gb.seen);
+  Object.keys(seenA).concat(Object.keys(seenB)).forEach(function (k) { m.gstate.seen[k] = hsMinNum(seenA[k], seenB[k]); });
+  if (ga.calib || gb.calib) { m.gstate.calib = {}; ["g", "f", "s"].forEach(function (k) { var p = hsArr(hsObj(ga.calib)[k]), q = hsArr(hsObj(gb.calib)[k]); m.gstate.calib[k] = [hsMaxNum(p[0], q[0]), hsMaxNum(p[1], q[1])]; }); }
+  if (ga.planDone || gb.planDone) m.gstate.planDone = hsMergePlanDone(ga.planDone, gb.planDone);
+  if (ga.planLast != null || gb.planLast != null) { var pa = String(ga.planLast || ""), pb = String(gb.planLast || ""); m.gstate.planLast = pb > pa ? pb : pa; }
+  if (ga.primed != null || gb.primed != null) m.gstate.primed = !!(ga.primed || gb.primed);
+  if (ga.conf != null || gb.conf != null) {
+    var ca2 = hsNum(ga.confAt), cb2 = hsNum(gb.confAt);
+    if (ca2 !== cb2) m.gstate.conf = cb2 > ca2 ? gb.conf : ga.conf;
+    else if (sa !== sb && ga.conf != null && gb.conf != null) m.gstate.conf = sb > sa ? gb.conf : ga.conf;
+    else m.gstate.conf = ga.conf == null ? gb.conf : gb.conf == null ? ga.conf : !!(ga.conf || gb.conf);
+    if (ca2 || cb2) m.gstate.confAt = Math.max(ca2, cb2);
+  }
   /* chess: games are a set by time; the move log is the longer one; the puzzle rating follows the more answered */
   var ca = a.chess, cb = b.chess;
   if (ca || cb) {
     ca = ca || { d: [], games: [], puzzle: 1000, pn: 0, ph: [] }; cb = cb || { d: [], games: [], puzzle: 1000, pn: 0, ph: [] };
-    var moreP = (cb.pn || 0) > (ca.pn || 0) ? cb : ca;
-    m.chess = { d: (ca.d || []).length >= (cb.d || []).length ? ca.d : cb.d, games: hsUnionBy(ca.games, cb.games, function (g) { return g.t; }, 60).sort(function (x, y) { return y.t - x.t; }), puzzle: moreP.puzzle, pn: moreP.pn, ph: moreP.ph || [] };
+    var moreP = cb.pn > ca.pn ? cb : ca;
+    m.chess = { d: ca.d.length >= cb.d.length ? ca.d : cb.d, games: hsUnionBy(ca.games, cb.games, function (g) { return g.t; }, 60, function (g) { return g.t; }).sort(function (x, y) { return y.t - x.t; }), puzzle: moreP.puzzle, pn: moreP.pn, ph: moreP.ph };
   }
-  Object.keys(a.apply || {}).concat(Object.keys(b.apply || {})).forEach(function (k) {
-    var p = (a.apply || {})[k], q = (b.apply || {})[k];
+  Object.keys(a.apply).concat(Object.keys(b.apply)).forEach(function (k) {
+    var p = a.apply[k], q = b.apply[k];
     if (!p) { m.apply[k] = q; return; } if (!q) { m.apply[k] = p; return; }
-    m.apply[k] = { n: hsMaxNum(p.n, q.n), sum: hsMaxNum(p.sum, q.sum), best: hsMaxNum(p.best, q.best), last: hsMaxNum(p.last, q.last), done: Object.assign({}, p.done || {}, q.done || {}) };
+    m.apply[k] = { n: hsMaxNum(p.n, q.n), sum: hsMaxNum(p.sum, q.sum), best: hsMaxNum(p.best, q.best), last: hsMaxNum(p.last, q.last), done: Object.assign({}, hsObj(p.done), hsObj(q.done)) };
   });
-  m.logs = hsUnionBy(a.logs, b.logs, function (x) { return x.id; }, 2000).sort(function (x, y) { return x.t - y.t; });
+  m.logs = hsUnionBy(a.logs, b.logs, function (x) { return x.id; }, 2000, function (x) { return x.t; });
   m.plan = hsNewer(a.plan, b.plan, "at");
-  Object.keys(a.placed || {}).concat(Object.keys(b.placed || {})).forEach(function (k) { m.placed[k] = hsMaxNum((a.placed || {})[k], (b.placed || {})[k]); });
+  Object.keys(a.placed).concat(Object.keys(b.placed)).forEach(function (k) { m.placed[k] = hsMaxNum(a.placed[k], b.placed[k]); });
   var qa = a.quant, qb = b.quant;
   if (qa || qb) {
     qa = qa || { runs: [], tier: {}, best: {} }; qb = qb || { runs: [], tier: {}, best: {} };
-    m.quant = { runs: hsUnionBy(qa.runs, qb.runs, function (r) { return r.t + ":" + r.g; }, 2000).sort(function (x, y) { return x.t - y.t; }), tier: {}, best: {} };
-    Object.keys(qa.tier || {}).concat(Object.keys(qb.tier || {})).forEach(function (k) { m.quant.tier[k] = hsMaxNum((qa.tier || {})[k], (qb.tier || {})[k]); });
-    Object.keys(qa.best || {}).concat(Object.keys(qb.best || {})).forEach(function (k) { m.quant.best[k] = hsMaxNum((qa.best || {})[k], (qb.best || {})[k]); });
+    m.quant = { runs: hsUnionBy(qa.runs, qb.runs, function (r) { return r.t + ":" + r.g; }, 2000, function (r) { return r.t; }), tier: {}, best: {} };
+    Object.keys(qa.tier).concat(Object.keys(qb.tier)).forEach(function (k) { m.quant.tier[k] = hsMaxNum(qa.tier[k], qb.tier[k]); });
+    Object.keys(qa.best).concat(Object.keys(qb.best)).forEach(function (k) { m.quant.best[k] = hsMaxNum(qa.best[k], qb.best[k]); });
   }
   return m;
 }
 
 /* the Math 340 store: cards by the later review, practice by the more attempts, misses and exams as sets, activity per day max */
+function hsNormM340(s) {
+  if (!hsIsObj(s)) return null;
+  var out = Object.assign({}, s);
+  out.cards = hsObjOf(out.cards); out.practice = hsObjOf(out.practice);
+  out.misses = hsArr(out.misses).filter(hsIsObj); out.exams = hsArr(out.exams).filter(hsIsObj);
+  out.sheet = hsArr(out.sheet).filter(function (id) { return id != null && typeof id !== "object"; });
+  out.activity = hsNumsOf(out.activity);
+  return out;
+}
 function hsMergeM340(a, b) {
+  a = hsNormM340(a); b = hsNormM340(b);
   if (!a) return b || null; if (!b) return a;
   var m = { v: 2, cards: {}, practice: {}, misses: [], exams: [], sheet: [], activity: {} };
-  Object.keys(a.cards || {}).concat(Object.keys(b.cards || {})).forEach(function (k) {
-    var x = (a.cards || {})[k], y = (b.cards || {})[k];
+  Object.keys(a.cards).concat(Object.keys(b.cards)).forEach(function (k) {
+    var x = a.cards[k], y = b.cards[k];
     if (!x) { m.cards[k] = y; return; } if (!y) { m.cards[k] = x; return; }
     m.cards[k] = (y.seen || 0) > (x.seen || 0) || ((y.seen || 0) === (x.seen || 0) && (y.due || 0) > (x.due || 0)) ? y : x;
   });
-  Object.keys(a.practice || {}).concat(Object.keys(b.practice || {})).forEach(function (k) {
-    var x = (a.practice || {})[k], y = (b.practice || {})[k];
+  Object.keys(a.practice).concat(Object.keys(b.practice)).forEach(function (k) {
+    var x = a.practice[k], y = b.practice[k];
     m.practice[k] = !x ? y : !y ? x : (y.attempts || 0) > (x.attempts || 0) ? y : x;
   });
-  m.misses = hsUnionBy(a.misses, b.misses, function (x) { return x.key; }, 60).sort(function (x, y) { return (x.at || 0) - (y.at || 0); });
-  m.exams = hsUnionBy(a.exams, b.exams, function (x) { return x.at; }, 20).sort(function (x, y) { return (x.at || 0) - (y.at || 0); });
-  var sh = {}; (a.sheet || []).concat(b.sheet || []).forEach(function (id) { sh[id] = 1; }); m.sheet = Object.keys(sh).sort();
-  Object.keys(a.activity || {}).concat(Object.keys(b.activity || {})).forEach(function (k) { m.activity[k] = hsMaxNum((a.activity || {})[k], (b.activity || {})[k]); });
+  m.misses = hsUnionBy(a.misses, b.misses, function (x) { return x.key; }, 60, function (x) { return x.at; });
+  m.exams = hsUnionBy(a.exams, b.exams, function (x) { return x.at; }, 20, function (x) { return x.at; });
+  var sh = {}; a.sheet.concat(b.sheet).forEach(function (id) { sh[id] = 1; }); m.sheet = Object.keys(sh).sort();
+  Object.keys(a.activity).concat(Object.keys(b.activity)).forEach(function (k) { m.activity[k] = hsMaxNum(a.activity[k], b.activity[k]); });
   return m;
 }
 
 /* the whole gist file */
+var HS_KEYS = ["v", "hub", "poker", "pokerGame", "pokerSim", "math340", "devices"];
 function hsEmpty() { return { v: 1, hub: hsEmptyHub(), poker: null, pokerGame: null, pokerSim: null, math340: null, devices: {} }; }
-function hsNorm(x) { return Object.assign(hsEmpty(), x || {}); }
+/* coerce a gist file to its shape; keys this version does not know are kept so a newer schema round-trips */
+function hsNorm(x) {
+  var out = Object.assign(hsEmpty(), hsObj(x));
+  out.hub = hsNormHub(out.hub);
+  out.poker = hsIsObj(out.poker) ? out.poker : null;
+  out.pokerGame = hsIsObj(out.pokerGame) ? out.pokerGame : null;
+  out.pokerSim = hsIsObj(out.pokerSim) ? out.pokerSim : null;
+  out.math340 = hsNormM340(out.math340);
+  out.devices = hsObjOf(out.devices);
+  return out;
+}
 function hsMergeAll(a, b) {
   a = hsNorm(a); b = hsNorm(b);
   var out = hsEmpty();
+  /* unknown top-level keys ride along: whichever side has one, the remote (b) when both do */
+  Object.keys(a).concat(Object.keys(b)).forEach(function (k) { if (HS_KEYS.indexOf(k) < 0) out[k] = b[k] !== undefined ? b[k] : a[k]; });
   out.hub = hsMergeHub(a.hub, b.hub);
   out.poker = a.poker && b.poker ? syncMerge(syncNorm(a.poker), syncNorm(b.poker)) : (a.poker || b.poker || null);
   out.pokerGame = hsMergePokerGame(a.pokerGame, b.pokerGame);
   out.pokerSim = hsMergePokerSim(a.pokerSim, b.pokerSim);
   out.math340 = hsMergeM340(a.math340, b.math340);
-  out.devices = syncMergeDevices(a.devices || {}, b.devices || {});
+  out.devices = syncMergeDevices(a.devices, b.devices);
   return out;
 }
 function hsMergePokerGame(a, b) {
-  if (!a) return b || null; if (!b) return a;
+  if (!hsIsObj(a)) return hsIsObj(b) ? b : null; if (!hsIsObj(b)) return a;
   var m = Object.assign({}, a, b);
   ["spots", "sweeps", "plugged", "peakLevel"].forEach(function (k) { m[k] = hsMaxNum(a[k], b[k]); });
-  m.goal = (+b.goalAt || 0) > (+a.goalAt || 0) ? b.goal : a.goal; m.goalAt = hsMaxNum(a.goalAt, b.goalAt);
-  m.seen = Object.assign({}, a.seen || {}, b.seen || {});
-  if (a.calib || b.calib) { m.calib = {}; ["g", "f", "s"].forEach(function (k) { var p = (a.calib || {})[k] || [0, 0], q = (b.calib || {})[k] || [0, 0]; m.calib[k] = [hsMaxNum(p[0], q[0]), hsMaxNum(p[1], q[1])]; }); }
+  m.goal = hsNum(b.goalAt) > hsNum(a.goalAt) ? b.goal : hsNum(a.goalAt) > hsNum(b.goalAt) ? a.goal : (a.goal != null ? a.goal : b.goal); m.goalAt = hsMaxNum(a.goalAt, b.goalAt);
+  m.seen = {}; var sa = hsNumsOf(a.seen), sb = hsNumsOf(b.seen);
+  Object.keys(sa).concat(Object.keys(sb)).forEach(function (k) { m.seen[k] = hsMinNum(sa[k], sb[k]); });
+  if (a.calib || b.calib) { m.calib = {}; ["g", "f", "s"].forEach(function (k) { var p = hsArr(hsObj(a.calib)[k]), q = hsArr(hsObj(b.calib)[k]); m.calib[k] = [hsMaxNum(p[0], q[0]), hsMaxNum(p[1], q[1])]; }); }
   return m;
 }
 /* the table: PokerPro's own table merge handles career and level; settings follow the newer copy */
 function hsMergePokerSim(a, b) {
-  if (!a) return b || null; if (!b) return a;
+  if (!hsIsObj(a)) return hsIsObj(b) ? b : null; if (!hsIsObj(b)) return a;
   var t = syncTableMerge({ career: a.career, level: a.level }, { career: b.career, level: b.level });
   return { set: (+b.at || 0) > (+a.at || 0) ? b.set : (a.set || b.set), career: t.career, level: t.level, at: hsMaxNum(a.at, b.at) };
 }
@@ -2195,12 +2411,14 @@ function qtCheck(q, raw) {
 /* ---- scores and the plan ---- */
 function qtNew() { return { runs: [], tier: {}, best: {} }; }
 function qtRecord(S, gameId, tier, score, n, now) {
+  var G = qtGame(gameId);
+  tier = Math.max(0, Math.min(G.tiers.length - 1, (+tier | 0)));   /* clamp like qtQuestion: a stale or corrupt tier never indexes past the ladder */
   S.runs.push({ t: now, g: gameId, tier: tier, score: score, n: n });
   if (S.runs.length > 2000) S.runs.splice(0, S.runs.length - 2000);
   var key = gameId + ":" + tier;
   if (!S.best[key] || score > S.best[key]) S.best[key] = score;
   /* the plan: move up a tier once the median of the last five runs at this tier beats the target */
-  var G = qtGame(gameId), T = G.tiers[tier], last = S.runs.filter(function (r) { return r.g === gameId && r.tier === tier; }).slice(-5).map(function (r) { return r.score; }).sort(function (a, b) { return a - b; });
+  var T = G.tiers[tier], last = S.runs.filter(function (r) { return r.g === gameId && r.tier === tier; }).slice(-5).map(function (r) { return r.score; }).sort(function (a, b) { return a - b; });
   var med = last.length >= 5 ? last[2] : null;
   var moved = false;
   if (med != null && med >= T.target && tier + 1 < G.tiers.length) { S.tier[gameId] = tier + 1; moved = true; }
@@ -2267,7 +2485,7 @@ function chOnBoard(sq) { var f = (sq - 21) % 10, r = ((sq - 21) / 10) | 0; retur
 function chNew() {
   var b = new Int8Array(120);
   for (var i = 0; i < 120; i++) b[i] = chOnBoard(i) ? 0 : CH_OFF;
-  return { b: b, side: 1, castle: 0, ep: -1, half: 0, full: 1, hist: [] };
+  return { b: b, side: 1, castle: 0, ep: -1, half: 0, full: 1, hist: [], wk: -1, bk: -1 };
 }
 
 /* ---- FEN ---- */
@@ -2313,12 +2531,19 @@ function chToFen(s) {
   var cs = (s.castle & CH_WK ? "K" : "") + (s.castle & CH_WQ ? "Q" : "") + (s.castle & CH_BK ? "k" : "") + (s.castle & CH_BQ ? "q" : "");
   return out.join("/") + " " + (s.side > 0 ? "w" : "b") + " " + (cs || "-") + " " + (s.ep >= 0 ? chName(s.ep) : "-") + " " + s.half + " " + s.full;
 }
-/* the position only: for repetition counting */
-function chKey(s) { return chToFen(s).split(" ").slice(0, 4).join(" "); }
+/* the position only: for repetition counting. The ep square counts only when an en passant capture is actually legal. */
+function chKey(s) {
+  var f = chToFen(s).split(" ");
+  if (s.ep >= 0 && !chLegal(s).some(function (m) { return m.flag === "ep"; })) f[3] = "-";
+  return f.slice(0, 4).join(" ");
+}
 
 /* ---- attacks ---- */
+/* the king's square: a remembered hint, checked with one read, then a scan (drills place pieces directly, so the hint can be stale) */
 function chKingSq(s, side) {
-  for (var i = 21; i <= 98; i++) if (s.b[i] === CH_K * side) return i;
+  var k = side > 0 ? s.wk : s.bk;
+  if (k >= 0 && s.b[k] === CH_K * side) return k;
+  for (var i = 21; i <= 98; i++) if (s.b[i] === CH_K * side) { if (side > 0) s.wk = i; else s.bk = i; return i; }
   return -1;
 }
 /* is sq attacked by side? */
@@ -2483,9 +2708,13 @@ function chStatus(s, keys) {
   return check ? "check" : "";
 }
 function chInsufficient(s) {
-  var minor = 0, other = 0;
-  for (var i = 21; i <= 98; i++) { var p = Math.abs(s.b[i]); if (!p || p === CH_OFF || p === CH_K) continue; if (p === CH_N || p === CH_B) minor++; else other++; }
-  return !other && minor <= 1;
+  var minor = 0, other = 0, bishops = [];
+  for (var i = 21; i <= 98; i++) { var p = Math.abs(s.b[i]); if (!p || p === CH_OFF || p === CH_K) continue; if (p === CH_N || p === CH_B) { minor++; if (p === CH_B) bishops.push(i); } else other++; }
+  if (other) return false;
+  if (minor <= 1) return true;
+  /* bishops only, all on one square colour (KB vs KB, or more on the same colour): no mate is possible */
+  if (bishops.length === minor) { var col = (chFile(bishops[0]) + chRank(bishops[0])) % 2; return bishops.every(function (b) { return (chFile(b) + chRank(b)) % 2 === col; }); }
+  return false;
 }
 
 /* ---- SAN ---- */
@@ -2509,9 +2738,9 @@ function chSan(s, m) {
     }
   }
   chMake(s, m);
-  var st = chStatus(s);
+  var check = chInCheck(s), mate = check && !chLegal(s).length;
   chUnmake(s);
-  return str + (st === "checkmate" ? "#" : st === "check" ? "+" : "");
+  return str + (mate ? "#" : check ? "+" : "");
 }
 function chParseSan(s, san) {
   var want = san.replace(/[+#!?]/g, "").replace(/0/g, "O");
@@ -2716,8 +2945,11 @@ function chGrade(bestCp, playedCp) {
   if (drop < 0) drop = 0;
   var g = "Blunder";
   for (var i = 0; i < CH_GRADES.length; i++) if (drop <= CH_GRADES[i][1]) { g = CH_GRADES[i][0]; break; }
-  return { grade: g, drop: drop, loss: Math.max(0, bestCp - playedCp), quality: Math.max(0, 1 - drop * 4) };
+  var clamp = function (cp) { return Math.max(-2000, Math.min(2000, cp)); };
+  return { grade: g, drop: drop, loss: Math.max(0, clamp(bestCp) - clamp(playedCp)), quality: Math.max(0, 1 - drop * 4) };
 }
+/* a move's accuracy from its drop in win probability (percentage points), lichess's curve: 0 → 100, 1 → 95.6, 2 → 91.4, 5 → 79.8 */
+function chMoveAccuracy(dropPct) { if (!(dropPct > 0)) return 100; return Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * dropPct) - 3.1669)); }
 /* grade the move m in position s at the given depth: returns the best move, both scores and the grade */
 function chJudge(s, m, depth, limit) {
   var best = chSearch(s, depth, limit);
@@ -2802,9 +3034,20 @@ var CH_MATE1 = [
   ["2k5/8/2K5/8/8/8/8/7R w - - 0 1", "Rh8#", "King and rook: opposition, then the check on the edge."]
 ];
 
+/* [fen, the model first move, note]; every first move that forces mate in two is accepted (chdMate2Firsts), and the tests verify each position */
 var CH_MATE2 = [
   ["5r1k/6pp/8/4N3/8/1Q6/B7/7K w - - 0 1", "Qg8+", "Philidor's legacy, shortened: Qg8+ Rxg8, Nf7#."],
-  ["5k2/8/4K3/8/8/8/8/7R w - - 0 1", "Rg1", "The rook takes the g-file, the king is driven to the edge, and the check on the eighth is mate: a waiting move wins."]
+  ["5k2/8/4K3/8/8/8/8/7R w - - 0 1", "Rg1", "The rook takes the g-file, the king is driven to the edge, and the check on the eighth is mate: a waiting move wins."],
+  ["2k5/8/3K4/8/8/8/8/R7 w - - 0 1", "Rb1", "The mirror image: Rb1 takes the b-file, Kd8 is forced, and Rb8 is mate."],
+  ["k7/8/8/8/8/8/6R1/5R2 w - - 0 1", "Rf7", "Two rooks: one takes the seventh rank, the king must step to b8, and the other rook mates on the eighth."],
+  ["7k/8/5K2/8/8/8/8/3Q4 w - - 0 1", "Qd7", "King and queen: a quiet move leaves the king one square, Kg8, and Qg7 is mate next to the king."],
+  ["1k6/8/1K6/8/8/8/8/2Q5 w - - 0 1", "Qc7+", "Qc7+ drives the king into the corner and Qa7 mates; several quiet queen moves also force mate in two."],
+  ["k7/8/2K5/8/8/8/8/7Q w - - 0 1", "Qb1", "The queen takes the b-file from a distance; the king has only a7, and Qb7 is mate."],
+  ["r5k1/5ppp/8/8/8/8/4QPPP/4R1K1 w - - 0 1", "Qe8+", "Back-rank deflection: Qe8+ Rxe8, Rxe8#. The queen is given up to drag the defender off the rank."],
+  ["4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w - - 0 1", "Qb8+", "Morphy's Opera game: Qb8+ Nxb8, Rd8#. The bishop on g5 guards d8."],
+  ["r2qkb1r/pp2nppp/3p4/2pNN1B1/2BnP3/3P4/PPP2PPP/R2bK2R w KQkq - 1 1", "Nf6+", "Légal's theme: Nf6+ gxf6, Bxf7#. The queen was given up for this."],
+  ["r2q1r1k/pb2Nppp/8/7Q/8/R7/5PPP/6K1 w - - 0 1", "Qxh7+", "Anastasia's mate: Qxh7+ Kxh7, Rh3#. The knight on e7 takes g8 and g6 from the king."],
+  ["5bk1/8/8/2q2b2/8/2N5/PP1N1PPP/2KR4 b - - 0 1", "Qxc3+", "Boden's mate: Qxc3+ bxc3, Ba3#. Two bishops on crossing diagonals against the castled king."]
 ];
 
 var CH_OPENINGS = [
@@ -2892,15 +3135,56 @@ function chdFindForks(s) {
   });
   return out;
 }
+/* the forks that survive a short search: within CH_FORK_SLACK of the engine's best move at depth 3 and winning material against the best defence */
+var CH_FORK_DEPTH = 3, CH_FORK_LIMIT = 60000, CH_FORK_SLACK = 50, CH_FORK_GAIN = 150;
+function chdForkScore(s, m) { chMake(s, m); var r = chSearch(s, CH_FORK_DEPTH - 1, CH_FORK_LIMIT); chUnmake(s); return -r.score; }
+function chdSoundForks(s, forks) {
+  var best = chSearch(s, CH_FORK_DEPTH, CH_FORK_LIMIT).score, before = chEval(s), out = [];
+  forks.forEach(function (f) { var v = chdForkScore(s, f.m); if (best - v <= CH_FORK_SLACK && v - before >= CH_FORK_GAIN) out.push(f); });
+  return out;
+}
+/* a built fork: the enemy king and a rook or queen a knight's move from one square, our knight a knight's move away, kings and a few extra men placed legally */
+function chdBuildFork(rnd) {
+  var side = rnd() < 0.5 ? 1 : -1;
+  for (var t = 0; t < 40; t++) {
+    var s = chNew(); s.side = side;
+    var to = chSq((rnd() * 8) | 0, (rnd() * 8) | 0);
+    var A = lgShuffle(CH_KNIGHT.map(function (d) { return to + d; }).filter(chOnBoard), rnd);
+    if (A.length < 3) continue;
+    s.b[A[0]] = -CH_K * side; s.b[A[1]] = -side * chdPick([CH_R, CH_R, CH_Q], rnd); s.b[A[2]] = CH_N * side;
+    var placed = false;
+    for (var k = 0; k < 20 && !placed; k++) {
+      var wk = chSq((rnd() * 8) | 0, (rnd() * 8) | 0);
+      if (s.b[wk] || wk === to || Math.max(Math.abs(chFile(wk) - chFile(A[0])), Math.abs(chRank(wk) - chRank(A[0]))) <= 1) continue;
+      s.b[wk] = CH_K * side; if (chAttacked(s, wk, -side)) { s.b[wk] = 0; continue; } placed = true;
+    }
+    if (!placed || chInCheck(s, -side)) continue;
+    var extra = 2 + ((rnd() * 5) | 0);
+    for (k = 0; k < extra; k++) {
+      var sq = chSq((rnd() * 8) | 0, 1 + ((rnd() * 6) | 0));
+      if (s.b[sq] || sq === to) continue;
+      s.b[sq] = chdPick([CH_P, CH_P, CH_P, CH_P, CH_N, CH_B], rnd) * (rnd() < 0.5 ? 1 : -1);
+      if (chInCheck(s, side) || chInCheck(s, -side)) s.b[sq] = 0;
+    }
+    var forks = chdFindForks(s).filter(function (f) { return f.m.to === to; });
+    if (forks.length) return { s: s, forks: forks };
+  }
+  return null;
+}
 CH_DRILLS.chfork = { name: "Forks", target: 12, gen: function (ctx) {
-  var rnd = chdRnd(ctx), best = null;
-  for (var t = 0; t < 80 && !best; t++) {
+  var rnd = chdRnd(ctx), best = null, t0 = Date.now();
+  /* first a fork that arose in a random game, then a built one; each is kept only if the search agrees it is the move */
+  for (var t = 0; t < 40 && !best && Date.now() - t0 < 250; t++) {
     var s = chRandomPosition(10 + ((rnd() * 30) | 0), rnd);
     if (chStatus(s) === "checkmate" || chStatus(s) === "stalemate" || chInCheck(s)) continue;
     var f = chdFindForks(s);
-    if (f.length) best = { s: s, forks: f };
+    if (f.length) { f = chdSoundForks(s, f); if (f.length) best = { s: s, forks: f }; }
   }
-  if (!best) { var s2 = chFromFen("r3k3/8/8/3N4/8/8/8/4K3 w - - 0 1"); best = { s: s2, forks: chdFindForks(s2) }; }
+  for (t = 0; t < 6 && !best && Date.now() - t0 < 800; t++) {
+    var built = chdBuildFork(rnd);
+    if (built) { var fb = chdSoundForks(built.s, built.forks); if (fb.length) best = { s: built.s, forks: fb }; }
+  }
+  if (!best) { var s2 = chFromFen("r3k3/8/8/3N4/8/8/8/4K3 w - - 0 1"); best = { s: s2, forks: chdSoundForks(s2, chdFindForks(s2)) }; }
   if (!best.forks.length) return CH_DRILLS.chbest.gen(ctx);
   var S = best.s, F = best.forks, sans = F.map(function (f) { return chSan(S, f.m); });
   var f0 = F[0];
@@ -2923,18 +3207,30 @@ CH_DRILLS.chmate1 = { name: "Mate in one", target: 15, gen: function (ctx) {
     explain: ["<b>" + sans[0] + "</b>" + (sans.length > 1 ? " (also " + sans.slice(1).join(", ") + ")" : "") + "." + (found.note ? " " + found.note : ""), "Mate in one: look at every check first. A checking move that leaves the king no square, no block and no capture is the answer."] };
 } };
 
+/* does the side to move have a mate in one? (chMatingMoves with an early exit) */
+function chdHasMate1(s) { var ms = chLegal(s); for (var i = 0; i < ms.length; i++) { chMake(s, ms[i]); var mate = chInCheck(s) && !chLegal(s).length; chUnmake(s); if (mate) return true; } return false; }
+/* every first move that forces mate in two (the opponent has a reply, and each reply allows mate in one), as SAN */
+function chdMate2Firsts(s) {
+  var out = [];
+  chLegal(s).forEach(function (m) {
+    chMake(s, m);
+    var replies = chLegal(s), ok = replies.length > 0;
+    for (var i = 0; i < replies.length && ok; i++) { chMake(s, replies[i]); ok = chdHasMate1(s); chUnmake(s); }
+    chUnmake(s);
+    if (ok) out.push(chSan(s, m));
+  });
+  return out;
+}
 CH_DRILLS.chmate2 = { name: "Mate in two", target: 40, gen: function (ctx) {
   var rnd = chdRnd(ctx), found = null, t0 = Date.now();
-  for (var t = 0; t < 400 && !found && Date.now() - t0 < 1500; t++) {
+  for (var t = 0; t < 12 && !found && Date.now() - t0 < 400; t++) {
     var s = chRandomPosition(20 + ((rnd() * 50) | 0), rnd);
     var st = chStatus(s); if (st === "checkmate" || st === "stalemate" || chCount(s) < 6) continue;
-    if (chMatingMoves(s).length) continue;
-    var r = chSearch(s, 3, 120000);
-    if (r.move && r.score >= CH_MATE - 3) found = { s: s, note: "" };
+    if (chdHasMate1(s)) continue;
+    if (chdMate2Firsts(s).length) found = { s: s, note: "" };
   }
   if (!found) { var c = chdPick(CH_MATE2, rnd); found = { s: chFromFen(c[0]), note: c[2] }; }
-  var S = found.s, sans = [];
-  chLegal(S).forEach(function (mv) { chMake(S, mv); var rr = chSearch(S, 2, 150000); chUnmake(S); if (rr.score <= -CH_MATE + 3 && chLegal(S).length) sans.push(chSan(S, mv)); });
+  var S = found.s, sans = chdMate2Firsts(S);
   if (!sans.length) { var m0 = chMateIn(S, 2); sans = [m0 ? chSan(S, m0) : chSan(S, chLegal(S)[0])]; }
   return { kind: "move", question: chdSide(S) + " to move. <b>Mate in two.</b> Play the first move.", answer: sans[0], accept: sans, target: 40, board: chdPos(S), elo: 1400,
     explain: ["<b>" + sans[0] + "</b>" + (sans.length > 1 ? " (also " + sans.slice(1).join(", ") + ")" : "") + "." + (found.note ? " " + found.note : " Every reply allows mate next move."), "Mate in two: find a forcing first move (check, capture or threat) after which every reply allows mate in one. Calculate the opponent's every option, not just the obvious one."] };
@@ -3008,7 +3304,7 @@ CH_DRILLS.chelo = { name: "Elo", target: 20, gen: function (ctx) {
 CH_DRILLS.chwp = { name: "Evals to odds", target: 15, gen: function (ctx) {
   var rnd = chdRnd(ctx), cp = 50 * (((rnd() * 24) | 0) - 12), wp = chWinProb(cp);
   return { kind: "num", question: "The engine says <b>" + (cp >= 0 ? "+" : "") + (cp / 100).toFixed(1) + "</b> for White. Roughly what are White's winning chances, in percent? Within 8.", answer: Math.round(wp), tol: 8, target: 15, unit: "%",
-    explain: ["About " + Math.round(wp) + "%. The curve used by lichess and this app: 50 + 50 × (2 / (1 + e^(−0.00368 × cp)) − 1).", "+1.0 is about 65%, +2.0 about 80%, +3.0 about 90%. The curve flattens: going from +3 to +5 adds little, which is why a winning position does not need more material, it needs the win converted."] };
+    explain: ["About " + Math.round(wp) + "%. The curve used by lichess and this app: 50 + 50 × (2 / (1 + e^(−0.00368 × cp)) − 1).", "+1.0 is about 59%, +2.0 about 68%, +3.0 about 75%, +5.0 about 86%. The curve flattens: going from +3 to +5 adds little, which is why a winning position does not need more material, it needs the win converted."] };
 } };
 
 CH_DRILLS.chopen = { name: "Openings", target: 10, gen: function (ctx) {
@@ -3047,7 +3343,8 @@ function chEngineMove(g) {
     pick = top[(g.rnd() * top.length) | 0].move;
     if (sc[0].score >= CH_MATE - 50) pick = sc[0].move;
   } else {
-    var r = chSearch(g.s, L.depth, L.depth >= 6 ? 1500000 : L.depth >= 5 ? 900000 : 400000);
+    /* node budgets keep a move to a few seconds in plain JS (about 25-30k nodes a second): the depth is reached when the position allows */
+    var r = chSearch(g.s, L.depth, L.depth >= 6 ? 150000 : L.depth >= 5 ? 100000 : 150000);
     pick = r.move || ms[0];
   }
   var san = chSan(g.s, pick);
@@ -3066,10 +3363,12 @@ function chHeroMove(g, m, depth) {
   chPlayStatus(g);
   return j;
 }
+/* game accuracy: each hero move's accuracy from its win% drop (chMoveAccuracy), averaged; ACPL alongside */
+function chAccuracyOf(drops) { if (!drops.length) return null; return drops.reduce(function (a, d) { return a + chMoveAccuracy(100 * d); }, 0) / drops.length; }
 function chAccuracy(g) {
   if (!g.n) return null;
-  var acpl = g.loss / g.n;
-  return { acpl: acpl, accuracy: Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * acpl) - 3.1669)) };
+  var drops = g.moves.filter(function (m) { return m.who === "hero"; }).map(function (m) { return m.drop || 0; });
+  return { acpl: g.loss / g.n, accuracy: chAccuracyOf(drops) };
 }
 
 /* ---- the chess level: your recent moves and your tactics rating ---- */
@@ -3085,7 +3384,7 @@ var CHL_LEVELS = [
 ];
 function chlNew() { return { d: [], games: [], puzzle: 1000, pn: 0, ph: [] }; }
 function chlAddGame(L, g, now) {
-  g.moves.filter(function (m) { return m.who === "hero"; }).forEach(function (m) { L.d.push({ t: now, q: m.quality, l: m.loss, g: m.grade }); });
+  g.moves.filter(function (m) { return m.who === "hero"; }).forEach(function (m) { L.d.push({ t: now, q: m.quality, l: m.loss, g: m.grade, d: m.drop || 0 }); });
   if (L.d.length > 1500) L.d.splice(0, L.d.length - 1500);
   var acc = chAccuracy(g);
   L.games.unshift({ t: now, level: g.level, color: g.color, result: g.result, over: g.over, n: g.n, acc: acc ? Math.round(acc.accuracy) : null, acpl: acc ? Math.round(acc.acpl) : null, grades: g.grades, moves: g.moves.map(function (m) { return m.san; }) });
@@ -3094,11 +3393,13 @@ function chlAddGame(L, g, now) {
 }
 function chlRate(ds) { if (!ds.length) return null; var k = 6, p = 0.6, s = ds.reduce(function (a, d) { return a + d.q; }, 0); return 100 * (s + k * p) / (ds.length + k); }
 function chlLevel(r) { var Lv = CHL_LEVELS[0]; for (var i = 0; i < CHL_LEVELS.length; i++) if (r >= CHL_LEVELS[i].min) Lv = CHL_LEVELS[i]; var ix = CHL_LEVELS.indexOf(Lv), nx = CHL_LEVELS[ix + 1] || null; return { name: Lv.name, about: Lv.about, index: ix, next: nx, toNext: nx ? (r - Lv.min) / (nx.min - Lv.min) : 1 }; }
+/* a recorded move's win% drop: stored since the accuracy change; older records carry only the quality, which was 1 − 4 × drop */
+function chlDrop(x) { return x.d != null ? x.d : x.q > 0 ? (1 - x.q) / 4 : 0.25; }
 function chlSummary(L) {
   var d = (L && L.d) || [], recent = d.slice(-100), before = d.slice(-200, -100);
   var r = chlRate(recent), r0 = before.length >= 20 ? chlRate(before) : null;
   var wins = (L.games || []).filter(function (g) { return g.result === "win"; }).length;
-  return { n: d.length, placed: d.length >= 20, left: Math.max(0, 20 - d.length), rating: r, prev: r0, delta: r != null && r0 != null ? r - r0 : null, level: r != null ? chlLevel(r) : null, acpl: recent.length ? recent.reduce(function (a, x) { return a + x.l; }, 0) / recent.length : null, games: (L.games || []).length, wins: wins, puzzle: L.puzzle || 1000, puzzles: L.pn || 0, bestLevelBeaten: (L.games || []).filter(function (g) { return g.result === "win"; }).reduce(function (a, g) { return Math.max(a, g.level); }, 0) };
+  return { n: d.length, placed: d.length >= 20, left: Math.max(0, 20 - d.length), rating: r, prev: r0, delta: r != null && r0 != null ? r - r0 : null, level: r != null ? chlLevel(r) : null, acpl: recent.length ? recent.reduce(function (a, x) { return a + x.l; }, 0) / recent.length : null, accuracy: chAccuracyOf(recent.map(chlDrop)), games: (L.games || []).length, wins: wins, puzzle: L.puzzle || 1000, puzzles: L.pn || 0, bestLevelBeaten: (L.games || []).filter(function (g) { return g.result === "win"; }).reduce(function (a, g) { return Math.max(a, g.level); }, 0) };
 }
 /* a puzzle answered: Elo against the puzzle's rating, K shrinking as you settle */
 function chlPuzzle(L, elo, ok) {
@@ -3174,7 +3475,7 @@ function chlPuzzle(L, elo, ok) {
   add({ id: "ch_fork", mode: "chfork", pass: 7, of: 10, title: "The fork", sub: "One piece, two targets", gist: "A fork attacks two things at once; only one can be saved. Knights fork best, pawns fork cheapest, and the queen forks king and loose piece all day.",
     blocks: [
       { t: "p", x: "Tactics are forcing sequences that win material or mate, and the fork is the first and most common. The attacker moves to a square from which it attacks two targets; the defender moves one, the other falls. The best targets are the king (the check forces the reply) and an undefended, or loose, piece." },
-      board("2r1k3/8/8/3N4/8/8/8/4K3 w - - 0 1", "Nc7+ forks the king and the rook on c8. Black must move the king, and the rook is lost.", { mark: ["c7"] }),
+      board("r3k3/8/8/3N4/8/8/8/4K3 w - - 0 1", "Nc7+ forks the king on e8 and the rook on a8. Black must answer the check, and the knight takes the rook.", { mark: ["c7"] }),
       { t: "rule", x: "fork = one move attacking two targets\nbest: check + loose piece · knight fork: targets on the other colour from the knight", note: "A knight on a light square only attacks dark squares. If the king and queen sit on the same colour, no knight can fork them on the next move." },
       { t: "p", x: "Pawn forks are the cheapest: a pawn worth one attacks two pieces worth three or more, and whatever the defender does, a pawn trades for a piece. Queen forks of king and rook decide thousands of games a day online. Look for them every time a piece is loose." },
       { t: "key", x: "Loose pieces drop off (Nunn). Before every move, list your opponent's undefended pieces and ask which square attacks two of them." },
@@ -3192,7 +3493,7 @@ function chlPuzzle(L, elo, ok) {
     ] });
   add({ id: "ch_mate1", mode: "chmate1", pass: 7, of: 10, title: "Mate in one", sub: "The patterns", gist: "Back rank, smothered, queen-and-king, bishop-and-queen on h7: a dozen patterns cover most mates you will ever play or allow. Learn them so you see them without looking.",
     blocks: [
-      { t: "tbl", head: ["Pattern", "Shape", "Typical mate"], rows: [["Back rank", "king on the last rank behind its own pawns", "Ra8# / Qd8#"], ["Smothered", "king boxed in by its own pieces", "Nf7#"], ["Scholar's", "queen and bishop on f7/f2 early", "Qxf7#"], ["Queen next to the king", "queen adjacent, protected", "Qg7# with a bishop or king behind"], ["Anastasia's", "knight on e7, rook on the h-file", "Rh3# after Qxh7+ Kxh7"], ["Arabian", "rook and knight in the corner", "Rh7# with Nf6"], ["Boden's", "two bishops on crossing diagonals", "Ba6# against a queenside-castled king"], ["Damiano's", "pawn on g6, queen on the h-file", "Qh7#"]] },
+      { t: "tbl", head: ["Pattern", "Shape", "Typical mate"], rows: [["Back rank", "king on the last rank behind its own pawns", "Ra8# / Qd8#"], ["Smothered", "king boxed in by its own pieces", "Nf7#"], ["Scholar's", "queen and bishop on f7/f2 early", "Qxf7#"], ["Queen next to the king", "queen adjacent, protected", "Qg7# with a bishop or king behind"], ["Anastasia's", "knight on e7, rook on the h-file", "Rh3# after Qxh7+ Kxh7"], ["Arabian", "rook and knight in the corner", "Rh7# with Nf6"], ["Boden's", "two bishops on crossing diagonals", "Qxc3+ bxc3 Ba3# against a queenside-castled king"], ["Damiano's", "pawn on g6, queen on the h-file", "Qh7#"]] },
       board("6rk/6pp/8/4N3/8/8/8/6QK w - - 0 1", "Smothered mate geometry: if the queen reaches g8 with check and is taken by the rook, Nf7 is mate because the king's own pieces fill every square. Philidor's legacy.", { mark: ["f7"] }),
       { t: "rule", x: "every mate in one is a check\nlist the checks, for each ask: king move? capture? block?", note: "Three questions per check. If all three are no, it is mate. This is how the drill verifies its answers, and it is how you should too." },
       { t: "key", x: "Mate in one: checks only, three questions each. Back rank, smothered, Qh7 with support, Scholar's: see the shape, not the moves." },
@@ -3248,15 +3549,15 @@ function chlPuzzle(L, elo, ok) {
       { q: "Which of these cannot force mate against a lone king?", options: ["King and two bishops", "King and bishop", "King and rook", "King and queen"], answer: "King and bishop", explain: "A single minor piece, or two knights (without help), cannot force mate." }
     ],
     blocks: [
-      { t: "p", x: "King and queen versus king: use the queen a knight's move away from the enemy king to shrink its box without checking (no stalemate possible while it has squares), bring your king up to the opposition, and mate on the edge. Twelve moves at most. King and rook: cut the king off on a rank or file with the rook, bring your king to the opposition, and check along the edge; when the king steps aside, make a rook waiting move. Twenty moves at most." },
-      board("7k/8/5QK1/8/8/8/8/8 w - - 0 1", "Queen on f6, kings on h8 and g6: Qf8 or Qg7 is mate. The queen covered the box without ever checking, the king arrived, and the mate took one move."),
+      { t: "p", x: "King and queen versus king: use the queen a knight's move away from the enemy king to shrink its box without checking (no stalemate possible while it has squares), bring your king up to the opposition, and mate on the edge. Ten moves at most. King and rook: cut the king off on a rank or file with the rook, bring your king to the opposition, and check along the edge; when the king steps aside, make a rook waiting move. Sixteen moves at most." },
+      board("7k/8/4Q1K1/8/8/8/8/8 w - - 0 1", "Queen on e6, kings on h8 and g6: Qe8 or Qc8 is mate. The queen covered the box without ever checking, the king arrived, and the mate took one move."),
       { t: "rule", x: "queen: knight's move away, shrink the box, king up, mate on the edge\nrook: cut off, opposition, check on the edge, waiting move if needed", note: "Practise both against the engine in Play from a bare position until you can do each in under a minute without thought." },
       { t: "key", x: "Big piece shrinks the box, king comes up, mate on the edge. Leave a square until the end. Never stalemate." }
     ] });
   add({ id: "ch_square", mode: "chsquare", pass: 8, of: 10, title: "The square of the pawn", sub: "Can the king catch it?", gist: "A passed pawn races a king. Draw a square from the pawn to its queening square: if the king is in it, or can step in, the pawn is caught.",
     blocks: [
       { t: "p", x: "The square rule answers in one glance what would otherwise take counting: imagine a square whose one side runs from the pawn to its promotion square. If the defending king, with the move, can step into that square, it catches the pawn; otherwise the pawn queens. A pawn on its starting square counts as if one rank further on, because it can move two." },
-      board("8/8/8/8/k7/8/4P3/4K3 w - - 0 1", "White to move, e2–e4: the square runs e4–e8–a8–a4. The king on a4 is on its corner. White to move gets the pawn to e5 first, shrinking the square to e5–e8–b8–b5, and a4 is outside: the pawn queens. Black to move, Kb5 steps in and catches it."),
+      board("8/8/8/8/4P3/k7/8/4K3 w - - 0 1", "Pawn on e4, king on a3: the square runs e4–e8–a8–a4 and the king stands one step outside it. White to move plays e5, the square shrinks to e5–e8–b8–b5, and the king never gets in: the pawn queens. With Black to move, Kb4 steps into the square and catches it."),
       { t: "rule", x: "d = the pawn's moves to queen (one fewer from the start rank)\nk = the king's moves to the queening square\nking catches if k ≤ d (pawn to move) or k ≤ d + 1 (king to move)", note: "King-move distance is the larger of the file and rank differences: a king moves diagonally as fast as straight. Arriving on the queening square as the pawn promotes still catches it." },
       { t: "key", x: "Draw the square. In it, or stepping in: caught. Outside: queens. Start rank counts one further." },
       { t: "how", drill: "The square rule", ask: "Can the king catch the pawn?", steps: ["Count the pawn's moves to queen.", "Count the king's moves to the queening square (diagonals count as one).", "Compare, allowing for who moves first."], tip: "Trust the rule, then verify the hardest cases by counting. In ten positions it is a reflex." }
@@ -3280,8 +3581,8 @@ function chlPuzzle(L, elo, ok) {
     ],
     blocks: [
       { t: "p", x: "Rook endings are half of all endings. Two positions carry most of the theory. Lucena: the attacker's king is in front of its pawn on the seventh rank and the defender's king is cut off; the win is to 'build a bridge' with the rook on the fourth rank so the king can step out of the checks. Philidor: the defender's king sits in front of the pawn and the rook stays on the third rank, preventing the enemy king from crossing; when the pawn advances to the sixth, the rook drops to the first rank and checks from behind. Draw." },
-      board("1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1", "Lucena: White's king is stuck in front of its pawn. Rc4! then Kc7, and when the checks come the rook interposes on c4 (the bridge). The pawn queens."),
-      board("4k3/8/8/4PK2/8/r7/8/1R6 b - - 0 1", "Philidor: Black's rook on the third rank holds. If e6, then Ra1 and checks from behind: the white king has no shelter. A draw."),
+      board("1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1", "Lucena: White's king is stuck in front of its pawn and the black king is cut off by the rook on the c-file. Rc4! first (the bridge), then Ka7; the checks come from behind, Ra2+ Kb6, Rb2+ Ka6, Ra2+ Kb5, Rb2+, and now Rb4 blocks the last check. The pawn queens."),
+      board("4k3/8/r7/4PK2/8/8/8/1R6 b - - 0 1", "Philidor: Black's rook on a6, the third rank counted from Black's side, keeps the white king off the sixth. If e6, then Ra1 and checks from behind: the white king has no shelter. A draw."),
       { t: "rule", x: "Lucena: rook to the 4th, king out, bridge → win\nPhilidor: rook on the 3rd until the pawn hits the 6th, then checks from behind → draw\nTarrasch: rooks behind passed pawns", note: "Learn these two cold; then Dvoretsky's Endgame Manual for the rest. Rook activity beats a pawn." },
       { t: "key", x: "Lucena wins, Philidor draws, rooks behind passed pawns, active rook over material." }
     ] });
@@ -3338,14 +3639,14 @@ function chlPuzzle(L, elo, ok) {
       { t: "key", x: "E = 1/(1+10^(diff/400)). Change = K(S − E). 100 points ≈ 64%, 200 ≈ 76%, 400 ≈ 91%." },
       { t: "how", drill: "Elo", ask: "Expected score, or the rating change.", steps: ["Difference over 400, as a power of ten.", "E = 1 over (1 + that).", "Change = K × (S − E)."], tip: "Anchor on the table: 100 → 64, 200 → 76, 400 → 91. Interpolate." }
     ] });
-  add({ id: "ch_eval", mode: "chwp", pass: 7, of: 10, title: "Reading an engine", sub: "Centipawns, win probability, and your accuracy", gist: "+1.5 is not 'one and a half pawns', it is about 72% winning chances. Every grade the Play board gives you comes from the drop in that probability.",
+  add({ id: "ch_eval", mode: "chwp", pass: 7, of: 10, title: "Reading an engine", sub: "Centipawns, win probability, and your accuracy", gist: "+1.5 is not 'one and a half pawns', it is about 63% winning chances. Every grade the Play board gives you comes from the drop in that probability.",
     blocks: [
-      { t: "p", x: "Engines report evaluations in centipawns (hundredths of a pawn) from White's view: +1.00 means White is better by about a pawn's worth. The useful translation is to winning chances, with a logistic curve: 0 is 50%, +1 about 65%, +2 about 80%, +3 about 90%, and it flattens from there. A move's quality is the drop in winning probability from the best move to the one played, which is how lichess, chess.com and this app grade moves." },
-      { t: "rule", x: "win% ≈ 50 + 50 × (2 / (1 + e^(−0.00368 × cp)) − 1)\ngrade: drop ≤ 2% Best · ≤ 6% Good · ≤ 12% Inaccuracy · ≤ 25% Mistake · more: Blunder", note: "Accuracy over a game is a function of the average centipawn loss: 103 × e^(−0.0435 × ACPL) − 3. An ACPL of 20 is about 90% accuracy, club level; 10 is master level." },
-      { t: "tbl", head: ["Eval", "Win chance"], rows: [["0.0", "50%"], ["+0.5", "57%"], ["+1.0", "65%"], ["+2.0", "80%"], ["+3.0", "90%"], ["+5.0", "97%"]] },
-      { t: "p", x: "Why it matters: a 'mistake' at +5 that drops to +3 costs almost nothing (97% to 90%), while the same two-pawn drop from +1 to −1 costs 30 points of probability. Precision matters most in balanced positions. Spend your time there." },
+      { t: "p", x: "Engines report evaluations in centipawns (hundredths of a pawn) from White's view: +1.00 means White is better by about a pawn's worth. The useful translation is to winning chances, with a logistic curve: 0 is 50%, +1 about 59%, +2 about 68%, +3 about 75%, +5 about 86%, and it flattens from there. A move's quality is the drop in winning probability from the best move to the one played, which is how lichess, chess.com and this app grade moves." },
+      { t: "rule", x: "win% ≈ 50 + 50 × (2 / (1 + e^(−0.00368 × cp)) − 1)\ngrade: drop ≤ 2% Best · ≤ 6% Good · ≤ 12% Inaccuracy · ≤ 25% Mistake · more: Blunder", note: "Each move's accuracy is 103.17 × e^(−0.04354 × drop) − 3.17, where drop is the fall in win% from the best move to the one played: no drop is 100, a drop of 1 point about 96, 2 points about 91, 5 points about 80. Game accuracy here is the plain average of the moves (lichess blends a harmonic and a weighted mean; the ranking is the same). The average centipawn loss, ACPL, is kept as a second number." },
+      { t: "tbl", head: ["Eval", "Win chance"], rows: [["0.0", "50%"], ["+0.5", "55%"], ["+1.0", "59%"], ["+2.0", "68%"], ["+3.0", "75%"], ["+5.0", "86%"]] },
+      { t: "p", x: "Why it matters: a two-pawn slip from +5 to +3 costs 11 points of probability (86% to 75%), while the same two-pawn drop from +1 to −1 costs 18 (59% to 41%), and the curve keeps flattening: from +7 to +5 costs about 7. Precision matters most in balanced positions. Spend your time there." },
       { t: "key", x: "Centipawns → win probability via the logistic curve. Grades are probability drops. Balanced positions deserve the most care." },
-      { t: "how", drill: "Evals to odds", ask: "What are White's winning chances?", steps: ["Anchor: +1 is 65, +2 is 80, +3 is 90.", "Interpolate; negative evals mirror around 50."], tip: "After every game in Play, look at your worst move's drop. That number is the lesson." }
+      { t: "how", drill: "Evals to odds", ask: "What are White's winning chances?", steps: ["Anchor: +1 is 59, +2 is 68, +3 is 75, +5 is 86.", "Interpolate; negative evals mirror around 50."], tip: "After every game in Play, look at your worst move's drop. That number is the lesson." }
     ] });
 
   /* ---------------- stage 7: the pro path ---------------- */
@@ -3375,8 +3676,8 @@ function chlPuzzle(L, elo, ok) {
     { id: "ch_oppf", name: "Opposition", topic: "Endgames", lesson: "ch_opp", f: "same line, one square between, other side to move", anchors: [["key squares", "two ranks in front of the pawn"]], note: "Same-colour square as the enemy king, when it is their move." },
     { id: "ch_elof", name: "Expected score", topic: "Rating", lesson: "ch_elo", f: "E = [1 // 1 + 10^{(R_{B} − R_{A}) / 400}]", vars: [["R_A, R_B", "the two ratings"]], anchors: [["+100", "64%"], ["+200", "76%"], ["+400", "91%"]], note: "" },
     { id: "ch_upd", name: "Rating update", topic: "Rating", lesson: "ch_elo", f: "R' = R + K · (S − E)", vars: [["K", "10 to 40"], ["S", "1 win, ½ draw, 0 loss"]], anchors: [["1400 beats 1600, K 20", "+15"]], note: "" },
-    { id: "ch_wpf", name: "Win probability", topic: "Engines", lesson: "ch_eval", f: "win% = 50 + 50 · (2 / (1 + e^{−0.00368 · cp}) − 1)", vars: [["cp", "centipawns for the side"]], anchors: [["+100", "65%"], ["+200", "80%"], ["+300", "90%"]], note: "Grades are drops in this number." },
-    { id: "ch_accf", name: "Accuracy", topic: "Engines", lesson: "ch_eval", f: "accuracy = 103.17 · e^{−0.0435 · ACPL} − 3.17", vars: [["ACPL", "average centipawn loss per move"]], anchors: [["ACPL 10", "≈ 96%"], ["ACPL 20", "≈ 90%"], ["ACPL 50", "≈ 81%"]], note: "The lichess formula." },
+    { id: "ch_wpf", name: "Win probability", topic: "Engines", lesson: "ch_eval", f: "win% = 50 + 50 · (2 / (1 + e^{−0.00368 · cp}) − 1)", vars: [["cp", "centipawns for the side"]], anchors: [["+100", "59%"], ["+200", "68%"], ["+300", "75%"], ["+500", "86%"]], note: "Grades are drops in this number." },
+    { id: "ch_accf", name: "Accuracy", topic: "Engines", lesson: "ch_eval", f: "move accuracy = 103.17 · e^{−0.04354 · drop} − 3.17 · game accuracy = mean over your moves", vars: [["drop", "win% of the best move minus win% of the move played, in points"]], anchors: [["drop 0", "100%"], ["drop 1", "≈ 96%"], ["drop 2", "≈ 91%"], ["drop 5", "≈ 80%"]], note: "Lichess's per-move curve; lichess blends a harmonic and a weighted mean over the game, this app takes the plain mean. ACPL is shown alongside." },
     { id: "ch_knight", name: "Knight reach", topic: "The board", lesson: "ch_pieces", f: "centre 8 squares · edge 4 · corner 2", anchors: [["a knight on the rim", "is dim"]], note: "" },
     { id: "ch_cct", name: "CCT", topic: "Tactics", lesson: "ch_best", f: "Checks · Captures · Threats, both sides, every move", anchors: [], note: "Then the blunder check." },
     { id: "ch_mates", name: "Mate in one test", topic: "Tactics", lesson: "ch_mate1", f: "for each check: king move? capture? block?", anchors: [["three no's", "mate"]], note: "" },
@@ -3466,7 +3767,7 @@ var SV_VOCAB = {
     ["lite", "a little / some", "adv", "lite grann = a little bit", "Jag talar lite svenska.", "I speak a little Swedish."],
     ["mycket", "much / a lot / very", "adv", "mer, mest", "Tack så mycket!", "Thanks a lot!"]
   ],
-  sv_v2: [
+  sv_verbs: [
     ["gå", "go / walk", "verb", "går, gick, gått", "Jag går hem nu.", "I'm going home now."],
     ["komma", "come", "verb", "kommer, kom, kommit", "Kom hit!", "Come here!"],
     ["se", "see", "verb", "ser, såg, sett", "Jag ser dig.", "I see you."],
@@ -3932,11 +4233,11 @@ var SV_VERBS = {
     ["höra", "hör", "hörde", "hört", "2a", "hear"], ["glömma", "glömmer", "glömde", "glömt", "2a", "forget"], ["bo", "bor", "bodde", "bott", "3", "live"], ["tro", "tror", "trodde", "trott", "3", "believe"],
     ["må", "mår", "mådde", "mått", "3", "feel"], ["skriva", "skriver", "skrev", "skrivit", "4", "write"], ["dricka", "dricker", "drack", "druckit", "4", "drink"], ["komma", "kommer", "kom", "kommit", "4", "come"],
     ["gå", "går", "gick", "gått", "4", "go / walk"], ["se", "ser", "såg", "sett", "4", "see"], ["vara", "är", "var", "varit", "4", "be"], ["ha", "har", "hade", "haft", "irr", "have"],
-    ["göra", "gör", "gjorde", "gjort", "irr", "do / make"], ["säga", "säger", "sa", "sagt", "irr", "say"], ["veta", "vet", "visste", "vetat", "irr", "know"], ["få", "får", "fick", "fått", "4", "get / may"],
+    ["göra", "gör", "gjorde", "gjort", "irr", "do / make"], ["säga", "säger", "sade / sa", "sagt", "irr", "say"], ["veta", "vet", "visste", "vetat", "irr", "know"], ["få", "får", "fick", "fått", "4", "get / may"],
     ["ge", "ger", "gav", "gett", "4", "give"], ["ta", "tar", "tog", "tagit", "4", "take"], ["sova", "sover", "sov", "sovit", "4", "sleep"], ["äta", "äter", "åt", "ätit", "4", "eat"],
     ["springa", "springer", "sprang", "sprungit", "4", "run"], ["sitta", "sitter", "satt", "suttit", "4", "sit"], ["stå", "står", "stod", "stått", "4", "stand"], ["ligga", "ligger", "låg", "legat", "4", "lie"],
     ["bli", "blir", "blev", "blivit", "4", "become"], ["kunna", "kan", "kunde", "kunnat", "modal", "can"], ["vilja", "vill", "ville", "velat", "modal", "want"], ["behöva", "behöver", "behövde", "behövt", "2a", "need"],
-    ["börja", "börjar", "började", "börjat", "1", "begin"], ["förstå", "förstår", "förstod", "förstått", "4", "understand"], ["heta", "heter", "hette", "hetat", "irr", "be called"], ["lägga", "lägger", "la", "lagt", "irr", "put / lay"],
+    ["börja", "börjar", "började", "börjat", "1", "begin"], ["förstå", "förstår", "förstod", "förstått", "4", "understand"], ["heta", "heter", "hette", "hetat", "irr", "be called"], ["lägga", "lägger", "lade / la", "lagt", "irr", "put / lay"],
     ["sätta", "sätter", "satte", "satt", "irr", "put / set"], ["betala", "betalar", "betalade", "betalat", "1", "pay"], ["träffa", "träffar", "träffade", "träffat", "1", "meet"], ["leva", "lever", "levde", "levt", "2a", "live (be alive)"]
   ]
 };
@@ -4023,7 +4324,7 @@ var SV_DIALOGUES = [
       { bot: "Hej! Jag heter Anna. Vad heter du?", botg: "Hi! My name is Anna. What's your name?", expect: ["jag heter", "mitt namn"], model: "Hej! Jag heter Erik.", modelg: "Hi! My name is Erik.", hint: "Jag heter ... (My name is ...)" },
       { bot: "Trevligt att träffas! Var kommer du ifrån?", botg: "Nice to meet you! Where are you from?", expect: ["jag kommer från", "från"], model: "Jag kommer från Kanada.", modelg: "I'm from Canada.", hint: "Jag kommer från ... " },
       { bot: "Vad kul! Bor du här nu?", botg: "How nice! Do you live here now?", expect: ["^ja", "^nej", "jag bor"], model: "Ja, jag bor här nu.", modelg: "Yes, I live here now.", hint: "Ja / Nej, jag bor ..." },
-      { bot: "Spelar du hockey?", botg: "Do you play hockey?", expect: ["ja", "jag spelar"], model: "Ja, jag spelar hockey.", modelg: "Yes, I play hockey.", hint: "Ja, jag spelar ..." },
+      { bot: "Spelar du hockey?", botg: "Do you play hockey?", expect: ["ja", "jag spelar"], reject: ["nej", "inte"], model: "Ja, jag spelar hockey.", modelg: "Yes, I play hockey.", hint: "Ja, jag spelar ..." },
       { bot: "Perfekt! Vi ses på träningen. Hej då!", botg: "Perfect! See you at practice. Bye!", expect: ["hej då", "vi ses", "hejdå"], model: "Hej då, vi ses!", modelg: "Bye, see you!", hint: "Hej då / Vi ses" }
     ] },
   { id: "sv_d2", title: "At the café", setting: "Order a coffee and something to eat, then pay.", level: "A1",
@@ -4037,13 +4338,13 @@ var SV_DIALOGUES = [
     turns: [
       { bot: "Hej, kan jag hjälpa dig?", botg: "Hi, can I help you?", expect: ["var (är|ligger)", "stationen", "jag letar efter", "hur kommer jag"], model: "Ja, var ligger centralstationen?", modelg: "Yes, where is the central station?", hint: "Var ligger ...? / Hur kommer jag till ...?" },
       { bot: "Gå rakt fram och sväng till vänster vid banken. Är det långt?", botg: "Go straight ahead and turn left at the bank. Is it far? (she is testing you: say it back)", expect: ["rakt fram", "vänster", "banken"], model: "Rakt fram och till vänster vid banken.", modelg: "Straight ahead and left at the bank.", hint: "Repeat the directions: rakt fram ... vänster ..." },
-      { bot: "Precis. Det tar ungefär tio minuter. Ska du ta tåget?", botg: "Exactly. It takes about ten minutes. Are you taking the train?", expect: ["ja", "nej", "tåg", "stockholm", "jag ska"], model: "Ja, jag ska åka till Stockholm.", modelg: "Yes, I'm going to Stockholm.", hint: "Ja, jag ska åka till ..." },
+      { bot: "Precis. Det tar ungefär tio minuter. Ska du ta tåget?", botg: "Exactly. It takes about ten minutes. Are you taking the train?", expect: ["ja", "nej", "tåg(et)?", "stockholm", "jag ska"], model: "Ja, jag ska åka till Stockholm.", modelg: "Yes, I'm going to Stockholm.", hint: "Ja, jag ska åka till ..." },
       { bot: "Lycka till! Hej då.", botg: "Good luck! Bye.", expect: ["tack", "hej då"], model: "Tack så mycket! Hej då.", modelg: "Thanks a lot! Bye.", hint: "Tack ... hej då" }
     ] },
   { id: "sv_d4", title: "Booking a time at the doctor", setting: "You hurt your knee at hockey and call the health centre.", level: "A2",
     turns: [
-      { bot: "Vårdcentralen, det är Karin. Hur kan jag hjälpa dig?", botg: "The health centre, Karin speaking. How can I help you?", expect: ["boka", "tid", "ont i", "knä"], model: "Hej, jag vill boka en tid. Jag har ont i knät.", modelg: "Hi, I'd like to book an appointment. My knee hurts.", hint: "Jag vill boka en tid. Jag har ont i ..." },
-      { bot: "Jag förstår. När hände det?", botg: "I see. When did it happen?", expect: ["igår", "i går", "förra", "på (måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)", "träning", "match"], model: "Igår, på hockeyträningen.", modelg: "Yesterday, at hockey practice.", hint: "Igår / På ... träningen" },
+      { bot: "Vårdcentralen, det är Karin. Hur kan jag hjälpa dig?", botg: "The health centre, Karin speaking. How can I help you?", expect: ["boka", "tid", "ont i", "knä(t)?"], model: "Hej, jag vill boka en tid. Jag har ont i knät.", modelg: "Hi, I'd like to book an appointment. My knee hurts.", hint: "Jag vill boka en tid. Jag har ont i ..." },
+      { bot: "Jag förstår. När hände det?", botg: "I see. When did it happen?", expect: ["igår", "i går", "förra", "på (måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)", "träning(en)?", "match(en)?"], model: "Igår, på hockeyträningen.", modelg: "Yesterday, at hockey practice.", hint: "Igår / På ... träningen" },
       { bot: "Kan du komma imorgon klockan nio?", botg: "Can you come tomorrow at nine?", expect: ["ja", "det går bra", "nej", "klockan"], model: "Ja, det går bra.", modelg: "Yes, that works.", hint: "Ja, det går bra / Nej, kan jag komma klockan ...?" },
       { bot: "Bra. Vad heter du och vad har du för personnummer?", botg: "Good. What's your name and personal number?", expect: ["jag heter", "personnummer", "\\d"], model: "Jag heter Erik Berg, 010203-1234.", modelg: "My name is Erik Berg, 010203-1234.", hint: "Jag heter ... Mitt personnummer är ..." },
       { bot: "Tack, då ses vi imorgon. Krya på dig!", botg: "Thanks, see you tomorrow. Get well!", expect: ["tack", "hej då", "vi ses"], model: "Tack, hej då!", modelg: "Thanks, bye!", hint: "Tack ..." }
@@ -4052,15 +4353,15 @@ var SV_DIALOGUES = [
     turns: [
       { bot: "Hur gick matchen igår?", botg: "How did the game go yesterday?", expect: ["vann", "förlorade", "det gick", "oavgjort"], model: "Vi vann med 3–2!", modelg: "We won 3–2!", hint: "Vi vann / Vi förlorade / Det gick bra" },
       { bot: "Grattis! Gjorde du något mål?", botg: "Congratulations! Did you score?", expect: ["ja", "nej", "mål", "gjorde", "passning"], model: "Jag gjorde ett mål och en passning.", modelg: "I scored a goal and an assist.", hint: "Jag gjorde ... / Nej, men ..." },
-      { bot: "Vad var det svåraste?", botg: "What was the hardest part?", expect: ["svåraste", "var att", "tredje perioden", "trött", "snabba", "deras"], model: "Det svåraste var tredje perioden, vi var trötta.", modelg: "The hardest was the third period, we were tired.", hint: "Det svåraste var ..." },
-      { bot: "När är nästa match?", botg: "When's the next game?", expect: ["på (måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)", "nästa", "imorgon", "vecka"], model: "På lördag, borta mot Frölunda.", modelg: "On Saturday, away against Frölunda.", hint: "På ... / Nästa vecka" },
+      { bot: "Vad var det svåraste?", botg: "What was the hardest part?", expect: ["svåraste", "var att", "tredje perioden", "trött(a)?", "snabba", "deras"], model: "Det svåraste var tredje perioden, vi var trötta.", modelg: "The hardest was the third period, we were tired.", hint: "Det svåraste var ..." },
+      { bot: "När är nästa match?", botg: "When's the next game?", expect: ["på (måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)", "nästa", "imorgon", "veck(a|an)"], model: "På lördag, borta mot Frölunda.", modelg: "On Saturday, away against Frölunda.", hint: "På ... / Nästa vecka" },
       { bot: "Jag kommer och tittar. Lycka till!", botg: "I'll come and watch. Good luck!", expect: ["tack", "kul", "vad roligt"], model: "Tack, vad kul!", modelg: "Thanks, great!", hint: "Tack ..." }
     ] },
   { id: "sv_d6", title: "A disagreement, politely", setting: "A classmate wants to study late; you prefer mornings. Argue your case with eftersom, däremot, hålla med.", level: "B2",
     turns: [
       { bot: "Ska vi plugga ikväll klockan tio? Jag jobbar bäst sent.", botg: "Shall we study tonight at ten? I work best late.", expect: ["håller inte med", "hellre", "eftersom", "föredrar", "på morgonen", "tidigt"], model: "Jag föredrar morgonen eftersom jag har hockey på kvällarna.", modelg: "I prefer the morning because I have hockey in the evenings.", hint: "Jag föredrar ... eftersom ..." },
-      { bot: "Men på morgonen är jag helt död. Kan vi inte kompromissa?", botg: "But in the morning I'm completely dead. Can't we compromise?", expect: ["vad sägs om", "kan vi", "i stället", "klockan", "eftermiddag"], model: "Vad sägs om klockan fyra i stället?", modelg: "How about four o'clock instead?", hint: "Vad sägs om ... i stället?" },
-      { bot: "Okej, det funkar. Vilket kapitel börjar vi med?", botg: "OK, that works. Which chapter do we start with?", expect: ["kapitel", "börjar", "tycker", "det svåraste", "först"], model: "Jag tycker att vi börjar med det svåraste kapitlet först.", modelg: "I think we start with the hardest chapter first.", hint: "Jag tycker att vi ..." },
+      { bot: "Men på morgonen är jag helt död. Kan vi inte kompromissa?", botg: "But in the morning I'm completely dead. Can't we compromise?", expect: ["vad sägs om", "kan vi", "i stället", "klockan", "eftermiddag(en)?"], model: "Vad sägs om klockan fyra i stället?", modelg: "How about four o'clock instead?", hint: "Vad sägs om ... i stället?" },
+      { bot: "Okej, det funkar. Vilket kapitel börjar vi med?", botg: "OK, that works. Which chapter do we start with?", expect: ["kapit(el|let)", "börjar", "tycker", "det svåraste", "först"], model: "Jag tycker att vi börjar med det svåraste kapitlet först.", modelg: "I think we start with the hardest chapter first.", hint: "Jag tycker att vi ..." },
       { bot: "Håller med. Jag tar med kaffe. Ses!", botg: "Agreed. I'll bring coffee. See you!", expect: ["ses", "tack", "perfekt", "bra"], model: "Perfekt, vi ses!", modelg: "Perfect, see you!", hint: "Perfekt / Vi ses" }
     ] }
 ];
@@ -4078,7 +4379,7 @@ var SV_READINGS = [
       "I Gamla stan finns det många små gator och gamla hus. Jag drack kaffe på ett litet kafé och åt en kanelbulle. Sedan gick jag till Kungliga slottet. Det var mycket folk där.",
       "På eftermiddagen tog jag båten till Djurgården och besökte Vasamuseet. Skeppet Vasa sjönk år 1628 och hittades igen 1961. Det var fantastiskt att se. På kvällen åkte jag hem, trött men nöjd."
     ], gloss: [["kom fram", "arrived"], ["slottet", "the palace"], ["folk", "people"], ["skeppet", "the ship"], ["sjönk", "sank"], ["hittades", "was found"]],
-    qs: [{ q: "Hur åkte hon till Stockholm?", options: ["Med bil", "Med tåg", "Med buss", "Med båt"], answer: "Med tåg" }, { q: "Vad gjorde hon på eftermiddagen?", options: ["Drack kaffe", "Gick till slottet", "Besökte Vasamuseet", "Åkte hem"], answer: "Besökte Vasamuseet" }, { q: "När sjönk Vasa?", options: ["1628", "1961", "1828", "1961"], answer: "1628" }] },
+    qs: [{ q: "Hur åkte hon till Stockholm?", options: ["Med bil", "Med tåg", "Med buss", "Med båt"], answer: "Med tåg" }, { q: "Vad gjorde hon på eftermiddagen?", options: ["Drack kaffe", "Gick till slottet", "Besökte Vasamuseet", "Åkte hem"], answer: "Besökte Vasamuseet" }, { q: "När sjönk Vasa?", options: ["1628", "1961", "1828", "1721"], answer: "1628" }] },
   { id: "sv_r3", title: "Fika", level: "A2", text: [
       "Fika är mer än en kaffepaus. Det är en svensk tradition och nästan ett sätt att leva. Man dricker kaffe eller te och äter något sött, ofta en kanelbulle eller en bit kaka. Men det viktigaste är inte maten. Det viktigaste är att man tar en paus och pratar med andra.",
       "På många arbetsplatser fikar man två gånger om dagen, på förmiddagen och på eftermiddagen. Chefen och de anställda sitter vid samma bord. Många svenskar säger att de bästa idéerna kommer under fikat.",
@@ -4184,7 +4485,7 @@ var SV_WRITING = [
   add(vocabLesson("sv_v1", "The first thirty", "Pronouns, greetings, yes and no", "The words in every sentence: who, what, and the little ones that hold a conversation together.",
     "Frequency lists are brutal and useful: the hundred most common words of a language cover about half of everything said. Paul Nation's work on vocabulary shows the first 2,000 word families cover 80 to 90% of ordinary text, so the order you learn words in matters more than how many you know. These thirty are the top of the list. Learn them with their example sentences, not alone.",
     [{ t: "rule", x: "jag · du · han · hon · vi · ni · de\nmig · dig · honom · henne · oss · er · dem", note: "Subject forms, then object forms. 'De' and 'dem' are both pronounced 'dom' in speech." }]));
-  add(vocabLesson("sv_v2", "Thirty verbs", "Doing, having, wanting", "The verbs you will use in nine sentences out of ten. Present tense is the same for every person, so 'jag går, du går, vi går'.",
+  add(vocabLesson("sv_verbs", "Thirty verbs", "Doing, having, wanting", "The verbs you will use in nine sentences out of ten. Present tense is the same for every person, so 'jag går, du går, vi går'.",
     "Swedish verbs do not change for person: one present-tense form for everyone. That makes the first verbs cheap to learn. The forms listed are infinitive, present, past and supine; for now use the present (the -r form) and add the rest when the tense lessons come.",
     [{ t: "rule", x: "jag går · du går · han går · vi går · ni går · de går", note: "No conjugation by person, ever. The energy that English spends on 'goes' Swedish spends on word order." }]));
   add({ id: "sv_num", mode: "svnum", pass: 7, of: 10, title: "Numbers and the clock", sub: "0 to 1,000, days, and telling the time",
@@ -4362,7 +4663,7 @@ var SV_WRITING = [
   /* ---------------- the path ---------------- */
   var PATH = [
     { title: "Sounds", sub: "Train the ear first", blurb: "The nine vowels, long and short, and the consonant rules that make Swedish spelling honest.", ids: ["sv_alpha", "sv_pairs", "sv_cons"] },
-    { title: "First words", sub: "The hundred that cover half of speech", blurb: "Pronouns, the core verbs, numbers, time and the first nouns, each on its own schedule.", ids: ["sv_v1", "sv_v2", "sv_num", "sv_v3", "sv_v4"] },
+    { title: "First words", sub: "The hundred that cover half of speech", blurb: "Pronouns, the core verbs, numbers, time and the first nouns, each on its own schedule.", ids: ["sv_v1", "sv_verbs", "sv_num", "sv_v3", "sv_v4"] },
     { title: "Grammar core", sub: "Gender, forms, verb second", blurb: "The machinery: en/ett, noun forms, the four verb groups, verb-second order, questions, negation, agreement, pronouns.", ids: ["sv_gender", "sv_nouns", "sv_pres", "sv_v2", "sv_qn", "sv_adj", "sv_pron"] },
     { title: "Vocabulary by theme", sub: "Toward a thousand words", blurb: "Food, daily life, the city, work, the body, feelings, nature, society, connectors, idioms.", ids: ["sv_v5", "sv_v6", "sv_v7", "sv_v8", "sv_v9", "sv_v10", "sv_v11", "sv_v12", "sv_v13", "sv_v14"] },
     { title: "Tenses and clauses", sub: "Past, future, BIFF, passive", blurb: "The two pasts, the futures and modals, subordinate word order, and the -s passive.", ids: ["sv_past", "sv_mod", "sv_biff", "sv_pass"] },
@@ -4376,8 +4677,8 @@ var SV_WRITING = [
   function tts(text, caps) { return caps && caps.tts ? { text: text, lang: "sv-SE" } : null; }
   var DRILLS = {
     svletter: { name: "Letters", target: 6, gen: function (ctx) {
-      var row = pick(SV_LETTERS, ctx.rnd), others = lgShuffle(SV_LETTERS.filter(function (r) { return r !== row; }).slice(), ctx.rnd).slice(0, 3);
-      return { kind: "choice", question: "Which sound does <b class='tw'>" + row[0] + "</b> make?", options: lgShuffle([row[1]].concat(others.map(function (r) { return r[1]; })), ctx.rnd), answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b>: " + row[1]], speakAfter: tts(row[0], ctx.caps) };
+      var row = pick(SV_LETTERS, ctx.rnd);
+      return { kind: "choice", question: "Which sound does <b class='tw'>" + row[0] + "</b> make?", options: lgOptions(row[1], SV_LETTERS.map(function (r) { return r[1]; }), 3, ctx.rnd, "sv"), answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b>: " + row[1]], speakAfter: tts(row[0], ctx.caps) };
     } },
     svpair: { name: "Long or short", target: 6, gen: function (ctx) {
       var p = pick(SV_PAIRS, ctx.rnd), which = ctx.rnd() < 0.5 ? 0 : 1, word = p[which];
@@ -4386,13 +4687,13 @@ var SV_WRITING = [
       return { kind: "choice", question: "Which spelling has the <b>" + (which ? "short" : "long") + "</b> vowel? (" + p[2] + ")", options: [p[0], p[1]], answer: word, target: 6, explain: expl };
     } },
     svsound: { name: "Sound rules", target: 6, gen: function (ctx) {
-      var row = pick(SV_SOUNDS, ctx.rnd), opts = lgShuffle([row[1]].concat(lgShuffle(SV_SOUND_RULES.filter(function (r) { return r !== row[1]; }).slice(), ctx.rnd).slice(0, 3)), ctx.rnd);
+      var row = pick(SV_SOUNDS, ctx.rnd), opts = lgOptions(row[1], SV_SOUND_RULES, 3, ctx.rnd, "sv");
       return { kind: "choice", question: "How is the first consonant of <b class='tw'>" + row[0] + "</b> (" + row[2] + ") pronounced?", options: opts, answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b>: " + row[1] + ". Look at the vowel after it: e, i, y, ä, ö soften k, g and sk."], speakAfter: tts(row[0], ctx.caps) };
     } },
     svnum: { name: "Numbers", target: 9, gen: function (ctx) {
       var n = ctx.rnd() < 0.4 ? (ctx.rnd() * 21) | 0 : ctx.rnd() < 0.7 ? 20 + ((ctx.rnd() * 80) | 0) : 100 + ((ctx.rnd() * 900) | 0);
       var w = lgNumberWords("sv", n);
-      return { kind: "text", question: "Write <b>" + n + "</b> in Swedish.", answer: w, accept: [w, w.replace(/ /g, "")], target: 9, explain: ["<b>" + n + "</b> = " + w], speakAfter: tts(w, ctx.caps) };
+      return { kind: "text", question: "Write <b>" + n + "</b> in Swedish.", answer: w, accept: [w, w.replace(/ /g, ""), w.replace(/^ettusen/, "tusen")], target: 9, explain: ["<b>" + n + "</b> = " + w], speakAfter: tts(w, ctx.caps) };
     } },
     svgender: { name: "En or ett", target: 5, gen: function (ctx) { return lgFormQ(SV_GENDER, "sv", ctx.rnd, ctx.caps); } },
     svnoun: { name: "Noun forms", target: 9, gen: function (ctx) { return lgFormQ(SV_NOUNS, "sv", ctx.rnd, ctx.caps); } },
@@ -4647,12 +4948,12 @@ var HE_VOCAB = {
     ["סֵפֶר", "sefer", "book", "n", "סְפָרִים", "סֵפֶר טוֹב.", "A good book."],
     ["כֶּסֶף", "kesef", "money; silver", "n", "", "אֵין לִי כֶּסֶף.", "I have no money."],
     ["שֵׁם", "shem", "name", "n", "שֵׁמוֹת (m.)", "מָה הַשֵּׁם שֶׁלְּךָ?", "What is your name?"],
-    ["דָּבָר", "davar", "thing; word", "n", "דְּבָרִים", "מַשֶּׁהוּ = something; שׁוּם דָּבָר = nothing", "שׁוּם דָּבָר.", "Nothing."]
+    ["דָּבָר", "davar", "thing; word", "n", "דְּבָרִים; שׁוּם דָּבָר = nothing", "שׁוּם דָּבָר.", "Nothing."]
   ],
   he_v5: [
     ["אֹכֶל", "ochel", "food", "n", "", "הָאֹכֶל טָעִים.", "The food is tasty."],
     ["מַיִם", "mayim", "water", "n", "plural form, m.", "כּוֹס מַיִם, בְּבַקָּשָׁה.", "A glass of water, please."],
-    ["קָפֶה", "kafe", "coffee", "n", "", "קָפֶה הָפוּךְ = latte", "אַתָּה רוֹצֶה קָפֶה?", "Do you want coffee?"],
+    ["קָפֶה", "kafe", "coffee", "n", "קָפֶה הָפוּךְ = latte", "אַתָּה רוֹצֶה קָפֶה?", "Do you want coffee?"],
     ["תֵּה", "te", "tea", "n", "", "תֵּה עִם נַעֲנַע.", "Tea with mint."],
     ["חָלָב", "chalav", "milk", "n", "", "חָלָב בַּקָּפֶה?", "Milk in the coffee?"],
     ["לֶחֶם", "lechem", "bread", "n", "", "לֶחֶם טָרִי.", "Fresh bread."],
@@ -5087,9 +5388,9 @@ var HE_DIALOGUES = [
   { id: "he_d1", title: "Hello, who are you?", setting: "A new teammate at the rink. Introduce yourself.", level: "A1",
     turns: [
       { bot: "שָׁלוֹם! קוֹרְאִים לִי נֹעָה. אֵיךְ קוֹרְאִים לְךָ?", botg: "Hi! My name is Noa. What's your name?", expect: ["קוראים לי", "השם שלי", "אני "], model: "שָׁלוֹם! קוֹרְאִים לִי אֶרִיק.", modelg: "Hi! My name is Erik.", hint: "קוראים לי ... (they call me ...)" },
-      { bot: "נָעִים מְאוֹד! מֵאֵיפֹה אַתָּה?", botg: "Nice to meet you! Where are you from?", expect: ["אני מ", "מקנדה", "מ"], model: "אֲנִי מִקָּנָדָה.", modelg: "I'm from Canada.", hint: "אני מ... (I'm from ...)" },
-      { bot: "יָפֶה! אַתָּה גָּר פֹּה עַכְשָׁו?", botg: "Nice! Do you live here now?", expect: ["^כן", "^לא", "אני גר"], model: "כֵּן, אֲנִי גָּר פֹּה עַכְשָׁו.", modelg: "Yes, I live here now.", hint: "כן / לא, אני גר ..." },
-      { bot: "אַתָּה מְשַׂחֵק הוֹקִי?", botg: "Do you play hockey?", expect: ["כן", "משחק"], model: "כֵּן, אֲנִי מְשַׂחֵק הוֹקִי.", modelg: "Yes, I play hockey.", hint: "כן, אני משחק ..." },
+      { bot: "נָעִים מְאוֹד! מֵאֵיפֹה אַתָּה?", botg: "Nice to meet you! Where are you from?", expect: ["אני מ.", "^מ\\S\\S", "מקנדה"], model: "אֲנִי מִקָּנָדָה.", modelg: "I'm from Canada.", hint: "אני מ... (I'm from ...)" },
+      { bot: "יָפֶה! אַתָּה גָּר פֹּה עַכְשָׁו?", botg: "Nice! Do you live here now?", expect: ["^כן", "^לא", "אני גר(ה)?"], model: "כֵּן, אֲנִי גָּר פֹּה עַכְשָׁו.", modelg: "Yes, I live here now.", hint: "כן / לא, אני גר ..." },
+      { bot: "אַתָּה מְשַׂחֵק הוֹקִי?", botg: "Do you play hockey?", expect: ["כן", "משחק(ת)?"], reject: ["לא"], model: "כֵּן, אֲנִי מְשַׂחֵק הוֹקִי.", modelg: "Yes, I play hockey.", hint: "כן, אני משחק ..." },
       { bot: "מְצֻיָּן! נִתְרָאֶה בָּאִמּוּן. לְהִתְרָאוֹת!", botg: "Excellent! See you at practice. Bye!", expect: ["להתראות", "ביי", "נתראה"], model: "לְהִתְרָאוֹת!", modelg: "See you!", hint: "להתראות / נתראה" }
     ] },
   { id: "he_d2", title: "At the café", setting: "Order a coffee and something to eat.", level: "A1",
@@ -5108,16 +5409,16 @@ var HE_DIALOGUES = [
     ] },
   { id: "he_d4", title: "At the doctor", setting: "You hurt your knee at hockey. Describe it in the past tense.", level: "A2",
     turns: [
-      { bot: "שָׁלוֹם, מָה הַבְּעָיָה?", botg: "Hello, what's the problem?", expect: ["כואב", "ברך", "פצעתי", "נפלתי"], model: "כּוֹאֶבֶת לִי הַבֶּרֶךְ.", modelg: "My knee hurts.", hint: "כואב לי ה... / פצעתי את ה..." },
+      { bot: "שָׁלוֹם, מָה הַבְּעָיָה?", botg: "Hello, what's the problem?", expect: ["כואב(ת)?", "ה?ברך", "פצעתי", "נפלתי"], model: "כּוֹאֶבֶת לִי הַבֶּרֶךְ.", modelg: "My knee hurts.", hint: "כואב לי ה... / פצעתי את ה..." },
       { bot: "מָתַי זֶה קָרָה?", botg: "When did it happen?", expect: ["אתמול", "לפני", "באימון", "במשחק", "ביום"], model: "אֶתְמוֹל, בָּאִמּוּן הוֹקִי.", modelg: "Yesterday, at hockey practice.", hint: "אתמול / לפני ... / באימון" },
       { bot: "אַתָּה יָכוֹל לָלֶכֶת?", botg: "Can you walk?", expect: ["כן", "לא", "קצת", "יכול"], model: "כֵּן, אֲבָל קָשֶׁה.", modelg: "Yes, but it's hard.", hint: "כן / לא / קצת" },
       { bot: "קַח אֶת הַתְּרוּפָה פַּעֲמַיִם בְּיוֹם וְתָנוּחַ שָׁבוּעַ. בְּסֵדֶר?", botg: "Take the medicine twice a day and rest a week. OK?", expect: ["בסדר", "תודה", "כן"], model: "בְּסֵדֶר, תּוֹדָה רַבָּה.", modelg: "OK, thanks a lot.", hint: "בסדר, תודה" }
     ] },
   { id: "he_d5", title: "Talking about the game", setting: "A friend asks about last night's game. Past tense and opinions.", level: "B1",
     turns: [
-      { bot: "אֵיךְ הָיָה הַמִּשְׂחָק אֶתְמוֹל?", botg: "How was the game yesterday?", expect: ["ניצחנו", "הפסדנו", "היה", "תיקו"], model: "נִצַּחְנוּ שָׁלוֹשׁ-שְׁתַּיִם!", modelg: "We won 3–2!", hint: "ניצחנו / הפסדנו / היה ..." },
-      { bot: "כָּל הַכָּבוֹד! הִבְקַעְתָּ שַׁעַר?", botg: "Well done! Did you score a goal?", expect: ["כן", "לא", "שער", "הבקעתי", "בישול"], model: "הִבְקַעְתִּי שַׁעַר אֶחָד וְנָתַתִּי בִּשּׁוּל.", modelg: "I scored one goal and gave an assist.", hint: "הבקעתי ... / לא, אבל ..." },
-      { bot: "מָה הָיָה הֲכִי קָשֶׁה?", botg: "What was the hardest?", expect: ["הכי קשה", "היה", "השליש", "עייפים", "מהירים"], model: "הֲכִי קָשֶׁה הָיָה הַשְּׁלִישׁ הָאַחֲרוֹן, הָיִינוּ עֲיֵפִים.", modelg: "The hardest was the last period; we were tired.", hint: "הכי קשה היה ..." },
+      { bot: "אֵיךְ הָיָה הַמִּשְׂחָק אֶתְמוֹל?", botg: "How was the game yesterday?", expect: ["ני?צחנו", "הפסדנו", "היה", "תיקו"], model: "נִצַּחְנוּ שָׁלוֹשׁ-שְׁתַּיִם!", modelg: "We won 3–2!", hint: "ניצחנו / הפסדנו / היה ..." },
+      { bot: "כָּל הַכָּבוֹד! הִבְקַעְתָּ שַׁעַר?", botg: "Well done! Did you score a goal?", expect: ["כן", "לא", "שער", "הבקעתי", "בי?שול"], model: "הִבְקַעְתִּי שַׁעַר אֶחָד וְנָתַתִּי בִּשּׁוּל.", modelg: "I scored one goal and gave an assist.", hint: "הבקעתי ... / לא, אבל ..." },
+      { bot: "מָה הָיָה הֲכִי קָשֶׁה?", botg: "What was the hardest?", expect: ["הכי קשה", "היה", "השליש", "עיי?פים", "מהירים"], model: "הֲכִי קָשֶׁה הָיָה הַשְּׁלִישׁ הָאַחֲרוֹן, הָיִינוּ עֲיֵפִים.", modelg: "The hardest was the last period; we were tired.", hint: "הכי קשה היה ..." },
       { bot: "מָתַי הַמִּשְׂחָק הַבָּא?", botg: "When's the next game?", expect: ["ביום", "בשבוע", "מחר", "הבא"], model: "בְּיוֹם שִׁשִּׁי, מִשְׂחַק חוּץ.", modelg: "On Friday, an away game.", hint: "ביום ... / בשבוע הבא" },
       { bot: "אֲנִי אָבוֹא לִרְאוֹת. בְּהַצְלָחָה!", botg: "I'll come and watch. Good luck!", expect: ["תודה", "סבבה", "יופי"], model: "סַבָּבָּה, תּוֹדָה!", modelg: "Cool, thanks!", hint: "תודה / סבבה" }
     ] }
@@ -5575,20 +5876,19 @@ var BH_TEXTS = [
   var DRILLS = {
     heletter: { name: "Letters", target: 6, gen: function (ctx) {
       var row = pick(LET, ctx.rnd), kind = ctx.rnd();
-      var others = lgShuffle(LET.filter(function (r) { return r !== row; }).slice(), ctx.rnd).slice(0, 3);
-      if (kind < 0.4) return { kind: "choice", question: "What is the name of <b class='tw big'>" + row[0] + "</b>?", options: lgShuffle([row[1]].concat(others.map(function (r) { return r[1]; })), ctx.rnd), answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b> " + row[1] + ": " + row[2]], rtl: true };
-      if (kind < 0.8) return { kind: "choice", question: "Which letter is <b>" + row[1] + "</b> (" + row[2] + ")?", options: lgShuffle([row[0]].concat(others.map(function (r) { return r[0]; })), ctx.rnd), answer: row[0], target: 6, explain: ["<b>" + row[0] + "</b> " + row[1] + ": " + row[2]], rtl: true };
+      if (kind < 0.4) return { kind: "choice", question: "What is the name of <b class='tw big'>" + row[0] + "</b>?", options: lgOptions(row[1], LET.map(function (r) { return r[1]; }), 3, ctx.rnd, "he"), answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b> " + row[1] + ": " + row[2]], rtl: true };
+      if (kind < 0.8) return { kind: "choice", question: "Which letter is <b>" + row[1] + "</b> (" + row[2] + ")?", options: lgOptions(row[0], LET.map(function (r) { return r[0]; }), 3, ctx.rnd, "he"), answer: row[0], target: 6, explain: ["<b>" + row[0] + "</b> " + row[1] + ": " + row[2]], rtl: true };
       var finals = LET.filter(function (r) { return r[4]; }), fr = pick(finals, ctx.rnd);
-      return { kind: "choice", question: "What is the final form of <b class='tw big'>" + fr[0] + "</b> (" + fr[1] + ")?", options: lgShuffle(finals.map(function (r) { return r[4]; }), ctx.rnd).slice(0, 4).filter(function (x) { return x !== fr[4]; }).slice(0, 3).concat([fr[4]]).sort(function () { return ctx.rnd() - 0.5; }), answer: fr[4], target: 6, explain: ["<b>" + fr[0] + "</b> becomes <b>" + fr[4] + "</b> at the end of a word."], rtl: true };
+      return { kind: "choice", question: "What is the final form of <b class='tw big'>" + fr[0] + "</b> (" + fr[1] + ")?", options: lgOptions(fr[4], finals.map(function (r) { return r[4]; }), 3, ctx.rnd, "he"), answer: fr[4], target: 6, explain: ["<b>" + fr[0] + "</b> becomes <b>" + fr[4] + "</b> at the end of a word."], rtl: true };
     } },
     hevowel: { name: "Vowels", target: 6, gen: function (ctx) {
-      var v = pick(HE_VOWELS, ctx.rnd), others = lgShuffle(HE_VOWELS.filter(function (r) { return r !== v && r[2] !== v[2]; }).slice(), ctx.rnd).slice(0, 3);
-      return { kind: "choice", question: "Which sound does <b class='tw big'>" + "בּ" + v[0] + "</b> make? (" + v[1] + ")", options: lgShuffle([v[2]].concat(others.map(function (r) { return r[2]; })), ctx.rnd), answer: v[2], target: 6, explain: ["<b>" + v[1] + "</b>: " + v[2] + " → b" + v[3]], rtl: true };
+      var v = pick(HE_VOWELS, ctx.rnd);
+      return { kind: "choice", question: "Which sound does <b class='tw big'>" + "בּ" + v[0] + "</b> make? (" + v[1] + ")", options: lgOptions(v[2], HE_VOWELS.map(function (r) { return r[2]; }), 3, ctx.rnd, "he"), answer: v[2], target: 6, explain: ["<b>" + v[1] + "</b>: " + v[2] + " → b" + v[3]], rtl: true };
     } },
     heread: { name: "Reading", target: 8, gen: function (ctx) {
       var pool = ALLV.filter(function (r) { return r[1].indexOf(" ") < 0 && r[1].length <= 9; });
-      var row = pick(pool, ctx.rnd), others = lgShuffle(pool.filter(function (r) { return r !== row && r[1] !== row[1]; }).slice(), ctx.rnd).slice(0, 3);
-      return { kind: "choice", question: "How is <b class='tw big'>" + row[0] + "</b> pronounced?", options: lgShuffle([row[1]].concat(others.map(function (r) { return r[1]; })), ctx.rnd), answer: row[1], target: 8, explain: ["<b>" + row[0] + "</b> = " + row[1] + " (" + row[2] + ")"], speakAfter: tts(row[0], ctx.caps), rtl: true };
+      var row = pick(pool, ctx.rnd);
+      return { kind: "choice", question: "How is <b class='tw big'>" + row[0] + "</b> pronounced?", options: lgOptions(row[1], pool.map(function (r) { return r[1]; }), 3, ctx.rnd, "he"), answer: row[1], target: 8, explain: ["<b>" + row[0] + "</b> = " + row[1] + " (" + row[2] + ")"], speakAfter: tts(row[0], ctx.caps), rtl: true };
     } },
     henum: { name: "Numbers", target: 10, gen: function (ctx) {
       var n = ctx.rnd() < 0.5 ? (ctx.rnd() * 11) | 0 : ctx.rnd() < 0.8 ? 11 + ((ctx.rnd() * 89) | 0) : 100 + ((ctx.rnd() * 900) | 0);
@@ -5629,8 +5929,8 @@ var BH_TEXTS = [
     var words = [];
     T.verses.forEach(function (v) { v.words.forEach(function (w) { words.push(w); }); });
     DRILLS["bhtext:" + T.id] = { name: T.title, target: 7, gen: function (ctx) {
-      var w = pick(words, ctx.rnd), others = lgShuffle(words.filter(function (x) { return x[1] !== w[1]; }).slice(), ctx.rnd).slice(0, 3);
-      return { kind: "choice", question: T.title + ": what does <b class='tw'>" + w[0] + "</b> mean?", options: lgShuffle([w[1]].concat(others.map(function (x) { return x[1]; })), ctx.rnd), answer: w[1], target: 7, explain: ["<b>" + w[0] + "</b> = " + w[1]], speakAfter: tts(w[0], ctx.caps), rtl: true };
+      var w = pick(words, ctx.rnd);
+      return { kind: "choice", question: T.title + ": what does <b class='tw'>" + w[0] + "</b> mean?", options: lgOptions(w[1], words.map(function (x) { return x[1]; }), 3, ctx.rnd, "he"), answer: w[1], target: 7, explain: ["<b>" + w[0] + "</b> = " + w[1]], speakAfter: tts(w[0], ctx.caps), rtl: true };
     } };
   });
 
@@ -6159,7 +6459,7 @@ var ES_GENDER = {
   rule: { 1: "-o is usually masculine, -a usually feminine. Famous exceptions: el día, el mapa, el problema, el idioma, el clima (Greek -ma words are masculine); la mano, la foto, la moto. Nouns in -ción, -sión, -dad, -tad, -tud are feminine; -or, -aje are masculine." },
   rows: [["libro", "el", "book"], ["casa", "la", "house"], ["día", "el", "day"], ["mano", "la", "hand"], ["problema", "el", "problem"], ["ciudad", "la", "city"], ["coche", "el", "car"], ["noche", "la", "night"],
     ["mapa", "el", "map"], ["foto", "la", "photo"], ["idioma", "el", "language"], ["universidad", "la", "university"], ["reloj", "el", "watch"], ["canción", "la", "song"], ["viaje", "el", "trip"], ["calle", "la", "street"],
-    ["agua", "el (f.)", "water"], ["clima", "el", "climate"], ["flor", "la", "flower"], ["color", "el", "colour"], ["leche", "la", "milk"], ["pie", "el", "foot"], ["sal", "la", "salt"], ["pan", "el", "bread"],
+    ["agua", "el", "water (f., but el in the singular)"], ["clima", "el", "climate"], ["flor", "la", "flower"], ["color", "el", "colour"], ["leche", "la", "milk"], ["pie", "el", "foot"], ["sal", "la", "salt"], ["pan", "el", "bread"],
     ["gente", "la", "people"], ["equipo", "el", "team"], ["clase", "la", "class"], ["lápiz", "el", "pencil"], ["moto", "la", "motorbike"], ["sistema", "el", "system"]]
 };
 var ES_PLURAL = {
@@ -6284,9 +6584,9 @@ var ES_DIALOGUES = [
   { id: "es_d1", title: "Hello, who are you?", setting: "A new teammate at the rink. Introduce yourself.", level: "A1",
     turns: [
       { bot: "¡Hola! Me llamo Lucía. ¿Cómo te llamas?", botg: "Hi! My name is Lucía. What's your name?", expect: ["me llamo", "mi nombre", "^soy "], model: "¡Hola! Me llamo Erik.", modelg: "Hi! My name is Erik.", hint: "Me llamo ... (My name is ...)" },
-      { bot: "¡Mucho gusto! ¿De dónde eres?", botg: "Nice to meet you! Where are you from?", expect: ["soy de", "de canad", "vengo de"], model: "Soy de Canadá.", modelg: "I'm from Canada.", hint: "Soy de ... " },
+      { bot: "¡Mucho gusto! ¿De dónde eres?", botg: "Nice to meet you! Where are you from?", expect: ["soy de", "de canad[aá]", "canadiense", "vengo de"], model: "Soy de Canadá.", modelg: "I'm from Canada.", hint: "Soy de ... " },
       { bot: "¡Qué bien! ¿Vives aquí ahora?", botg: "Great! Do you live here now?", expect: ["^s[ií]", "^no", "vivo"], model: "Sí, vivo aquí ahora.", modelg: "Yes, I live here now.", hint: "Sí / No, vivo ..." },
-      { bot: "¿Juegas al hockey?", botg: "Do you play hockey?", expect: ["s[ií]", "juego"], model: "Sí, juego al hockey.", modelg: "Yes, I play hockey.", hint: "Sí, juego al ..." },
+      { bot: "¿Juegas al hockey?", botg: "Do you play hockey?", expect: ["s[ií]", "juego"], reject: ["no"], model: "Sí, juego al hockey.", modelg: "Yes, I play hockey.", hint: "Sí, juego al ..." },
       { bot: "¡Perfecto! Nos vemos en el entrenamiento. ¡Adiós!", botg: "Perfect! See you at practice. Bye!", expect: ["adi[oó]s", "hasta", "nos vemos", "chao"], model: "¡Adiós, hasta luego!", modelg: "Bye, see you later!", hint: "Adiós / Hasta luego / Nos vemos" }
     ] },
   { id: "es_d2", title: "At the café", setting: "Order a coffee and something to eat, then pay.", level: "A1",
@@ -6305,7 +6605,7 @@ var ES_DIALOGUES = [
     ] },
   { id: "es_d4", title: "At the doctor", setting: "You hurt your knee at hockey. Say what happened in the past tense.", level: "A2",
     turns: [
-      { bot: "Buenos días, ¿qué le pasa?", botg: "Good morning, what's wrong?", expect: ["me duele", "rodilla", "me lesion", "me ca[ií]"], model: "Me duele la rodilla.", modelg: "My knee hurts.", hint: "Me duele ... / Me lesioné ..." },
+      { bot: "Buenos días, ¿qué le pasa?", botg: "Good morning, what's wrong?", expect: ["me duele", "rodilla", "me lesion[eé]", "me ca[ií]"], model: "Me duele la rodilla.", modelg: "My knee hurts.", hint: "Me duele ... / Me lesioné ..." },
       { bot: "Entiendo. ¿Cuándo pasó?", botg: "I see. When did it happen?", expect: ["ayer", "anoche", "hace", "en el entrenamiento", "el (lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo)"], model: "Ayer, en el entrenamiento de hockey.", modelg: "Yesterday, at hockey practice.", hint: "Ayer / Hace ... / En el entrenamiento" },
       { bot: "¿Puede caminar?", botg: "Can you walk?", expect: ["s[ií]", "no", "un poco", "puedo"], model: "Sí, pero me cuesta.", modelg: "Yes, but it's hard.", hint: "Sí / No / Un poco" },
       { bot: "Tome este medicamento dos veces al día y descanse una semana. ¿De acuerdo?", botg: "Take this medicine twice a day and rest a week. OK?", expect: ["de acuerdo", "vale", "gracias", "s[ií]"], model: "De acuerdo, muchas gracias.", modelg: "OK, thanks a lot.", hint: "De acuerdo / Vale, gracias" }
@@ -6586,7 +6886,7 @@ var ES_WRITING = [
   function tts(text, caps) { return caps && caps.tts ? { text: text, lang: "es-ES" } : null; }
   var DRILLS = {
     essound: { name: "Sound rules", target: 6, gen: function (ctx) {
-      var row = pick(ES_SOUNDS, ctx.rnd), opts = lgShuffle([row[1]].concat(lgShuffle(ES_SOUND_RULES.filter(function (r) { return r !== row[1]; }).slice(), ctx.rnd).slice(0, 3)), ctx.rnd);
+      var row = pick(ES_SOUNDS, ctx.rnd), opts = lgOptions(row[1], ES_SOUND_RULES, 3, ctx.rnd, "es");
       return { kind: "choice", question: "How is the key consonant of <b class='tw'>" + row[0] + "</b> (" + row[2] + ") pronounced?", options: opts, answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b>: " + row[1] + "."], speakAfter: tts(row[0], ctx.caps) };
     } },
     esstress: { name: "Stress", target: 6, gen: function (ctx) {
@@ -6748,11 +7048,42 @@ window.MATH340 = {
 
   getUnit(id) { return this.units.find(u => u.id === id); },
 
+  /* ---- calendar arithmetic ----
+   * Everything the app says about dates is in whole local days ("today",
+   * "tomorrow", "Week 8"), so the arithmetic is done on calendar days too.
+   * Dividing a millisecond difference by 86 400 000 is off by an hour across
+   * the DST change, which is enough to put a quiz on the wrong day. */
+  parseISODate(iso) {
+    const [y, m, d] = String(iso).split("-").map(Number);
+    return new Date(y, m - 1, d);   // local midnight
+  },
+  // Whole local calendar days from `from` to `to` (Date objects; time of day ignored).
+  calendarDays(from, to) {
+    const utc = dt => Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    return Math.round((utc(to) - utc(from)) / (24 * 3600 * 1000));
+  },
+  // Days until an ISO date: 0 on the day itself, 1 the day before, -1 the day after.
+  daysUntil(iso, now) {
+    return this.calendarDays(now || new Date(), this.parseISODate(iso));
+  },
+
   currentWeek(now) {
-    const start = new Date(this.course.termStart + "T00:00:00");
-    const d = now || new Date();
-    const wk = Math.floor((d - start) / (7 * 24 * 3600 * 1000)) + 1;
+    const days = this.calendarDays(this.parseISODate(this.course.termStart), now || new Date());
+    const wk = Math.floor(days / 7) + 1;
     return Math.min(Math.max(wk, 0), 11); // 0 = before term, 11 = after
+  },
+
+  /* The next Wednesday that carries a quiz, per the syllabus schedule, as
+   * { week, topic, days } — or null once the last quiz has passed. */
+  nextQuiz(now) {
+    const start = this.parseISODate(this.course.termStart);
+    for (const row of this.schedule) {
+      if (!row.quiz) continue;
+      const wed = new Date(start.getFullYear(), start.getMonth(), start.getDate() + (row.week - 1) * 7 + 2);
+      const days = this.calendarDays(now || new Date(), wed);
+      if (days >= 0) return { week: row.week, topic: row.topic, days };
+    }
+    return null;
   },
 
   // ---- small math/random utilities shared by problem generators ----
@@ -6788,6 +7119,33 @@ window.MATH340 = {
     fmt(x, d = 4) {
       if (Number.isInteger(x)) return String(x);
       return String(Math.round(x * Math.pow(10, d)) / Math.pow(10, d));
+    },
+    /* Plain text into HTML: for labels that were typed, imported or synced
+     * rather than authored in the data files. */
+    escapeHtml(t) {
+      return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    },
+    /* Stored problem HTML (the mistake log keeps question + solution verbatim,
+     * and an imported or synced file could hold anything). The markup the
+     * generators produce is KaTeX-friendly HTML, so it is kept; anything that
+     * could run script is dropped: active elements, on* handlers and
+     * javascript:/data: URLs. */
+    sanitizeHtml(html) {
+      let s = String(html == null ? "" : html);
+      s = s.replace(/<(script|iframe|object|embed|style|svg|math|template)\b[\s\S]*?<\/\1\s*>/gi, "");
+      s = s.replace(/<\/?(script|iframe|object|embed|style|svg|math|template|link|meta|base|form)\b[^>]*>/gi, "");
+      s = s.replace(/<([a-zA-Z][^\s>\/]*)([^>]*)>/g, (tag, name, attrs) => {
+        let a = attrs
+          .replace(/\s+on[a-zA-Z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+          .replace(/\s+on[a-zA-Z]+(?=[\s>]|$)/gi, "");
+        a = a.replace(/\s+(href|src|xlink:href|formaction|action|srcdoc)\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+          (m, attr, q, dq, sq, bare) => {
+            const v = (dq != null ? dq : sq != null ? sq : bare).replace(/[\s\u0000-\u001f]+/g, "").toLowerCase();
+            return /^(javascript|data|vbscript):/.test(v) ? "" : m;
+          });
+        return "<" + name + a + ">";
+      });
+      return s;
     },
     // "5" / "5s" — tiny helper so generated sentences stay grammatical.
     plural(n, one, many) { return n === 1 ? one : (many != null ? many : one + "s"); },
@@ -11963,21 +12321,58 @@ var M340Store = (() => {
     return { v: SCHEMA, cards: {}, practice: {}, misses: [], exams: [], sheet: [], activity: {} };
   }
 
+  const isObj = v => !!v && typeof v === "object" && !Array.isArray(v);
+  const isNum = v => typeof v === "number" && Number.isFinite(v);
+  const numOr = (v, d) => (isNum(v) ? v : d);
+
+  /* Any file shape in → the v2 shape out. A progress file can arrive from an
+   * import, a sync merge or a corrupted localStorage, so every entry is
+   * checked rather than trusted: malformed cards, rows and entries are
+   * dropped, never kept in a form that would throw on render later. */
   function migrate(raw) {
     const s = blank();
-    if (!raw || typeof raw !== "object") return s;
-    s.cards = raw.cards || {};
-    s.practice = raw.practice || {};
-    s.activity = raw.activity || {};
-    s.misses = Array.isArray(raw.misses) ? raw.misses : [];
-    s.exams = Array.isArray(raw.exams) ? raw.exams : [];
-    s.sheet = Array.isArray(raw.sheet) ? raw.sheet : [];
-    // v1 practice rows have no per-variant breakdown; give them an empty one
-    // so callers never have to null-check it.
-    for (const p of Object.values(s.practice)) {
-      if (!p.variants) p.variants = {};
-      if (!Array.isArray(p.recent)) p.recent = [];
+    if (!isObj(raw)) return s;
+    if (isObj(raw.cards)) {
+      for (const [id, c] of Object.entries(raw.cards)) {
+        if (!isObj(c) || !isNum(c.box) || !isNum(c.due)) continue;
+        s.cards[id] = {
+          box: Math.min(Math.max(Math.round(c.box), 0), MAX_BOX), due: c.due,
+          seen: Math.max(0, numOr(c.seen, 0)), lapses: Math.max(0, numOr(c.lapses, 0)),
+        };
+      }
     }
+    if (isObj(raw.practice)) {
+      for (const [id, p] of Object.entries(raw.practice)) {
+        if (!isObj(p) || !isNum(p.attempts) || !isNum(p.correct)) continue;
+        const variants = {};
+        if (isObj(p.variants)) {
+          for (const [name, v] of Object.entries(p.variants)) {
+            if (isObj(v) && isNum(v.a) && isNum(v.c)) variants[name] = { a: v.a, c: v.c };
+          }
+        }
+        // v1 practice rows have no per-variant breakdown; they get an empty one
+        // so callers never have to null-check it.
+        s.practice[id] = {
+          ...p, attempts: p.attempts, correct: p.correct,
+          recent: Array.isArray(p.recent) ? p.recent.map(r => (r ? 1 : 0)).slice(-10) : [],
+          variants,
+        };
+      }
+    }
+    if (isObj(raw.activity)) {
+      for (const [day, n] of Object.entries(raw.activity)) if (isNum(n) && n > 0) s.activity[day] = n;
+    }
+    if (Array.isArray(raw.misses)) {
+      s.misses = raw.misses.filter(m => isObj(m) && typeof m.q === "string" && typeof m.sol === "string" && isNum(m.answer))
+        .map(m => ({ ...m, key: String(m.key || (m.genId + "|" + (m.variant || "") + "|" + (m.at || 0))) }))
+        .slice(-MAX_MISSES);
+    }
+    if (Array.isArray(raw.exams)) {
+      s.exams = raw.exams.filter(e => isObj(e) && isNum(e.n) && e.n > 0 && isNum(e.correct))
+        .map(e => ({ ...e, at: numOr(e.at, 0), label: String(e.label == null ? "" : e.label) }))
+        .slice(-MAX_EXAMS);
+    }
+    if (Array.isArray(raw.sheet)) s.sheet = [...new Set(raw.sheet.filter(id => typeof id === "string"))];
     return s;
   }
 
@@ -12006,6 +12401,17 @@ var M340Store = (() => {
            "-" + String(dt.getDate()).padStart(2, "0");
   }
 
+  /* Local midnight `days` days from now. Cards are scheduled in whole days
+   * ("due tomorrow"), so a card promoted at 21:00 on Monday with a one-day
+   * interval is due from Tuesday 00:00, not Tuesday 21:00. setDate steps by
+   * calendar day, so the DST change does not shift it. */
+  function midnightIn(days) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + days);
+    return d.getTime();
+  }
+
   function bumpActivity(n) {
     const k = dayKey(new Date());
     state.activity[k] = (state.activity[k] || 0) + (n || 1);
@@ -12019,12 +12425,17 @@ var M340Store = (() => {
     getCard(id) {
       return state.cards[id] || { box: 0, due: 0, seen: 0, lapses: 0 };
     },
+    /* A card is promoted only when it was due. Getting a card right before
+     * its interval is up (a cram session, re-studying a deck) says nothing
+     * about whether it would have survived the full gap, so the box and the
+     * due date stay where the schedule put them. A miss always drops it. */
     gradeCard(id, correct) {
       const c = this.getCard(id);
-      if (correct) c.box = Math.min((c.box || 0) + 1, MAX_BOX);
-      else { c.box = 1; c.lapses = (c.lapses || 0) + 1; }
+      const early = correct && c.seen > 0 && c.due > Date.now();
+      if (!correct) { c.box = 1; c.lapses = (c.lapses || 0) + 1; }
+      else if (!early) c.box = Math.min((c.box || 0) + 1, MAX_BOX);
       c.seen = (c.seen || 0) + 1;
-      c.due = Date.now() + INTERVALS[c.box] * 24 * 3600 * 1000;
+      if (!early) c.due = midnightIn(INTERVALS[c.box]);
       state.cards[id] = c;
       bumpActivity();
       save();
@@ -12189,7 +12600,7 @@ var M340Store = (() => {
     exportJSON() { return JSON.stringify(state, null, 2); },
     importJSON(text) {
       const parsed = JSON.parse(text);
-      if (!parsed || typeof parsed !== "object" || !parsed.cards) throw new Error("Not a valid progress file.");
+      if (!isObj(parsed) || !isObj(parsed.cards)) throw new Error("Not a valid progress file.");
       state = migrate(parsed);
       save();
     },
@@ -12244,26 +12655,44 @@ var HUB_KEY = "sb-hub-v1", SYNC_CFG_KEY = "sb-sync-v1";
 var POKER_KEYS = { course: "poker-course-v1", game: "poker-game-v1", sim: "poker-sim-v1" };
 
 /* ---- the hub state ---- */
-var HUB = hsEmptyHub();
-HUB.gstate = { goal: 60, goalAt: 0, seen: {}, conf: true, sweeps: 0, convs: 0, planStreak: 0, planLast: "" };
-HUB.plan = plDefault();
-HUB.quant = qtNew();
+var HUB = null;
 var saveState = "off", saveTimer = 0;
+/* saveHold: the saved copy could not be read, so nothing is written over it until the user acts
+   (a sync merge or a restore through syncApply, or Start fresh on the Sync page) */
+var saveHold = false;
+function gstateDefault() { return { goal: 60, goalAt: 0, seen: {}, conf: true, sweeps: 0, convs: 0, planStreak: 0, planLast: "" }; }
+/* the one place a saved hub (or nothing) becomes the live HUB with every default filled in */
+function hubHydrate(st) {
+  st = st && typeof st === "object" ? st : {};
+  HUB = Object.assign(hsEmptyHub(), st);
+  HUB.gstate = Object.assign(gstateDefault(), st.gstate || {});
+  HUB.plan = Object.assign(plDefault(), st.plan || {});
+  HUB.plan.week = Object.assign(plDefault().week, (st.plan || {}).week || {});
+  HUB.plan.priority = Object.assign(plDefault().priority, (st.plan || {}).priority || {});
+  HUB.quant = Object.assign(qtNew(), st.quant || {});
+  rebind();
+  return HUB;
+}
+hubHydrate(null);
 function hubLoad() {
+  var raw = null;
+  try { raw = STORE.get(HUB_KEY); } catch (e) { saveState = "error"; return; }
+  if (!raw) { saveState = STORE.kind === "none" ? "off" : "on"; return; }
   try {
-    var raw = STORE.get(HUB_KEY); if (!raw) { saveState = STORE.kind === "none" ? "off" : "on"; return; }
     var st = JSON.parse(raw);
-    HUB = Object.assign(hsEmptyHub(), st);
-    HUB.gstate = Object.assign({ goal: 60, goalAt: 0, seen: {}, conf: true, sweeps: 0, convs: 0, planStreak: 0, planLast: "" }, st.gstate || {});
-    HUB.plan = Object.assign(plDefault(), st.plan || {});
-    HUB.plan.week = Object.assign(plDefault().week, (st.plan || {}).week || {});
-    HUB.plan.priority = Object.assign(plDefault().priority, (st.plan || {}).priority || {});
-    HUB.quant = Object.assign(qtNew(), st.quant || {});
+    if (!st || typeof st !== "object") throw new Error("not a hub");
+    hubHydrate(st);
     saveState = "on";
-  } catch (e) { saveState = "error"; }
+  } catch (e) {
+    /* keep the unreadable blob (only the latest) next to the key and refuse to overwrite it */
+    try { STORE.set(HUB_KEY + ".corrupt", raw); } catch (e2) {}
+    saveState = "error"; saveHold = true;
+  }
 }
 function hubSnapshot() { return JSON.parse(JSON.stringify(HUB)); }
+function saveRelease() { saveHold = false; }
 function saveNow() {
+  if (saveHold) { saveState = "error"; drawSaveTag(); return; }
   try { STORE.set(HUB_KEY, JSON.stringify(HUB)); saveState = STORE.kind === "none" ? "off" : "on"; } catch (e) { saveState = "error"; }
   drawSaveTag();
 }
@@ -12273,9 +12702,13 @@ function saveSoon() {
 }
 window.addEventListener("pagehide", function () { if (saveTimer) { clearTimeout(saveTimer); saveTimer = 0; saveNow(); } if (typeof syncFlush === "function") syncFlush(); });
 function drawSaveTag() {
-  var t = $("savetag"); if (!t) return;
-  var msg = saveState === "error" ? "save failed" : saveState !== "on" ? "not saved in this window" : (typeof sync !== "undefined" && sync.token) ? (sync.state === "error" ? "saved here, sync failed" : "saved and synced") : "saved to this device";
-  t.innerHTML = "<i>" + msg + "</i>";
+  var msg = saveHold ? "the saved copy on this device could not be read; nothing is being saved until you sync, restore or start fresh" : saveState === "error" ? "save failed" : saveState !== "on" ? "not saved in this window" : (typeof sync !== "undefined" && sync.token) ? (sync.state === "error" ? "saved here, sync failed" : "saved and synced") : "saved to this device";
+  var t = $("savetag"); if (t) t.innerHTML = "<i>" + esc(msg) + "</i>";
+  /* the bar under the masthead shows on every screen, but only when something is wrong */
+  var bar = $("saveBar"); if (!bar) return;
+  var bad = saveHold || saveState !== "on";
+  bar.hidden = !bad;
+  if (bad) bar.innerHTML = esc(msg) + ' · <a href="#/sync">Sync, backup and install ›</a>';
 }
 
 /* ---- skills on the schedule ---- */
@@ -12620,8 +13053,8 @@ function next() {
   var stage = $("stage"); stage.innerHTML = "";
   if (q.board) stage.appendChild(boardWidget(q.board.fen, { flip: q.board.flip, mark: q.board.mark, coords: q.board.coords !== false, size: "", interactive: q.kind === "square" || q.kind === "move", onSquare: q.kind === "square" ? function (sq) { submit(sq); } : null, onMove: q.kind === "move" ? function (m, S) { submit(chSan(S, m)); } : null }));
   if (q.lines) { var facts = el("dl", "facts"); q.lines.forEach(function (p) { facts.innerHTML += "<div class='fact'><dt>" + esc(p[0]) + "</dt><dd>" + esc(p[1]) + "</dd></div>"; }); stage.appendChild(facts); }
-  var ask = $("ask"); ask.className = "ask" + (q.rtl && q.kind !== "text" ? " rtl" : ""); ask.innerHTML = q.hideText ? (q.question || "") : (q.question || "");
-  if (q.speak) { var sb = el("button", "speakbtn", "🔊"); sb.type = "button"; sb.title = "Play again"; sb.onclick = function () { speak(q.speak.text, q.speak.lang); }; ask.appendChild(document.createTextNode(" ")); ask.appendChild(sb); setTimeout(function () { speak(q.speak.text, q.speak.lang); }, 150); }
+  var ask = $("ask"); ask.className = "ask" + (q.rtl && q.kind !== "text" ? " rtl" : ""); ask.innerHTML = q.question || "";
+  if (q.speak) { var sb = el("button", "speakbtn", "🔊"); sb.type = "button"; sb.title = "Play again"; sb.setAttribute("aria-label", "Listen again"); sb.onclick = function () { speak(q.speak.text, q.speak.lang); }; ask.appendChild(document.createTextNode(" ")); ask.appendChild(sb); setTimeout(function () { speak(q.speak.text, q.speak.lang); }, 150); }
   if (q.flash) { var f = el("span", "flashtext" + (q.rtl ? " rtl" : ""), esc(q.flash)); ask.appendChild(f); setTimeout(function () { f.textContent = "…"; }, Math.max(2500, 120 * q.flash.length)); }
   buildControls();
   t0 = performance.now(); cancelAnimationFrame(raf); tick();
@@ -12650,7 +13083,7 @@ function buildControls() {
     $("hint").textContent = q.kind === "num" ? "Enter submits." : "Enter submits. Case and punctuation are ignored; letters and accents are not.";
     setTimeout(function () { inp.focus(); }, 30);
   } else if (q.kind === "speak") {
-    var code = (LG_LANG[q.lang] || {}).code || "en-US", mic = el("button", "speakbtn", "🎤"); mic.type = "button";
+    var code = (LG_LANG[q.lang] || {}).code || "en-US", mic = el("button", "speakbtn", "🎤"); mic.type = "button"; mic.setAttribute("aria-label", "Speak");
     var status = el("span", "said", "Tap the microphone, say it, then it is checked.");
     mic.onclick = function () {
       mic.classList.add("lit"); status.textContent = "Listening…";
@@ -12765,13 +13198,17 @@ function drawTape() {
 document.addEventListener("keydown", function (e) {
   if (!drillHost || !document.body.contains(drillHost) || !q) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.key !== "Enter") return;
+  /* Enter on a focused button in the drill (an option, a confidence button, Next) is that button's own click; leave it alone */
+  var ae = document.activeElement, onBtn = !!(ae && ae.tagName === "BUTTON" && drillHost.contains(ae));
   if (!answered && q.kind === "recall") { if (!q.shown && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); showRule(); } else if (q.shown && (e.key === "1" || e.key === "2")) submit(e.key === "1" ? "had" : "missed"); return; }
-  if (answered && q.confPending) { var ci = ["1", "2", "3"].indexOf(e.key); if (ci >= 0) { e.preventDefault(); pickConfidence(CONF[ci][0]); } else if (e.key === "Enter") e.preventDefault(); return; }
-  if (e.key === "Enter") { e.preventDefault(); if (answered) advance(); else if (q.kind === "text" || q.kind === "num") { var i = $("inp"); if (i) submit(i.value); } return; }
+  if (answered && q.confPending) { var ci = ["1", "2", "3"].indexOf(e.key); if (ci >= 0) { e.preventDefault(); pickConfidence(CONF[ci][0]); } else if (e.key === "Enter" && !onBtn) e.preventDefault(); return; }
+  if (e.key === "Enter") { if (onBtn) return; e.preventDefault(); if (answered) advance(); else if (q.kind === "text" || q.kind === "num") { var i = $("inp"); if (i) submit(i.value); } return; }
   if (!answered && q.kind === "choice") { var n = parseInt(e.key, 10); if (n >= 1 && n <= q.options.length) submit(q.options[n - 1]); }
 });
 
 /* ---- sessions ---- */
+/* the result panel lives at #/drill too, so setting the hash again would not fire hashchange: draw directly then */
+function goDrill() { if (location.hash === "#/drill") route(); else location.hash = "#/drill"; }
 function startSession(kind, cid, only) {
   var now = Date.now(), pool;
   if (only && only.length) pool = only.slice();
@@ -12780,7 +13217,7 @@ function startSession(kind, cid, only) {
   if (!pool.length) { toast("Nothing to review " + (cid ? "in " + COURSES[cid].name : "") + " right now.", ""); return; }
   sess = { kind: kind, course: cid, pool: pool, ctx: { last: null, retry: [], idle: kind === "due" ? 0.15 : 0.6 }, n: 0, ok: 0, secs: 0, cap: kind === "due" ? 60 : 20, from: {} };
   cp = null;
-  location.hash = "#/drill";
+  goDrill();
 }
 function sessDue() { return srsDueList(sess.pool, skills, Date.now()); }
 function sessOver() { return sess.n >= sess.cap || (sess.kind === "due" && !sessDue().length); }
@@ -12816,7 +13253,7 @@ function endSession() {
 function startCp(cid, lid) {
   var c = COURSES[cid], L = c.lessonById[lid];
   cp = { course: cid, id: lid, need: L.pass, of: L.of, marks: [], asked: [] };
-  sess = null; location.hash = "#/drill";
+  sess = null; goDrill();
 }
 function placeStageQs(c, S) {
   var ls = S.lessons.filter(passable), seq = [];
@@ -12830,7 +13267,7 @@ function startPlacement(cid, stageN) {
   if (!S) { location.hash = "#/c/" + cid; return; }
   var seqL = placeStageQs(c, S);
   cp = { placement: true, course: cid, stage: S.n, id: seqL[0], seqL: seqL, of: seqL.length, need: Math.ceil(0.8 * seqL.length), marks: [], asked: [], placed: (cp && cp.placement ? cp.placed : 0) };
-  cp.seq = null; sess = null; location.hash = "#/drill";
+  cp.seq = null; sess = null; goDrill();
 }
 /* placement asks each lesson's checkpoint question in turn */
 var _cpQ = cpQuestion;
@@ -12875,7 +13312,7 @@ function endCp() {
     else { row2.appendChild(btn("Try again", "go", function () { startCp(cid, lid); })); row2.appendChild(btn("Reread the lesson", "ghost", function () { cp = null; location.hash = "#/c/" + cid + "/learn/" + lid; })); }
     d.appendChild(row2);
   }
-  if (!cp.placement || true) { hostQ(".table").hidden = true; hostQ(".cpbar").hidden = true; d.hidden = false; }
+  hostQ(".table").hidden = true; hostQ(".cpbar").hidden = true; d.hidden = false;
   window.scrollTo(0, 0);
 }
 /* placement: the next question comes from the next lesson in the sequence */
@@ -12920,14 +13357,32 @@ function boardWidget(fen, opts) {
       box.appendChild(d);
     }
   }
+  /* a pawn reaching the last rank: four buttons, queen on Enter or after ten seconds */
+  var picker = null;
+  function closePicker() { if (!picker) return; clearTimeout(picker.timer); document.removeEventListener("keydown", picker.key, true); picker.el.remove(); picker = null; }
+  function askPromotion(from, to, done) {
+    closePicker();
+    var side = s.side, wrap = el("div", "promo"), kinds = [CH_Q, CH_R, CH_B, CH_N];
+    wrap.style.cssText = "position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:6px;padding:8px;background:var(--panel,#fff);border:1px solid var(--line,#999);border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.25);z-index:5";
+    kinds.forEach(function (k) { var b = el("button", "chip", CH_UNI[k * side]); b.type = "button"; b.title = CH_NAMES[k]; b.style.fontSize = "28px"; b.onclick = function (e) { e.stopPropagation(); pick(k); }; wrap.appendChild(b); });
+    function pick(k) { closePicker(); var m = chFindMove(s, from, to, k); if (m) done(m); else render(); }
+    picker = { el: wrap, timer: setTimeout(function () { pick(CH_Q); }, 10000), key: function (e) {
+      var k = { q: CH_Q, r: CH_R, b: CH_B, n: CH_N, Enter: CH_Q }[e.key]; if (!k) return;
+      e.preventDefault(); e.stopPropagation(); pick(k);
+    } };
+    document.addEventListener("keydown", picker.key, true);
+    box.style.position = "relative"; box.appendChild(wrap); wrap.querySelector("button").focus();
+  }
   box.onclick = function (e) {
-    if (!opts.interactive) return;
+    if (!opts.interactive || picker) return;
     var t = e.target.closest(".sq"); if (!t) return;
     var sq = chIdx(t.dataset.sq);
     if (opts.onSquare) { opts.onSquare(t.dataset.sq); return; }
     if (!opts.onMove) return;
     var p = s.b[sq];
     if (sel != null) {
+      var promos = legal.filter(function (x) { return x.from === sel && x.to === sq && x.promo; });
+      if (promos.length > 1 && !opts.promo) { var from = sel; sel = null; legal = []; render(); askPromotion(from, sq, function (pm) { opts.onMove(pm, s); render(); }); return; }
       var m = chFindMove(s, sel, sq, opts.promo || CH_Q);
       if (m) { sel = null; legal = []; opts.onMove(m, s); render(); return; }
     }
@@ -12935,7 +13390,9 @@ function boardWidget(fen, opts) {
     else { sel = null; legal = []; }
     render();
   };
-  box.set = function (newFen, o) { s = chFromFen(newFen); sel = null; legal = []; if (o && o.last) last = o.last; if (o && o.mark) marks = o.mark; kingInCheck = chInCheck(s) ? chKingSq(s, s.side) : -1; render(); };
+  box.set = function (newFen, o) { closePicker(); s = chFromFen(newFen); sel = null; legal = []; if (o && o.last) last = o.last; if (o && o.mark) marks = o.mark; kingInCheck = chInCheck(s) ? chKingSq(s, s.side) : -1; render(); };
+  box.flipped = flip;
+  box.setFlip = function (f) { closePicker(); flip = !!f; box.flipped = flip; sel = null; legal = []; render(); };
   render();
   return box;
 }
@@ -12962,7 +13419,7 @@ function drawPlay(host) {
     var S = HUB.chess ? chlSummary(HUB.chess) : null;
     if (S && S.games) {
       var h = el("div", "panel"); h.style.marginTop = "16px";
-      h.innerHTML = '<div class="ph"><h3>Recent games</h3><a href="#/c/chess/level">Your level ›</a></div><div class="clist">' + HUB.chess.games.slice(0, 8).map(function (g) { return '<div><span>' + (g.result === "win" ? "Won" : g.result === "loss" ? "Lost" : "Drew") + ' vs level ' + g.level + ' as ' + (g.color > 0 ? "White" : "Black") + '<small>' + g.n + ' moves · accuracy ' + (g.acc != null ? g.acc + "%" : "–") + ' · ' + fmtAgo(g.t) + '</small></span><b>' + Object.keys(g.grades).map(function (k) { return g.grades[k] ? g.grades[k] + " " + k.toLowerCase() : ""; }).filter(Boolean).join(", ") + '</b></div>'; }).join("") + '</div>';
+      h.innerHTML = '<div class="ph"><h3>Recent games</h3><a href="#/c/chess/level">Your level ›</a></div><div class="clist">' + HUB.chess.games.slice(0, 8).map(function (g) { var gr = g.grades || {}; return '<div><span>' + (g.result === "win" ? "Won" : g.result === "loss" ? "Lost" : "Drew") + ' vs level ' + esc(Number(g.level)) + ' as ' + (g.color > 0 ? "White" : "Black") + '<small>' + esc(Number(g.n)) + ' moves · accuracy ' + (g.acc != null ? esc(Number(g.acc)) + "%" : "–") + ' · ' + fmtAgo(g.t) + '</small></span><b>' + Object.keys(gr).map(function (k) { return Number(gr[k]) ? esc(Number(gr[k])) + " " + esc(String(k).toLowerCase()) : ""; }).filter(Boolean).join(", ") + '</b></div>'; }).join("") + '</div>';
       host.appendChild(h);
     }
     return;
@@ -13011,7 +13468,7 @@ function drawPlaySide() {
   var row = el("div", "row"); row.style.marginTop = "8px";
   if (!game.over) row.appendChild(btn("Resign", "ghost sm", function () { game.over = "resigned"; game.result = "loss"; finishGame(); }));
   else row.appendChild(btn("New game", "go sm", function () { game = null; drawPlay($("applyHost")); }));
-  row.appendChild(btn("Flip board", "ghost sm", function () { gameBoard = boardWidget(chToFen(game.s), { flip: !gameBoard.classList.contains("flipped"), interactive: true, onMove: heroPlays }); var old = $("applyHost").querySelector(".board"); old.replaceWith(gameBoard); gameBoard.classList.toggle("flipped"); }));
+  row.appendChild(btn("Flip board", "ghost sm", function () { if (gameBoard) gameBoard.setFlip(!gameBoard.flipped); }));
   s.appendChild(row);
   var ms = game.moves, html = "";
   for (var i = 0; i < ms.length; i += 2) { html += '<span class="mn">' + (i / 2 + 1) + '.</span>' + mvHtml(ms[i]) + (ms[i + 1] ? mvHtml(ms[i + 1]) : ""); }
@@ -13041,7 +13498,7 @@ function startRush() {
    UI 4: the router, the navigation, Today, the skills overview,
    and the course hub (path, reader, practice, level, library)
    ============================================================ */
-var view = "home", routeParts = [], curHash = "", openLayer = {};
+var view = "home", curHash = "", openLayer = {};
 var VIEWS = ["home", "calendar", "skills", "c", "poker", "school", "quant", "library", "sync", "drill", "method"];
 var ICON = {
   home: '<svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>',
@@ -13054,7 +13511,7 @@ function drawNav() {
   var n = $("nav");
   if (!n.dataset.built) {
     n.dataset.built = "1";
-    n.innerHTML = [["home", "Today"], ["calendar", "Calendar"], ["skills", "Skills"], ["school", "School"], ["library", "Library"]].map(function (x) { return '<a class="navi" id="nav_' + x[0] + '" href="#/' + x[0] + '">' + ICON[x[0]] + '<span>' + x[1] + '</span><i class="nbadge" hidden></i></a>'; }).join("");
+    n.innerHTML = [["home", "Today"], ["calendar", "Calendar"], ["skills", "Skills"], ["school", "School"], ["library", "Library"]].map(function (x) { return '<a class="navi" id="nav_' + x[0] + '" href="#/' + x[0] + '" aria-label="' + x[1] + '">' + ICON[x[0]] + '<span>' + x[1] + '</span><i class="nbadge" hidden></i></a>'; }).join("");
   }
   var active = view === "c" || view === "poker" || view === "quant" || view === "drill" ? "skills" : view === "method" || view === "sync" ? "library" : view;
   ["home", "calendar", "skills", "school", "library"].forEach(function (v) { var a = $("nav_" + v); if (a) { if (active === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); } });
@@ -13062,13 +13519,12 @@ function drawNav() {
   var sd = 0; SCHOOL_COURSES.forEach(function (sc) { var R = schoolRead(sc); sd += R.due + R.misses; });
   var sb = $("nav_school").querySelector(".nbadge"); sb.hidden = !sd; sb.textContent = sd; sb.className = "nbadge red"; sb.title = sd + " school items due";
 }
-function hashFor() { return "#/" + routeParts.join("/"); }
 window.addEventListener("hashchange", function () { if (location.hash !== curHash) route(); });
 function route() {
   var parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (!parts.length) parts = ["home"];
   if (VIEWS.indexOf(parts[0]) < 0) parts = ["home"];
-  view = parts[0]; routeParts = parts; curHash = "#/" + parts.join("/");
+  view = parts[0]; curHash = "#/" + parts.join("/");
   if (view !== "drill") { if (sess || cp) { sess = null; cp = null; } q = null; cancelAnimationFrame(raf); }
   if (view !== "c" || parts[2] !== "apply") game = game && game.over ? null : game;
   var main = $("main"); main.innerHTML = ""; main.className = "wrap v-" + view;
@@ -13087,12 +13543,14 @@ function route() {
   } catch (e) { main.innerHTML = '<div class="empty">Something went wrong drawing this page: ' + esc(e.message) + '. <a href="#/home">Back to Today</a></div>'; if (window.console) console.error(e); }
   drawNav(); drawGamePill();
   if (view !== "drill") window.scrollTo(0, 0);
+  /* keyboard and screen-reader users land on the new view (main has tabindex=-1), unless the view already focused a control */
+  if (!main.contains(document.activeElement)) { try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); } }
 }
 function go(h) { location.hash = h; }
 
 /* ============================================================ TODAY ============================================================ */
-var TRACK_COLOR = { poker: "#A8761A", chess: "#2F7A4E", sv: "#2F5C9E", he: "#C2451F", es: "#B9321C", quant: "#6A4FB6" };
-function trackColor(k) { return k.indexOf("school:") === 0 ? "#6A4FB6" : TRACK_COLOR[k] || "#8E8779"; }
+var TRACK_COLOR = { poker: "var(--gold)", chess: "var(--green)", sv: "var(--blue)", he: "var(--accent)", es: "var(--red)", quant: "var(--purple)" };
+function trackColor(k) { return k.indexOf("school:") === 0 ? "var(--purple)" : TRACK_COLOR[k] || "var(--ink3)"; }
 function trackName(k) { if (k === "poker") return "Poker"; if (k.indexOf("school:") === 0) { var sc = SCHOOL_COURSES.filter(function (x) { return "school:" + x.id === k; })[0]; return sc ? sc.code : k; } return COURSES[k] ? COURSES[k].name : k; }
 function blockLabel(b) { return b.school || b.label.indexOf(":") > 0 && b.label.indexOf(trackName(b.skill)) === 0 ? b.label : trackName(b.skill) + ": " + b.label; }
 function trackHref(k) { if (k === "poker") return "#/poker"; if (k.indexOf("school:") === 0) return "#/school/" + k.slice(7); return "#/c/" + k; }
@@ -13250,7 +13708,7 @@ function drawReader(box, c, L) {
   if (passable(L) && L.mode !== "quiz") { var tc = el("div", "trycard"); mark("try", tc); body.appendChild(tc); miniQ(tc, c, L); }
   r.appendChild(body);
   var jump = el("nav", "rjump"); jump.innerHTML = secs.map(function (k) { return '<a href="#sec-' + k + '" data-k="' + k + '">' + SEC_NAME[k] + '</a>'; }).join("");
-  jump.onclick = function (e) { var a = e.target.closest("a[data-k]"); if (!a) return; e.preventDefault(); var t = $("sec-" + a.dataset.k); if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 110, behavior: "smooth" }); };
+  jump.onclick = function (e) { var a = e.target.closest("a[data-k]"); if (!a) return; e.preventDefault(); var t = $("sec-" + a.dataset.k); if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 110, behavior: window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); };
   if (secs.length > 1) r.insertBefore(jump, body);
   glossify(body, c, L.id);
   var f = el("div", "rfoot"), i = c.lessonList.indexOf(L), prev = c.lessonList[i - 1], nx = c.lessonList[i + 1];
@@ -13270,7 +13728,7 @@ function drawReader(box, c, L) {
   f.appendChild(pn); r.appendChild(f); box.appendChild(r);
 }
 function drawBlock(b, c) {
-  if (b.t === "p") { var p = el("p", "prose" + (b.lang === "he" ? " rtl" : b.lang ? " l2" : ""), b.x); if (b.lang) { var sb = btn("🔊", "ghost sm", function () { speak(b.x, LG_LANG[b.lang].code, 0.85); }); sb.style.cssText = "margin-left:8px;min-height:28px;padding:2px 8px"; p.appendChild(sb); } return p; }
+  if (b.t === "p") { var p = el("p", "prose" + (b.lang === "he" ? " rtl" : b.lang ? " l2" : ""), b.x); if (b.lang) { var sb = btn("🔊", "ghost sm", function () { speak(b.x, LG_LANG[b.lang].code, 0.85); }); sb.setAttribute("aria-label", "Listen"); sb.style.cssText = "margin-left:8px;min-height:28px;padding:2px 8px"; p.appendChild(sb); } return p; }
   if (b.t === "warn") return el("div", "warn", b.x);
   if (b.t === "key") { var k = el("div", "keybox"); k.innerHTML = "<b>Commit this</b><span>" + b.x + "</span>"; return k; }
   if (b.t === "rule") { var r = el("div", "rule"); r.innerHTML = "<pre>" + esc(b.x) + "</pre>" + (b.note ? "<small>" + b.note + "</small>" : ""); return r; }
@@ -13397,7 +13855,7 @@ function lineChart(pts, opts) {
   var X = function (x) { return pad + (W - 2 * pad) * (x1 === x0 ? 0.5 : (x - x0) / (x1 - x0)); }, Y = function (y) { return H - pad + (2 * pad - H) * (y - y0) / (y1 - y0); };
   var path = pts.map(function (p, i) { return (i ? "L" : "M") + X(p.x).toFixed(1) + " " + Y(p.y).toFixed(1); }).join(" ");
   var grid = ""; for (var i = 0; i <= 4; i++) { var yy = y0 + (y1 - y0) * i / 4; grid += '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + Y(yy).toFixed(1) + '" y2="' + Y(yy).toFixed(1) + '"/><text x="2" y="' + (Y(yy) + 3).toFixed(1) + '">' + Math.round(yy) + '</text>'; }
-  box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '"><g class="grid">' + grid + '</g><path class="ar" d="' + path + ' L' + X(pts[pts.length - 1].x).toFixed(1) + ' ' + (H - pad) + ' L' + X(pts[0].x).toFixed(1) + ' ' + (H - pad) + ' Z"/><path class="ln" d="' + path + '"/>' + (pts.length < 80 ? pts.map(function (p) { return '<circle class="dot" r="3" cx="' + X(p.x).toFixed(1) + '" cy="' + Y(p.y).toFixed(1) + '"><title>' + (p.label || p.y) + '</title></circle>'; }).join("") : "") + '</svg>';
+  box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '"><g class="grid">' + grid + '</g><path class="ar" d="' + path + ' L' + X(pts[pts.length - 1].x).toFixed(1) + ' ' + (H - pad) + ' L' + X(pts[0].x).toFixed(1) + ' ' + (H - pad) + ' Z"/><path class="ln" d="' + path + '"/>' + (pts.length < 80 ? pts.map(function (p) { return '<circle class="dot" r="3" cx="' + X(p.x).toFixed(1) + '" cy="' + Y(p.y).toFixed(1) + '"><title>' + esc(p.label != null ? p.label : String(p.y)) + '</title></circle>'; }).join("") : "") + '</svg>';
   return box;
 }
 
@@ -13438,7 +13896,7 @@ function drawWeek(box) {
     else { var free = plFree(S, d); free.forEach(function (f) { var e = el("div", "evt study", "<b>free</b>" + plFmt(f.f) + "–" + plFmt(f.t)); e.style.opacity = ".35"; e.style.top = ((f.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, (f.t - f.f) / 60 * hourPx - 2) + "px"; col.appendChild(e); }); }
     w.appendChild(col);
   }
-  box.appendChild(w);
+  var ww = el("div", "weekwrap"); ww.appendChild(w); box.appendChild(ww);
   box.appendChild(el("div", "legend", '<span><i class="dot k-class"></i>class</span><span><i class="dot k-hockey"></i>hockey</span><span><i class="dot k-study"></i>study block (today) / free window (other days)</span><span><i class="dot k-school"></i>school block</span>'));
   var p = el("div", "panel"); p.style.marginTop = "16px";
   p.innerHTML = '<div class="ph"><h3>Today\'s blocks</h3><a href="#/home">Today ›</a></div><div class="clist">' + (plan.blocks.length ? plan.blocks.map(function (b) { return '<div><span>' + (b.at ? plFmt(b.at.f) + "–" + plFmt(b.at.t) + " · " : "") + esc(blockLabel(b)) + '<small>' + esc(b.why) + '</small></span><b>' + b.min + ' min</b></div>'; }).join("") : '<div><span>No blocks today.</span></div>') + '</div><p class="pnote">Blocks are placed in your free windows from now onward and never split. Mark them done on Today; a block also counts as done once its track has logged that many minutes.</p>';
@@ -13515,16 +13973,17 @@ function drawCalSettings(box) {
   g.appendChild(num("Buffer around commitments, minutes", "buffer", 0, 60, 5, "Getting there and back."));
   g.appendChild(time("Day starts", "wake", "No block before this."));
   g.appendChild(time("Sleep cutoff", "sleep", "Nothing after this: consolidation needs sleep."));
-  g.appendChild(num("XP goal a day", "xpgoal", 20, 300, 10, ""));
+  var gw = el("div", "field"); gw.innerHTML = '<label class="f">XP goal a day</label>';
+  var gi = el("input"); gi.type = "number"; gi.min = 20; gi.max = 300; gi.step = 10; gi.value = HUB.gstate.goal;
+  gi.onchange = function () { var v = Math.round(+gi.value); if (!(v >= 20)) { gi.value = HUB.gstate.goal; return; } HUB.gstate.goal = Math.min(300, v); gi.value = HUB.gstate.goal; HUB.gstate.goalAt = Date.now(); saveSoon(); drawGamePill(); };
+  gw.appendChild(gi); g.appendChild(gw);
   st.appendChild(g);
-  var xg = st.querySelector("input[type=number]:last-of-type");
-  st.querySelectorAll("input").forEach(function (i) { if (i.value == S.xpgoal && i.min == 20) { i.value = HUB.gstate.goal; i.onchange = function () { HUB.gstate.goal = +i.value; HUB.gstate.goalAt = Date.now(); saveSoon(); drawGamePill(); }; } });
   box.appendChild(st);
   var pr = el("div", "panel"); pr.style.marginTop = "16px"; pr.innerHTML = '<div class="ph"><h3>Priorities</h3><span>who gets the budget first</span></div><p class="pnote">School is always first and always on. For the rest: 3 = focus (first pick for new lessons), 2 = normal, 1 = light (reviews mostly), 0 = paused (nothing scheduled; reviews still wait).</p>';
   var pg = el("div", "prio");
   var tracks = [["poker", "Poker"]].concat(COURSE_ORDER.map(function (cid) { return [cid, COURSES[cid].name]; }));
   SCHOOL_COURSES.forEach(function (sc) { pg.innerHTML += '<span>' + esc(sc.code) + ' · ' + esc(sc.name) + '</span><span class="tag school">school: always first</span>'; });
-  tracks.forEach(function (t) { var lab = el("span", "", esc(t[1])), sel = el("select"); [["3", "3 · focus"], ["2", "2 · normal"], ["1", "1 · light"], ["0", "0 · paused"]].forEach(function (o) { var op = el("option", "", o[1]); op.value = o[0]; if (String(S.priority[t[0]] == null ? 2 : S.priority[t[0]]) === o[0]) op.selected = true; sel.appendChild(op); }); sel.onchange = function () { S.priority[t[0]] = +sel.value; S.at = Date.now(); saveSoon(); }; pg.appendChild(lab); pg.appendChild(sel); });
+  tracks.forEach(function (t) { var lab = el("span", "", esc(t[1])), sel = el("select"); [["3", "3 · focus"], ["2", "2 · normal"], ["1", "1 · light"], ["0", "0 · paused"]].forEach(function (o) { var op = el("option", "", o[1]); op.value = o[0]; if (String(plPriority(S, t[0])) === o[0]) op.selected = true; sel.appendChild(op); }); sel.onchange = function () { S.priority[t[0]] = +sel.value; S.at = Date.now(); saveSoon(); }; pg.appendChild(lab); pg.appendChild(sel); });
   pr.appendChild(pg); box.appendChild(pr);
   var pv = el("div", "panel"); pv.style.marginTop = "16px";
   pv.innerHTML = '<div class="ph"><h3>Each day, as set</h3></div><div class="clist">' + plWeekLines(S).map(function (d) { return '<div><span>' + d.name + '<small>' + (d.busy.length ? d.busy.map(function (b) { return esc(b.n) + " " + plFmt(b.f) + "–" + plFmt(b.t); }).join(", ") : "nothing fixed") + ' · free: ' + (d.free.length ? d.free.map(function (f) { return plFmt(f.f) + "–" + plFmt(f.t); }).join(", ") : "none") + '</small></span><b>' + d.budget.minutes + ' min' + (d.budget.why ? " · " + esc(d.budget.why) : "") + '</b></div>'; }).join("") + '</div>';
@@ -13594,7 +14053,7 @@ function drawQuant(box, gid) {
     host.innerHTML = '<div class="ph"><h3>' + esc(G.name) + ' · ' + T.name + '</h3><span>' + esc(T.about) + ' · target ' + T.target + ' in ' + G.secs + 's</span></div><p class="pnote">' + esc(G.blurb) + ' Type the answer and press Enter; a wrong answer shows the right one and moves on. ' + (G.id === "estimate" ? "Within " + Math.round(T.tol * 100) + "% counts." : G.id === "odds" || G.id === "percent" ? "Percentages to within half a point." : "Exact answers.") + '</p>';
     var r = el("div", "row"); r.appendChild(btn("Start (" + G.secs + " seconds)", "go", function () { startQuant(gid); })); host.appendChild(r);
     var hist = qtHistory(S, gid, 60);
-    if (hist.length) { var ch = el("div", "panel"); ch.style.marginTop = "16px"; ch.innerHTML = '<div class="ph"><h3>Score over time</h3><span>' + plural(hist.length, "run") + ' · tier shown as colour depth</span></div>'; ch.appendChild(lineChart(hist.map(function (r, i) { return { x: i, y: r.score, label: r.score + " (tier " + (r.tier + 1) + ", " + new Date(r.t).toLocaleDateString() + ")" }; }), { y0: 0 })); var byOp = {}; ch.appendChild(el("p", "pnote", "Best at this tier: " + (S.best[gid + ":" + tier] || 0) + ". Five runs at or above the target as a median unlock the next tier.")); box.appendChild(ch); }
+    if (hist.length) { var ch = el("div", "panel"); ch.style.marginTop = "16px"; ch.innerHTML = '<div class="ph"><h3>Score over time</h3><span>' + plural(hist.length, "run") + ' · tier shown as colour depth</span></div>'; ch.appendChild(lineChart(hist.map(function (r, i) { return { x: i, y: r.score, label: r.score + " (tier " + (r.tier + 1) + ", " + new Date(r.t).toLocaleDateString() + ")" }; }), { y0: 0 })); ch.appendChild(el("p", "pnote", "Best at this tier: " + (S.best[gid + ":" + tier] || 0) + ". Five runs at or above the target as a median unlock the next tier.")); box.appendChild(ch); }
     return;
   }
   drawQuantRun(host);
@@ -13656,7 +14115,7 @@ function syncLogAdd(kind, msg) { sync.log.push({ t: Date.now(), k: kind, m: msg 
 function syncLocal() { var pr = pokerRaw(); var m3 = null; try { m3 = JSON.parse(STORE.get("math340-progress-v1") || "null"); } catch (e) {} return { v: 1, hub: hubSnapshot(), poker: pr.course, pokerGame: pr.game, pokerSim: pr.sim ? Object.assign({ at: 0 }, pr.sim) : null, math340: m3, devices: {} }; }
 function syncApply(merged) {
   var before = hsCanon(syncLocal());
-  HUB = Object.assign(hsEmptyHub(), merged.hub); HUB.gstate = Object.assign({ goal: 60, goalAt: 0, seen: {}, conf: true }, merged.hub.gstate || {}); HUB.plan = Object.assign(plDefault(), merged.hub.plan || {}); HUB.plan.week = Object.assign(plDefault().week, (merged.hub.plan || {}).week || {}); HUB.plan.priority = Object.assign(plDefault().priority, (merged.hub.plan || {}).priority || {}); HUB.quant = Object.assign(qtNew(), merged.hub.quant || {}); rebind(); saveNow();
+  hubHydrate(merged.hub); saveRelease(); saveNow();
   try { if (merged.poker) STORE.set(POKER_KEYS.course, JSON.stringify(merged.poker)); if (merged.pokerGame) STORE.set(POKER_KEYS.game, JSON.stringify(merged.pokerGame)); if (merged.pokerSim) STORE.set(POKER_KEYS.sim, JSON.stringify(merged.pokerSim)); if (merged.math340) STORE.set("math340-progress-v1", JSON.stringify(merged.math340)); } catch (e) {}
   return hsCanon(syncLocal()) !== before;
 }
@@ -13703,7 +14162,8 @@ function drawSync(box) {
   var tk = el("div", "panel"); tk.innerHTML = '<div class="ph"><h3>' + (sync.token ? "Token" : "Connect") + '</h3></div>';
   if (!sync.token) {
     tk.innerHTML += '<p class="pnote">Create a GitHub token with only the <b>gist</b> permission, then paste it here on each device. The app finds or creates one secret gist and talks to GitHub directly; there is no server of its own. The token lives only in this browser\'s storage.</p><p class="pnote"><a href="https://github.com/settings/tokens/new?scopes=gist&description=Skill%20Builder%20sync" target="_blank" rel="noopener">Create a token ›</a> (classic, tick <b>gist</b>; or a fine-grained token with Gists: read and write)</p>';
-    var f = el("div", "row"); var inp = el("input"); inp.type = "text"; inp.placeholder = "ghp_… or github_pat_…"; inp.autocomplete = "off"; inp.style.flex = "1 1 240px"; f.appendChild(inp);
+    var f = el("div", "row"); var inp = el("input"); inp.type = "password"; inp.placeholder = "ghp_… or github_pat_…"; inp.autocomplete = "off"; inp.autocapitalize = "off"; inp.spellcheck = false; inp.setAttribute("aria-label", "GitHub token"); inp.style.flex = "1 1 240px"; f.appendChild(inp);
+    var show = el("button", "chip", "Show"); show.type = "button"; show.setAttribute("aria-pressed", "false"); show.onclick = function () { var vis = inp.type === "password"; inp.type = vis ? "text" : "password"; show.textContent = vis ? "Hide" : "Show"; show.setAttribute("aria-pressed", vis ? "true" : "false"); inp.focus(); }; f.appendChild(show);
     f.appendChild(btn("Connect", "go", function () { var t = inp.value.trim(); if (!t) return; sync.token = t; sync.state = "on"; syncSaveCfg(); syncNow("first connect"); route(); })); tk.appendChild(f);
   } else {
     tk.innerHTML += '<p class="pnote">Token ' + esc(sync.token.slice(0, 7)) + '…' + esc(sync.token.slice(-4)) + (sync.gist ? ' · gist <a href="https://gist.github.com/' + esc(sync.gist) + '" target="_blank" rel="noopener">' + esc(sync.gist.slice(0, 7)) + '</a>' : "") + '</p>';
@@ -13717,9 +14177,14 @@ function drawSync(box) {
   var fi = el("input"); fi.type = "file"; fi.accept = ".json,application/json"; fi.style.display = "none"; fi.onchange = function () { var f = fi.files[0]; if (!f) return; var rd = new FileReader(); rd.onload = function () { try { var st = JSON.parse(rd.result); syncApply(hsMergeAll(syncLocal(), hsNorm(st))); toast("<b>Restored.</b> Merged with what was here.", "goal"); route(); } catch (e) { toast("That file could not be read.", ""); } }; rd.readAsText(f); };
   br.appendChild(btn("Restore from file", "ghost sm", function () { fi.click(); })); br.appendChild(fi); bk.appendChild(br);
   bk.innerHTML += '<div class="ph" style="margin-top:16px"><h3>Settings</h3></div>';
-  var cf = el("div", "row"); cf.appendChild(btn("Confidence prompt: " + (HUB.gstate.conf !== false ? "on" : "off"), "ghost sm", function () { HUB.gstate.conf = HUB.gstate.conf === false; saveSoon(); route(); })); bk.appendChild(cf);
+  var cf = el("div", "row"); cf.appendChild(btn("Confidence prompt: " + (HUB.gstate.conf !== false ? "on" : "off"), "ghost sm", function () { HUB.gstate.conf = HUB.gstate.conf === false; HUB.gstate.confAt = Date.now(); saveSoon(); route(); })); bk.appendChild(cf);
   bk.appendChild(el("p", "pnote", "The prompt after each answer (guessing / fairly sure / sure) builds a calibration score. Turn it off for speed."));
-  var wipe = btn("Clear all hub progress", "danger sm", function () { if (!wipe.dataset.armed) { wipe.dataset.armed = "1"; wipe.textContent = "Sure? Click again"; setTimeout(function () { delete wipe.dataset.armed; wipe.textContent = "Clear all hub progress"; }, 3000); return; } var g0 = HUB.gstate.goal; HUB = hsEmptyHub(); HUB.epoch = Date.now(); HUB.gstate = { goal: g0, goalAt: Date.now(), seen: {}, conf: true, primed: true }; HUB.plan = plDefault(); HUB.quant = qtNew(); rebind(); saveNow(); syncSoon(); toast("Hub progress cleared. PokerPro and Math 340 keep theirs; clear those in their own apps.", ""); route(); }); wipe.style.marginTop = "12px"; bk.appendChild(wipe);
+  var wipe = btn("Clear all hub progress", "danger sm", function () { if (!wipe.dataset.armed) { wipe.dataset.armed = "1"; wipe.textContent = "Sure? Click again"; setTimeout(function () { delete wipe.dataset.armed; wipe.textContent = "Clear all hub progress"; }, 3000); return; } hubHydrate({ epoch: Date.now(), gstate: { goal: HUB.gstate.goal, goalAt: Date.now(), primed: true } }); saveNow(); syncSoon(); toast("Hub progress cleared. PokerPro and Math 340 keep theirs; clear those in their own apps.", ""); route(); }); wipe.style.marginTop = "12px"; bk.appendChild(wipe);
+  if (saveHold) {
+    bk.appendChild(el("p", "pnote", "<b>The saved copy on this device could not be read.</b> It is kept in this browser as <code>" + esc(HUB_KEY) + ".corrupt</code> and nothing is written over it until you choose: sync (merges what the gist has), restore a backup file, or start fresh."));
+    var fresh = btn("Start fresh on this device", "danger sm", function () { saveRelease(); hubHydrate({ epoch: Date.now(), gstate: { primed: true, goalAt: Date.now() } }); saveNow(); syncSoon(); toast("Started fresh. The unreadable copy is still in this browser's storage.", ""); route(); });
+    fresh.style.marginTop = "12px"; bk.appendChild(fresh);
+  }
   g.appendChild(bk); box.appendChild(g);
   var inst = el("div", "panel"); inst.style.marginTop = "16px";
   inst.innerHTML = '<div class="ph"><h3>Install on your Mac, iPad and iPhone</h3><span>works offline after the first visit</span></div><div class="install"><b>iPhone and iPad (Safari):</b> open this page, tap Share, then <b>Add to Home Screen</b>. It opens full-screen with its own icon, and everything, including PokerPro and the Math 340 tool, works offline.<br><b>Mac (Safari 17+):</b> File › <b>Add to Dock</b>. <b>Mac (Chrome/Edge):</b> the install icon in the address bar, or the menu › Install Skill Builder.<br><b>Offline:</b> a service worker caches all three apps on the first visit. Progress made offline is saved on the device and merged with the gist the next time you are online, on every device.</div>' +
@@ -13738,7 +14203,8 @@ function themeNow() { var t = document.documentElement.getAttribute("data-theme"
 function drawThemeBtn() {
   var b = $("themeBtn"); if (!b) return; var dark = themeNow() === "dark";
   b.innerHTML = dark ? THEME_ICON.sun : THEME_ICON.moon; b.title = dark ? "Switch to the paper theme" : "Switch to the lamp theme";
-  var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? "#161411" : "#F4EFE6";
+  var forced = !!document.documentElement.getAttribute("data-theme");
+  document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.content = forced ? (dark ? "#161411" : "#F4EFE6") : (m.media && m.media.indexOf("dark") >= 0 ? "#161411" : "#F4EFE6"); });
 }
 $("themeBtn").onclick = function () { var next = themeNow() === "dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", next); try { localStorage.setItem("sb-theme", next); } catch (e) {} drawThemeBtn(); };
 if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawThemeBtn); } catch (e) {} }
@@ -13793,7 +14259,7 @@ function drawConv(box, c) {
   var thread = el("div", "conv");
   for (var i = 0; i <= Math.min(conv.i, d.turns.length - 1); i++) {
     var t = d.turns[i], bb = el("div", "bub bot" + (c.lang === "he" ? " rtl" : "")); bb.innerHTML = esc(t.bot) + '<small>' + esc(t.botg) + '</small>';
-    (function (tt) { var sb = btn("🔊", "ghost sm", function () { speak(tt.bot, code, 0.85); }); sb.style.cssText = "min-height:26px;padding:2px 8px;margin-top:6px"; bb.appendChild(sb); })(t);
+    (function (tt) { var sb = btn("🔊", "ghost sm", function () { speak(tt.bot, code, 0.85); }); sb.setAttribute("aria-label", "Listen"); sb.style.cssText = "min-height:26px;padding:2px 8px;margin-top:6px"; bb.appendChild(sb); })(t);
     thread.appendChild(bb);
     if (i < conv.i || conv.replies[i] != null) { var rep = conv.replies[i], okr = lgTurnOk(t, rep || "", c.lang); var mb = el("div", "bub me" + (okr ? "" : " bad") + (c.lang === "he" ? " rtl" : "")); mb.innerHTML = esc(rep || "(no answer)") + '<small>' + (okr ? "✓ that does the job" : "✗ not quite") + '</small><div class="model">' + esc(t.model) + '<small>' + esc(t.modelg) + '</small></div>'; thread.appendChild(mb); }
   }
@@ -13804,7 +14270,7 @@ function drawConv(box, c) {
     var inRow = el("div", "convin"), w = el("div", "entry"), inp = el("input"); inp.type = "text"; inp.autocomplete = "off"; if (c.lang === "he") inp.className = "rtl"; w.appendChild(inp); inRow.appendChild(w);
     var sendIt = function (text) { conv.replies[conv.i] = text; if (lgTurnOk(t2, text, c.lang)) conv.ok++; conv.i++; if (conv.i >= d.turns.length) finishConv(c); route(); };
     inRow.appendChild(btn("Send", "go", function () { sendIt(inp.value); }));
-    if (caps.asr) { var mic = el("button", "speakbtn", "🎤"); mic.type = "button"; mic.onclick = function () { mic.classList.add("lit"); listen(code, function (alts) { mic.classList.remove("lit"); var best = alts.filter(function (a) { return lgTurnOk(t2, a, c.lang); })[0] || alts[0]; inp.value = best; }, function () { mic.classList.remove("lit"); toast("Could not listen; type the reply.", ""); }); }; inRow.appendChild(mic); }
+    if (caps.asr) { var mic = el("button", "speakbtn", "🎤"); mic.type = "button"; mic.setAttribute("aria-label", "Speak"); mic.onclick = function () { mic.classList.add("lit"); listen(code, function (alts) { mic.classList.remove("lit"); var best = alts.filter(function (a) { return lgTurnOk(t2, a, c.lang); })[0] || alts[0]; inp.value = best; }, function () { mic.classList.remove("lit"); toast("Could not listen; type the reply.", ""); }); }; inRow.appendChild(mic); }
     inRow.appendChild(btn(conv.hint ? "Hide hint" : "Hint", "ghost sm", function () { conv.hint = !conv.hint; route(); }));
     if (conv.hint) inRow.appendChild(el("span", "said", "Try: <b>" + esc(t2.hint) + "</b>"));
     inp.onkeydown = function (e) { if (e.key === "Enter") sendIt(inp.value); };
@@ -13838,7 +14304,7 @@ function drawApplyDrill(box, c, kind) {
 function startApplySession(c, kind, mode) {
   var pool = []; for (var i = 0; i < 8; i++) pool.push(c.id + ":" + mode);
   sess = { kind: "apply", applyKind: kind, course: c.id, pool: pool, seq: pool, ctx: { last: null, retry: [], idle: 1 }, n: 0, ok: 0, secs: 0, cap: 8, from: {} };
-  cp = null; go("#/drill");
+  cp = null; goDrill();
 }
 var _endSession = endSession;
 endSession = function () {
@@ -13859,7 +14325,7 @@ function drawImmersionLog(box, c, full) {
   form.appendChild(sel); form.appendChild(min); form.appendChild(note);
   form.appendChild(btn("Log it", "go sm", function () { var m = parseInt(min.value, 10); if (!(m > 0)) return; HUB.logs = HUB.logs || []; HUB.logs.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), c: c.id, k: sel.value, min: m, n: note.value.slice(0, 80) }); logDay(c.id, m * 60, 0, 0); gmGain(c.id, Math.min(30, Math.round(m / 3)), "Logged " + m + " min of " + sel.value); saveSoon(); route(); }));
   p.appendChild(form);
-  if (logs.length) { var ll = el("div", "loglist"); logs.slice(0, full ? 60 : 8).forEach(function (l) { var row = el("div"); row.innerHTML = '<span class="said">' + new Date(l.t).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + '</span><span>' + esc(l.k) + (l.n ? " · " + esc(l.n) : "") + '</span><b>' + l.min + ' min</b>'; var x = btn("×", "ghost sm", function () { HUB.logs = HUB.logs.filter(function (y) { return y.id !== l.id; }); saveSoon(); route(); }); row.appendChild(x); ll.appendChild(row); }); p.appendChild(ll); }
+  if (logs.length) { var ll = el("div", "loglist"); logs.slice(0, full ? 60 : 8).forEach(function (l) { var row = el("div"); row.innerHTML = '<span class="said">' + new Date(l.t).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + '</span><span>' + esc(l.k) + (l.n ? " · " + esc(l.n) : "") + '</span><b>' + l.min + ' min</b>'; var x = btn("×", "ghost sm", function () { HUB.logs = HUB.logs.filter(function (y) { return y.id !== l.id; }); saveSoon(); route(); }); x.setAttribute("aria-label", "Remove entry"); row.appendChild(x); ll.appendChild(row); }); p.appendChild(ll); }
   else p.appendChild(el("p", "pnote", "Nothing logged yet."));
   box.appendChild(p);
 }

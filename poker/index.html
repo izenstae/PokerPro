@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <style>
 :root{
   --ink:#141A24; --felt:#1C2431; --raise:#222C3B; --line:#2E3849;
@@ -3511,7 +3511,7 @@ function genProb() {
       ["pocket aces", 100 * 6 / 1326, "6 combos of 1,326: 1 in 221."],
       ["any suited hand", 100 * 312 / 1326, "78 rank pairs × 4 suits = 312 of 1,326: about 1 in 4."],
       ["ace-king, any suits", 100 * 16 / 1326, "16 combos of 1,326: 1 in 83."],
-      ["two suited connectors (like 76s, no aces)", 100 * 4 * 12 / 1326, "12 connected rank pairs from 32 to KQ, 4 suits each: 48 of 1,326."]
+      ["two suited connectors (like 76s, no aces)", 100 * 4 * 11 / 1326, "11 connected rank pairs from 32 to KQ, 4 suits each: 44 of 1,326."]
     ]);
     ans = ev[1];
     lines = [["Event", "being dealt " + ev[0]]];
@@ -3928,7 +3928,7 @@ function hNewTable(seats, stack) {
   return {
     stackStart: stack || H_STACK,
     players: seats.map(function (s, i) {
-      return { i: i, name: s.name, bot: s.bot || null, stack: stack || H_STACK, cards: [], folded: false, allIn: false, bet: 0, put: 0, acted: false };
+      return { i: i, name: s.name, bot: s.bot || null, stack: stack || H_STACK, cards: [], folded: false, allIn: false, bet: 0, put: 0, acted: false, capped: false };
     }),
     button: 5, handNo: 0, hand: null
   };
@@ -3947,7 +3947,7 @@ function hStart(t, rng, deck) {
   t.button = (t.button + 1) % 6;
   t.handNo++;
   t.players.forEach(function (p) {
-    p.stack = t.stackStart || H_STACK; p.cards = []; p.folded = false; p.allIn = false; p.bet = 0; p.put = 0; p.acted = false;
+    p.stack = t.stackStart || H_STACK; p.cards = []; p.folded = false; p.allIn = false; p.bet = 0; p.put = 0; p.acted = false; p.capped = false;
   });
   var h = t.hand = {
     no: t.handNo, deck: deck ? deck.slice() : hShuffle(rng), board: [], street: 0,
@@ -3972,13 +3972,14 @@ function hPot(t) { return hRound(t.players.reduce(function (a, p) { return a + p
 function hInHand(t) { return t.players.filter(function (p) { return !p.folded; }); }
 function hToCall(t, i) { var p = t.players[i]; return hRound(Math.min(t.hand.currentBet - p.bet, p.stack)); }
 
-/* what the player to act may do */
+/* what the player to act may do. A player who already acted this street
+   and then faced an all-in short of a full raise is capped: call or fold only */
 function hLegal(t) {
   var h = t.hand, p = t.players[h.toAct];
   var toCall = hToCall(t, h.toAct);
   var maxTo = hRound(p.bet + p.stack);
   var minTo = hRound(h.currentBet + h.lastRaise);
-  var canRaise = maxTo > h.currentBet && t.players.some(function (q) { return q !== p && !q.folded && !q.allIn; });
+  var canRaise = maxTo > h.currentBet && !p.capped && t.players.some(function (q) { return q !== p && !q.folded && !q.allIn; });
   if (minTo > maxTo) minTo = maxTo;
   return { seat: h.toAct, toCall: toCall, canCheck: toCall === 0, canRaise: canRaise, minTo: minTo, maxTo: maxTo, pot: hPot(t) };
 }
@@ -4003,12 +4004,19 @@ function hAct(t, a) {
     p.stack = hRound(p.stack - add); p.bet = to; p.put = hRound(p.put + add);
     if (p.stack === 0) p.allIn = true;
     entry.type = h.currentBet === 0 ? "bet" : "raise"; entry.to = to; entry.amt = add;
-    if (inc >= h.lastRaise) h.lastRaise = inc;     /* an all-in short of a full raise does not reopen the minimum */
+    var full = inc >= h.lastRaise;                 /* an all-in short of a full raise does not reopen the minimum */
+    if (full) h.lastRaise = inc;
     h.currentBet = to;
     h.raises++;
     if (h.street === 0 && h.openerSeat < 0) h.openerSeat = i;
     h.aggressor = i; h.streetAggressor = i;
-    t.players.forEach(function (q) { if (q !== p) q.acted = false; });
+    /* a full raise reopens the action for everyone; a short all-in does not reopen it
+       for players who already acted this street: they still owe a call, but may not raise */
+    t.players.forEach(function (q) {
+      if (q === p) return;
+      if (full) { q.acted = false; q.capped = false; }
+      else if (q.acted && !q.folded && !q.allIn) q.capped = true;
+    });
   }
   p.acted = true;
   h.log.push(entry);
@@ -4030,7 +4038,7 @@ function hAdvance(t) {
 
 function hEndStreet(t) {
   var h = t.hand;
-  t.players.forEach(function (p) { p.bet = 0; p.acted = false; });
+  t.players.forEach(function (p) { p.bet = 0; p.acted = false; p.capped = false; });
   h.currentBet = 0; h.lastRaise = H_BB; h.raises = 0; h.streetAggressor = -1;
   var canAct = hInHand(t).filter(function (p) { return !p.allIn; });
   if (h.street === 3 || canAct.length <= 1) {
@@ -4916,10 +4924,16 @@ var PLAY_SPOTS = {
 /* which spot trains each table skill */
 var PLAY_SPOT_OF = { rfi: "rfi", threebet: "facing", eqr: "facing", price: "facebet", mdf: "river", sizing: "betcheck", cbet: "cbet", fold: "betcheck", spr: "lowspr", decide: "betcheck", jam: "shove" };
 
+/* preflop, nobody has put chips in beyond the blinds: everyone who has acted so far folded */
+function playFoldedTo(g) {
+  var t = g.t;
+  return t.hand.street === 0 && !t.players.some(function (q) { return q.i !== g.hero && q.acted && !q.folded; });
+}
+
 function playSpotMatch(g, kind) {
   var t = g.t, h = t.hand, L = hLegal(t), me = t.players[g.hero];
   if (kind === "any") return true;
-  if (kind === "rfi") return h.street === 0 && h.raises === 0 && L.toCall > 0;
+  if (kind === "rfi") return h.street === 0 && h.raises === 0 && L.toCall > 0 && playFoldedTo(g);
   if (kind === "facing") return h.street === 0 && h.raises >= 1 && L.toCall > 0;
   if (kind === "cbet") return h.street === 1 && L.toCall === 0 && h.aggressor === g.hero && h.streetAggressor < 0;
   if (kind === "facebet") return (h.street === 1 || h.street === 2) && L.toCall > 0;
@@ -5075,7 +5089,7 @@ function lvAddHand(Lg, hand, now, learned) {
   Lg = Lg || lvNew();
   now = now || Date.now();
   var streets = ["preflop", "flop", "turn", "river"];
-  (hand.decisions || []).forEach(function (dec) {
+  (hand.decisions || []).forEach(function (dec, di) {
     var A = dec.A, G = dec.G;
     var k = lvKnown(G.concepts, learned);
     Lg.d.push({ t: now, q: G.quality, l: Math.round(100 * G.loss) / 100, g: G.grade, c: G.concepts.slice(), k: k, s: A.street });
@@ -5083,7 +5097,8 @@ function lvAddHand(Lg, hand, now, learned) {
       var did = A.options.filter(function (o) { return o.key === G.chosen; })[0];
       var best = A.options.filter(function (o) { return o.key === A.best; })[0];
       Lg.m.unshift({
-        id: now.toString(36) + "-" + hand.no + "-" + A.street, t: now, no: hand.no, pos: hand.pos,
+        /* the decision's index keeps two mistakes on the same street of one hand apart */
+        id: now.toString(36) + "-" + hand.no + "-" + A.street + "-" + di, t: now, no: hand.no, pos: hand.pos,
         cards: hand.cards.slice(), board: A.board.slice(), street: streets[A.street] || "",
         pot: A.pot, toCall: A.toCall, eq: A.eq, grade: G.grade, loss: G.loss,
         did: did ? did.label : "", didEV: did ? did.ev : 0, best: best ? best.label : "", bestEV: best ? best.ev : 0,
@@ -5370,9 +5385,11 @@ function srsLevel(s) { return SRS_LEVELS[s ? s.box : 0]; }
 function srsIsDue(s, now) { return !s || now >= s.due; }
 
 /* One answer. Returns what happened: up, miss, slow, clean.
-   A miss drops a box and makes it due now. A slow right answer
-   does not count toward the run. Cramming a skill that is not yet
-   due builds the run but never promotes: only spacing does that. */
+   A miss drops a box and makes it due now, so it comes back this
+   session; but a skill that lapsed today cannot climb a box until the
+   next local day, so three quick retries do not undo the lapse. A slow
+   right answer does not count toward the run. Cramming a skill that is
+   not yet due builds the run but never promotes: only spacing does that. */
 function srsRecord(s, ok, secs, target, now) {
   var goal = srsGoal(target, s.box);
   s.n++; s.last = now;
@@ -5381,13 +5398,13 @@ function srsRecord(s, ok, secs, target, now) {
   if (s.hist.length > SRS_HIST) s.hist.shift();
   if (!ok) {
     if (s.box > 0) { s.lapses++; s.box--; }
-    s.run = 0; s.due = now;
+    s.run = 0; s.due = now; s.lapsed = now;
     return { ev: "miss", box: s.box, goal: goal };
   }
   s.ok++;
   if (secs > goal) { s.run = 0; return { ev: "slow", box: s.box, goal: goal }; }
   s.run++;
-  if (now >= s.due && s.run >= srsNeed(s.box) && s.box < SRS_TOP) {
+  if (now >= s.due && s.run >= srsNeed(s.box) && s.box < SRS_TOP && srsCanClimb(s, now)) {
     s.box++;
     s.run = 0;
     s.due = now + SRS_DAYS[s.box] * SRS_DAY - SRS_SLACK;
@@ -5395,6 +5412,9 @@ function srsRecord(s, ok, secs, target, now) {
   }
   return { ev: "clean", box: s.box, goal: goal, run: s.run, need: srsNeed(s.box) };
 }
+
+/* promotion is gated to the day after the last lapse */
+function srsCanClimb(s, now) { return !s.lapsed || srsDayKey(now) > srsDayKey(s.lapsed); }
 
 /* put a skill on the schedule after a passed checkpoint: first review tomorrow */
 function srsGraduate(s, now) {
@@ -5460,10 +5480,17 @@ function srsDayKey(t) {
   return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
 }
 
+/* the local calendar day before a key: noon-anchored, so a DST change never skips or repeats a day */
+function srsPrevDay(key) {
+  var p = key.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2], 12);
+  d.setDate(d.getDate() - 1);
+  return srsDayKey(d.getTime());
+}
+
 function srsDayStreak(log, now) {
-  var n = 0, t = now;
-  if (!log[srsDayKey(t)]) t -= SRS_DAY;               /* today not started yet does not break it */
-  while (log[srsDayKey(t)]) { n++; t -= SRS_DAY; }
+  var n = 0, k = srsDayKey(now);
+  if (!log[k]) k = srsPrevDay(k);                     /* today not started yet does not break it */
+  while (log[k]) { n++; k = srsPrevDay(k); }
   return n;
 }
 
@@ -6328,16 +6355,16 @@ var LESSONS_0 = [
     { t:"p", x:"Start here, with nothing assumed. A poker hand is five cards. At the end, whoever holds the best five cards wins the money. Everything else in this course is about predicting that moment or avoiding it." },
     { t:"p", x:"There are exactly nine kinds of hand and they are ranked by one principle: how hard they are to make. You do not need to memorise a list so much as understand that the list is a rarity ordering, and then the list memorises itself." },
     { t:"tbl", head:["Hand","What it is","Roughly how often"], rows:[
-      ["Straight flush","Five in a row, all one suit","1 in 30,000"],
-      ["Four of a kind","All four of a rank","1 in 4,200"],
-      ["Full house","Three of one rank, two of another","1 in 700"],
-      ["Flush","Five of one suit","1 in 500"],
-      ["Straight","Five in a row, any suits","1 in 250"],
-      ["Three of a kind","Three of a rank","1 in 47"],
-      ["Two pair","Two of one rank, two of another","1 in 21"],
-      ["One pair","Two of a rank","1 in 2.4"],
-      ["High card","None of the above","about half the time"]
-    ], caption:"Those frequencies are for the best five of seven cards, which is what you will actually be holding. Note how fast it drops. A flush feels enormous and it is, but two pair is nine times more common than a flush and it loses to it." },
+      ["Straight flush","Five in a row, all one suit","1 in 3,200 (0.03%)"],
+      ["Four of a kind","All four of a rank","1 in 595 (0.17%)"],
+      ["Full house","Three of one rank, two of another","1 in 38 (2.6%)"],
+      ["Flush","Five of one suit","1 in 33 (3.0%)"],
+      ["Straight","Five in a row, any suits","1 in 22 (4.6%)"],
+      ["Three of a kind","Three of a rank","1 in 21 (4.8%)"],
+      ["Two pair","Two of one rank, two of another","1 in 4.3 (23.5%)"],
+      ["One pair","Two of a rank","44% of the time"],
+      ["High card","None of the above","17% of the time"]
+    ], caption:"Those frequencies are for the best five of seven cards, which is what you will actually be holding. Note how fast it drops. A flush feels enormous and it is, but two pair is about eight times more common than a flush and it loses to it." },
     { t:"p", x:"Two details that catch everyone. Ace can be high or low, so A-2-3-4-5 is a straight, the smallest one. And when two players hold the same kind of hand, the higher one wins, then the kicker, which is the highest card left over. Two players with a pair of kings go to the next card." },
     { t:"warn", x:"Suits have no ranking. Spades do not beat hearts. If two players make the same flush, they chop. The only thing a suit does is make a flush possible." },
     { t:"key", x:"Straight flush, quads, full house, flush, straight, trips, two pair, pair, nothing. Rarer wins. You have about ten of these to learn and you will never think about them again." },
@@ -6493,7 +6520,7 @@ var LESSONS_2 = [
       cards:{ hero:["As","7d"] },
       facts:[["Board","Ks 9s 4s 2h"],["His nut flush","needs the ace of spades"]],
       steps:[
-        "Nut flush combos normally: As with any of 12 other spades = 12.",
+        "Nut flush combos normally: As with any other spade he could hold. 13 spades − the ace − 3 on the board = 9, so 9 combos.",
         "You hold the ace of spades.",
         "His nut flush combos: 0."
       ],
@@ -6506,9 +6533,9 @@ var LESSONS_2 = [
       steps:[
         "The board has three of one suit, so the nut flush is possible. It needs exactly one card: the ace of that suit.",
         "Look at your own two cards. Do you hold the ace of the flush suit?",
-        "If you hold it, the answer is 0, he cannot make the nut flush at all. If you do not, he can pair that ace with any of the 12 remaining cards of the suit, so the answer is 12."
+        "If you hold it, the answer is 0, he cannot make the nut flush at all. If you do not, he can pair that ace with any card of the suit still unseen: 13, minus the ace, minus the three on the board, minus any you hold. With none in your hand that is 9."
       ],
-      tip:"This drill has only two possible answers, 0 or 12. The entire task is checking one card in your hand against the suit on the board. That single card being a blocker is why the ace of the flush suit bluffs better than a real pair." }
+      tip:"The answer is 0 when you hold the ace, otherwise a small count, 9 unless you hold a card of the suit. The entire task is checking one card in your hand against the suit on the board. That single card being a blocker is why the ace of the flush suit bluffs better than a real pair." }
   ]
 },
 {
@@ -8710,7 +8737,7 @@ function drawSyncView(){
         '</div>GitHub shows the token only once, so keep it in your password manager or notes. You&rsquo;ll paste the same one on every device.</li>' +
       '<li><b>Paste it here and connect.</b> This device looks for an existing PokerPro gist and creates a secret one if there isn&rsquo;t one yet, then uploads your progress.' +
         syncTokenForm("Connect") + fail + '</li>' +
-      '<li><b>Do the same on your other devices.</b> On the iPad, open <a href="https://izenstae.github.io/PokerPro/" target="_blank" rel="noopener">izenstae.github.io/PokerPro</a> in Safari, tap <b>Sync</b>, and paste the same token. ' +
+      '<li><b>Do the same on your other devices.</b> On the iPad, open <a href="https://izenstae.github.io/SkillBuilder/poker/" target="_blank" rel="noopener">izenstae.github.io/SkillBuilder/poker</a> in Safari, tap <b>Sync</b>, and paste the same token. ' +
         'It finds the same gist and merges: nothing already on either device is lost.' +
         '<ul class="stips"><li>On Apple devices with the same Apple ID, copy the token on the Mac and paste on the iPad (Universal Clipboard).</li>' +
         '<li>If you added PokerPro to the iPad&rsquo;s Home Screen, that icon has <b>its own storage</b>, separate from Safari: paste the token there too.</li>' +

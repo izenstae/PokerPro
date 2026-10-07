@@ -22,14 +22,32 @@ function boardWidget(fen, opts) {
       box.appendChild(d);
     }
   }
+  /* a pawn reaching the last rank: four buttons, queen on Enter or after ten seconds */
+  var picker = null;
+  function closePicker() { if (!picker) return; clearTimeout(picker.timer); document.removeEventListener("keydown", picker.key, true); picker.el.remove(); picker = null; }
+  function askPromotion(from, to, done) {
+    closePicker();
+    var side = s.side, wrap = el("div", "promo"), kinds = [CH_Q, CH_R, CH_B, CH_N];
+    wrap.style.cssText = "position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:6px;padding:8px;background:var(--panel,#fff);border:1px solid var(--line,#999);border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.25);z-index:5";
+    kinds.forEach(function (k) { var b = el("button", "chip", CH_UNI[k * side]); b.type = "button"; b.title = CH_NAMES[k]; b.style.fontSize = "28px"; b.onclick = function (e) { e.stopPropagation(); pick(k); }; wrap.appendChild(b); });
+    function pick(k) { closePicker(); var m = chFindMove(s, from, to, k); if (m) done(m); else render(); }
+    picker = { el: wrap, timer: setTimeout(function () { pick(CH_Q); }, 10000), key: function (e) {
+      var k = { q: CH_Q, r: CH_R, b: CH_B, n: CH_N, Enter: CH_Q }[e.key]; if (!k) return;
+      e.preventDefault(); e.stopPropagation(); pick(k);
+    } };
+    document.addEventListener("keydown", picker.key, true);
+    box.style.position = "relative"; box.appendChild(wrap); wrap.querySelector("button").focus();
+  }
   box.onclick = function (e) {
-    if (!opts.interactive) return;
+    if (!opts.interactive || picker) return;
     var t = e.target.closest(".sq"); if (!t) return;
     var sq = chIdx(t.dataset.sq);
     if (opts.onSquare) { opts.onSquare(t.dataset.sq); return; }
     if (!opts.onMove) return;
     var p = s.b[sq];
     if (sel != null) {
+      var promos = legal.filter(function (x) { return x.from === sel && x.to === sq && x.promo; });
+      if (promos.length > 1 && !opts.promo) { var from = sel; sel = null; legal = []; render(); askPromotion(from, sq, function (pm) { opts.onMove(pm, s); render(); }); return; }
       var m = chFindMove(s, sel, sq, opts.promo || CH_Q);
       if (m) { sel = null; legal = []; opts.onMove(m, s); render(); return; }
     }
@@ -37,7 +55,9 @@ function boardWidget(fen, opts) {
     else { sel = null; legal = []; }
     render();
   };
-  box.set = function (newFen, o) { s = chFromFen(newFen); sel = null; legal = []; if (o && o.last) last = o.last; if (o && o.mark) marks = o.mark; kingInCheck = chInCheck(s) ? chKingSq(s, s.side) : -1; render(); };
+  box.set = function (newFen, o) { closePicker(); s = chFromFen(newFen); sel = null; legal = []; if (o && o.last) last = o.last; if (o && o.mark) marks = o.mark; kingInCheck = chInCheck(s) ? chKingSq(s, s.side) : -1; render(); };
+  box.flipped = flip;
+  box.setFlip = function (f) { closePicker(); flip = !!f; box.flipped = flip; sel = null; legal = []; render(); };
   render();
   return box;
 }
@@ -64,7 +84,7 @@ function drawPlay(host) {
     var S = HUB.chess ? chlSummary(HUB.chess) : null;
     if (S && S.games) {
       var h = el("div", "panel"); h.style.marginTop = "16px";
-      h.innerHTML = '<div class="ph"><h3>Recent games</h3><a href="#/c/chess/level">Your level ›</a></div><div class="clist">' + HUB.chess.games.slice(0, 8).map(function (g) { return '<div><span>' + (g.result === "win" ? "Won" : g.result === "loss" ? "Lost" : "Drew") + ' vs level ' + g.level + ' as ' + (g.color > 0 ? "White" : "Black") + '<small>' + g.n + ' moves · accuracy ' + (g.acc != null ? g.acc + "%" : "–") + ' · ' + fmtAgo(g.t) + '</small></span><b>' + Object.keys(g.grades).map(function (k) { return g.grades[k] ? g.grades[k] + " " + k.toLowerCase() : ""; }).filter(Boolean).join(", ") + '</b></div>'; }).join("") + '</div>';
+      h.innerHTML = '<div class="ph"><h3>Recent games</h3><a href="#/c/chess/level">Your level ›</a></div><div class="clist">' + HUB.chess.games.slice(0, 8).map(function (g) { var gr = g.grades || {}; return '<div><span>' + (g.result === "win" ? "Won" : g.result === "loss" ? "Lost" : "Drew") + ' vs level ' + esc(Number(g.level)) + ' as ' + (g.color > 0 ? "White" : "Black") + '<small>' + esc(Number(g.n)) + ' moves · accuracy ' + (g.acc != null ? esc(Number(g.acc)) + "%" : "–") + ' · ' + fmtAgo(g.t) + '</small></span><b>' + Object.keys(gr).map(function (k) { return Number(gr[k]) ? esc(Number(gr[k])) + " " + esc(String(k).toLowerCase()) : ""; }).filter(Boolean).join(", ") + '</b></div>'; }).join("") + '</div>';
       host.appendChild(h);
     }
     return;
@@ -113,7 +133,7 @@ function drawPlaySide() {
   var row = el("div", "row"); row.style.marginTop = "8px";
   if (!game.over) row.appendChild(btn("Resign", "ghost sm", function () { game.over = "resigned"; game.result = "loss"; finishGame(); }));
   else row.appendChild(btn("New game", "go sm", function () { game = null; drawPlay($("applyHost")); }));
-  row.appendChild(btn("Flip board", "ghost sm", function () { gameBoard = boardWidget(chToFen(game.s), { flip: !gameBoard.classList.contains("flipped"), interactive: true, onMove: heroPlays }); var old = $("applyHost").querySelector(".board"); old.replaceWith(gameBoard); gameBoard.classList.toggle("flipped"); }));
+  row.appendChild(btn("Flip board", "ghost sm", function () { if (gameBoard) gameBoard.setFlip(!gameBoard.flipped); }));
   s.appendChild(row);
   var ms = game.moves, html = "";
   for (var i = 0; i < ms.length; i += 2) { html += '<span class="mn">' + (i / 2 + 1) + '.</span>' + mvHtml(ms[i]) + (ms[i + 1] ? mvHtml(ms[i + 1]) : ""); }

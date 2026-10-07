@@ -34,7 +34,7 @@ function chOnBoard(sq) { var f = (sq - 21) % 10, r = ((sq - 21) / 10) | 0; retur
 function chNew() {
   var b = new Int8Array(120);
   for (var i = 0; i < 120; i++) b[i] = chOnBoard(i) ? 0 : CH_OFF;
-  return { b: b, side: 1, castle: 0, ep: -1, half: 0, full: 1, hist: [] };
+  return { b: b, side: 1, castle: 0, ep: -1, half: 0, full: 1, hist: [], wk: -1, bk: -1 };
 }
 
 /* ---- FEN ---- */
@@ -80,12 +80,19 @@ function chToFen(s) {
   var cs = (s.castle & CH_WK ? "K" : "") + (s.castle & CH_WQ ? "Q" : "") + (s.castle & CH_BK ? "k" : "") + (s.castle & CH_BQ ? "q" : "");
   return out.join("/") + " " + (s.side > 0 ? "w" : "b") + " " + (cs || "-") + " " + (s.ep >= 0 ? chName(s.ep) : "-") + " " + s.half + " " + s.full;
 }
-/* the position only: for repetition counting */
-function chKey(s) { return chToFen(s).split(" ").slice(0, 4).join(" "); }
+/* the position only: for repetition counting. The ep square counts only when an en passant capture is actually legal. */
+function chKey(s) {
+  var f = chToFen(s).split(" ");
+  if (s.ep >= 0 && !chLegal(s).some(function (m) { return m.flag === "ep"; })) f[3] = "-";
+  return f.slice(0, 4).join(" ");
+}
 
 /* ---- attacks ---- */
+/* the king's square: a remembered hint, checked with one read, then a scan (drills place pieces directly, so the hint can be stale) */
 function chKingSq(s, side) {
-  for (var i = 21; i <= 98; i++) if (s.b[i] === CH_K * side) return i;
+  var k = side > 0 ? s.wk : s.bk;
+  if (k >= 0 && s.b[k] === CH_K * side) return k;
+  for (var i = 21; i <= 98; i++) if (s.b[i] === CH_K * side) { if (side > 0) s.wk = i; else s.bk = i; return i; }
   return -1;
 }
 /* is sq attacked by side? */
@@ -250,9 +257,13 @@ function chStatus(s, keys) {
   return check ? "check" : "";
 }
 function chInsufficient(s) {
-  var minor = 0, other = 0;
-  for (var i = 21; i <= 98; i++) { var p = Math.abs(s.b[i]); if (!p || p === CH_OFF || p === CH_K) continue; if (p === CH_N || p === CH_B) minor++; else other++; }
-  return !other && minor <= 1;
+  var minor = 0, other = 0, bishops = [];
+  for (var i = 21; i <= 98; i++) { var p = Math.abs(s.b[i]); if (!p || p === CH_OFF || p === CH_K) continue; if (p === CH_N || p === CH_B) { minor++; if (p === CH_B) bishops.push(i); } else other++; }
+  if (other) return false;
+  if (minor <= 1) return true;
+  /* bishops only, all on one square colour (KB vs KB, or more on the same colour): no mate is possible */
+  if (bishops.length === minor) { var col = (chFile(bishops[0]) + chRank(bishops[0])) % 2; return bishops.every(function (b) { return (chFile(b) + chRank(b)) % 2 === col; }); }
+  return false;
 }
 
 /* ---- SAN ---- */
@@ -276,9 +287,9 @@ function chSan(s, m) {
     }
   }
   chMake(s, m);
-  var st = chStatus(s);
+  var check = chInCheck(s), mate = check && !chLegal(s).length;
   chUnmake(s);
-  return str + (st === "checkmate" ? "#" : st === "check" ? "+" : "");
+  return str + (mate ? "#" : check ? "+" : "");
 }
 function chParseSan(s, san) {
   var want = san.replace(/[+#!?]/g, "").replace(/0/g, "O");
@@ -483,8 +494,11 @@ function chGrade(bestCp, playedCp) {
   if (drop < 0) drop = 0;
   var g = "Blunder";
   for (var i = 0; i < CH_GRADES.length; i++) if (drop <= CH_GRADES[i][1]) { g = CH_GRADES[i][0]; break; }
-  return { grade: g, drop: drop, loss: Math.max(0, bestCp - playedCp), quality: Math.max(0, 1 - drop * 4) };
+  var clamp = function (cp) { return Math.max(-2000, Math.min(2000, cp)); };
+  return { grade: g, drop: drop, loss: Math.max(0, clamp(bestCp) - clamp(playedCp)), quality: Math.max(0, 1 - drop * 4) };
 }
+/* a move's accuracy from its drop in win probability (percentage points), lichess's curve: 0 → 100, 1 → 95.6, 2 → 91.4, 5 → 79.8 */
+function chMoveAccuracy(dropPct) { if (!(dropPct > 0)) return 100; return Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * dropPct) - 3.1669)); }
 /* grade the move m in position s at the given depth: returns the best move, both scores and the grade */
 function chJudge(s, m, depth, limit) {
   var best = chSearch(s, depth, limit);
@@ -532,6 +546,6 @@ if (typeof module !== "undefined") module.exports = {
   chSq: chSq, chFile: chFile, chRank: chRank, chName: chName, chIdx: chIdx, chNew: chNew, chFromFen: chFromFen, chStart: chStart, chToFen: chToFen, chKey: chKey,
   chAttacked: chAttacked, chInCheck: chInCheck, chAttacksFrom: chAttacksFrom, chLegal: chLegal, chMake: chMake, chUnmake: chUnmake, chPerft: chPerft,
   chStatus: chStatus, chSan: chSan, chParseSan: chParseSan, chMoveName: chMoveName, chFindMove: chFindMove, chEval: chEval, chSearch: chSearch, chScoreMoves: chScoreMoves,
-  chMateIn: chMateIn, chMatingMoves: chMatingMoves, chWinProb: chWinProb, chGrade: chGrade, chJudge: chJudge, chRandomPosition: chRandomPosition,
+  chMateIn: chMateIn, chMatingMoves: chMatingMoves, chWinProb: chWinProb, chGrade: chGrade, chMoveAccuracy: chMoveAccuracy, chJudge: chJudge, chRandomPosition: chRandomPosition,
   chMaterial: chMaterial, chPieces: chPieces, chCount: chCount, chCopy: chCopy, chKingSq: chKingSq, chInsufficient: chInsufficient
 };
