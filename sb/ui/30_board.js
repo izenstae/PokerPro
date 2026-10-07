@@ -1,6 +1,9 @@
 /* ============================================================
    UI 3: the chess board, Play against the engine, tactics rush
    ============================================================ */
+/* the solid glyph for either colour (the outline ones read as a different shape, not a different side); \uFE0E asks for
+   text rather than emoji presentation, which iOS would otherwise use for the pawn */
+function chGlyph(p) { return CH_UNI[-Math.abs(p)] + "\uFE0E"; }
 function boardWidget(fen, opts) {
   opts = opts || {};
   var s = chFromFen(fen), box = el("div", "board" + (opts.size ? " " + opts.size : "") + (opts.coords === false ? " nocoords" : ""));
@@ -12,7 +15,7 @@ function boardWidget(fen, opts) {
       var rank = flip ? r : 7 - r, file = flip ? 7 - f : f, sq = chSq(file, rank), p = s.b[sq], name = chName(sq);
       var d = el("div", "sq " + ((rank + file) % 2 ? "l" : "d"));
       d.dataset.sq = name;
-      if (p) d.appendChild(el("span", "p" + (p > 0 ? " w" : ""), CH_UNI[p]));
+      if (p) d.appendChild(el("span", "p" + (p > 0 ? " w" : ""), chGlyph(p)));
       if (marks.indexOf(name) >= 0) d.classList.add("mark"); if (last.indexOf(name) >= 0) d.classList.add("last");
       if (sel === sq) d.classList.add("sel");
       if (legal.some(function (m) { return m.to === sq; })) { d.classList.add("hint"); if (s.b[sq]) d.classList.add("cap"); }
@@ -29,7 +32,7 @@ function boardWidget(fen, opts) {
     closePicker();
     var side = s.side, wrap = el("div", "promo"), kinds = [CH_Q, CH_R, CH_B, CH_N];
     wrap.style.cssText = "position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:6px;padding:8px;background:var(--panel,#fff);border:1px solid var(--line,#999);border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.25);z-index:5";
-    kinds.forEach(function (k) { var b = el("button", "chip", CH_UNI[k * side]); b.type = "button"; b.title = CH_NAMES[k]; b.style.fontSize = "28px"; b.onclick = function (e) { e.stopPropagation(); pick(k); }; wrap.appendChild(b); });
+    kinds.forEach(function (k) { var b = el("button", "chip"); b.appendChild(el("span", "p" + (side > 0 ? " w" : ""), chGlyph(k * side))); b.type = "button"; b.title = CH_NAMES[k]; b.style.fontSize = "28px"; b.onclick = function (e) { e.stopPropagation(); pick(k); }; wrap.appendChild(b); });
     function pick(k) { closePicker(); var m = chFindMove(s, from, to, k); if (m) done(m); else render(); }
     picker = { el: wrap, timer: setTimeout(function () { pick(CH_Q); }, 10000), key: function (e) {
       var k = { q: CH_Q, r: CH_R, b: CH_B, n: CH_N, Enter: CH_Q }[e.key]; if (!k) return;
