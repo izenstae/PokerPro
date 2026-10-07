@@ -26,7 +26,11 @@ jobs:
       - name: Build the hub, PokerPro and the service worker
         run: node build.js
       - name: The committed bundles must match the source
-        run: git diff --exit-code -- index.html poker/index.html sw.js || { echo "::error::index.html, poker/index.html or sw.js is stale: run 'node build.js' and commit the result"; exit 1; }
+        run: |
+          if ! git diff --exit-code -- index.html poker/index.html sw.js; then
+            echo "::error::index.html, poker/index.html or sw.js is stale. Run 'node build.js' and commit the result."
+            exit 1
+          fi
       - name: Test PokerPro, the hub, and Math 340
         run: npm test
       - name: Headless pass over every screen of the built hub
