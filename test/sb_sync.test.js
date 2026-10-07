@@ -123,5 +123,16 @@ ok(same(ctx.hsMergeAll(X1, XM), XM) && same(ctx.hsMergeAll(XM, X2), XM) && same(
 var oldStyle = ctx.hsMergeAll(A, B);
 ok(Object.keys(oldStyle).sort().join(",") === "devices,hub,math340,poker,pokerGame,pokerSim,v", "without unknown keys the file has exactly its known keys");
 
+/* a reset stage holds through sync: the old passes and skills on another device do not come back, work done after it does */
+var R0 = hub({ progress: { "chess:ch_fork": 1, "chess:ch_pin": 1, "chess:ch_board": 1 }, skills: { "chess:chfork": { box: 1, last: 0, due: 900 }, "chess:chmat": { box: 2, last: 50 } } });
+var R1 = hub({ progress: { "chess:ch_board": 1 }, skills: { "chess:chmat": { box: 2, last: 50 } }, resets: { "p:chess:ch_fork": 1000, "p:chess:ch_pin": 1000, "s:chess:chfork": 1000 } });
+var RM = ctx.hsMergeAll(R0, R1);
+ok(!RM.hub.progress["chess:ch_fork"] && !RM.hub.progress["chess:ch_pin"] && RM.hub.progress["chess:ch_board"] && !RM.hub.skills["chess:chfork"] && RM.hub.skills["chess:chmat"], "a reset un-passes the old copy's lessons and drops their skills");
+ok(same(RM, ctx.hsMergeAll(R1, R0)) && same(ctx.hsMergeAll(RM, R0), RM), "resets commute and are idempotent");
+var R2 = hub({ progress: { "chess:ch_fork": 2000 }, skills: { "chess:chfork": { box: 1, last: 0, due: 9000, at: 2000 } } });
+var RN = ctx.hsMergeAll(ctx.hsMergeAll(RM, R2), R0);
+ok(RN.hub.progress["chess:ch_fork"] === 2000 && RN.hub.skills["chess:chfork"].at === 2000 && !RN.hub.progress["chess:ch_pin"], "a lesson re-passed after the reset survives it");
+ok(ctx.hsNewerSkill({ box: 1, last: 0 }, { box: 1, last: 0, at: 5 }).at === 5 && ctx.hsNewerSkill({ box: 1, last: 0, at: 5 }, { box: 1, last: 0 }).at === 5, "a tie between graduated copies goes to the later-made one");
+
 console.log("sync: " + (n - fails) + "/" + n + " passed");
 if (fails) process.exit(1);

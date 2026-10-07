@@ -35,6 +35,7 @@ function hsNewerSkill(x, y) {
   var nx = hsNum(x.n), ny = hsNum(y.n); if (nx !== ny) return ny > nx ? y : x;
   var ox = hsNum(x.ok), oy = hsNum(y.ok); if (ox !== oy) return oy > ox ? y : x;
   if (lx !== ly) return ly > lx ? y : x;
+  var ax = hsNum(x.at), ay = hsNum(y.at); if (ax !== ay) return ay > ax ? y : x;
   return hsCanon(y) > hsCanon(x) ? y : x;
 }
 /* a set by key; with a cap the newest by timeOf survive (sorted before capping, so both
@@ -79,7 +80,7 @@ function hsDayMerge(a, b) {
 }
 
 /* the hub's own snapshot */
-function hsEmptyHub() { return { v: 1, epoch: 0, progress: {}, skills: {}, plog: {}, gstate: {}, chess: null, apply: {}, logs: [], plan: null, placed: {}, quant: null }; }
+function hsEmptyHub() { return { v: 1, epoch: 0, progress: {}, skills: {}, plog: {}, gstate: {}, chess: null, apply: {}, logs: [], plan: null, placed: {}, quant: null, resets: {} }; }
 /* coerce a hub snapshot to its shape: objects where objects belong, arrays where arrays belong,
    finite numbers for counters, null for the optional parts; unknown keys ride along untouched */
 function hsNormHub(h) {
@@ -96,6 +97,7 @@ function hsNormHub(h) {
   out.logs = hsArr(out.logs).filter(hsIsObj);
   out.plan = hsIsObj(out.plan) ? out.plan : null;
   out.placed = hsNumsOf(out.placed);
+  out.resets = hsNumsOf(out.resets);
   if (hsIsObj(out.chess)) { var c = out.chess = Object.assign({}, out.chess); c.d = hsArr(c.d); c.games = hsArr(c.games).filter(hsIsObj); c.ph = hsArr(c.ph); c.puzzle = c.puzzle == null ? 1000 : hsNum(c.puzzle); c.pn = hsNum(c.pn); }
   else out.chess = null;
   if (hsIsObj(out.quant)) { var q = out.quant = Object.assign({}, out.quant); q.runs = hsArr(q.runs).filter(hsIsObj); q.tier = hsNumsOf(q.tier); q.best = hsNumsOf(q.best); }
@@ -107,7 +109,8 @@ function hsMergeHub(a, b) {
   /* a newer epoch (a deliberate wipe) beats everything older */
   if (a.epoch !== b.epoch) { var w = a.epoch > b.epoch ? a : b; return JSON.parse(JSON.stringify(w)); }
   var m = hsEmptyHub(); m.epoch = a.epoch;
-  Object.keys(a.progress).concat(Object.keys(b.progress)).forEach(function (k) { if (a.progress[k] || b.progress[k]) m.progress[k] = 1; });
+  /* a passed lesson holds the time it was passed (1 on copies from before stamps), so a later reset can outrank it */
+  Object.keys(a.progress).concat(Object.keys(b.progress)).forEach(function (k) { if (a.progress[k] || b.progress[k]) m.progress[k] = Math.max(1, hsMaxNum(a.progress[k], b.progress[k])); });
   Object.keys(a.skills).concat(Object.keys(b.skills)).forEach(function (k) { m.skills[k] = hsNewerSkill(a.skills[k], b.skills[k]); });
   m.plog = hsDayMerge(a.plog, b.plog);
   /* game state: unknown fields last-writer (b), counters max, the goal by its stamp, trophies by first sighting,
@@ -146,6 +149,8 @@ function hsMergeHub(a, b) {
   m.logs = hsUnionBy(a.logs, b.logs, function (x) { return x.id; }, 2000, function (x) { return x.t; });
   m.plan = hsNewer(a.plan, b.plan, "at");
   Object.keys(a.placed).concat(Object.keys(b.placed)).forEach(function (k) { m.placed[k] = hsMaxNum(a.placed[k], b.placed[k]); });
+  Object.keys(a.resets).concat(Object.keys(b.resets)).forEach(function (k) { m.resets[k] = hsMaxNum(a.resets[k], b.resets[k]); });
+  hsApplyResets(m);
   var qa = a.quant, qb = b.quant;
   if (qa || qb) {
     qa = qa || { runs: [], tier: {}, best: {} }; qb = qb || { runs: [], tier: {}, best: {} };
@@ -154,6 +159,17 @@ function hsMergeHub(a, b) {
     Object.keys(qa.best).concat(Object.keys(qb.best)).forEach(function (k) { m.quant.best[k] = hsMaxNum(qa.best[k], qb.best[k]); });
   }
   return m;
+}
+
+/* a reset stage: "p:<course>:<lesson>" un-passes a lesson passed at or before its stamp, "s:<skill>" drops a skill
+   made (`at`) and last answered at or before its stamp; work done after the reset, on any device, survives it */
+function hsApplyResets(h) {
+  Object.keys(h.resets).forEach(function (k) {
+    var t = h.resets[k], id = k.slice(2);
+    if (k.indexOf("p:") === 0 && h.progress[id] && (+h.progress[id] || 1) <= t) delete h.progress[id];
+    else if (k.indexOf("s:") === 0 && hsIsObj(h.skills[id]) && Math.max(hsNum(h.skills[id].last), hsNum(h.skills[id].at)) <= t) delete h.skills[id];
+  });
+  return h;
 }
 
 /* the Math 340 store: cards by the later review, practice by the more attempts, misses and exams as sets, activity per day max */
