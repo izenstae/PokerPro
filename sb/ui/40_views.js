@@ -192,6 +192,13 @@ function drawPath(box, c) {
         ul.appendChild(a);
       });
       li.appendChild(ul);
+      if (dn) {
+        var rs = btn("Reset this stage", "danger sm", function () {
+          if (!rs.dataset.armed) { rs.dataset.armed = "1"; rs.textContent = "Sure? Its lessons and reviews start over"; setTimeout(function () { delete rs.dataset.armed; rs.textContent = "Reset this stage"; }, 3000); return; }
+          var n = resetStage(c, S); toast("Stage " + S.n + ", " + esc(S.title) + ": " + plural(n, "lesson") + " un-passed. The path picks up here.", ""); route();
+        });
+        rs.style.margin = "8px 0 4px"; li.appendChild(rs);
+      }
     }
     list.appendChild(li);
   });

@@ -86,7 +86,8 @@ function drawSaveTag() {
 /* ---- skills on the schedule ---- */
 var skills = HUB.skills, progress = HUB.progress, plog = HUB.plog;
 function rebind() { skills = HUB.skills; progress = HUB.progress; plog = HUB.plog; }
-function skillOf(id) { return skills[id] || (skills[id] = srsNew()); }
+/* `at` marks when the record was made, so a skill re-earned after its stage was reset outlives the reset on sync */
+function skillOf(id) { if (!skills[id]) { skills[id] = srsNew(); skills[id].at = Date.now(); } return skills[id]; }
 function passed(cid, lid) { return !!progress[cid + ":" + lid]; }
 function courseSkillIds(cid) { return Object.keys(skills).filter(function (id) { var i = skInfo(id); return i && i.course === cid; }); }
 function allSkillIds() { return Object.keys(skills).filter(isSkillId); }
@@ -94,6 +95,18 @@ function dueIds(cid) { return srsDueList(cid ? courseSkillIds(cid) : allSkillIds
 function dueMinutes(ids) { return ids.reduce(function (a, id) { var s = skills[id], i = skInfo(id); return a + (i && i.kind === "rule" ? 25 : (4 + (s ? s.box : 0)) * (s && s.n ? s.secs / s.n + 6 : 14)); }, 0) / 60; }
 function overdueDays(ids) { var now = Date.now(); return ids.reduce(function (a, id) { return Math.max(a, skills[id] ? (now - skills[id].due) / SRS_DAY : 0); }, 0); }
 function nextLesson(c) { return c.lessonList.filter(function (L) { return passable(L) && !passed(c.id, L.id); })[0] || null; }
+/* un-pass a stage's lessons and drop their skills; the stamps in HUB.resets make the reset hold through sync */
+function resetStage(c, S) {
+  var now = Date.now(), n = 0;
+  S.lessons.filter(passable).forEach(function (L) {
+    var k = c.id + ":" + L.id;
+    if (progress[k]) n++;
+    delete progress[k]; HUB.resets["p:" + k] = now;
+    lessonSkillIds(c, L).forEach(function (id) { delete skills[id]; HUB.resets["s:" + id] = now; });
+  });
+  saveSoon();
+  return n;
+}
 function stageDone(c, S) { return S.lessons.filter(function (L) { return passed(c.id, L.id); }).length; }
 function lessonDue(c, L) { var now = Date.now(); return lessonSkillIds(c, L).some(function (id) { return skills[id] && now >= skills[id].due; }); }
 function courseLessonsPassed(c) { return c.lessonList.filter(function (L) { return passable(L) && passed(c.id, L.id); }).length; }
