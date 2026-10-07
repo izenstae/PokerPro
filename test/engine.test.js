@@ -35,7 +35,7 @@ chk("AA vs KK", (100 * E.equityMC(H("As Ad"), H("Kc Kh"), 60000)).toFixed(1) * 1
 chk("AKs vs QQ", (100 * E.equityMC(H("As Ks"), H("Qc Qh"), 60000)).toFixed(1) * 1, 46.21, 0.7);
 chk("AKo vs AQo", (100 * E.equityMC(H("Ah Kd"), H("As Qc"), 60000)).toFixed(1) * 1, 74.02, 0.7);
 chk("72o vs AKo", (100 * E.equityMC(H("7h 2c"), H("As Kd"), 60000)).toFixed(1) * 1, 33.00, 0.8);
-chk("JTs vs AA", (100 * E.equityMC(H("Jh Th"), H("As Ad"), 60000)).toFixed(1) * 1, 22.0, 0.8);
+chk("JTs vs AA", (100 * E.equityMC(H("Jh Th"), H("As Ad"), 60000)).toFixed(1) * 1, 21.72, 0.8);  /* exact: 21.717% over all 1,712,304 boards */
 console.log("MC time for 5 runs: " + (Date.now() - t0) + "ms");
 
 /* ---- known flop equities (exact) ---- */
