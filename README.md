@@ -19,7 +19,7 @@ It installs on a Mac, iPad and iPhone, works offline after the first visit (all 
 ## Using it
 
 - **Today** is the home page: the day's plan in order, built by the planner from what every track needs, placed into the free windows of your calendar. Schoolwork comes first (due flashcards, the redo queue, a timed set the night before a quiz, a full rehearsal in the two weeks before an exam, time reserved before a homework deadline), then reviews by how overdue they are, then at most two new lessons, then one applied session. Mark blocks done, or let them count themselves as the minutes come in.
-- **Calendar**: the week with your classes and hockey, today's blocks drawn into it, a 14-day forecast of reviews falling due (exact, since every skill has a date), the month's history coloured by track, and the settings: your week, the daily cap (lower on hockey days and heavy days), the sleep cutoff, how many new lessons a day, and each track's priority.
+- **Calendar**: the week with your classes and hockey, today's blocks drawn into it, a 14-day forecast of reviews falling due (exact, since every skill has a date), the month's history coloured by track, and the settings: your week, calendars imported from .ics files (Apple, Google or Outlook exports; one file or several, one entry per calendar, repeating events included; assignments, papers, quizzes and exams in them get time before they are due, spread by how much free time each day has), the share of each day's free time the skills may take (the budget follows the day), the daily cap (lower on hockey days and heavy days), the sleep cutoff, how many new lessons a day, and each track's priority.
 - **Skills**: every track with its level, and trophies.
 - **A skill's hub**: Learn (the path, stage by stage, with a placement test that passes whole stages you already know), Practice (today's reviews, free practice on any mix of drills, the skills table and your calibration), Apply (the engine, the conversations, dictation, writing, the log), Level, and Library (reference cards, glossary, reading list).
 - **School**: each course's due cards, redo queue, mastery, key dates and weakest topics, with links straight into the course's own app.
@@ -47,6 +47,7 @@ sb/
   core.js               the course registry and the skill model shared by every track
   lang.js               the language engine: normalisation, graduated word drills, paradigm drills, the conversation grader, the CEFR model
   planner.js            the learning calendar: free windows, the daily budget, the plan, the forecast
+  ics.js                imported calendars: the .ics parser and recurrence, busy time and deadlines by date
   school.js             the School track: course registry, reading a course's saved progress, what it needs today
   hubsync.js            the cross-device merge for hub + PokerPro + Math 340 state
   quant.js              the five quant games, scoring, tiers, the plan
@@ -71,7 +72,7 @@ npm run serve        # http://localhost:8000
 node tools/smoke.js  # the headless pass (needs Playwright with Chromium)
 ```
 
-The hub's suites: `sb_chess.test.js` (perft against the published counts, SAN, mates, grading), `sb_planner.test.js` (windows, budgets, the plan's ordering and caps, the forecast), `sb_lang.test.js` (every lesson of every language resolves, every drill and every word at every box produces a gradable question, the level model), `sb_chess_drills.test.js` (curated puzzles verified by the engine, generated mates really mate, forks really fork, the square rule agrees with a search, a full graded game), `sb_sync.test.js` (the merge is commutative and idempotent, a wipe wins), `sb_quant.test.js` (every game at every tier).
+The hub's suites: `sb_chess.test.js` (perft against the published counts, SAN, mates, grading), `sb_planner.test.js` (windows, budgets, the plan's ordering and caps, the forecast), `sb_ics.test.js` (.ics parsing, recurrence, moved and cancelled occurrences, deadlines, imported busy time, assignment work and the dynamic budget in the planner), `sb_lang.test.js` (every lesson of every language resolves, every drill and every word at every box produces a gradable question, the level model), `sb_chess_drills.test.js` (curated puzzles verified by the engine, generated mates really mate, forks really fork, the square rule agrees with a search, a full graded game), `sb_sync.test.js` (the merge is commutative and idempotent, a wipe wins), `sb_quant.test.js` (every game at every tier).
 
 ## Adding content
 
