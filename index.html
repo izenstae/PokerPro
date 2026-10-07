@@ -347,12 +347,18 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 @media(max-width:620px){ .skrow{grid-template-columns:minmax(0,1fr) auto 44px} .skrow .lv,.skrow .nb{display:none} .tbody{padding:20px 16px 16px} .ask{font-size:21px} .reveal{padding:16px} }
 
 /* ---- chess board ---- */
-.board{display:grid; grid-template-columns:repeat(8,1fr); width:min(100%, 420px); aspect-ratio:1; border:3px solid var(--ink); border-radius:3px; overflow:hidden; user-select:none; -webkit-user-select:none; touch-action:manipulation; position:relative; box-shadow:var(--shadow)}
+.board{display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); grid-template-rows:repeat(8,minmax(0,1fr)); container-type:inline-size; width:min(100%, 420px); aspect-ratio:1; border:3px solid var(--ink); border-radius:3px; overflow:hidden; user-select:none; -webkit-user-select:none; touch-action:manipulation; position:relative; box-shadow:var(--shadow)}
 .board.sm{width:min(100%, 300px)} .board.xs{width:220px}
-.sq{position:relative; display:grid; place-items:center; font-size:min(7.5vw, 34px); line-height:1; cursor:pointer}
-.board.sm .sq{font-size:min(6vw, 26px)} .board.xs .sq{font-size:19px}
+/* every square is exactly one eighth of the board both ways: rows are fixed fractions and a square never grows to fit its
+   glyph (fallback fonts give the piece symbols different heights, which used to stretch some ranks and squash others) */
+.sq{position:relative; display:grid; place-items:center; min-width:0; min-height:0; overflow:hidden; font-size:min(7.5vw, 34px); font-size:11.5cqw; line-height:1; cursor:pointer}
+.board.sm .sq{font-size:min(6vw, 26px); font-size:11.5cqw} .board.xs .sq{font-size:19px; font-size:11.5cqw}
 .sq.l{background:var(--sq-l)} .sq.d{background:var(--sq-d)}
-.sq .p{color:#1a1a1a; text-shadow:0 1px 0 rgba(255,255,255,.25); font-family:"Segoe UI Symbol","Apple Symbols","DejaVu Sans",sans-serif} .sq .p.w{color:#FFFDF6; text-shadow:0 0 2px #000, 0 0 1px #000}
+/* both sides use the solid glyphs, so a piece's shape never depends on its colour: white is ivory with a black outline,
+   black is near-black with a pale rim that keeps it readable on the dark squares */
+.sq .p, .promo .p{position:relative; z-index:1; display:block; line-height:1; pointer-events:none; font-family:"Segoe UI Symbol","Apple Symbols","DejaVu Sans","Noto Sans Symbols 2",sans-serif; font-variant-emoji:text;
+  color:#16130F; text-shadow:1px 0 0 rgba(255,250,235,.7), -1px 0 0 rgba(255,250,235,.7), 0 1px 0 rgba(255,250,235,.7), 0 -1px 0 rgba(255,250,235,.7), 0 2px 3px rgba(0,0,0,.35)}
+.sq .p.w, .promo .p.w{color:#FFFDF6; text-shadow:1.5px 0 0 #16130F, -1.5px 0 0 #16130F, 0 1.5px 0 #16130F, 0 -1.5px 0 #16130F, 1px 1px 0 #16130F, -1px -1px 0 #16130F, 1px -1px 0 #16130F, -1px 1px 0 #16130F, 0 2px 3px rgba(0,0,0,.4)}
 .sq.sel{box-shadow:inset 0 0 0 3px var(--accent)} .sq.mark{box-shadow:inset 0 0 0 3px var(--accent)} .sq.last{box-shadow:inset 0 0 0 3px rgba(47,92,158,.85)}
 .sq.hint:after{content:""; width:28%; height:28%; border-radius:50%; background:rgba(26,24,20,.35); position:absolute} .sq.hint.cap:after{width:92%; height:92%; background:none; border:4px solid rgba(26,24,20,.35); border-radius:50%}
 .sq.check{background:radial-gradient(circle, rgba(185,50,28,.85) 0, rgba(185,50,28,.4) 60%, transparent 70%)}
@@ -15571,6 +15577,9 @@ function drawDrill(host) {
 /* ============================================================
    UI 3: the chess board, Play against the engine, tactics rush
    ============================================================ */
+/* the solid glyph for either colour (the outline ones read as a different shape, not a different side); \uFE0E asks for
+   text rather than emoji presentation, which iOS would otherwise use for the pawn */
+function chGlyph(p) { return CH_UNI[-Math.abs(p)] + "\uFE0E"; }
 function boardWidget(fen, opts) {
   opts = opts || {};
   var s = chFromFen(fen), box = el("div", "board" + (opts.size ? " " + opts.size : "") + (opts.coords === false ? " nocoords" : ""));
@@ -15582,7 +15591,7 @@ function boardWidget(fen, opts) {
       var rank = flip ? r : 7 - r, file = flip ? 7 - f : f, sq = chSq(file, rank), p = s.b[sq], name = chName(sq);
       var d = el("div", "sq " + ((rank + file) % 2 ? "l" : "d"));
       d.dataset.sq = name;
-      if (p) d.appendChild(el("span", "p" + (p > 0 ? " w" : ""), CH_UNI[p]));
+      if (p) d.appendChild(el("span", "p" + (p > 0 ? " w" : ""), chGlyph(p)));
       if (marks.indexOf(name) >= 0) d.classList.add("mark"); if (last.indexOf(name) >= 0) d.classList.add("last");
       if (sel === sq) d.classList.add("sel");
       if (legal.some(function (m) { return m.to === sq; })) { d.classList.add("hint"); if (s.b[sq]) d.classList.add("cap"); }
@@ -15599,7 +15608,7 @@ function boardWidget(fen, opts) {
     closePicker();
     var side = s.side, wrap = el("div", "promo"), kinds = [CH_Q, CH_R, CH_B, CH_N];
     wrap.style.cssText = "position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:6px;padding:8px;background:var(--panel,#fff);border:1px solid var(--line,#999);border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.25);z-index:5";
-    kinds.forEach(function (k) { var b = el("button", "chip", CH_UNI[k * side]); b.type = "button"; b.title = CH_NAMES[k]; b.style.fontSize = "28px"; b.onclick = function (e) { e.stopPropagation(); pick(k); }; wrap.appendChild(b); });
+    kinds.forEach(function (k) { var b = el("button", "chip"); b.appendChild(el("span", "p" + (side > 0 ? " w" : ""), chGlyph(k * side))); b.type = "button"; b.title = CH_NAMES[k]; b.style.fontSize = "28px"; b.onclick = function (e) { e.stopPropagation(); pick(k); }; wrap.appendChild(b); });
     function pick(k) { closePicker(); var m = chFindMove(s, from, to, k); if (m) done(m); else render(); }
     picker = { el: wrap, timer: setTimeout(function () { pick(CH_Q); }, 10000), key: function (e) {
       var k = { q: CH_Q, r: CH_R, b: CH_B, n: CH_N, Enter: CH_Q }[e.key]; if (!k) return;
