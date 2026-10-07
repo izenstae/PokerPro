@@ -230,7 +230,9 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 .legend{display:flex; flex-wrap:wrap; gap:10px 16px; font:11.5px var(--mono); color:var(--ink2); margin-top:12px}
 .busylist > div{display:grid; grid-template-columns:1fr 90px 90px auto; gap:8px; align-items:center; padding:7px 0; border-bottom:1px solid var(--rule); font-size:14px; font-variant-numeric:tabular-nums}
 .busylist > div:last-child{border-bottom:0}
+.busylist.callist > div{grid-template-columns:1fr auto auto auto}
 @media(max-width:620px){ .busylist > div{grid-template-columns:1fr 70px 70px auto; font-size:12.5px} }
+@media(max-width:620px){ .busylist.callist > div{grid-template-columns:repeat(3, auto); justify-content:start} .busylist.callist > div > span:first-child{grid-column:1 / -1} }
 .daytabs{display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px}
 .prio{display:grid; grid-template-columns:1fr auto; gap:8px 12px; align-items:center; font-size:14px} .prio select{width:auto}
 

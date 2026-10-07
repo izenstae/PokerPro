@@ -42,19 +42,31 @@ function plFmt(m) {
 }
 function plFmt24(m) { var h = Math.floor(m / 60), mm = m % 60; return (h < 10 ? "0" : "") + h + ":" + (mm < 10 ? "0" : "") + mm; }
 
-/* the fixed blocks of a weekday, sorted, as minutes */
-function plBusy(S, wd) {
+/* events from imported calendars (sb/ics.js) on a given day; none without a day or without calendars */
+function plImported(S, dk) {
+  if (!dk || !S.cals || !S.cals.length) return [];
+  var day = typeof icsDay === "function" ? icsDay : typeof require === "function" ? require("./ics.js").icsDay : null;
+  return day ? day(S.cals, dk) : [];
+}
+/* the fixed blocks of a weekday, sorted, as minutes; with a day key ("2026-10-07") also that date's imported events */
+function plBusy(S, wd, dk) {
   return ((S.week && S.week[wd]) || []).map(function (b) { return { n: b.n || PL_KINDS[b.k] || "Busy", k: b.k || "other", f: plMins(b.f), t: plMins(b.t) }; })
+    .concat(plImported(S, dk).map(function (b) { return { n: b.n, k: b.k, f: b.f, t: b.t, cal: b.cal }; }))
     .filter(function (b) { return b.t > b.f; }).sort(function (a, b) { return a.f - b.f; });
 }
-function plHas(S, wd, kind) { return plBusy(S, wd).some(function (b) { return b.k === kind; }); }
-function plBusyMinutes(S, wd) { return plBusy(S, wd).reduce(function (a, b) { return a + (b.t - b.f); }, 0); }
+function plHas(S, wd, kind, dk) { return plBusy(S, wd, dk).some(function (b) { return b.k === kind; }); }
+/* busy minutes, counting overlaps once (a class in the week and the same class imported) */
+function plBusyMinutes(S, wd, dk) {
+  var tot = 0, end = -1;
+  plBusy(S, wd, dk).forEach(function (b) { if (b.t > end) { tot += b.t - Math.max(b.f, end); end = b.t; } });
+  return tot;
+}
 
 /* free windows between waking and the sleep cutoff, with a buffer around every commitment */
-function plFree(S, wd) {
+function plFree(S, wd, dk) {
   var wake = plMins(S.wake), sleep = plMins(S.sleep), buf = S.buffer || 0;
   var out = [], cur = wake;
-  plBusy(S, wd).forEach(function (b) {
+  plBusy(S, wd, dk).forEach(function (b) {
     var f = Math.max(wake, b.f - buf), t = Math.min(sleep, b.t + buf);
     if (f > cur) out.push({ f: cur, t: f });
     if (t > cur) cur = t;
@@ -62,14 +74,14 @@ function plFree(S, wd) {
   if (sleep > cur) out.push({ f: cur, t: sleep });
   return out.filter(function (w) { return w.t - w.f >= (S.minBlock || 8); });
 }
-function plFreeMinutes(S, wd) { return plFree(S, wd).reduce(function (a, w) { return a + (w.t - w.f); }, 0); }
+function plFreeMinutes(S, wd, dk) { return plFree(S, wd, dk).reduce(function (a, w) { return a + (w.t - w.f); }, 0); }
 
 /* how much study the day can take: the cap, lowered on a hockey day or a heavy day, never more than the free time */
-function plBudget(S, wd) {
+function plBudget(S, wd, dk) {
   var cap = S.cap || 60, why = "";
-  if (plHas(S, wd, "hockey")) { cap = Math.min(cap, S.hockeyCap || cap); why = "hockey day"; }
-  else if (plBusyMinutes(S, wd) >= 300) { cap = Math.min(cap, S.heavyCap || cap); why = "heavy day"; }
-  var free = plFreeMinutes(S, wd);
+  if (plHas(S, wd, "hockey", dk)) { cap = Math.min(cap, S.hockeyCap || cap); why = "hockey day"; }
+  else if (plBusyMinutes(S, wd, dk) >= 300) { cap = Math.min(cap, S.heavyCap || cap); why = "heavy day"; }
+  var free = plFreeMinutes(S, wd, dk);
   if (free < cap) { cap = free; why = why ? why + ", little free time" : "little free time"; }
   return { minutes: Math.max(0, cap), why: why, free: free };
 }
@@ -78,10 +90,10 @@ function plBudget(S, wd) {
    demand: { skillId: { name, due, dueMin, overdue (days), lesson: {id, title, min, href} | null,
                         drill: {href, label} | null, apply: {href, label, min} | null, level } }
    done: { skillId: minutes already studied today }  (the plan shrinks as the day goes)
-   dayKey: "2026-10-06" (for the rotation memory in S.lastNew / S.lastApply) */
+   dayKey: "2026-10-06" (for the rotation memory in S.lastNew / S.lastApply, and that date's imported events) */
 function plPlan(S, wd, demand, done, dayKey) {
   demand = demand || {}; done = done || {};
-  var B = plBudget(S, wd), budget = B.minutes, reserve = Math.round(budget * 0.1);
+  var B = plBudget(S, wd, dayKey), budget = B.minutes, reserve = Math.round(budget * 0.1);
   var ids = Object.keys(demand).filter(function (id) { return (S.priority[id] || 0) > 0; });
   var pr = function (id) { return S.priority[id] || 0; };
   var used = 0, blocks = [];
@@ -146,7 +158,7 @@ function plPlan(S, wd, demand, done, dayKey) {
   blocks.sort(function (a, b) { return (a.deferred ? 1 : 0) - (b.deferred ? 1 : 0) || order[a.kind] - order[b.kind]; });
 
   /* put the blocks into the free windows, in order, never splitting one */
-  var wins = plFree(S, wd).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
+  var wins = plFree(S, wd, dayKey).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
   blocks.forEach(function (b) {
     if (b.deferred) return;
     while (wi < wins.length && cur + b.min > wins[wi].t) { wi++; if (wi < wins.length) cur = wins[wi].f; }
@@ -188,6 +200,6 @@ function plWeekLines(S) {
 }
 
 if (typeof module !== "undefined") module.exports = {
-  PL_DAYS: PL_DAYS, PL_DAYS_SHORT: PL_DAYS_SHORT, PL_KINDS: PL_KINDS, plDefault: plDefault, plMins: plMins, plFmt: plFmt, plFmt24: plFmt24,
+  PL_DAYS: PL_DAYS, plBusyMinutes: plBusyMinutes, PL_DAYS_SHORT: PL_DAYS_SHORT, PL_KINDS: PL_KINDS, plDefault: plDefault, plMins: plMins, plFmt: plFmt, plFmt24: plFmt24,
   plBusy: plBusy, plHas: plHas, plFree: plFree, plFreeMinutes: plFreeMinutes, plBudget: plBudget, plPlan: plPlan, plNote: plNote, plForecast: plForecast, plWeekLines: plWeekLines
 };

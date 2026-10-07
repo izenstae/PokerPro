@@ -15,15 +15,15 @@ function drawWeek(box) {
   var w = el("div", "week"); w.style.setProperty("--hour", hourPx + "px");
   w.appendChild(el("div", "hd", ""));
   var sunday = new Date(now); sunday.setDate(now.getDate() - wd);
-  for (var d = 0; d < 7; d++) { var dt = new Date(sunday); dt.setDate(sunday.getDate() + d); var B = plBudget(S, d); w.appendChild(el("div", "hd" + (d === wd ? " today" : ""), PL_DAYS_SHORT[d] + "<b>" + dt.getDate() + "</b>" + B.minutes + " min" + (B.why ? "<br><span style='color:var(--accent)'>" + esc(B.why) + "</span>" : ""))); }
+  var dks = []; for (var d = 0; d < 7; d++) { var dt = new Date(sunday); dt.setDate(sunday.getDate() + d); dks.push(dayKey(dt.getTime())); var B = plBudget(S, d, dks[d]); w.appendChild(el("div", "hd" + (d === wd ? " today" : ""), PL_DAYS_SHORT[d] + "<b>" + dt.getDate() + "</b>" + B.minutes + " min" + (B.why ? "<br><span style='color:var(--accent)'>" + esc(B.why) + "</span>" : ""))); }
   var hrs = el("div", "hrs"); hrs.style.height = (endH - startH) * hourPx + "px";
   for (var h = startH; h <= endH; h++) { var lab = el("i", "", plFmt(h * 60)); lab.style.top = (h - startH) * hourPx + "px"; hrs.appendChild(lab); }
   w.appendChild(hrs);
   for (d = 0; d < 7; d++) {
     var col = el("div", "col" + (d === wd ? " today" : "")); col.style.height = (endH - startH) * hourPx + "px";
-    plBusy(S, d).forEach(function (b) { var e = el("div", "evt " + b.k, "<b>" + esc(b.n) + "</b>" + plFmt(b.f) + "–" + plFmt(b.t)); e.style.top = ((b.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, (b.t - b.f) / 60 * hourPx - 2) + "px"; e.title = b.n + " " + plFmt(b.f) + "–" + plFmt(b.t); col.appendChild(e); });
+    plBusy(S, d, dks[d]).forEach(function (b) { if (b.t / 60 <= startH || b.f / 60 >= endH) return; var e = el("div", "evt " + b.k, "<b>" + esc(b.n) + "</b>" + plFmt(b.f) + "–" + plFmt(b.t)); e.style.top = ((Math.max(b.f / 60, startH) - startH) * hourPx) + "px"; e.style.height = Math.max(14, (Math.min(b.t / 60, endH) - Math.max(b.f / 60, startH)) * hourPx - 2) + "px"; e.title = b.n + " " + plFmt(b.f) + "–" + plFmt(b.t) + (b.cal ? " · " + b.cal : ""); col.appendChild(e); });
     if (d === wd) plan.blocks.forEach(function (b) { if (!b.at) return; var e = el("div", "evt study" + (b.school ? " school" : "") + (b.deferred ? " deferred" : ""), "<b>" + esc(blockLabel(b)) + "</b>" + b.min + " min"); e.style.top = ((b.at.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, b.min / 60 * hourPx - 2) + "px"; e.title = blockLabel(b) + " · " + plFmt(b.at.f) + "–" + plFmt(b.at.t); col.appendChild(e); });
-    else { var free = plFree(S, d); free.forEach(function (f) { var e = el("div", "evt study", "<b>free</b>" + plFmt(f.f) + "–" + plFmt(f.t)); e.style.opacity = ".35"; e.style.top = ((f.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, (f.t - f.f) / 60 * hourPx - 2) + "px"; col.appendChild(e); }); }
+    else { var free = plFree(S, d, dks[d]); free.forEach(function (f) { var e = el("div", "evt study", "<b>free</b>" + plFmt(f.f) + "–" + plFmt(f.t)); e.style.opacity = ".35"; e.style.top = ((f.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, (f.t - f.f) / 60 * hourPx - 2) + "px"; col.appendChild(e); }); }
     w.appendChild(col);
   }
   box.appendChild(w);
@@ -38,7 +38,7 @@ function drawForecast(box) {
   var fc = plForecast(items, now, 14, dayKey), S = HUB.plan;
   var p = el("div", "panel"); p.innerHTML = '<div class="ph"><h3>Reviews falling due, next 14 days</h3><span>exact: every skill has a date</span></div>';
   var g = el("div", "fc");
-  fc.forEach(function (r, i) { var d = new Date(now + i * SRS_DAY), wd = d.getDay(), B = plBudget(S, wd); var cell = el("div", (i === 0 ? "today" : "") + (r.total > 40 ? " heavy" : "")); cell.innerHTML = '<b>' + (i === 0 ? "Today" : PL_DAYS_SHORT[wd] + " " + d.getDate()) + '</b><div class="n">' + r.total + '</div><div class="by">' + Object.keys(r.by).map(function (k) { return '<i style="color:' + trackColor(k) + '">' + r.by[k] + ' ' + esc(trackName(k)) + '</i>'; }).join("") + '</div><div class="cm" style="font-size:10.5px;color:var(--faint);margin-top:4px">' + B.minutes + ' min budget' + (plHas(S, wd, "hockey") ? " · hockey" : "") + '</div>'; g.appendChild(cell); });
+  fc.forEach(function (r, i) { var d = new Date(now + i * SRS_DAY), wd = d.getDay(), dk = dayKey(d.getTime()), B = plBudget(S, wd, dk); var cell = el("div", (i === 0 ? "today" : "") + (r.total > 40 ? " heavy" : "")); cell.innerHTML = '<b>' + (i === 0 ? "Today" : PL_DAYS_SHORT[wd] + " " + d.getDate()) + '</b><div class="n">' + r.total + '</div><div class="by">' + Object.keys(r.by).map(function (k) { return '<i style="color:' + trackColor(k) + '">' + r.by[k] + ' ' + esc(trackName(k)) + '</i>'; }).join("") + '</div><div class="cm" style="font-size:10.5px;color:var(--faint);margin-top:4px">' + B.minutes + ' min budget' + (plHas(S, wd, "hockey", dk) ? " · hockey" : "") + '</div>'; g.appendChild(cell); });
   p.appendChild(g);
   p.appendChild(el("p", "pnote", "Reviews are the floor of each day. A heavy day (outlined red) means a lot came due at once; the fix is to keep new lessons to the daily cap, not to skip the reviews. Overdue reviews roll forward and show on today."));
   box.appendChild(p);
@@ -72,6 +72,42 @@ function drawMonth(box) {
   var tot = 0, n = 0; Object.keys(plog).forEach(function (k) { if (k.indexOf(y + "-" + ("0" + (m + 1)).slice(-2)) === 0) { tot += plog[k].s; n++; } });
   box.appendChild(el("p", "pnote", "This month: " + fmtDur(tot) + " over " + plural(n, "day") + " in the hub" + (P.has ? ", plus PokerPro's own log" : "") + "."));
 }
+/* calendars imported from .ics files: their events are busy time on their own dates, on top of the week above */
+function drawImported(S) {
+  var p = el("div", "panel"); p.style.marginTop = "16px";
+  p.innerHTML = '<div class="ph"><h3>Imported calendars</h3><span>.ics files from Apple, Google or Outlook</span></div><p class="pnote">Import one .ics file or several at once; a file holding several calendars becomes one entry per calendar. Their events block study time on the days they happen, repeating events included. All-day and free events are left out. An event named hockey counts as hockey wherever it is. To refresh a calendar, import a newer export of it: one with the same name is replaced and keeps its settings.</p>';
+  var cals = S.cals || [];
+  var list = el("div", "busylist callist");
+  cals.forEach(function (c, i) {
+    var rep = c.ev.filter(function (e) { return e.r; }).length, row = el("div");
+    row.innerHTML = '<span><span class="dot ' + (c.k === "class" ? "k-class" : c.k === "hockey" ? "k-hockey" : "k-other") + '"></span>' + esc(c.name) + ' <small>' + plural(c.ev.filter(function (e) { return !e.skip; }).length, "event") + (rep ? ", " + rep + " repeating" : "") + (c.on === false ? " · off" : "") + '</small></span>';
+    var kind = el("select"); kind.style.width = "auto"; ICS_KINDS.forEach(function (k) { var o = el("option", "", PL_KINDS[k]); o.value = k; if ((c.k || "other") === k) o.selected = true; kind.appendChild(o); });
+    kind.onchange = function () { c.k = kind.value; c.at = Date.now(); S.at = Date.now(); saveSoon(); route(); };
+    row.appendChild(kind);
+    row.appendChild(btn(c.on === false ? "turn on" : "turn off", "ghost sm", function () { c.on = c.on === false; c.at = Date.now(); S.at = Date.now(); saveSoon(); route(); }));
+    row.appendChild(btn("remove", "ghost sm", function () { S.cals.splice(i, 1); S.at = Date.now(); saveSoon(); route(); }));
+    list.appendChild(row);
+  });
+  if (!cals.length) list.appendChild(el("p", "pnote", "No calendars imported yet."));
+  p.appendChild(list);
+  var file = el("input"); file.type = "file"; file.multiple = true; file.accept = ".ics,.ical,.ifb,.icalendar,text/calendar"; file.hidden = true;
+  file.onchange = function () {
+    var files = Array.prototype.slice.call(file.files || []); if (!files.length) return;
+    Promise.all(files.map(function (f) { return f.text().then(function (t) { return icsParse(t, f.name.replace(/\.[^.]+$/, ""), todayKey()); }); })).then(function (parsed) {
+      var all = [].concat.apply([], parsed).filter(function (c) { return c.ev.length; });
+      if (!all.length) { toast("No timed events found in " + (files.length > 1 ? "those files" : "that file") + ". Is it an .ics export?", ""); return; }
+      S.cals = icsMerge(S.cals, all, Date.now()); S.at = Date.now(); saveSoon();
+      toast("Imported " + all.map(function (c) { return esc(c.name) + " (" + plural(c.ev.length, "event") + ")"; }).join(", ") + ".", "");
+      route();
+    }).catch(function (e) { toast("Could not read the file: " + esc(e.message || e), ""); });
+  };
+  var row = el("div", "row"); row.style.marginTop = "12px";
+  row.appendChild(btn(cals.length ? "Import more .ics files" : "Import .ics files", "go sm", function () { file.click(); }));
+  row.appendChild(file);
+  p.appendChild(row);
+  p.appendChild(el("p", "pnote", "<b>Apple Calendar (Mac):</b> select a calendar in the sidebar, then File › Export › Export…; repeat for each calendar and import all the files together. <b>Google Calendar:</b> Settings › Import &amp; export › Export downloads a zip with one .ics per calendar; unzip it and pick them all. <b>Outlook:</b> save the calendar as an .ics file. Times are shown in this device's time zone."));
+  return p;
+}
 function drawCalSettings(box) {
   var S = HUB.plan;
   var wk = el("div", "panel"); wk.innerHTML = '<div class="ph"><h3>Your week</h3><span>classes, hockey and anything fixed</span></div><p class="pnote">Add every recurring commitment with its day and time. The planner leaves a buffer around each one, keeps study out of them, lowers the daily cap on hockey days and on days with five or more busy hours, and never schedules anything after your sleep cutoff.</p>';
@@ -91,6 +127,7 @@ function drawCalSettings(box) {
   form.appendChild(btn("Add", "go sm", function () { if (!nm.value.trim() || !f.value || !t.value) return; var ds = { one: [curD], mwf: [1, 3, 5], tth: [2, 4], wk: [1, 2, 3, 4, 5], all: [0, 1, 2, 3, 4, 5, 6] }[days.value]; ds.forEach(function (d) { S.week[d] = S.week[d] || []; S.week[d].push({ n: nm.value.trim(), k: kind.value, f: f.value, t: t.value }); }); S.at = Date.now(); saveSoon(); route(); }));
   wk.appendChild(form);
   box.appendChild(wk);
+  box.appendChild(drawImported(S));
   var st = el("div", "panel"); st.style.marginTop = "16px"; st.innerHTML = '<div class="ph"><h3>Daily budget</h3><span>how much the planner may ask of a day</span></div>';
   var g = el("div", "grid3");
   function num(label, key, min, max, step, help) { var w = el("div", "field"); w.innerHTML = '<label class="f">' + label + '</label>'; var i = el("input"); i.type = "number"; i.min = min; i.max = max; i.step = step || 1; i.value = S[key]; i.onchange = function () { S[key] = +i.value; S.at = Date.now(); saveSoon(); }; w.appendChild(i); if (help) w.appendChild(el("div", "hint", help)); return w; }

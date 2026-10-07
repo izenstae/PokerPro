@@ -230,7 +230,9 @@ label.f{display:block; font:11px var(--mono); letter-spacing:.08em; text-transfo
 .legend{display:flex; flex-wrap:wrap; gap:10px 16px; font:11.5px var(--mono); color:var(--ink2); margin-top:12px}
 .busylist > div{display:grid; grid-template-columns:1fr 90px 90px auto; gap:8px; align-items:center; padding:7px 0; border-bottom:1px solid var(--rule); font-size:14px; font-variant-numeric:tabular-nums}
 .busylist > div:last-child{border-bottom:0}
+.busylist.callist > div{grid-template-columns:1fr auto auto auto}
 @media(max-width:620px){ .busylist > div{grid-template-columns:1fr 70px 70px auto; font-size:12.5px} }
+@media(max-width:620px){ .busylist.callist > div{grid-template-columns:repeat(3, auto); justify-content:start} .busylist.callist > div > span:first-child{grid-column:1 / -1} }
 .daytabs{display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px}
 .prio{display:grid; grid-template-columns:1fr auto; gap:8px 12px; align-items:center; font-size:14px} .prio select{width:auto}
 
@@ -1569,6 +1571,235 @@ function sbTrophies(s) {
 }
 
 /* ============================================================
+   ICS: imported calendars
+   Reads iCalendar (.ics) files, the format Apple Calendar,
+   Google Calendar and Outlook export, and turns their events
+   into busy time the planner works around, date by date.
+   One file may hold one calendar or several (each VCALENDAR is
+   its own calendar, named by X-WR-CALNAME); several files can be
+   imported at once.
+   What it understands: timed events (UTC, a TZID, or floating;
+   all are shown in this device's local time), DTEND or DURATION,
+   RRULE (DAILY, WEEKLY, MONTHLY, YEARLY with INTERVAL, COUNT,
+   UNTIL, BYDAY, BYMONTHDAY, BYMONTH), EXDATE, and moved or
+   cancelled single occurrences (RECURRENCE-ID).
+   All-day events, free (TRANSPARENT) and cancelled events are
+   not busy time, so they are left out.
+   Pure functions: the Calendar settings call them, the tests
+   call them with hand-made files.
+   ============================================================ */
+
+var ICS_KINDS = ["class", "hockey", "work", "other"];
+
+/* lines: unfold continuation lines, then split NAME;PARAMS:VALUE */
+function icsLines(text) {
+  return String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").replace(/\n[ \t]/g, "").split("\n").filter(Boolean).map(function (ln) {
+    var c = -1, q = false;
+    for (var i = 0; i < ln.length; i++) { var ch = ln[i]; if (ch === '"') q = !q; else if (ch === ":" && !q) { c = i; break; } }
+    if (c < 0) return null;
+    var head = ln.slice(0, c).split(";"), params = {};
+    head.slice(1).forEach(function (p) { var e = p.indexOf("="); if (e > 0) params[p.slice(0, e).toUpperCase()] = p.slice(e + 1).replace(/^"|"$/g, ""); });
+    return { name: head[0].toUpperCase(), params: params, value: ln.slice(c + 1) };
+  }).filter(Boolean);
+}
+function icsText(v) { return String(v || "").replace(/\\n/gi, " ").replace(/\\([,;\\])/g, "$1").trim(); }
+
+function icsPad(n) { return (n < 10 ? "0" : "") + n; }
+function icsKey(d) { return d.getFullYear() + "-" + icsPad(d.getMonth() + 1) + "-" + icsPad(d.getDate()); }
+function icsDate(key) { var p = key.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function icsAddDays(key, n) { var d = icsDate(key); d.setDate(d.getDate() + n); return icsKey(d); }
+function icsDaysBetween(a, b) { return Math.round((icsDate(b) - icsDate(a)) / 864e5); }
+
+/* a DTSTART-like value as local wall time: { key: "2026-10-07", min: 540, allDay } */
+function icsWhen(prop) {
+  if (!prop) return null;
+  var v = prop.value.trim(), m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/.exec(v);
+  if (!m) return null;
+  if (!m[4] || prop.params.VALUE === "DATE") return { key: m[1] + "-" + m[2] + "-" + m[3], min: 0, allDay: true };
+  if (m[7]) { var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0))); return { key: icsKey(d), min: d.getHours() * 60 + d.getMinutes(), allDay: false }; }
+  return { key: m[1] + "-" + m[2] + "-" + m[3], min: +m[4] * 60 + +m[5], allDay: false };   /* TZID or floating: taken as local time */
+}
+/* minutes in an ISO duration like PT1H30M or P1D */
+function icsDur(v) {
+  var m = /^([+-])?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/.exec(String(v || "").trim());
+  if (!m) return 0;
+  return (+(m[2] || 0)) * 10080 + (+(m[3] || 0)) * 1440 + (+(m[4] || 0)) * 60 + (+(m[5] || 0));
+}
+function icsRule(v) {
+  var r = {};
+  String(v || "").split(";").forEach(function (p) { var e = p.indexOf("="); if (e > 0) r[p.slice(0, e).toUpperCase()] = p.slice(e + 1).toUpperCase(); });
+  return r.FREQ ? r : null;
+}
+
+/* a kind from a name: hockey lowers the day's cap, so an event called hockey counts as hockey in any calendar */
+function icsGuessKind(s) {
+  s = String(s || "").toLowerCase();
+  if (/hockey|skate|practice|game day/.test(s)) return "hockey";
+  if (/class|course|school|lecture|lab\b|seminar|tutorial|recitation|math|stat|\b[a-z]{2,4} ?\d{3}\b/.test(s)) return "class";
+  if (/work|shift|job|office/.test(s)) return "work";
+  return "other";
+}
+
+/* Parse a file into calendars: [{ name, ev: [{ n, uid, key, min, dur, r, x, rid }] }]
+   today (a "YYYY-MM-DD" key) trims what can no longer matter: events that ended before it. */
+function icsParse(text, fallbackName, today) {
+  var lines = icsLines(text), cals = [], cal = null, ev = null, depth = [];
+  lines.forEach(function (L) {
+    if (L.name === "BEGIN") {
+      depth.push(L.value.toUpperCase());
+      if (L.value.toUpperCase() === "VCALENDAR") { cal = { name: "", ev: [], raw: [] }; cals.push(cal); }
+      else if (L.value.toUpperCase() === "VEVENT" && cal) ev = { props: {}, ex: [] };
+      return;
+    }
+    if (L.name === "END") {
+      var what = depth.pop();
+      if (what === "VEVENT" && ev && cal) { cal.raw.push(ev); ev = null; }
+      return;
+    }
+    var inner = depth[depth.length - 1];
+    if (ev && inner === "VEVENT") { if (L.name === "EXDATE") ev.ex.push(L); else if (!ev.props[L.name]) ev.props[L.name] = L; }
+    else if (cal && inner === "VCALENDAR" && L.name === "X-WR-CALNAME" && !cal.name) cal.name = icsText(L.value);
+  });
+  var multi = cals.length > 1;
+  return cals.map(function (c, ci) {
+    var out = [];
+    c.raw.forEach(function (e) {
+      var P = e.props;
+      if (P.STATUS && /CANCELLED/i.test(P.STATUS.value) && !P["RECURRENCE-ID"]) return;
+      var st = icsWhen(P.DTSTART); if (!st) return;
+      var rid = P["RECURRENCE-ID"] ? icsWhen(P["RECURRENCE-ID"]) : null;
+      var cancelled = !!(P.STATUS && /CANCELLED/i.test(P.STATUS.value));
+      var free = !!(P.TRANSP && /TRANSPARENT/i.test(P.TRANSP.value));
+      var dur = 0, en = icsWhen(P.DTEND);
+      if (en) dur = icsDaysBetween(st.key, en.key) * 1440 + en.min - st.min;
+      else if (P.DURATION) dur = icsDur(P.DURATION.value);
+      var r = P.RRULE ? icsRule(P.RRULE.value) : null;
+      var x = [];
+      e.ex.forEach(function (L) { L.value.split(",").forEach(function (v) { var w = icsWhen({ value: v, params: L.params }); if (w) x.push(w.key); }); });
+      var item = { n: icsText(P.SUMMARY ? P.SUMMARY.value : "") || "Busy", uid: P.UID ? P.UID.value : "", key: st.key, min: st.min, dur: Math.max(0, dur) };
+      if (st.allDay || free) {
+        if (!rid) return;                      /* an all-day or free event is not busy time */
+        item.skip = true;                      /* ...but an all-day override still removes the occurrence it replaces */
+      }
+      if (cancelled) item.skip = true;
+      if (r) item.r = r;
+      if (x.length) item.x = x;
+      if (rid) item.rid = rid.key;
+      if (today && !item.rid) {
+        if (!r && icsAddDays(item.key, Math.ceil((item.min + item.dur) / 1440)) < today) return;
+        if (r && r.UNTIL && r.UNTIL.slice(0, 4) + "-" + r.UNTIL.slice(4, 6) + "-" + r.UNTIL.slice(6, 8) < icsAddDays(today, -1)) return;
+      }
+      if (today && item.rid && item.rid < icsAddDays(today, -2) && item.key < icsAddDays(today, -2)) return;
+      out.push(item);
+    });
+    return { name: c.name || (multi ? (fallbackName || "Calendar") + " " + (ci + 1) : fallbackName || "Calendar"), ev: out };
+  });
+}
+
+/* ---- recurrence ---- */
+var ICS_WD = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+function icsByDay(r) {
+  if (!r.BYDAY) return null;
+  return r.BYDAY.split(",").map(function (s) { var m = /^([+-]?\d+)?([A-Z]{2})$/.exec(s); return m ? { n: m[1] ? +m[1] : 0, wd: ICS_WD[m[2]] } : null; }).filter(function (b) { return b && b.wd != null; });
+}
+/* does a day fall on the nth (or -nth) weekday of its month */
+function icsNth(d, n) {
+  if (!n) return true;
+  if (n > 0) return Math.floor((d.getDate() - 1) / 7) + 1 === n;
+  var last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  return Math.floor((last - d.getDate()) / 7) + 1 === -n;
+}
+function icsMonthDayOk(d, list) {
+  var last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  return list.some(function (v) { v = +v; return v > 0 ? d.getDate() === v : d.getDate() === last + v + 1; });
+}
+/* the pattern alone (no COUNT, UNTIL, EXDATE): does the rule put an occurrence on this day */
+function icsPattern(e, key) {
+  var r = e.r, iv = Math.max(1, +(r.INTERVAL || 1)), s = icsDate(e.key), d = icsDate(key), bd = icsByDay(r);
+  if (key < e.key) return false;
+  if (r.BYMONTH && r.BYMONTH.split(",").map(Number).indexOf(d.getMonth() + 1) < 0) return false;
+  if (r.FREQ === "DAILY") {
+    if (icsDaysBetween(e.key, key) % iv) return false;
+    return !bd || bd.some(function (b) { return b.wd === d.getDay(); });
+  }
+  if (r.FREQ === "WEEKLY") {
+    var ws = ICS_WD[r.WKST || "MO"], so = (s.getDay() - ws + 7) % 7, w0 = icsAddDays(e.key, -so);
+    if (Math.floor(icsDaysBetween(w0, key) / 7) % iv) return false;
+    return bd ? bd.some(function (b) { return b.wd === d.getDay(); }) : d.getDay() === s.getDay();
+  }
+  var months = (d.getFullYear() - s.getFullYear()) * 12 + d.getMonth() - s.getMonth();
+  if (r.FREQ === "MONTHLY") {
+    if (months % iv) return false;
+    if (bd) return bd.some(function (b) { return b.wd === d.getDay() && icsNth(d, b.n); }) && (!r.BYMONTHDAY || icsMonthDayOk(d, r.BYMONTHDAY.split(",")));
+    return icsMonthDayOk(d, r.BYMONTHDAY ? r.BYMONTHDAY.split(",") : [s.getDate()]);
+  }
+  if (r.FREQ === "YEARLY") {
+    if ((d.getFullYear() - s.getFullYear()) % iv) return false;
+    if (!r.BYMONTH && d.getMonth() !== s.getMonth()) return false;
+    if (bd) return bd.some(function (b) { return b.wd === d.getDay() && icsNth(d, b.n); });
+    return icsMonthDayOk(d, r.BYMONTHDAY ? r.BYMONTHDAY.split(",") : [s.getDate()]);
+  }
+  return false;
+}
+/* an occurrence on this day, after UNTIL, COUNT and EXDATE */
+function icsOccurs(e, key) {
+  if (!e.r) return key === e.key;
+  if (!icsPattern(e, key)) return false;
+  if (e.x && e.x.indexOf(key) >= 0) return false;
+  var r = e.r;
+  if (r.UNTIL) { var u = icsWhen({ value: r.UNTIL, params: {} }); if (u && key > u.key) return false; }
+  if (r.COUNT) {
+    var c = 0, lim = +r.COUNT, k = e.key, span = icsDaysBetween(e.key, key);
+    if (span > 3660) return false;
+    for (var i = 0; i <= span; i++) { if (icsPattern(e, k)) c++; if (c > lim) return false; k = icsAddDays(k, 1); }
+    return c <= lim;
+  }
+  return true;
+}
+
+/* busy blocks on one day from a list of calendars: [{ n, k, f, t, cal }] in minutes */
+function icsBusy(cals, key) {
+  var out = [];
+  (cals || []).forEach(function (cal) {
+    if (cal.on === false) return;
+    var moved = {};                             /* uid -> days whose occurrence was moved or cancelled */
+    cal.ev.forEach(function (e) { if (e.rid && e.uid) (moved[e.uid] = moved[e.uid] || {})[e.rid] = 1; });
+    cal.ev.forEach(function (e) {
+      if (e.skip) return;
+      var days = Math.floor((e.min + e.dur - 1) / 1440);   /* how many days past its start an event reaches */
+      for (var back = 0; back <= Math.max(0, days); back++) {
+        var sk = icsAddDays(key, -back);
+        if (e.rid ? sk !== e.key : (!icsOccurs(e, sk) || (e.uid && moved[e.uid] && moved[e.uid][sk]))) continue;
+        var f = e.min - back * 1440, t = f + e.dur;
+        f = Math.max(0, f); t = Math.min(1440, t);
+        if (t > f) out.push({ n: e.n, k: icsGuessKind(e.n) === "hockey" ? "hockey" : cal.k || "other", f: f, t: t, cal: cal.name });
+      }
+    });
+  });
+  return out.sort(function (a, b) { return a.f - b.f; });
+}
+
+/* memo: the week view and the planner ask for the same days many times per draw */
+var icsMemo = { sig: "", days: {} };
+function icsDay(cals, key) {
+  var sig = (cals || []).map(function (c) { return c.name + ":" + c.at + ":" + c.on + ":" + c.k; }).join("|");
+  if (sig !== icsMemo.sig) icsMemo = { sig: sig, days: {} };
+  return icsMemo.days[key] || (icsMemo.days[key] = icsBusy(cals, key));
+}
+
+/* add parsed calendars to the stored list: a calendar with the same name is replaced, keeping its settings */
+function icsMerge(stored, parsed, now) {
+  var list = (stored || []).slice();
+  parsed.forEach(function (p) {
+    var i = -1; list.forEach(function (c, j) { if (c.name === p.name) i = j; });
+    var old = i >= 0 ? list[i] : null;
+    var cal = { name: p.name, k: old ? old.k : icsGuessKind(p.name), on: old ? old.on !== false : true, at: now, ev: p.ev };
+    if (i >= 0) list[i] = cal; else list.push(cal);
+  });
+  return list;
+}
+
+/* ============================================================
    PLANNER: the learning calendar
    Takes your week (classes, hockey, anything fixed), a daily
    study cap, and what each skill needs today (reviews due, the
@@ -1612,19 +1843,31 @@ function plFmt(m) {
 }
 function plFmt24(m) { var h = Math.floor(m / 60), mm = m % 60; return (h < 10 ? "0" : "") + h + ":" + (mm < 10 ? "0" : "") + mm; }
 
-/* the fixed blocks of a weekday, sorted, as minutes */
-function plBusy(S, wd) {
+/* events from imported calendars (sb/ics.js) on a given day; none without a day or without calendars */
+function plImported(S, dk) {
+  if (!dk || !S.cals || !S.cals.length) return [];
+  var day = typeof icsDay === "function" ? icsDay : typeof require === "function" ? require("./ics.js").icsDay : null;
+  return day ? day(S.cals, dk) : [];
+}
+/* the fixed blocks of a weekday, sorted, as minutes; with a day key ("2026-10-07") also that date's imported events */
+function plBusy(S, wd, dk) {
   return ((S.week && S.week[wd]) || []).map(function (b) { return { n: b.n || PL_KINDS[b.k] || "Busy", k: b.k || "other", f: plMins(b.f), t: plMins(b.t) }; })
+    .concat(plImported(S, dk).map(function (b) { return { n: b.n, k: b.k, f: b.f, t: b.t, cal: b.cal }; }))
     .filter(function (b) { return b.t > b.f; }).sort(function (a, b) { return a.f - b.f; });
 }
-function plHas(S, wd, kind) { return plBusy(S, wd).some(function (b) { return b.k === kind; }); }
-function plBusyMinutes(S, wd) { return plBusy(S, wd).reduce(function (a, b) { return a + (b.t - b.f); }, 0); }
+function plHas(S, wd, kind, dk) { return plBusy(S, wd, dk).some(function (b) { return b.k === kind; }); }
+/* busy minutes, counting overlaps once (a class in the week and the same class imported) */
+function plBusyMinutes(S, wd, dk) {
+  var tot = 0, end = -1;
+  plBusy(S, wd, dk).forEach(function (b) { if (b.t > end) { tot += b.t - Math.max(b.f, end); end = b.t; } });
+  return tot;
+}
 
 /* free windows between waking and the sleep cutoff, with a buffer around every commitment */
-function plFree(S, wd) {
+function plFree(S, wd, dk) {
   var wake = plMins(S.wake), sleep = plMins(S.sleep), buf = S.buffer || 0;
   var out = [], cur = wake;
-  plBusy(S, wd).forEach(function (b) {
+  plBusy(S, wd, dk).forEach(function (b) {
     var f = Math.max(wake, b.f - buf), t = Math.min(sleep, b.t + buf);
     if (f > cur) out.push({ f: cur, t: f });
     if (t > cur) cur = t;
@@ -1632,14 +1875,14 @@ function plFree(S, wd) {
   if (sleep > cur) out.push({ f: cur, t: sleep });
   return out.filter(function (w) { return w.t - w.f >= (S.minBlock || 8); });
 }
-function plFreeMinutes(S, wd) { return plFree(S, wd).reduce(function (a, w) { return a + (w.t - w.f); }, 0); }
+function plFreeMinutes(S, wd, dk) { return plFree(S, wd, dk).reduce(function (a, w) { return a + (w.t - w.f); }, 0); }
 
 /* how much study the day can take: the cap, lowered on a hockey day or a heavy day, never more than the free time */
-function plBudget(S, wd) {
+function plBudget(S, wd, dk) {
   var cap = S.cap || 60, why = "";
-  if (plHas(S, wd, "hockey")) { cap = Math.min(cap, S.hockeyCap || cap); why = "hockey day"; }
-  else if (plBusyMinutes(S, wd) >= 300) { cap = Math.min(cap, S.heavyCap || cap); why = "heavy day"; }
-  var free = plFreeMinutes(S, wd);
+  if (plHas(S, wd, "hockey", dk)) { cap = Math.min(cap, S.hockeyCap || cap); why = "hockey day"; }
+  else if (plBusyMinutes(S, wd, dk) >= 300) { cap = Math.min(cap, S.heavyCap || cap); why = "heavy day"; }
+  var free = plFreeMinutes(S, wd, dk);
   if (free < cap) { cap = free; why = why ? why + ", little free time" : "little free time"; }
   return { minutes: Math.max(0, cap), why: why, free: free };
 }
@@ -1648,10 +1891,10 @@ function plBudget(S, wd) {
    demand: { skillId: { name, due, dueMin, overdue (days), lesson: {id, title, min, href} | null,
                         drill: {href, label} | null, apply: {href, label, min} | null, level } }
    done: { skillId: minutes already studied today }  (the plan shrinks as the day goes)
-   dayKey: "2026-10-06" (for the rotation memory in S.lastNew / S.lastApply) */
+   dayKey: "2026-10-06" (for the rotation memory in S.lastNew / S.lastApply, and that date's imported events) */
 function plPlan(S, wd, demand, done, dayKey) {
   demand = demand || {}; done = done || {};
-  var B = plBudget(S, wd), budget = B.minutes, reserve = Math.round(budget * 0.1);
+  var B = plBudget(S, wd, dayKey), budget = B.minutes, reserve = Math.round(budget * 0.1);
   var ids = Object.keys(demand).filter(function (id) { return (S.priority[id] || 0) > 0; });
   var pr = function (id) { return S.priority[id] || 0; };
   var used = 0, blocks = [];
@@ -1716,7 +1959,7 @@ function plPlan(S, wd, demand, done, dayKey) {
   blocks.sort(function (a, b) { return (a.deferred ? 1 : 0) - (b.deferred ? 1 : 0) || order[a.kind] - order[b.kind]; });
 
   /* put the blocks into the free windows, in order, never splitting one */
-  var wins = plFree(S, wd).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
+  var wins = plFree(S, wd, dayKey).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
   blocks.forEach(function (b) {
     if (b.deferred) return;
     while (wi < wins.length && cur + b.min > wins[wi].t) { wi++; if (wi < wins.length) cur = wins[wi].f; }
@@ -12510,7 +12753,7 @@ function planToday(now) {
   plan.blocks.forEach(function (b) { if (b.deferred) { deferred.push(b); return; } if (b.min <= left) { kept.push(b); left -= b.min; } else { b.deferred = true; b.why = "Schoolwork took today's budget; it waits for tomorrow."; deferred.push(b); } });
   var blocks = school.concat(kept).concat(deferred);
   /* place the blocks into the free windows again, school first */
-  var wins = plFree(S, wd).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
+  var wins = plFree(S, wd, key).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
   var nowMin = new Date(now).getHours() * 60 + new Date(now).getMinutes();
   while (wi < wins.length && wins[wi].t <= nowMin) wi++;
   if (wi < wins.length) cur = Math.max(wins[wi].f, nowMin);
@@ -13427,15 +13670,15 @@ function drawWeek(box) {
   var w = el("div", "week"); w.style.setProperty("--hour", hourPx + "px");
   w.appendChild(el("div", "hd", ""));
   var sunday = new Date(now); sunday.setDate(now.getDate() - wd);
-  for (var d = 0; d < 7; d++) { var dt = new Date(sunday); dt.setDate(sunday.getDate() + d); var B = plBudget(S, d); w.appendChild(el("div", "hd" + (d === wd ? " today" : ""), PL_DAYS_SHORT[d] + "<b>" + dt.getDate() + "</b>" + B.minutes + " min" + (B.why ? "<br><span style='color:var(--accent)'>" + esc(B.why) + "</span>" : ""))); }
+  var dks = []; for (var d = 0; d < 7; d++) { var dt = new Date(sunday); dt.setDate(sunday.getDate() + d); dks.push(dayKey(dt.getTime())); var B = plBudget(S, d, dks[d]); w.appendChild(el("div", "hd" + (d === wd ? " today" : ""), PL_DAYS_SHORT[d] + "<b>" + dt.getDate() + "</b>" + B.minutes + " min" + (B.why ? "<br><span style='color:var(--accent)'>" + esc(B.why) + "</span>" : ""))); }
   var hrs = el("div", "hrs"); hrs.style.height = (endH - startH) * hourPx + "px";
   for (var h = startH; h <= endH; h++) { var lab = el("i", "", plFmt(h * 60)); lab.style.top = (h - startH) * hourPx + "px"; hrs.appendChild(lab); }
   w.appendChild(hrs);
   for (d = 0; d < 7; d++) {
     var col = el("div", "col" + (d === wd ? " today" : "")); col.style.height = (endH - startH) * hourPx + "px";
-    plBusy(S, d).forEach(function (b) { var e = el("div", "evt " + b.k, "<b>" + esc(b.n) + "</b>" + plFmt(b.f) + "–" + plFmt(b.t)); e.style.top = ((b.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, (b.t - b.f) / 60 * hourPx - 2) + "px"; e.title = b.n + " " + plFmt(b.f) + "–" + plFmt(b.t); col.appendChild(e); });
+    plBusy(S, d, dks[d]).forEach(function (b) { if (b.t / 60 <= startH || b.f / 60 >= endH) return; var e = el("div", "evt " + b.k, "<b>" + esc(b.n) + "</b>" + plFmt(b.f) + "–" + plFmt(b.t)); e.style.top = ((Math.max(b.f / 60, startH) - startH) * hourPx) + "px"; e.style.height = Math.max(14, (Math.min(b.t / 60, endH) - Math.max(b.f / 60, startH)) * hourPx - 2) + "px"; e.title = b.n + " " + plFmt(b.f) + "–" + plFmt(b.t) + (b.cal ? " · " + b.cal : ""); col.appendChild(e); });
     if (d === wd) plan.blocks.forEach(function (b) { if (!b.at) return; var e = el("div", "evt study" + (b.school ? " school" : "") + (b.deferred ? " deferred" : ""), "<b>" + esc(blockLabel(b)) + "</b>" + b.min + " min"); e.style.top = ((b.at.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, b.min / 60 * hourPx - 2) + "px"; e.title = blockLabel(b) + " · " + plFmt(b.at.f) + "–" + plFmt(b.at.t); col.appendChild(e); });
-    else { var free = plFree(S, d); free.forEach(function (f) { var e = el("div", "evt study", "<b>free</b>" + plFmt(f.f) + "–" + plFmt(f.t)); e.style.opacity = ".35"; e.style.top = ((f.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, (f.t - f.f) / 60 * hourPx - 2) + "px"; col.appendChild(e); }); }
+    else { var free = plFree(S, d, dks[d]); free.forEach(function (f) { var e = el("div", "evt study", "<b>free</b>" + plFmt(f.f) + "–" + plFmt(f.t)); e.style.opacity = ".35"; e.style.top = ((f.f / 60 - startH) * hourPx) + "px"; e.style.height = Math.max(14, (f.t - f.f) / 60 * hourPx - 2) + "px"; col.appendChild(e); }); }
     w.appendChild(col);
   }
   box.appendChild(w);
@@ -13450,7 +13693,7 @@ function drawForecast(box) {
   var fc = plForecast(items, now, 14, dayKey), S = HUB.plan;
   var p = el("div", "panel"); p.innerHTML = '<div class="ph"><h3>Reviews falling due, next 14 days</h3><span>exact: every skill has a date</span></div>';
   var g = el("div", "fc");
-  fc.forEach(function (r, i) { var d = new Date(now + i * SRS_DAY), wd = d.getDay(), B = plBudget(S, wd); var cell = el("div", (i === 0 ? "today" : "") + (r.total > 40 ? " heavy" : "")); cell.innerHTML = '<b>' + (i === 0 ? "Today" : PL_DAYS_SHORT[wd] + " " + d.getDate()) + '</b><div class="n">' + r.total + '</div><div class="by">' + Object.keys(r.by).map(function (k) { return '<i style="color:' + trackColor(k) + '">' + r.by[k] + ' ' + esc(trackName(k)) + '</i>'; }).join("") + '</div><div class="cm" style="font-size:10.5px;color:var(--faint);margin-top:4px">' + B.minutes + ' min budget' + (plHas(S, wd, "hockey") ? " · hockey" : "") + '</div>'; g.appendChild(cell); });
+  fc.forEach(function (r, i) { var d = new Date(now + i * SRS_DAY), wd = d.getDay(), dk = dayKey(d.getTime()), B = plBudget(S, wd, dk); var cell = el("div", (i === 0 ? "today" : "") + (r.total > 40 ? " heavy" : "")); cell.innerHTML = '<b>' + (i === 0 ? "Today" : PL_DAYS_SHORT[wd] + " " + d.getDate()) + '</b><div class="n">' + r.total + '</div><div class="by">' + Object.keys(r.by).map(function (k) { return '<i style="color:' + trackColor(k) + '">' + r.by[k] + ' ' + esc(trackName(k)) + '</i>'; }).join("") + '</div><div class="cm" style="font-size:10.5px;color:var(--faint);margin-top:4px">' + B.minutes + ' min budget' + (plHas(S, wd, "hockey", dk) ? " · hockey" : "") + '</div>'; g.appendChild(cell); });
   p.appendChild(g);
   p.appendChild(el("p", "pnote", "Reviews are the floor of each day. A heavy day (outlined red) means a lot came due at once; the fix is to keep new lessons to the daily cap, not to skip the reviews. Overdue reviews roll forward and show on today."));
   box.appendChild(p);
@@ -13484,6 +13727,42 @@ function drawMonth(box) {
   var tot = 0, n = 0; Object.keys(plog).forEach(function (k) { if (k.indexOf(y + "-" + ("0" + (m + 1)).slice(-2)) === 0) { tot += plog[k].s; n++; } });
   box.appendChild(el("p", "pnote", "This month: " + fmtDur(tot) + " over " + plural(n, "day") + " in the hub" + (P.has ? ", plus PokerPro's own log" : "") + "."));
 }
+/* calendars imported from .ics files: their events are busy time on their own dates, on top of the week above */
+function drawImported(S) {
+  var p = el("div", "panel"); p.style.marginTop = "16px";
+  p.innerHTML = '<div class="ph"><h3>Imported calendars</h3><span>.ics files from Apple, Google or Outlook</span></div><p class="pnote">Import one .ics file or several at once; a file holding several calendars becomes one entry per calendar. Their events block study time on the days they happen, repeating events included. All-day and free events are left out. An event named hockey counts as hockey wherever it is. To refresh a calendar, import a newer export of it: one with the same name is replaced and keeps its settings.</p>';
+  var cals = S.cals || [];
+  var list = el("div", "busylist callist");
+  cals.forEach(function (c, i) {
+    var rep = c.ev.filter(function (e) { return e.r; }).length, row = el("div");
+    row.innerHTML = '<span><span class="dot ' + (c.k === "class" ? "k-class" : c.k === "hockey" ? "k-hockey" : "k-other") + '"></span>' + esc(c.name) + ' <small>' + plural(c.ev.filter(function (e) { return !e.skip; }).length, "event") + (rep ? ", " + rep + " repeating" : "") + (c.on === false ? " · off" : "") + '</small></span>';
+    var kind = el("select"); kind.style.width = "auto"; ICS_KINDS.forEach(function (k) { var o = el("option", "", PL_KINDS[k]); o.value = k; if ((c.k || "other") === k) o.selected = true; kind.appendChild(o); });
+    kind.onchange = function () { c.k = kind.value; c.at = Date.now(); S.at = Date.now(); saveSoon(); route(); };
+    row.appendChild(kind);
+    row.appendChild(btn(c.on === false ? "turn on" : "turn off", "ghost sm", function () { c.on = c.on === false; c.at = Date.now(); S.at = Date.now(); saveSoon(); route(); }));
+    row.appendChild(btn("remove", "ghost sm", function () { S.cals.splice(i, 1); S.at = Date.now(); saveSoon(); route(); }));
+    list.appendChild(row);
+  });
+  if (!cals.length) list.appendChild(el("p", "pnote", "No calendars imported yet."));
+  p.appendChild(list);
+  var file = el("input"); file.type = "file"; file.multiple = true; file.accept = ".ics,.ical,.ifb,.icalendar,text/calendar"; file.hidden = true;
+  file.onchange = function () {
+    var files = Array.prototype.slice.call(file.files || []); if (!files.length) return;
+    Promise.all(files.map(function (f) { return f.text().then(function (t) { return icsParse(t, f.name.replace(/\.[^.]+$/, ""), todayKey()); }); })).then(function (parsed) {
+      var all = [].concat.apply([], parsed).filter(function (c) { return c.ev.length; });
+      if (!all.length) { toast("No timed events found in " + (files.length > 1 ? "those files" : "that file") + ". Is it an .ics export?", ""); return; }
+      S.cals = icsMerge(S.cals, all, Date.now()); S.at = Date.now(); saveSoon();
+      toast("Imported " + all.map(function (c) { return esc(c.name) + " (" + plural(c.ev.length, "event") + ")"; }).join(", ") + ".", "");
+      route();
+    }).catch(function (e) { toast("Could not read the file: " + esc(e.message || e), ""); });
+  };
+  var row = el("div", "row"); row.style.marginTop = "12px";
+  row.appendChild(btn(cals.length ? "Import more .ics files" : "Import .ics files", "go sm", function () { file.click(); }));
+  row.appendChild(file);
+  p.appendChild(row);
+  p.appendChild(el("p", "pnote", "<b>Apple Calendar (Mac):</b> select a calendar in the sidebar, then File › Export › Export…; repeat for each calendar and import all the files together. <b>Google Calendar:</b> Settings › Import &amp; export › Export downloads a zip with one .ics per calendar; unzip it and pick them all. <b>Outlook:</b> save the calendar as an .ics file. Times are shown in this device's time zone."));
+  return p;
+}
 function drawCalSettings(box) {
   var S = HUB.plan;
   var wk = el("div", "panel"); wk.innerHTML = '<div class="ph"><h3>Your week</h3><span>classes, hockey and anything fixed</span></div><p class="pnote">Add every recurring commitment with its day and time. The planner leaves a buffer around each one, keeps study out of them, lowers the daily cap on hockey days and on days with five or more busy hours, and never schedules anything after your sleep cutoff.</p>';
@@ -13503,6 +13782,7 @@ function drawCalSettings(box) {
   form.appendChild(btn("Add", "go sm", function () { if (!nm.value.trim() || !f.value || !t.value) return; var ds = { one: [curD], mwf: [1, 3, 5], tth: [2, 4], wk: [1, 2, 3, 4, 5], all: [0, 1, 2, 3, 4, 5, 6] }[days.value]; ds.forEach(function (d) { S.week[d] = S.week[d] || []; S.week[d].push({ n: nm.value.trim(), k: kind.value, f: f.value, t: t.value }); }); S.at = Date.now(); saveSoon(); route(); }));
   wk.appendChild(form);
   box.appendChild(wk);
+  box.appendChild(drawImported(S));
   var st = el("div", "panel"); st.style.marginTop = "16px"; st.innerHTML = '<div class="ph"><h3>Daily budget</h3><span>how much the planner may ask of a day</span></div>';
   var g = el("div", "grid3");
   function num(label, key, min, max, step, help) { var w = el("div", "field"); w.innerHTML = '<label class="f">' + label + '</label>'; var i = el("input"); i.type = "number"; i.min = min; i.max = max; i.step = step || 1; i.value = S[key]; i.onchange = function () { S[key] = +i.value; S.at = Date.now(); saveSoon(); }; w.appendChild(i); if (help) w.appendChild(el("div", "hint", help)); return w; }

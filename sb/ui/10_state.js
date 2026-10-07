@@ -293,7 +293,7 @@ function planToday(now) {
   plan.blocks.forEach(function (b) { if (b.deferred) { deferred.push(b); return; } if (b.min <= left) { kept.push(b); left -= b.min; } else { b.deferred = true; b.why = "Schoolwork took today's budget; it waits for tomorrow."; deferred.push(b); } });
   var blocks = school.concat(kept).concat(deferred);
   /* place the blocks into the free windows again, school first */
-  var wins = plFree(S, wd).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
+  var wins = plFree(S, wd, key).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
   var nowMin = new Date(now).getHours() * 60 + new Date(now).getMinutes();
   while (wi < wins.length && wins[wi].t <= nowMin) wi++;
   if (wi < wins.length) cur = Math.max(wins[wi].f, nowMin);
