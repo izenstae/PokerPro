@@ -313,9 +313,14 @@ function planToday(now) {
   /* make room: push the generic blocks down until the school work fits the budget */
   var left = plan.left - schoolMin, kept = [], deferred = [];
   plan.blocks.forEach(function (b) { if (b.deferred) { deferred.push(b); return; } if (b.min <= left) { kept.push(b); left -= b.min; } else { b.deferred = true; b.why = "Schoolwork took today's budget; it waits for tomorrow."; deferred.push(b); } });
-  var blocks = school.concat(kept).concat(deferred);
+  /* assignments and exams from the imported calendars: today's share of their work, reserved on top of the skills' budget (which already shrank for it) */
+  var assign = plDueWork(S, key, key).map(function (d) {
+    return { skill: "due:" + d.id, kind: "assignment", min: d.min, label: d.n.replace(/\s*[-–:(]?\s*(is )?due\)?$/i, "") + " · " + dueWhen(d, key), href: "#/calendar/forecast", school: true,
+      why: (d.type === "exam" || d.type === "quiz" ? "Study for it: " : "Work on it: ") + "about " + plHours(d.est) + " in all, spread over " + plural(d.left, "day") + (d.left > 1 ? " left" : "") + " by how much free time each has. Mark it finished in Calendar › Forecast." };
+  });
+  var blocks = assign.concat(school).concat(kept).concat(deferred);
   /* place the blocks into the free windows again, school first */
-  var wins = plFree(S, wd).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
+  var wins = plFree(S, wd, key).map(function (w) { return { f: w.f, t: w.t }; }), wi = 0, cur = wins.length ? wins[0].f : 0;
   var nowMin = new Date(now).getHours() * 60 + new Date(now).getMinutes();
   while (wi < wins.length && wins[wi].t <= nowMin) wi++;
   if (wi < wins.length) cur = Math.max(wins[wi].f, nowMin);
@@ -330,6 +335,12 @@ function planToday(now) {
   var marks = (HUB.gstate.planDone && HUB.gstate.planDone[key]) || {};
   blocks.forEach(function (b, i) { b.i = i; b.done = !!marks[b.skill + ":" + b.kind] || ((done[b.skill] || 0) >= b.min && b.kind !== "homework" && b.kind !== "lesson"); if (b.kind === "lesson" && b.id && D[b.skill] && D[b.skill].lesson && D[b.skill].lesson.id !== b.id) b.done = true; });
   return plan;
+}
+/* "due today 11:59pm", "due tomorrow", "due Fri 2pm" */
+function dueWhen(d, today) {
+  var days = Math.round((plKeyDate(d.key) - plKeyDate(today)) / SRS_DAY), when = days <= 0 ? "today" : days === 1 ? "tomorrow" : days < 7 ? PL_DAYS[plKeyDate(d.key).getDay()] : plKeyDate(d.key).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  var t = d.ad ? "" : " " + plFmt(d.due != null ? d.due : d.min);
+  return "due " + when + t;
 }
 function planMark(b) {
   var key = todayKey(), PD = HUB.gstate.planDone || (HUB.gstate.planDone = {}), m = PD[key] || (PD[key] = {});

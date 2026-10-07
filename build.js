@@ -33,7 +33,7 @@ console.log("built poker/index.html  " + (poker.length / 1024).toFixed(0) + "kb"
 
 /* ---- the hub ---- */
 const shared = ["srs.js", "game.js", "level.js", "sync.js"].map(f => strip("src", f)).join("\n");
-const sb = ["lang.js", "core.js", "planner.js", "school.js", "method.js", "hubsync.js", "quant.js", "chess.js", "chess_drills.js", "chess_course.js",
+const sb = ["lang.js", "core.js", "ics.js", "planner.js", "school.js", "method.js", "hubsync.js", "quant.js", "chess.js", "chess_drills.js", "chess_course.js",
   "sv_data.js", "sv_course.js", "he_data.js", "he_data2.js", "he_course.js", "es_data.js", "es_course.js"].map(f => strip("sb", f)).join("\n");
 /* a course app's stylesheet, scoped to the hub's container for it. Every selector is prefixed with the scope, so the
    course's .card, .btn and .hero never reach the hub's screens; :root and body become the container (the hub maps the
