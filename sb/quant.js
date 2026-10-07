@@ -135,12 +135,14 @@ function qtCheck(q, raw) {
 /* ---- scores and the plan ---- */
 function qtNew() { return { runs: [], tier: {}, best: {} }; }
 function qtRecord(S, gameId, tier, score, n, now) {
+  var G = qtGame(gameId);
+  tier = Math.max(0, Math.min(G.tiers.length - 1, (+tier | 0)));   /* clamp like qtQuestion: a stale or corrupt tier never indexes past the ladder */
   S.runs.push({ t: now, g: gameId, tier: tier, score: score, n: n });
   if (S.runs.length > 2000) S.runs.splice(0, S.runs.length - 2000);
   var key = gameId + ":" + tier;
   if (!S.best[key] || score > S.best[key]) S.best[key] = score;
   /* the plan: move up a tier once the median of the last five runs at this tier beats the target */
-  var G = qtGame(gameId), T = G.tiers[tier], last = S.runs.filter(function (r) { return r.g === gameId && r.tier === tier; }).slice(-5).map(function (r) { return r.score; }).sort(function (a, b) { return a - b; });
+  var T = G.tiers[tier], last = S.runs.filter(function (r) { return r.g === gameId && r.tier === tier; }).slice(-5).map(function (r) { return r.score; }).sort(function (a, b) { return a - b; });
   var med = last.length >= 5 ? last[2] : null;
   var moved = false;
   if (med != null && med >= T.target && tier + 1 < G.tiers.length) { S.tier[gameId] = tier + 1; moved = true; }

@@ -81,8 +81,8 @@ function next() {
   var stage = $("stage"); stage.innerHTML = "";
   if (q.board) stage.appendChild(boardWidget(q.board.fen, { flip: q.board.flip, mark: q.board.mark, coords: q.board.coords !== false, size: "", interactive: q.kind === "square" || q.kind === "move", onSquare: q.kind === "square" ? function (sq) { submit(sq); } : null, onMove: q.kind === "move" ? function (m, S) { submit(chSan(S, m)); } : null }));
   if (q.lines) { var facts = el("dl", "facts"); q.lines.forEach(function (p) { facts.innerHTML += "<div class='fact'><dt>" + esc(p[0]) + "</dt><dd>" + esc(p[1]) + "</dd></div>"; }); stage.appendChild(facts); }
-  var ask = $("ask"); ask.className = "ask" + (q.rtl && q.kind !== "text" ? " rtl" : ""); ask.innerHTML = q.hideText ? (q.question || "") : (q.question || "");
-  if (q.speak) { var sb = el("button", "speakbtn", "🔊"); sb.type = "button"; sb.title = "Play again"; sb.onclick = function () { speak(q.speak.text, q.speak.lang); }; ask.appendChild(document.createTextNode(" ")); ask.appendChild(sb); setTimeout(function () { speak(q.speak.text, q.speak.lang); }, 150); }
+  var ask = $("ask"); ask.className = "ask" + (q.rtl && q.kind !== "text" ? " rtl" : ""); ask.innerHTML = q.question || "";
+  if (q.speak) { var sb = el("button", "speakbtn", "🔊"); sb.type = "button"; sb.title = "Play again"; sb.setAttribute("aria-label", "Listen again"); sb.onclick = function () { speak(q.speak.text, q.speak.lang); }; ask.appendChild(document.createTextNode(" ")); ask.appendChild(sb); setTimeout(function () { speak(q.speak.text, q.speak.lang); }, 150); }
   if (q.flash) { var f = el("span", "flashtext" + (q.rtl ? " rtl" : ""), esc(q.flash)); ask.appendChild(f); setTimeout(function () { f.textContent = "…"; }, Math.max(2500, 120 * q.flash.length)); }
   buildControls();
   t0 = performance.now(); cancelAnimationFrame(raf); tick();
@@ -111,7 +111,7 @@ function buildControls() {
     $("hint").textContent = q.kind === "num" ? "Enter submits." : "Enter submits. Case and punctuation are ignored; letters and accents are not.";
     setTimeout(function () { inp.focus(); }, 30);
   } else if (q.kind === "speak") {
-    var code = (LG_LANG[q.lang] || {}).code || "en-US", mic = el("button", "speakbtn", "🎤"); mic.type = "button";
+    var code = (LG_LANG[q.lang] || {}).code || "en-US", mic = el("button", "speakbtn", "🎤"); mic.type = "button"; mic.setAttribute("aria-label", "Speak");
     var status = el("span", "said", "Tap the microphone, say it, then it is checked.");
     mic.onclick = function () {
       mic.classList.add("lit"); status.textContent = "Listening…";
@@ -226,13 +226,17 @@ function drawTape() {
 document.addEventListener("keydown", function (e) {
   if (!drillHost || !document.body.contains(drillHost) || !q) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.key !== "Enter") return;
+  /* Enter on a focused button in the drill (an option, a confidence button, Next) is that button's own click; leave it alone */
+  var ae = document.activeElement, onBtn = !!(ae && ae.tagName === "BUTTON" && drillHost.contains(ae));
   if (!answered && q.kind === "recall") { if (!q.shown && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); showRule(); } else if (q.shown && (e.key === "1" || e.key === "2")) submit(e.key === "1" ? "had" : "missed"); return; }
-  if (answered && q.confPending) { var ci = ["1", "2", "3"].indexOf(e.key); if (ci >= 0) { e.preventDefault(); pickConfidence(CONF[ci][0]); } else if (e.key === "Enter") e.preventDefault(); return; }
-  if (e.key === "Enter") { e.preventDefault(); if (answered) advance(); else if (q.kind === "text" || q.kind === "num") { var i = $("inp"); if (i) submit(i.value); } return; }
+  if (answered && q.confPending) { var ci = ["1", "2", "3"].indexOf(e.key); if (ci >= 0) { e.preventDefault(); pickConfidence(CONF[ci][0]); } else if (e.key === "Enter" && !onBtn) e.preventDefault(); return; }
+  if (e.key === "Enter") { if (onBtn) return; e.preventDefault(); if (answered) advance(); else if (q.kind === "text" || q.kind === "num") { var i = $("inp"); if (i) submit(i.value); } return; }
   if (!answered && q.kind === "choice") { var n = parseInt(e.key, 10); if (n >= 1 && n <= q.options.length) submit(q.options[n - 1]); }
 });
 
 /* ---- sessions ---- */
+/* the result panel lives at #/drill too, so setting the hash again would not fire hashchange: draw directly then */
+function goDrill() { if (location.hash === "#/drill") route(); else location.hash = "#/drill"; }
 function startSession(kind, cid, only) {
   var now = Date.now(), pool;
   if (only && only.length) pool = only.slice();
@@ -241,7 +245,7 @@ function startSession(kind, cid, only) {
   if (!pool.length) { toast("Nothing to review " + (cid ? "in " + COURSES[cid].name : "") + " right now.", ""); return; }
   sess = { kind: kind, course: cid, pool: pool, ctx: { last: null, retry: [], idle: kind === "due" ? 0.15 : 0.6 }, n: 0, ok: 0, secs: 0, cap: kind === "due" ? 60 : 20, from: {} };
   cp = null;
-  location.hash = "#/drill";
+  goDrill();
 }
 function sessDue() { return srsDueList(sess.pool, skills, Date.now()); }
 function sessOver() { return sess.n >= sess.cap || (sess.kind === "due" && !sessDue().length); }
@@ -277,7 +281,7 @@ function endSession() {
 function startCp(cid, lid) {
   var c = COURSES[cid], L = c.lessonById[lid];
   cp = { course: cid, id: lid, need: L.pass, of: L.of, marks: [], asked: [] };
-  sess = null; location.hash = "#/drill";
+  sess = null; goDrill();
 }
 function placeStageQs(c, S) {
   var ls = S.lessons.filter(passable), seq = [];
@@ -291,7 +295,7 @@ function startPlacement(cid, stageN) {
   if (!S) { location.hash = "#/c/" + cid; return; }
   var seqL = placeStageQs(c, S);
   cp = { placement: true, course: cid, stage: S.n, id: seqL[0], seqL: seqL, of: seqL.length, need: Math.ceil(0.8 * seqL.length), marks: [], asked: [], placed: (cp && cp.placement ? cp.placed : 0) };
-  cp.seq = null; sess = null; location.hash = "#/drill";
+  cp.seq = null; sess = null; goDrill();
 }
 /* placement asks each lesson's checkpoint question in turn */
 var _cpQ = cpQuestion;
@@ -336,7 +340,7 @@ function endCp() {
     else { row2.appendChild(btn("Try again", "go", function () { startCp(cid, lid); })); row2.appendChild(btn("Reread the lesson", "ghost", function () { cp = null; location.hash = "#/c/" + cid + "/learn/" + lid; })); }
     d.appendChild(row2);
   }
-  if (!cp.placement || true) { hostQ(".table").hidden = true; hostQ(".cpbar").hidden = true; d.hidden = false; }
+  hostQ(".table").hidden = true; hostQ(".cpbar").hidden = true; d.hidden = false;
   window.scrollTo(0, 0);
 }
 /* placement: the next question comes from the next lesson in the sequence */

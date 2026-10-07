@@ -265,20 +265,19 @@
   var DRILLS = {
     heletter: { name: "Letters", target: 6, gen: function (ctx) {
       var row = pick(LET, ctx.rnd), kind = ctx.rnd();
-      var others = lgShuffle(LET.filter(function (r) { return r !== row; }).slice(), ctx.rnd).slice(0, 3);
-      if (kind < 0.4) return { kind: "choice", question: "What is the name of <b class='tw big'>" + row[0] + "</b>?", options: lgShuffle([row[1]].concat(others.map(function (r) { return r[1]; })), ctx.rnd), answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b> " + row[1] + ": " + row[2]], rtl: true };
-      if (kind < 0.8) return { kind: "choice", question: "Which letter is <b>" + row[1] + "</b> (" + row[2] + ")?", options: lgShuffle([row[0]].concat(others.map(function (r) { return r[0]; })), ctx.rnd), answer: row[0], target: 6, explain: ["<b>" + row[0] + "</b> " + row[1] + ": " + row[2]], rtl: true };
+      if (kind < 0.4) return { kind: "choice", question: "What is the name of <b class='tw big'>" + row[0] + "</b>?", options: lgOptions(row[1], LET.map(function (r) { return r[1]; }), 3, ctx.rnd, "he"), answer: row[1], target: 6, explain: ["<b>" + row[0] + "</b> " + row[1] + ": " + row[2]], rtl: true };
+      if (kind < 0.8) return { kind: "choice", question: "Which letter is <b>" + row[1] + "</b> (" + row[2] + ")?", options: lgOptions(row[0], LET.map(function (r) { return r[0]; }), 3, ctx.rnd, "he"), answer: row[0], target: 6, explain: ["<b>" + row[0] + "</b> " + row[1] + ": " + row[2]], rtl: true };
       var finals = LET.filter(function (r) { return r[4]; }), fr = pick(finals, ctx.rnd);
-      return { kind: "choice", question: "What is the final form of <b class='tw big'>" + fr[0] + "</b> (" + fr[1] + ")?", options: lgShuffle(finals.map(function (r) { return r[4]; }), ctx.rnd).slice(0, 4).filter(function (x) { return x !== fr[4]; }).slice(0, 3).concat([fr[4]]).sort(function () { return ctx.rnd() - 0.5; }), answer: fr[4], target: 6, explain: ["<b>" + fr[0] + "</b> becomes <b>" + fr[4] + "</b> at the end of a word."], rtl: true };
+      return { kind: "choice", question: "What is the final form of <b class='tw big'>" + fr[0] + "</b> (" + fr[1] + ")?", options: lgOptions(fr[4], finals.map(function (r) { return r[4]; }), 3, ctx.rnd, "he"), answer: fr[4], target: 6, explain: ["<b>" + fr[0] + "</b> becomes <b>" + fr[4] + "</b> at the end of a word."], rtl: true };
     } },
     hevowel: { name: "Vowels", target: 6, gen: function (ctx) {
-      var v = pick(HE_VOWELS, ctx.rnd), others = lgShuffle(HE_VOWELS.filter(function (r) { return r !== v && r[2] !== v[2]; }).slice(), ctx.rnd).slice(0, 3);
-      return { kind: "choice", question: "Which sound does <b class='tw big'>" + "בּ" + v[0] + "</b> make? (" + v[1] + ")", options: lgShuffle([v[2]].concat(others.map(function (r) { return r[2]; })), ctx.rnd), answer: v[2], target: 6, explain: ["<b>" + v[1] + "</b>: " + v[2] + " → b" + v[3]], rtl: true };
+      var v = pick(HE_VOWELS, ctx.rnd);
+      return { kind: "choice", question: "Which sound does <b class='tw big'>" + "בּ" + v[0] + "</b> make? (" + v[1] + ")", options: lgOptions(v[2], HE_VOWELS.map(function (r) { return r[2]; }), 3, ctx.rnd, "he"), answer: v[2], target: 6, explain: ["<b>" + v[1] + "</b>: " + v[2] + " → b" + v[3]], rtl: true };
     } },
     heread: { name: "Reading", target: 8, gen: function (ctx) {
       var pool = ALLV.filter(function (r) { return r[1].indexOf(" ") < 0 && r[1].length <= 9; });
-      var row = pick(pool, ctx.rnd), others = lgShuffle(pool.filter(function (r) { return r !== row && r[1] !== row[1]; }).slice(), ctx.rnd).slice(0, 3);
-      return { kind: "choice", question: "How is <b class='tw big'>" + row[0] + "</b> pronounced?", options: lgShuffle([row[1]].concat(others.map(function (r) { return r[1]; })), ctx.rnd), answer: row[1], target: 8, explain: ["<b>" + row[0] + "</b> = " + row[1] + " (" + row[2] + ")"], speakAfter: tts(row[0], ctx.caps), rtl: true };
+      var row = pick(pool, ctx.rnd);
+      return { kind: "choice", question: "How is <b class='tw big'>" + row[0] + "</b> pronounced?", options: lgOptions(row[1], pool.map(function (r) { return r[1]; }), 3, ctx.rnd, "he"), answer: row[1], target: 8, explain: ["<b>" + row[0] + "</b> = " + row[1] + " (" + row[2] + ")"], speakAfter: tts(row[0], ctx.caps), rtl: true };
     } },
     henum: { name: "Numbers", target: 10, gen: function (ctx) {
       var n = ctx.rnd() < 0.5 ? (ctx.rnd() * 11) | 0 : ctx.rnd() < 0.8 ? 11 + ((ctx.rnd() * 89) | 0) : 100 + ((ctx.rnd() * 900) | 0);
@@ -319,8 +318,8 @@
     var words = [];
     T.verses.forEach(function (v) { v.words.forEach(function (w) { words.push(w); }); });
     DRILLS["bhtext:" + T.id] = { name: T.title, target: 7, gen: function (ctx) {
-      var w = pick(words, ctx.rnd), others = lgShuffle(words.filter(function (x) { return x[1] !== w[1]; }).slice(), ctx.rnd).slice(0, 3);
-      return { kind: "choice", question: T.title + ": what does <b class='tw'>" + w[0] + "</b> mean?", options: lgShuffle([w[1]].concat(others.map(function (x) { return x[1]; })), ctx.rnd), answer: w[1], target: 7, explain: ["<b>" + w[0] + "</b> = " + w[1]], speakAfter: tts(w[0], ctx.caps), rtl: true };
+      var w = pick(words, ctx.rnd);
+      return { kind: "choice", question: T.title + ": what does <b class='tw'>" + w[0] + "</b> mean?", options: lgOptions(w[1], words.map(function (x) { return x[1]; }), 3, ctx.rnd, "he"), answer: w[1], target: 7, explain: ["<b>" + w[0] + "</b> = " + w[1]], speakAfter: tts(w[0], ctx.caps), rtl: true };
     } };
   });
 

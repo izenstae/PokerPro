@@ -35,7 +35,7 @@ function drawConv(box, c) {
   var thread = el("div", "conv");
   for (var i = 0; i <= Math.min(conv.i, d.turns.length - 1); i++) {
     var t = d.turns[i], bb = el("div", "bub bot" + (c.lang === "he" ? " rtl" : "")); bb.innerHTML = esc(t.bot) + '<small>' + esc(t.botg) + '</small>';
-    (function (tt) { var sb = btn("🔊", "ghost sm", function () { speak(tt.bot, code, 0.85); }); sb.style.cssText = "min-height:26px;padding:2px 8px;margin-top:6px"; bb.appendChild(sb); })(t);
+    (function (tt) { var sb = btn("🔊", "ghost sm", function () { speak(tt.bot, code, 0.85); }); sb.setAttribute("aria-label", "Listen"); sb.style.cssText = "min-height:26px;padding:2px 8px;margin-top:6px"; bb.appendChild(sb); })(t);
     thread.appendChild(bb);
     if (i < conv.i || conv.replies[i] != null) { var rep = conv.replies[i], okr = lgTurnOk(t, rep || "", c.lang); var mb = el("div", "bub me" + (okr ? "" : " bad") + (c.lang === "he" ? " rtl" : "")); mb.innerHTML = esc(rep || "(no answer)") + '<small>' + (okr ? "✓ that does the job" : "✗ not quite") + '</small><div class="model">' + esc(t.model) + '<small>' + esc(t.modelg) + '</small></div>'; thread.appendChild(mb); }
   }
@@ -46,7 +46,7 @@ function drawConv(box, c) {
     var inRow = el("div", "convin"), w = el("div", "entry"), inp = el("input"); inp.type = "text"; inp.autocomplete = "off"; if (c.lang === "he") inp.className = "rtl"; w.appendChild(inp); inRow.appendChild(w);
     var sendIt = function (text) { conv.replies[conv.i] = text; if (lgTurnOk(t2, text, c.lang)) conv.ok++; conv.i++; if (conv.i >= d.turns.length) finishConv(c); route(); };
     inRow.appendChild(btn("Send", "go", function () { sendIt(inp.value); }));
-    if (caps.asr) { var mic = el("button", "speakbtn", "🎤"); mic.type = "button"; mic.onclick = function () { mic.classList.add("lit"); listen(code, function (alts) { mic.classList.remove("lit"); var best = alts.filter(function (a) { return lgTurnOk(t2, a, c.lang); })[0] || alts[0]; inp.value = best; }, function () { mic.classList.remove("lit"); toast("Could not listen; type the reply.", ""); }); }; inRow.appendChild(mic); }
+    if (caps.asr) { var mic = el("button", "speakbtn", "🎤"); mic.type = "button"; mic.setAttribute("aria-label", "Speak"); mic.onclick = function () { mic.classList.add("lit"); listen(code, function (alts) { mic.classList.remove("lit"); var best = alts.filter(function (a) { return lgTurnOk(t2, a, c.lang); })[0] || alts[0]; inp.value = best; }, function () { mic.classList.remove("lit"); toast("Could not listen; type the reply.", ""); }); }; inRow.appendChild(mic); }
     inRow.appendChild(btn(conv.hint ? "Hide hint" : "Hint", "ghost sm", function () { conv.hint = !conv.hint; route(); }));
     if (conv.hint) inRow.appendChild(el("span", "said", "Try: <b>" + esc(t2.hint) + "</b>"));
     inp.onkeydown = function (e) { if (e.key === "Enter") sendIt(inp.value); };
@@ -80,7 +80,7 @@ function drawApplyDrill(box, c, kind) {
 function startApplySession(c, kind, mode) {
   var pool = []; for (var i = 0; i < 8; i++) pool.push(c.id + ":" + mode);
   sess = { kind: "apply", applyKind: kind, course: c.id, pool: pool, seq: pool, ctx: { last: null, retry: [], idle: 1 }, n: 0, ok: 0, secs: 0, cap: 8, from: {} };
-  cp = null; go("#/drill");
+  cp = null; goDrill();
 }
 var _endSession = endSession;
 endSession = function () {
@@ -101,7 +101,7 @@ function drawImmersionLog(box, c, full) {
   form.appendChild(sel); form.appendChild(min); form.appendChild(note);
   form.appendChild(btn("Log it", "go sm", function () { var m = parseInt(min.value, 10); if (!(m > 0)) return; HUB.logs = HUB.logs || []; HUB.logs.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), c: c.id, k: sel.value, min: m, n: note.value.slice(0, 80) }); logDay(c.id, m * 60, 0, 0); gmGain(c.id, Math.min(30, Math.round(m / 3)), "Logged " + m + " min of " + sel.value); saveSoon(); route(); }));
   p.appendChild(form);
-  if (logs.length) { var ll = el("div", "loglist"); logs.slice(0, full ? 60 : 8).forEach(function (l) { var row = el("div"); row.innerHTML = '<span class="said">' + new Date(l.t).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + '</span><span>' + esc(l.k) + (l.n ? " · " + esc(l.n) : "") + '</span><b>' + l.min + ' min</b>'; var x = btn("×", "ghost sm", function () { HUB.logs = HUB.logs.filter(function (y) { return y.id !== l.id; }); saveSoon(); route(); }); row.appendChild(x); ll.appendChild(row); }); p.appendChild(ll); }
+  if (logs.length) { var ll = el("div", "loglist"); logs.slice(0, full ? 60 : 8).forEach(function (l) { var row = el("div"); row.innerHTML = '<span class="said">' + new Date(l.t).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + '</span><span>' + esc(l.k) + (l.n ? " · " + esc(l.n) : "") + '</span><b>' + l.min + ' min</b>'; var x = btn("×", "ghost sm", function () { HUB.logs = HUB.logs.filter(function (y) { return y.id !== l.id; }); saveSoon(); route(); }); x.setAttribute("aria-label", "Remove entry"); row.appendChild(x); ll.appendChild(row); }); p.appendChild(ll); }
   else p.appendChild(el("p", "pnote", "Nothing logged yet."));
   box.appendChild(p);
 }

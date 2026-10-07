@@ -2,7 +2,7 @@
    UI 4: the router, the navigation, Today, the skills overview,
    and the course hub (path, reader, practice, level, library)
    ============================================================ */
-var view = "home", routeParts = [], curHash = "", openLayer = {};
+var view = "home", curHash = "", openLayer = {};
 var VIEWS = ["home", "calendar", "skills", "c", "poker", "school", "quant", "library", "sync", "drill", "method"];
 var ICON = {
   home: '<svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>',
@@ -15,7 +15,7 @@ function drawNav() {
   var n = $("nav");
   if (!n.dataset.built) {
     n.dataset.built = "1";
-    n.innerHTML = [["home", "Today"], ["calendar", "Calendar"], ["skills", "Skills"], ["school", "School"], ["library", "Library"]].map(function (x) { return '<a class="navi" id="nav_' + x[0] + '" href="#/' + x[0] + '">' + ICON[x[0]] + '<span>' + x[1] + '</span><i class="nbadge" hidden></i></a>'; }).join("");
+    n.innerHTML = [["home", "Today"], ["calendar", "Calendar"], ["skills", "Skills"], ["school", "School"], ["library", "Library"]].map(function (x) { return '<a class="navi" id="nav_' + x[0] + '" href="#/' + x[0] + '" aria-label="' + x[1] + '">' + ICON[x[0]] + '<span>' + x[1] + '</span><i class="nbadge" hidden></i></a>'; }).join("");
   }
   var active = view === "c" || view === "poker" || view === "quant" || view === "drill" ? "skills" : view === "method" || view === "sync" ? "library" : view;
   ["home", "calendar", "skills", "school", "library"].forEach(function (v) { var a = $("nav_" + v); if (a) { if (active === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); } });
@@ -23,13 +23,12 @@ function drawNav() {
   var sd = 0; SCHOOL_COURSES.forEach(function (sc) { var R = schoolRead(sc); sd += R.due + R.misses; });
   var sb = $("nav_school").querySelector(".nbadge"); sb.hidden = !sd; sb.textContent = sd; sb.className = "nbadge red"; sb.title = sd + " school items due";
 }
-function hashFor() { return "#/" + routeParts.join("/"); }
 window.addEventListener("hashchange", function () { if (location.hash !== curHash) route(); });
 function route() {
   var parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (!parts.length) parts = ["home"];
   if (VIEWS.indexOf(parts[0]) < 0) parts = ["home"];
-  view = parts[0]; routeParts = parts; curHash = "#/" + parts.join("/");
+  view = parts[0]; curHash = "#/" + parts.join("/");
   if (view !== "drill") { if (sess || cp) { sess = null; cp = null; } q = null; cancelAnimationFrame(raf); }
   if (view !== "c" || parts[2] !== "apply") game = game && game.over ? null : game;
   var main = $("main"); main.innerHTML = ""; main.className = "wrap v-" + view;
@@ -48,12 +47,14 @@ function route() {
   } catch (e) { main.innerHTML = '<div class="empty">Something went wrong drawing this page: ' + esc(e.message) + '. <a href="#/home">Back to Today</a></div>'; if (window.console) console.error(e); }
   drawNav(); drawGamePill();
   if (view !== "drill") window.scrollTo(0, 0);
+  /* keyboard and screen-reader users land on the new view (main has tabindex=-1), unless the view already focused a control */
+  if (!main.contains(document.activeElement)) { try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); } }
 }
 function go(h) { location.hash = h; }
 
 /* ============================================================ TODAY ============================================================ */
-var TRACK_COLOR = { poker: "#A8761A", chess: "#2F7A4E", sv: "#2F5C9E", he: "#C2451F", es: "#B9321C", quant: "#6A4FB6" };
-function trackColor(k) { return k.indexOf("school:") === 0 || k.indexOf("due:") === 0 ? "#6A4FB6" : TRACK_COLOR[k] || "#8E8779"; }
+var TRACK_COLOR = { poker: "var(--gold)", chess: "var(--green)", sv: "var(--blue)", he: "var(--accent)", es: "var(--red)", quant: "var(--purple)" };
+function trackColor(k) { return k.indexOf("school:") === 0 || k.indexOf("due:") === 0 ? "var(--purple)" : TRACK_COLOR[k] || "var(--ink3)"; }
 function trackName(k) { if (k === "poker") return "Poker"; if (k.indexOf("due:") === 0) return "Assignment"; if (k.indexOf("school:") === 0) { var sc = SCHOOL_COURSES.filter(function (x) { return "school:" + x.id === k; })[0]; return sc ? sc.code : k; } return COURSES[k] ? COURSES[k].name : k; }
 function blockLabel(b) { return b.school || b.label.indexOf(":") > 0 && b.label.indexOf(trackName(b.skill)) === 0 ? b.label : trackName(b.skill) + ": " + b.label; }
 function trackHref(k) { if (k === "poker") return "#/poker"; if (k.indexOf("school:") === 0) return "#/school/" + k.slice(7); return "#/c/" + k; }
@@ -211,7 +212,7 @@ function drawReader(box, c, L) {
   if (passable(L) && L.mode !== "quiz") { var tc = el("div", "trycard"); mark("try", tc); body.appendChild(tc); miniQ(tc, c, L); }
   r.appendChild(body);
   var jump = el("nav", "rjump"); jump.innerHTML = secs.map(function (k) { return '<a href="#sec-' + k + '" data-k="' + k + '">' + SEC_NAME[k] + '</a>'; }).join("");
-  jump.onclick = function (e) { var a = e.target.closest("a[data-k]"); if (!a) return; e.preventDefault(); var t = $("sec-" + a.dataset.k); if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 110, behavior: "smooth" }); };
+  jump.onclick = function (e) { var a = e.target.closest("a[data-k]"); if (!a) return; e.preventDefault(); var t = $("sec-" + a.dataset.k); if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 110, behavior: window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); };
   if (secs.length > 1) r.insertBefore(jump, body);
   glossify(body, c, L.id);
   var f = el("div", "rfoot"), i = c.lessonList.indexOf(L), prev = c.lessonList[i - 1], nx = c.lessonList[i + 1];
@@ -231,7 +232,7 @@ function drawReader(box, c, L) {
   f.appendChild(pn); r.appendChild(f); box.appendChild(r);
 }
 function drawBlock(b, c) {
-  if (b.t === "p") { var p = el("p", "prose" + (b.lang === "he" ? " rtl" : b.lang ? " l2" : ""), b.x); if (b.lang) { var sb = btn("🔊", "ghost sm", function () { speak(b.x, LG_LANG[b.lang].code, 0.85); }); sb.style.cssText = "margin-left:8px;min-height:28px;padding:2px 8px"; p.appendChild(sb); } return p; }
+  if (b.t === "p") { var p = el("p", "prose" + (b.lang === "he" ? " rtl" : b.lang ? " l2" : ""), b.x); if (b.lang) { var sb = btn("🔊", "ghost sm", function () { speak(b.x, LG_LANG[b.lang].code, 0.85); }); sb.setAttribute("aria-label", "Listen"); sb.style.cssText = "margin-left:8px;min-height:28px;padding:2px 8px"; p.appendChild(sb); } return p; }
   if (b.t === "warn") return el("div", "warn", b.x);
   if (b.t === "key") { var k = el("div", "keybox"); k.innerHTML = "<b>Commit this</b><span>" + b.x + "</span>"; return k; }
   if (b.t === "rule") { var r = el("div", "rule"); r.innerHTML = "<pre>" + esc(b.x) + "</pre>" + (b.note ? "<small>" + b.note + "</small>" : ""); return r; }
@@ -358,7 +359,7 @@ function lineChart(pts, opts) {
   var X = function (x) { return pad + (W - 2 * pad) * (x1 === x0 ? 0.5 : (x - x0) / (x1 - x0)); }, Y = function (y) { return H - pad + (2 * pad - H) * (y - y0) / (y1 - y0); };
   var path = pts.map(function (p, i) { return (i ? "L" : "M") + X(p.x).toFixed(1) + " " + Y(p.y).toFixed(1); }).join(" ");
   var grid = ""; for (var i = 0; i <= 4; i++) { var yy = y0 + (y1 - y0) * i / 4; grid += '<line x1="' + pad + '" x2="' + (W - pad) + '" y1="' + Y(yy).toFixed(1) + '" y2="' + Y(yy).toFixed(1) + '"/><text x="2" y="' + (Y(yy) + 3).toFixed(1) + '">' + Math.round(yy) + '</text>'; }
-  box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '"><g class="grid">' + grid + '</g><path class="ar" d="' + path + ' L' + X(pts[pts.length - 1].x).toFixed(1) + ' ' + (H - pad) + ' L' + X(pts[0].x).toFixed(1) + ' ' + (H - pad) + ' Z"/><path class="ln" d="' + path + '"/>' + (pts.length < 80 ? pts.map(function (p) { return '<circle class="dot" r="3" cx="' + X(p.x).toFixed(1) + '" cy="' + Y(p.y).toFixed(1) + '"><title>' + (p.label || p.y) + '</title></circle>'; }).join("") : "") + '</svg>';
+  box.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '"><g class="grid">' + grid + '</g><path class="ar" d="' + path + ' L' + X(pts[pts.length - 1].x).toFixed(1) + ' ' + (H - pad) + ' L' + X(pts[0].x).toFixed(1) + ' ' + (H - pad) + ' Z"/><path class="ln" d="' + path + '"/>' + (pts.length < 80 ? pts.map(function (p) { return '<circle class="dot" r="3" cx="' + X(p.x).toFixed(1) + '" cy="' + Y(p.y).toFixed(1) + '"><title>' + esc(p.label != null ? p.label : String(p.y)) + '</title></circle>'; }).join("") : "") + '</svg>';
   return box;
 }
 

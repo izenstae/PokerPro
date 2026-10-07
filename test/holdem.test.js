@@ -71,6 +71,40 @@ hAct(t, { type: "call" }); hAct(t, { type: "check" });
 while (!t.hand.over) hAct(t, { type: "check" });
 ok(t.hand.result.won[1] === 1 && t.hand.result.won[2] === 1, "royal flush on board: blinds split");
 
+/* a short all-in does not reopen the action for players who already acted */
+t = hNewTable(seats); hStart(t);                              /* button 0: UTG 3, HJ 4, CO 5, BTN 0, SB 1, BB 2 */
+t.players[5].stack = 4;                                       /* CO has 4bb */
+hAct(t, { type: "raise", to: 3 });                            /* UTG opens */
+hAct(t, { type: "fold" });                                    /* HJ */
+let Lco = hLegal(t);
+ok(Lco.seat === 5 && Lco.minTo === 4 && Lco.maxTo === 4, "CO's only raise is the 4bb jam (min would be 5)");
+hAct(t, { type: "raise", to: 4 });                            /* CO jams short */
+ok(t.players[5].allIn && t.hand.currentBet === 4 && t.hand.lastRaise === 2, "short jam: bet is 4, the full-raise increment stays 2");
+let Lbtn = hLegal(t);
+ok(Lbtn.seat === 0 && Lbtn.canRaise && Lbtn.minTo === 6, "BTN had not acted: may still raise, min 6");
+hAct(t, { type: "call" });                                    /* BTN calls 4 */
+hAct(t, { type: "fold" }); hAct(t, { type: "fold" });         /* blinds */
+let Lutg = hLegal(t);
+ok(Lutg.seat === 3 && Lutg.toCall === 1 && !Lutg.canRaise && !Lutg.canCheck, "UTG faces the short jam: call or fold only");
+hAct(t, { type: "raise", to: 20 });                           /* a raise attempt becomes a call */
+ok(t.players[3].put === 4 && t.players[3].stack === 96 && t.hand.street === 1 && t.hand.toAct === 3, "the capped raise is treated as a call and the flop comes");
+ok(t.players.every(p => !p.capped), "the cap is lifted on the next street");
+/* the same spot with a full raise reopens the action */
+t = hNewTable(seats); hStart(t);
+hAct(t, { type: "raise", to: 3 }); hAct(t, { type: "fold" });
+hAct(t, { type: "raise", to: 6 });                            /* CO: a full raise */
+hAct(t, { type: "call" }); hAct(t, { type: "fold" }); hAct(t, { type: "fold" });
+Lutg = hLegal(t);
+ok(Lutg.seat === 3 && Lutg.canRaise && Lutg.minTo === 9, "a full raise reopens UTG's action, min 9");
+/* a full raise after a short jam reopens for everyone, including the capped player */
+t = hNewTable(seats); hStart(t);
+t.players[5].stack = 4;
+hAct(t, { type: "raise", to: 3 }); hAct(t, { type: "fold" }); hAct(t, { type: "raise", to: 4 });
+hAct(t, { type: "raise", to: 12 });                           /* BTN 3-bets over the jam */
+hAct(t, { type: "fold" }); hAct(t, { type: "fold" });
+Lutg = hLegal(t);
+ok(Lutg.seat === 3 && Lutg.canRaise && Lutg.minTo === 20 && !t.players[3].capped, "a full raise behind the jam lifts the cap");
+
 /* soak: random legal play for thousands of hands */
 let hands = 0, maxActs = 0, bad = 0;
 t = hNewTable(seats);
